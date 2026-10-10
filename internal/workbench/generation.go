@@ -28,19 +28,22 @@ func (w *Workbench) Synthesize(ctx context.Context, d schema.Draft) (schema.Gene
 	if err := ctx.Err(); err != nil {
 		return schema.Generation{}, err
 	}
-	done, err := w.startGeneration(d, "", "", "", false)
+	op, err := w.startGeneration(d, "", "", "", false, nil)
 	if err != nil {
 		return schema.Generation{}, err
 	}
 	select {
-	case <-done:
+	case <-op.done:
 	case <-ctx.Done():
-		w.Cancel()
-		<-done
+		op.cancel()
+		<-op.done
 		return schema.Generation{}, ctx.Err()
 	}
 	if err := ctx.Err(); err != nil {
 		return schema.Generation{}, err
+	}
+	if err := op.Err(); err != nil {
+		return schema.Generation{}, fmt.Errorf("语音生成失败：%s", errorTextForOperation(err))
 	}
 	state := w.Store.Read()
 	if activity := state.Activity; activity == nil || activity.Status != "completed" {
@@ -65,15 +68,27 @@ func errorText(code msg.Code, params msg.Params) string {
 	return string(code)
 }
 
+func errorTextForOperation(err error) string {
+	if ce, ok := err.(*msg.CallError); ok && ce != nil {
+		return errorText(ce.Code, ce.Params)
+	}
+	return string(msg.ErrUnknown)
+}
+
 func (w *Workbench) generateAudio(d schema.Draft, previewID, cueID, clipID string) error {
-	_, err := w.startGeneration(d, previewID, cueID, clipID, previewID == "")
+	_, err := w.startGeneration(d, previewID, cueID, clipID, previewID == "", nil)
 	return err
 }
 
 // startGeneration 在编辑锁内完成检查、保存与启动，推理开始后素材删除会因任务运行而被拒绝。
-func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID string, saveDraft bool) (done <-chan struct{}, err error) {
+func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID string, saveDraft bool, result *schema.Generation) (op *operation, err error) {
 	w.edit.Lock()
 	defer w.edit.Unlock()
+	return w.startGenerationLocked(d, previewID, cueID, clipID, saveDraft, false, result)
+}
+
+// startGenerationLocked 要求调用方持有编辑锁，用于 profile 在同一短事务内解析绑定并启动。
+func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clipID string, saveDraft, redactErrors bool, result *schema.Generation) (op *operation, err error) {
 	diag.Log(w.Store.Root, "generation.requested", "project_id", d.ID, "model_id", d.ModelID, "cue_id", cueID, "clip_id", clipID, "preview_id", previewID)
 	defer func() {
 		if err != nil {
@@ -127,7 +142,11 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 			return nil, e
 		}
 	}
-	return w.start("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error {
+	start := w.start
+	if redactErrors {
+		start = w.startProfileOperation
+	}
+	return start("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error {
 		if d.Subtitles != nil && previewID == "" {
 			return w.generateSegments(ctx, s, parts, clipID)
 		}
@@ -148,7 +167,11 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 			}
 		}()
 		part := parts[0]
-		if e = w.engine.Generate(ctx, *s.RuntimePath, part.model, s.Preferences.Backend, part.draft, part.voice, part.emotion, path, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }); e != nil {
+		generate := w.engine.Generate
+		if redactErrors {
+			generate = w.engine.GenerateProfile
+		}
+		if e = generate(ctx, *s.RuntimePath, part.model, s.Preferences.Backend, part.draft, part.voice, part.emotion, path, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }); e != nil {
 			return e
 		}
 		duration, e := audio.Duration(path)
@@ -172,9 +195,19 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 		snapshot := d
 		snapshot.Timeline = nil
 		g := schema.Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot}
-		if e = w.Store.Update(func(s *schema.State) { s.History = append([]schema.Generation{g}, s.History...) }, true); e != nil {
+		updateHistory := w.Store.Update
+		if redactErrors {
+			updateHistory = w.Store.UpdateProfile
+		}
+		if e = updateHistory(func(s *schema.State) { s.History = append([]schema.Generation{g}, s.History...) }, true); e != nil {
 			_ = os.Remove(path)
 			return e
+		}
+		if result != nil {
+			*result = g
+		}
+		if w.afterGenerationSaved != nil {
+			w.afterGenerationSaved()
 		}
 		keep = true
 		diag.Log(w.Store.Root, "generation.saved", "project_id", d.ID, "generation_id", id, "model_id", part.model.ID, "duration", duration)

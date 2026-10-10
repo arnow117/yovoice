@@ -76,6 +76,42 @@ Progress is written to stderr and results to stdout as JSON:
 
 Failures return an error on stderr and exit code 1; Ctrl-C returns 130.
 
+## Speaker profiles
+
+See the global [usage index](usage.md#usage-index--使用导航) for USG-SPEAKER-ENROLL, USG-SPEAKER-IDENTIFY, USG-SPEAKER-GENERATE, USG-SPEAKER-DELETE, and USG-SPEAKER-VERIFY.
+
+Speaker recognition is a local, optional development/runtime integration. Before enrolling or identifying, set absolute local paths for the isolated Python interpreter, WeSpeaker ONNX model, and repository runner:
+
+```sh
+export YOVOICE_SPEAKER_PYTHON=/absolute/path/to/venv/bin/python
+export YOVOICE_SPEAKER_MODEL=/absolute/path/to/wespeaker.onnx
+export YOVOICE_SPEAKER_RUNNER=/absolute/path/to/scripts/recognition/runner.py
+export YOVOICE_SPEAKER_THRESHOLD=0.6
+export YOVOICE_SPEAKER_MARGIN=0.05
+export YOVOICE_SPEAKER_TIMEOUT=120s
+```
+
+`YOVOICE_SPEAKER_THRESHOLD` is finite in `[-1,1]`; `YOVOICE_SPEAKER_MARGIN` is in `(0,2]`; timeout is in `(0,10m]`. Values are read once when the service first uses recognition. The CLI package includes FFmpeg but does not package Python, the ONNX model, or recognition samples.
+
+```sh
+yovoice speakers enroll --file speaker-a.wav --name "Speaker A" --bind-voice EXISTING_VOICE_ID --data-dir ./voice-data
+yovoice speakers identify --file query.wav --data-dir ./voice-data
+yovoice speakers list --data-dir ./voice-data
+yovoice speakers delete PROFILE_ID --data-dir ./voice-data
+```
+
+`enroll` and `identify` accept exactly one of `--file` or `--voice`. Input is converted to mono 16 kHz PCM16, must be 1–60 seconds and at most 20 MiB. `list` returns only public metadata, never embeddings or local paths. An empty library returns `unknown`; a close best/second score returns `ambiguous`. The feature does not determine identity, detect multiple speakers, reject arbitrary noise, or provide anti-spoofing.
+
+## Generate through a profile
+
+Use a profile only after explicitly binding it to an existing voice. The profile supplies that voice and saved reference text; your text and supported emotion settings remain caller-controlled.
+
+```sh
+yovoice generate --speaker-profile PROFILE_ID --model voxcpm2-q8 --text "Hello" --output profile.wav --data-dir ./voice-data
+```
+
+`--speaker-profile` cannot be combined with `--voice`, `--reference`, or `--reference-text`. It supports IndexTTS, VoxCPM clone/continuation, OmniVoice clone, and Qwen3-TTS Base. VoiceDesign, CustomVoice and Kokoro are rejected. A missing binding or a deleted bound voice does not fall back to another voice.
+
 ## Data directory
 
 The default directory is `~/.yovoice`. Only one app, CLI command, or server can use a directory at a time. Quit the app, or use a separate directory with `--data-dir DIR` on every command:

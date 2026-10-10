@@ -120,11 +120,25 @@ func writeState(path string, state schema.State) error {
 	}
 	return os.Rename(f.Name(), path)
 }
-func (s *Store) Update(change func(*schema.State), persist bool) (err error) {
+func (s *Store) Update(change func(*schema.State), persist bool) error {
+	return s.update(change, persist, false)
+}
+
+// UpdateProfile 写入仅由私有声纹请求触发的状态。它保留普通状态更新的
+// 持久化与广播语义，但诊断记录只写稳定错误码，避免将私有文件路径写入日志。
+func (s *Store) UpdateProfile(change func(*schema.State), persist bool) error {
+	return s.update(change, persist, true)
+}
+
+func (s *Store) update(change func(*schema.State), persist, redactDiagnostics bool) (err error) {
 	stage := "memory"
 	defer func() {
 		if err != nil {
-			diag.Log(s.Root, "state.write_failed", "stage", stage, "error", diag.Error(err))
+			logged := err
+			if redactDiagnostics {
+				logged = msg.Err(msg.ErrStateSaveFailed, nil)
+			}
+			diag.Log(s.Root, "state.write_failed", "stage", stage, "error", diag.Error(logged))
 		}
 	}()
 	s.mu.Lock()

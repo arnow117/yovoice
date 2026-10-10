@@ -1,0 +1,55 @@
+{
+  "features": {
+    "FEAT-001": {
+      "branch": "codex/speaker-recognition-mvp",
+      "created_at": "2026-10-10T06:29:18Z",
+      "engineering_context_ref": ".sdlc-v1/context/FEAT-001.engineering.md",
+      "id": "FEAT-001",
+      "release": {
+        "at": null,
+        "commit": null,
+        "status": "pending"
+      },
+      "requirement_id": "REQ-001",
+      "review": {
+        "at": null,
+        "by": null,
+        "decision": "pending"
+      },
+      "status": "in_progress",
+      "tasks": {
+        "TASK-001": {
+          "depends_on": [],
+          "id": "TASK-001",
+          "status": "done",
+          "title": "实现非实时声纹 CLI/API、私有档案与迭代验证",
+          "updated_at": "2026-10-10T08:39:01Z"
+        }
+      },
+      "updated_at": "2026-10-10T08:39:01Z",
+      "validation": {
+        "at": null,
+        "command": null,
+        "commit": null,
+        "result": "pending"
+      }
+    }
+  },
+  "requirements": {
+    "REQ-001": {
+      "created_at": "2026-10-10T05:54:19Z",
+      "depends_on": [],
+      "description": "Fork yovoice，新增单人录音登记/识别与按档案选择参考音色，建立真实迭代验证方法。",
+      "domain": "voice",
+      "feature_id": "FEAT-001",
+      "id": "REQ-001",
+      "priority": "P1",
+      "product_context_ref": ".sdlc-v1/context/REQ-001.product.md",
+      "status": "in_delivery",
+      "title": "非实时声纹识别与参考音色绑定原型",
+      "updated_at": "2026-10-10T08:39:01Z"
+    }
+  },
+  "state_format": "sdlc-lightweight-state-v1",
+  "state_version": 3
+}

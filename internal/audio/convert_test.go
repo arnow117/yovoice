@@ -56,4 +56,15 @@ func TestAudioConversion(t *testing.T) {
 	if Convert(ctx, decoder, invalid, filepath.Join(root, "cancelled.wav")) != context.Canceled {
 		t.Fatal("转换应响应取消")
 	}
+	recognitionInput := filepath.Join(root, "recognition.mp3")
+	cmd = exec.Command(executable, "-v", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=2", recognitionInput)
+	if output, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("%s: %v", output, err)
+	}
+	recognitionOutput := filepath.Join(root, "recognition.wav")
+	must(t, ConvertRecognition(context.Background(), decoder, recognitionInput, recognitionOutput))
+	info, err := os.Stat(recognitionOutput)
+	if err != nil || info.Mode().Perm() != 0600 {
+		t.Fatalf("recognition output mode = %v %v", info, err)
+	}
 }

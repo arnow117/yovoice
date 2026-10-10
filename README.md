@@ -12,7 +12,7 @@
 </p>
 <p align="center">English · <a href="README_zh.md">简体中文</a></p>
 
-<p align="center"><a href="docs/cli.md">CLI & Agent Skill</a> · <a href="docs/api.md">API / MCP Deployment</a> · <a href="docs/development.md">Development</a></p>
+<p align="center"><a href="docs/cli.md">CLI & Agent Skill</a> · <a href="docs/api.md">API / MCP Deployment</a> · <a href="docs/development.md">Development</a> · <a href="docs/usage.md">Usage index</a></p>
 
 ---
 

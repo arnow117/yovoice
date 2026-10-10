@@ -11,7 +11,7 @@
 </p>
 <p align="center"><a href="README.md">English</a> · 简体中文</p>
 
-<p align="center"><a href="docs/cli_zh.md">CLI 与 Agent Skill</a> · <a href="docs/api_zh.md">API / MCP 部署</a> · <a href="docs/development_zh.md">开发指南</a></p>
+<p align="center"><a href="docs/cli_zh.md">CLI 与 Agent Skill</a> · <a href="docs/api_zh.md">API / MCP 部署</a> · <a href="docs/development_zh.md">开发指南</a> · <a href="docs/usage.md">使用导航</a></p>
 
 ---
 

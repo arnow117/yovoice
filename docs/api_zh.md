@@ -143,3 +143,25 @@ location / {
 ```
 
 35 分钟用于覆盖默认同步生成时限。仅使用异步任务时可改为 `120s`，并按上传及转换耗时调整。不要由代理自动重试生成请求。
+
+## 声纹档案
+
+本地声纹 API 对应[使用导航](usage.md#usage-index--使用导航)中的 USG-SPEAKER-ENROLL 至 USG-SPEAKER-VERIFY。它继承其他 `/v1` 路由的 Bearer 认证、Origin 拒绝、`no-store` 与 `nosniff` 响应头。服务不会从请求中接收模型路径、Python 路径、runner 路径或 provider。
+
+| 接口 | 请求 | 结果 |
+| --- | --- | --- |
+| `POST /v1/speakers` | JSON `{ "voiceId", "name"?, "bindVoiceId"? }`，或带可选 `name`、`bindVoiceId` 查询参数的 `application/octet-stream` | `201` 公开档案 |
+| `POST /v1/speakers/identify` | JSON `{ "voiceId" }`，或 `application/octet-stream` | `200` 识别结果 |
+| `GET /v1/speakers` | 无正文 | 公开档案数组 |
+| `DELETE /v1/speakers/{id}` | 无正文 | `{ "id", "deleted": true }` |
+| `POST /v1/speakers/{id}/generate` | 不含主要 `voiceId` 或 `referenceText` 的生成 JSON | 普通 WAV 响应 |
+
+原始音频上限为 20 MiB；声纹 JSON 上限为 64 KiB，按档案生成 JSON 上限为 1 MiB。JSON 严格解析：未知字段、第二个 JSON 值、路径字段和无关查询参数都会被拒绝。上传与识别共享不排队的操作槽。
+
+识别响应包含 `status`（`matched`、`unknown` 或 `ambiguous`）、`reason`、非空库的最佳 `score`、最多 3 个稳定排序候选、模型/特征版本、阈值和 margin。只有 `matched` 返回 `profileId`。分数是本地余弦相似度，不证明身份，也不防御伪造、噪声或多人录音。
+
+新增错误格式为 `{ "error": { "code", "message" } }`：`invalid_input`、`audio`、`feature`、`unsupported_clone`、`profile`、`voice_missing`、`busy`、`capacity`、`feature_mismatch`、`input_too_large`、`runtime_not_configured`、`runtime_failed`、`persistence_failed`、`deadline`、`cancelled`。响应不会包含 runner stderr、特征向量、本地路径或执行配置。
+
+## 按档案生成
+
+`POST /v1/speakers/{id}/generate` 会在启动 TTS 前的同一短事务中解析档案和绑定音色。支持 IndexTTS、VoxCPM clone/continuation、OmniVoice clone 和 Qwen3-TTS Base；VoiceDesign、CustomVoice、Kokoro、绑定缺失或被删除，以及显式提供主要音色/参考输入都会被拒绝。响应保留 `X-Yovoice-Generation-ID`，并新增 `X-Yovoice-Speaker-Profile`。

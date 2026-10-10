@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- English: Added opt-in local speaker-profile CLI and HTTP workflows backed by an externally configured WeSpeaker/Sherpa-ONNX runtime. Profiles remain private to the local data directory and can optionally select an existing TTS voice.
+- 简体中文：新增可选的本地声纹档案 CLI 与 HTTP 流程，使用外部配置的 WeSpeaker/Sherpa-ONNX 运行时；档案只保存在本地数据目录，可选绑定已有 TTS 音色。
+
 ### Fixed
 
 - 修复删除最后一个作品时的保存与残留问题，切换历史版本或新建作品失败时显示更具体的错误信息。

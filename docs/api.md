@@ -143,3 +143,25 @@ location / {
 ```
 
 The 35-minute wait accommodates the default synchronous limit. For asynchronous-only use, `120s` can cover uploads and conversion; adjust for your network. Disable automatic proxy retries for generation requests.
+
+## Speaker profiles
+
+The local-only speaker API is covered by [USG-SPEAKER-ENROLL through USG-SPEAKER-VERIFY](usage.md#usage-index--使用导航). It uses the same Bearer authentication, Origin rejection, `no-store`, and `nosniff` headers as other `/v1` routes. The service never accepts a model path, Python path, runner path, or provider from a request.
+
+| Endpoint | Request | Result |
+| --- | --- | --- |
+| `POST /v1/speakers` | JSON `{ "voiceId", "name"?, "bindVoiceId"? }`, or `application/octet-stream` with optional `name` and `bindVoiceId` query fields | `201` public profile |
+| `POST /v1/speakers/identify` | JSON `{ "voiceId" }`, or `application/octet-stream` | `200` identification |
+| `GET /v1/speakers` | no body | public profile array |
+| `DELETE /v1/speakers/{id}` | no body | `{ "id", "deleted": true }` |
+| `POST /v1/speakers/{id}/generate` | generation JSON without primary `voiceId` or `referenceText` | normal WAV response |
+
+Raw audio is limited to 20 MiB; speaker JSON is limited to 64 KiB and profile-generation JSON to 1 MiB. JSON is strict: unknown fields, a second JSON value, a path field, and unrelated query parameters are rejected. Upload and identification use the shared non-queuing operation slot.
+
+An identification response contains `status` (`matched`, `unknown`, or `ambiguous`), `reason`, the best `score` for nonempty libraries, at most three stable-sorted candidates, the local model/feature version, threshold, and margin. Only `matched` includes `profileId`. The local score is cosine similarity; it does not establish identity or reject spoofing, noise, or multiple speakers.
+
+New errors use `{ "error": { "code", "message" } }`: `invalid_input`, `audio`, `feature`, `unsupported_clone`, `profile`, `voice_missing`, `busy`, `capacity`, `feature_mismatch`, `input_too_large`, `runtime_not_configured`, `runtime_failed`, `persistence_failed`, `deadline`, and `cancelled`. They never include runner stderr, embeddings, local paths, or execution configuration.
+
+## Speaker-profile generation
+
+`POST /v1/speakers/{id}/generate` resolves the profile and its bound voice in one short transaction before starting TTS. It supports IndexTTS, VoxCPM clone/continuation, OmniVoice clone, and Qwen3-TTS Base. VoiceDesign, CustomVoice, Kokoro, missing/deleted bindings, and explicit primary voice/reference inputs are rejected. The response preserves `X-Yovoice-Generation-ID` and adds `X-Yovoice-Speaker-Profile`.

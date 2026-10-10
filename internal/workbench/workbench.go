@@ -15,6 +15,7 @@ import (
 	"yovoice/internal/download"
 	"yovoice/internal/engine"
 	"yovoice/internal/msg"
+	"yovoice/internal/recognition"
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
 )
@@ -25,15 +26,45 @@ type Workbench struct {
 	// 持有期间不执行转码、下载或推理等耗时操作。锁顺序：先 edit 后 mu。
 	edit sync.Mutex
 	// mu 保护后台操作的取消函数与完成通道。
-	mu        sync.Mutex
-	cancel    context.CancelFunc
-	done      chan struct{}
-	closed    bool
-	closeOnce sync.Once
-	engine    *engine.Engine
-	client    *http.Client
+	mu                sync.Mutex
+	cancel            context.CancelFunc
+	done              chan struct{}
+	active            *operation
+	closed            bool
+	closeOnce         sync.Once
+	engine            *engine.Engine
+	client            *http.Client
+	speakerConfigOnce sync.Once
+	speakerConfig     recognition.Config
+	speakerConfigErr  error
+	// beforeSpeakerCommit 仅供受控测试在登记的最终接受点之前同步。
+	beforeSpeakerCommit func()
+	// afterGenerationSaved 仅供受控测试在历史记录已写入、操作最终状态尚未收尾时同步。
+	afterGenerationSaved func()
+	// beforeSpeakerResultReturn 仅供受控测试在 profile 操作完成后、调用方取得结果前同步。
+	beforeSpeakerResultReturn func()
 	// bundled 记录随安装包分发的内核，键为后端；启动时登记，之后只读。
 	bundled map[string]bundledRuntime
+}
+
+// operation 持有一次后台操作自己的取消、收尾与最终错误，避免已完成请求影响后续请求。
+type operation struct {
+	cancel context.CancelFunc
+	done   chan struct{}
+	mu     sync.Mutex
+	err    error
+}
+
+func (o *operation) finish(err error) {
+	o.mu.Lock()
+	o.err = err
+	o.mu.Unlock()
+}
+
+func (o *operation) Err() error {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return o.err
 }
 
 func New(root string) (*Workbench, error) {
@@ -64,14 +95,22 @@ func (w *Workbench) begin(kind string, code msg.Code, params msg.Params, modelID
 }
 
 // start 启动后台操作并返回本次操作的完成通道，调用方据此等待，不会误等后续操作。
-func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID *string, action func(context.Context) error, requestIDs ...string) (<-chan struct{}, error) {
+func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID *string, action func(context.Context) error, requestIDs ...string) (*operation, error) {
+	return w.startOperation(kind, code, params, modelID, action, false, requestIDs...)
+}
+
+func (w *Workbench) startProfileOperation(kind string, code msg.Code, params msg.Params, modelID *string, action func(context.Context) error, requestIDs ...string) (*operation, error) {
+	return w.startOperation(kind, code, params, modelID, action, true, requestIDs...)
+}
+
+func (w *Workbench) startOperation(kind string, code msg.Code, params msg.Params, modelID *string, action func(context.Context) error, redactError bool, requestIDs ...string) (*operation, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.closed || w.cancel != nil {
 		return nil, msg.Err(msg.ErrBusy, nil)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	if e := w.Store.Update(func(s *schema.State) {
+	update := func(s *schema.State) {
 		requestID := ""
 		if len(requestIDs) > 0 {
 			requestID = requestIDs[0]
@@ -84,28 +123,38 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 				s.Activity.CharacterID = requestIDs[1]
 			}
 		}
-	}, true); e != nil {
+	}
+	updateState := w.Store.Update
+	if redactError {
+		updateState = w.Store.UpdateProfile
+	}
+	if e := updateState(update, true); e != nil {
 		cancel()
+		if redactError {
+			return nil, msg.Err(msg.ErrStateSaveFailed, nil)
+		}
 		return nil, e
 	}
 	operationID := schema.NewID()
 	started := time.Now()
 	fields := []any{"operation_id", operationID, "kind", kind, "model_id", value(modelID), "related_ids", requestIDs}
 	diag.Log(w.Store.Root, "operation.started", fields...)
-	w.cancel = cancel
-	done := make(chan struct{})
-	w.done = done
+	op := &operation{cancel: cancel, done: make(chan struct{})}
+	w.cancel = op.cancel
+	w.done = op.done
+	w.active = op
 	go func() {
-		defer close(done)
+		defer close(op.done)
 		defer cancel()
 		err := action(ctx)
-		status := "completed"
-		if errors.Is(err, context.Canceled) {
-			status = "cancelled"
-		} else if err != nil {
-			status = "failed"
+		if redactError && err != nil && !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) {
+			err = msg.Err(msg.ErrGenerateFailed, nil)
+		} else if !redactError && err != nil && !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) {
+			var callError *msg.CallError
+			if !errors.As(err, &callError) {
+				err = msg.Err(msg.ErrUnknown, msg.Params{"detail": err.Error()})
+			}
 		}
-		diag.Log(w.Store.Root, "operation.finished", append(fields, "status", status, "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))...)
 		w.mu.Lock()
 		defer w.mu.Unlock()
 		update := func(s *schema.State) {
@@ -139,21 +188,41 @@ func (w *Workbench) start(kind string, code msg.Code, params msg.Params, modelID
 				}
 			}
 		}
-		if err != nil && !errors.Is(err, context.Canceled) {
-			_ = os.WriteFile(filepath.Join(w.Store.Root, "logs", "last-error.txt"), []byte(err.Error()), 0600)
-		}
-		if e := w.Store.Update(update, true); e != nil {
-			_ = w.Store.Update(func(s *schema.State) {
+		if e := updateState(update, true); e != nil {
+			_ = updateState(func(s *schema.State) {
 				update(s)
 				s.Activity.Status = "failed"
 				code := msg.ErrStateSaveFailed
 				s.Activity.ErrorCode = &code
-				s.Activity.ErrorParams = msg.Params{"detail": e.Error()}
+				if redactError {
+					s.Activity.ErrorParams = nil
+				} else {
+					s.Activity.ErrorParams = msg.Params{"detail": e.Error()}
+				}
 			}, false)
+			if redactError {
+				err = msg.Err(msg.ErrStateSaveFailed, nil)
+			} else {
+				err = msg.Err(msg.ErrStateSaveFailed, msg.Params{"detail": e.Error()})
+			}
 		}
-		w.cancel = nil
+		status := "completed"
+		if errors.Is(err, context.Canceled) {
+			status = "cancelled"
+		} else if err != nil {
+			status = "failed"
+		}
+		if err != nil && !errors.Is(err, context.Canceled) {
+			_ = os.WriteFile(filepath.Join(w.Store.Root, "logs", "last-error.txt"), []byte(err.Error()), 0600)
+		}
+		diag.Log(w.Store.Root, "operation.finished", append(fields, "status", status, "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))...)
+		op.finish(err)
+		if w.active == op {
+			w.cancel = nil
+			w.active = nil
+		}
 	}()
-	return done, nil
+	return op, nil
 }
 
 // Done 返回当前操作的完成信号；没有进行中的操作时返回已关闭的通道。

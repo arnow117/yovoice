@@ -64,6 +64,43 @@ make check
 
 `make check-core` 检查 Go 格式与静态分析，并运行带竞态检测的测试；`make check-web` 执行前端构建与浏览器测试。原生安装和 GPU 推理还需在目标平台验证。
 
+## 声纹识别开发与验证
+
+非实时识别原型使用外部配置的 Python 3.12 环境、`sherpa-onnx==1.13.8`、`numpy==2.5.3` 和 WeSpeaker ONNX 模型。yovoice 不会安装、下载或打包这些内容。
+
+使用 `uv` 准备隔离环境；必要时将缓存放到仓库外：
+
+```sh
+UV_CACHE_DIR=/private/tmp/yovoice-uv-cache uv venv artifacts/recognition/venv --python 3.12
+UV_CACHE_DIR=/private/tmp/yovoice-uv-cache uv pip install --python artifacts/recognition/venv/bin/python -r scripts/recognition/requirements.txt
+make check-recognition
+```
+
+运行 CLI 或 HTTP 识别前，将 `YOVOICE_SPEAKER_PYTHON`、`YOVOICE_SPEAKER_MODEL` 和 `YOVOICE_SPEAKER_RUNNER` 设置为绝对路径。模型和测试录音位于被忽略的 `artifacts/recognition/`，通过 `scripts/recognition/eval-manifest.json` 核对 SHA-256。不要提交或再分发这些本地文件，也不要从 Apache-2.0 源码许可推定它们的许可。
+
+要运行带断言的本地 CLI 与 HTTP 回归，先构建被忽略的 CLI 产物，将开发用 FFmpeg 放到相邻目录，为全部运行时参数设置绝对路径，再选择一个新的证据目录：
+
+```sh
+repo=$(pwd -P)
+(cd "$repo" && go build -o artifacts/yovoice ./cmd/yovoice)
+mkdir -p "$repo/artifacts/tools"
+ln -sfn /opt/homebrew/bin/ffmpeg "$repo/artifacts/tools/ffmpeg"
+
+export YOVOICE_SPEAKER_PYTHON="$repo/artifacts/recognition/venv/bin/python"
+export YOVOICE_SPEAKER_MODEL="$repo/artifacts/recognition/models/wespeaker_zh_cnceleb_resnet34.onnx"
+export YOVOICE_SPEAKER_RUNNER="$repo/scripts/recognition/runner.py"
+export YOVOICE_SPEAKER_THRESHOLD=0.6
+export YOVOICE_SPEAKER_MARGIN=0.05
+export YOVOICE_SPEAKER_TIMEOUT=120s
+
+YOVOICE_EVAL_OUTPUT="$repo/artifacts/verification/YYYYMMDD-speaker-regression-rN" \
+  "$repo/scripts/recognition/run-eval.sh"
+```
+
+评估器从 `scripts/recognition/eval-manifest.json` 读取每个本地资产的哈希、查询角色、预期结果和固定决策配置。输出目录已存在，或阈值、间隔、超时被改动时，脚本会拒绝执行；阈值 `.6` 与 `0.6` 视为同一个固定值。它为 CLI 和自身启动的回环 HTTP 服务创建独立临时数据目录，登记两个档案，将两段独立的已知查询分别断言为对应登记 ID，要求未知查询没有选中的档案，并检查两次列表均为两个档案。HTTP 登记必须返回 201，识别和列表必须返回 200。业务动作前后都会记录源码、binary、模型、runner、manifest、全部五条样本哈希和计算得到的 feature version 指纹，任一输入变化都会失败。`summary.json` 只保存公开 JSON 响应、每个动作的退出码/状态/失败分类和耗时、工具/包版本、预期计数以及实际完成/正确/拒绝计数；随后删除包含私有特征的临时数据目录。`PASS` summary 表示这些断言全部完成。
+
+每次运行均使用新的 `YYYYMMDD-speaker-regression-rN` 目录；保留下来的目录是证据，绝不覆盖。该命令使用开发机 FFmpeg（已准备环境为 9.0.2），不是项目打包的 FFmpeg 8.1.2，因此验证了本地识别流程，未验证发行包的音频转换。小样本分母为 2 个已知匹配查询和 1 个未知非匹配查询。这是带断言的集成回归，不代表人群准确率、真实 TTS 音质、GPU、Windows 或防伪验证。
+
 ## 项目结构
 
 | 目录 | 用途 |

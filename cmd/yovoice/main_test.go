@@ -11,13 +11,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
 	"yovoice/internal/platform"
+	"yovoice/internal/recognition"
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
+	"yovoice/internal/workbench"
 )
 
 func wave() []byte {
@@ -36,6 +39,8 @@ func wave() []byte {
 	binary.LittleEndian.PutUint32(b[40:], 32000)
 	return b
 }
+
+func stringPtr(value string) *string { return &value }
 
 // 测试进程充当引擎，覆盖 CLI 的真实启动、协议、结果落盘和取消流程。
 func TestMain(m *testing.M) {
@@ -181,6 +186,89 @@ func TestStandalone(t *testing.T) {
 	out.Reset()
 	if e = run(ctx, []string{"voices", "list", "--data-dir", root}, &out, &progress); e != nil || !json.Valid(out.Bytes()) {
 		t.Fatal(e, out.String())
+	}
+}
+
+func TestGenerateThroughSpeakerProfileUsesBoundVoice(t *testing.T) {
+	root := t.TempDir()
+	service, err := workbench.New(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	executable, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	model := filepath.Join(root, "models", "fake.gguf")
+	if err = os.WriteFile(model, []byte("model"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	reference := filepath.Join(root, "bound.wav")
+	if err = os.WriteFile(reference, wave(), 0600); err != nil {
+		t.Fatal(err)
+	}
+	voice, err := service.ImportVoice(context.Background(), reference, "bound")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = service.UpdateVoice(voice.ID, voice.Name, "绑定原文"); err != nil {
+		t.Fatal(err)
+	}
+	if err = service.Store.Update(func(state *schema.State) {
+		state.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}}
+		state.RuntimePath = &executable
+		state.RuntimeBackend = stringPtr("cpu")
+		state.RuntimeVersion = stringPtr(catalog.EngineVersion)
+		state.Preferences.Backend = "cpu"
+	}, true); err != nil {
+		t.Fatal(err)
+	}
+	config := recognition.Config{ModelSHA256: strings.Repeat("a", 64), FeatureVersion: "test"}
+	embedding := make([]float64, recognition.Dimension)
+	embedding[0] = 1
+	profile, err := recognition.NewProfile(strings.Repeat("3", 32), "bound", voice.ID, config, embedding)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = recognition.NewRepository(root).Save(context.Background(), []recognition.Profile{profile}); err != nil {
+		t.Fatal(err)
+	}
+	voiceReference, err := service.MediaFile("voices", voice.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("YOVOICE_TEST_EXPECTED_VOICE_REF", voiceReference)
+	t.Setenv("YOVOICE_TEST_EXPECTED_TEXT", "检查Index绑定")
+	service.Close()
+
+	output := filepath.Join(root, "profile.wav")
+	var out, progress bytes.Buffer
+	args := []string{"generate", "--speaker-profile", profile.ID, "--model", "index-2.5-q8", "--text", "检查Index绑定", "--emotion-text", "调用方情绪", "--output", output, "--data-dir", root}
+	if err = run(context.Background(), args, &out, &progress); err != nil {
+		t.Fatal(err)
+	}
+	var result struct {
+		Path           string `json:"path"`
+		Voice          string `json:"voice"`
+		SpeakerProfile string `json:"speakerProfile"`
+	}
+	if err = json.Unmarshal(out.Bytes(), &result); err != nil || result.Path != output || result.Voice != voice.ID || result.SpeakerProfile != profile.ID {
+		t.Fatalf("profile CLI result = %s, %v", out.String(), err)
+	}
+	if _, err = os.Stat(output); err != nil {
+		t.Fatal(err)
+	}
+
+	conflict := []string{"generate", "--speaker-profile", profile.ID, "--voice", voice.ID, "--text", "正文", "--output", filepath.Join(root, "conflict.wav"), "--data-dir", root}
+	if err = run(context.Background(), conflict, &out, &progress); err == nil || !strings.Contains(err.Error(), "--speaker-profile") {
+		t.Fatalf("profile/voice conflict = %v", err)
+	}
+	for _, flag := range []string{"--voice", "--reference", "--reference-text"} {
+		out.Reset()
+		conflict = []string{"generate", "--speaker-profile", profile.ID, flag, "", "--text", "正文", "--output", filepath.Join(root, flag[2:]+"-empty.wav"), "--data-dir", root}
+		if err = run(context.Background(), conflict, &out, &progress); err == nil || !strings.Contains(err.Error(), "--speaker-profile") {
+			t.Fatalf("profile/%s empty conflict = %v", flag, err)
+		}
 	}
 }
 

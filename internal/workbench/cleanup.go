@@ -29,11 +29,12 @@ func (w *Workbench) removeStale() {
 		}
 	}
 	remove(root, func(e os.DirEntry) bool {
-		return (e.IsDir() && strings.HasPrefix(e.Name(), ".project-")) || (!e.IsDir() && strings.HasPrefix(e.Name(), ".state-"))
+		return (e.IsDir() && strings.HasPrefix(e.Name(), ".project-")) ||
+			(!e.IsDir() && (strings.HasPrefix(e.Name(), ".state-") || strings.HasPrefix(e.Name(), ".speakers-")))
 	})
 	remove(filepath.Join(root, "downloads"), func(e os.DirEntry) bool {
 		name := e.Name()
-		return (e.IsDir() && strings.HasPrefix(name, "audio-")) ||
+		return (e.IsDir() && (strings.HasPrefix(name, "audio-") || strings.HasPrefix(name, "recognition-"))) ||
 			(!e.IsDir() && (strings.HasPrefix(name, "upload-") || strings.HasPrefix(name, "api-upload-") || temporaryWav.MatchString(name)))
 	})
 	w.removeStaleRuntimes()

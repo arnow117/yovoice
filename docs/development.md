@@ -64,6 +64,43 @@ make check
 
 Use `make check-core` for Go formatting, static analysis and tests with the race detector, or `make check-web` for the frontend build and browser tests. Native installation and GPU inference also need testing on the target platform.
 
+## Speaker-recognition development
+
+The non-realtime recognition prototype uses an externally configured Python 3.12 environment, `sherpa-onnx==1.13.8`, `numpy==2.5.3`, and the WeSpeaker ONNX model. It is deliberately not installed, downloaded, or packaged by yovoice.
+
+Use `uv` to prepare an isolated environment; keep caches outside the repository when necessary:
+
+```sh
+UV_CACHE_DIR=/private/tmp/yovoice-uv-cache uv venv artifacts/recognition/venv --python 3.12
+UV_CACHE_DIR=/private/tmp/yovoice-uv-cache uv pip install --python artifacts/recognition/venv/bin/python -r scripts/recognition/requirements.txt
+make check-recognition
+```
+
+Set `YOVOICE_SPEAKER_PYTHON`, `YOVOICE_SPEAKER_MODEL`, and `YOVOICE_SPEAKER_RUNNER` to absolute paths before running CLI or HTTP recognition. The model and test recordings stay under ignored `artifacts/recognition/`; validate their SHA-256 against `scripts/recognition/eval-manifest.json`. Do not commit, redistribute, or infer a license for those local files from the Apache-2.0 source license.
+
+For the asserted local CLI and HTTP regression, build an ignored CLI artifact, place a development FFmpeg beside it, set every runtime value to an absolute path, and choose a new evidence directory:
+
+```sh
+repo=$(pwd -P)
+(cd "$repo" && go build -o artifacts/yovoice ./cmd/yovoice)
+mkdir -p "$repo/artifacts/tools"
+ln -sfn /opt/homebrew/bin/ffmpeg "$repo/artifacts/tools/ffmpeg"
+
+export YOVOICE_SPEAKER_PYTHON="$repo/artifacts/recognition/venv/bin/python"
+export YOVOICE_SPEAKER_MODEL="$repo/artifacts/recognition/models/wespeaker_zh_cnceleb_resnet34.onnx"
+export YOVOICE_SPEAKER_RUNNER="$repo/scripts/recognition/runner.py"
+export YOVOICE_SPEAKER_THRESHOLD=0.6
+export YOVOICE_SPEAKER_MARGIN=0.05
+export YOVOICE_SPEAKER_TIMEOUT=120s
+
+YOVOICE_EVAL_OUTPUT="$repo/artifacts/verification/YYYYMMDD-speaker-regression-rN" \
+  "$repo/scripts/recognition/run-eval.sh"
+```
+
+The evaluator reads `scripts/recognition/eval-manifest.json` for every local asset hash, query role, expected result, and fixed decision configuration. It refuses an existing output directory or a threshold, margin, or timeout change; `.6` and `0.6` are equivalent fixed threshold spellings. It creates separate temporary data directories for the CLI and a self-owned loopback HTTP service, enrolls two profiles, checks both independent known queries against their enrollment IDs, requires the unknown query to have no selected profile, and checks each list has two profiles. HTTP enrollment must return 201; identify and list must return 200. Before and after the business actions, it records source, binary, model, runner, manifest, all five sample hashes, and the calculated feature-version fingerprint and fails if any input changes. `summary.json` contains only public JSON responses, per-action exit/status/failure and duration, tool/package versions, expected counts, and actual completed/correct/rejected counts; it then removes the temporary data directories that contain private embeddings. A `PASS` summary means those assertions completed.
+
+Use a new `YYYYMMDD-speaker-regression-rN` directory for every run; retained directories are evidence and are never overwritten. The command uses the developer's FFmpeg (9.0.2 in the prepared environment), not the project's packaged FFmpeg 8.1.2, so it verifies the local recognition flow but not release-package conversion. The sample denominator is 2 known matched queries and 1 unknown non-match. This is an asserted integration regression, not a population-accuracy, real-TTS quality, GPU, Windows, or anti-spoofing result.
+
 ## Project layout
 
 | Directory | Purpose |

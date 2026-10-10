@@ -2,7 +2,7 @@ PNPM ?= pnpm
 GO ?= go
 CONFIGURATION ?= debug
 
-.PHONY: help install dev build check check-web check-core app-build app-run app-package macos windows
+.PHONY: help install dev build check check-web check-core check-recognition app-build app-run app-package macos windows
 
 help: ## 查看常用命令
 	@awk 'BEGIN {FS = ":.*## "} /^[a-z-]+:.*## / && !seen[$$1]++ {printf "  %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -25,6 +25,13 @@ check-core: ## 运行核心检查（格式、静态分析与竞态测试）
 	@unformatted="$$(gofmt -l cmd internal)"; if [ -n "$$unformatted" ]; then echo "未格式化：$$unformatted" >&2; exit 1; fi
 	$(GO) vet ./...
 	$(GO) test -race ./...
+
+RECOGNITION_PYTHON ?= artifacts/recognition/venv/bin/python
+
+check-recognition: ## 运行声纹 runner 的隔离 Python 测试
+	@test -x "$(RECOGNITION_PYTHON)" || (echo "需要设置 RECOGNITION_PYTHON 指向 uv 管理的 Python 环境" >&2; exit 1)
+	$(RECOGNITION_PYTHON) -m unittest scripts/recognition/test_runner.py
+	$(RECOGNITION_PYTHON) -m unittest scripts/recognition/test_eval.py
 
 ifeq ($(OS),Windows_NT)
 app-build: windows ## 构建本机桌面应用

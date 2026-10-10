@@ -3,6 +3,7 @@ package audio
 import (
 	"context"
 	"errors"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -46,4 +47,25 @@ func ConvertWithLimit(ctx context.Context, executable, input, output string, sec
 		return msg.Err(msg.ErrAudioDecode, msg.Params{"detail": err.Error()})
 	}
 	return nil
+}
+
+// ConvertRecognition 生成声纹提取器唯一接受的 mono / 16 kHz / PCM16 WAV。
+// 它与 TTS 的 24 kHz 转码分开，避免改变既有生成语义。
+func ConvertRecognition(ctx context.Context, executable, input, output string) error {
+	input, err := filepath.Abs(input)
+	if err != nil {
+		return err
+	}
+	cmd := exec.CommandContext(ctx, executable, "-nostdin", "-v", "error", "-xerror",
+		"-protocol_whitelist", "file", "-format_whitelist", "wav,mp3,mov,aac,flac,ogg,aiff,asf,matroska,webm",
+		"-i", input, "-map", "0:a:0", "-vn", "-t", "61", "-ac", "1", "-ar", "16000",
+		"-c:a", "pcm_s16le", "-map_metadata", "-1", "-y", output)
+	platform.ConfigureProcess(cmd)
+	if err = cmd.Run(); err != nil {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		return msg.Err(msg.ErrAudioDecode, msg.Params{"detail": err.Error()})
+	}
+	return os.Chmod(output, 0600)
 }

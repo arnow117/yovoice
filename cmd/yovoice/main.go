@@ -34,6 +34,10 @@ const usage = `yovoice：独立本地语音生成，无需桌面 App。
   yovoice models import FILE
   yovoice voices list
   yovoice voices import FILE [--name NAME]
+  yovoice speakers enroll (--file AUDIO|--voice ID) [--name NAME] [--bind-voice ID]
+  yovoice speakers identify (--file AUDIO|--voice ID)
+  yovoice speakers list
+  yovoice speakers delete PROFILE_ID
   yovoice generate --text-file FILE --reference AUDIO --output WAV
 生成选项：--text TEXT（与 --text-file 二选一）、--voice ID（与 --reference 二选一）、
   --model ID、--seed N；IndexTTS：--language zh|en|ja|es|ar、--speed 1、--emotion-text TEXT。
@@ -74,19 +78,19 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	command := args[0]
 	args = args[1:]
 	operand := ""
-	if command == "models" || command == "voices" {
+	if command == "models" || command == "voices" || command == "speakers" {
 		if len(args) == 0 {
-			return fmt.Errorf("需要 list、download 或 import 子命令")
+			return fmt.Errorf("需要子命令")
 		}
 		command += " " + args[0]
 		args = args[1:]
-		if command != "models list" && command != "voices list" && len(args) > 0 && !strings.HasPrefix(args[0], "-") {
+		if command != "models list" && command != "voices list" && command != "speakers list" && command != "speakers enroll" && command != "speakers identify" && len(args) > 0 && !strings.HasPrefix(args[0], "-") {
 			operand = args[0]
 			args = args[1:]
 		}
 	}
 	switch command {
-	case "serve", "status", "setup", "models list", "models download", "models import", "voices list", "voices import", "generate":
+	case "serve", "status", "setup", "models list", "models download", "models import", "voices list", "voices import", "speakers enroll", "speakers identify", "speakers list", "speakers delete", "generate":
 	default:
 		return fmt.Errorf("未知命令 %q；使用 --help 查看用法", command)
 	}
@@ -105,7 +109,8 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	seed := int64(-1)
 	nativeOptions := map[string]any{}
 	emotionReference, emotionVector := "", ""
-	textFile, reference, voice, output := "", "", "", ""
+	textFile, reference, voice, output, speakerProfile := "", "", "", "", ""
+	speakerFile, speakerVoice, bindVoice := "", "", ""
 	switch command {
 	case "serve":
 		fs.DurationVar(&generationTimeout, "generation-timeout", 30*time.Minute, "单次生成最长时间，包含模型加载")
@@ -122,6 +127,14 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		fs.StringVar(&source, "source", "modelscope", "下载来源")
 	case "voices import":
 		fs.StringVar(&name, "name", "", "音色名称")
+	case "speakers enroll":
+		fs.StringVar(&speakerFile, "file", "", "1–60 秒本地录音文件")
+		fs.StringVar(&speakerVoice, "voice", "", "已有音色 ID")
+		fs.StringVar(&name, "name", "", "档案显示名称")
+		fs.StringVar(&bindVoice, "bind-voice", "", "绑定已有音色 ID")
+	case "speakers identify":
+		fs.StringVar(&speakerFile, "file", "", "1–60 秒本地录音文件")
+		fs.StringVar(&speakerVoice, "voice", "", "已有音色 ID")
 	case "generate":
 		fs.Func("option", "模型高级选项 KEY=JSON，可重复；参数见 models list 的 generationOptions", func(value string) error {
 			key, raw, ok := strings.Cut(value, "=")
@@ -140,6 +153,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		fs.StringVar(&textFile, "text-file", "", "UTF-8 文本文件")
 		fs.StringVar(&reference, "reference", "", "1–60 秒参考音频，常见格式自动转换")
 		fs.StringVar(&voice, "voice", "", "已有音色 ID")
+		fs.StringVar(&speakerProfile, "speaker-profile", "", "已登记且绑定音色的私有声纹档案 ID")
 		fs.StringVar(&output, "output", "", "输出 WAV 路径，不覆盖已有文件")
 		fs.StringVar(&d.ModelID, "model", d.ModelID, "模型 ID")
 		fs.StringVar(&d.Language, "language", "zh", "语言")
@@ -174,11 +188,32 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		}
 		return err
 	}
+	nameProvided := false
+	referenceProvided := false
+	voiceProvided := false
+	referenceTextProvided := false
+	fs.Visit(func(item *flag.Flag) {
+		switch item.Name {
+		case "name":
+			nameProvided = true
+		case "reference":
+			referenceProvided = true
+		case "voice":
+			voiceProvided = true
+		case "reference-text":
+			referenceTextProvided = true
+		}
+	})
 	if fs.NArg() != 0 {
 		return fmt.Errorf("多余参数：%s", strings.Join(fs.Args(), " "))
 	}
-	if (command == "models download" || command == "models import" || command == "voices import") && operand == "" {
+	if (command == "models download" || command == "models import" || command == "voices import" || command == "speakers delete") && operand == "" {
 		return fmt.Errorf("缺少模型 ID 或文件路径")
+	}
+	if command == "speakers enroll" || command == "speakers identify" {
+		if (speakerFile == "") == (speakerVoice == "") {
+			return fmt.Errorf("--file 与 --voice 必须且只能指定一个")
+		}
 	}
 	if command == "generate" {
 		if (d.Text == "") == (textFile == "") {
@@ -188,6 +223,9 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		omni := strings.HasPrefix(d.ModelID, "omnivoice-")
 		qwen := strings.HasPrefix(d.ModelID, "qwen3-tts-")
 		kokoro := strings.HasPrefix(d.ModelID, "kokoro-")
+		if speakerProfile != "" && (referenceProvided || voiceProvided || referenceTextProvided) {
+			return fmt.Errorf("--speaker-profile 不能与 --voice、--reference 或 --reference-text 同时使用")
+		}
 		var unsupported string
 		fs.Visit(func(f *flag.Flag) {
 			if vox || omni || qwen || kokoro {
@@ -239,7 +277,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if vox && (d.GuidanceScale < 0.5 || d.InferenceSteps < 1) {
 			return fmt.Errorf("引导强度需为 0.5–5，推理步数需为 1–50")
 		}
-		if vox && d.VoxMode == "" {
+		if vox && d.VoxMode == "" && speakerProfile == "" {
 			d.VoxMode = "design"
 			if reference != "" || voice != "" {
 				d.VoxMode = "clone"
@@ -248,7 +286,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 				d.VoxMode = "continuation"
 			}
 		}
-		if omni && d.VoiceMode == "" {
+		if omni && d.VoiceMode == "" && speakerProfile == "" {
 			d.VoiceMode = "design"
 			if reference != "" || voice != "" {
 				d.VoiceMode = "clone"
@@ -260,13 +298,13 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if reference != "" && voice != "" {
 			return fmt.Errorf("--reference 和 --voice 只能指定一个")
 		}
-		if d.RequiresVoice() && reference == "" && voice == "" {
+		if speakerProfile == "" && d.RequiresVoice() && reference == "" && voice == "" {
 			return fmt.Errorf("当前模式需要 --reference 或 --voice")
 		}
-		if !d.RequiresVoice() && (reference != "" || voice != "") {
+		if speakerProfile == "" && !d.RequiresVoice() && (reference != "" || voice != "") {
 			return fmt.Errorf("声音设计不使用参考音频，请选择 clone 或 continuation")
 		}
-		if qwen && !d.RequiresVoice() && d.ReferenceText != "" {
+		if speakerProfile == "" && qwen && !d.RequiresVoice() && d.ReferenceText != "" {
 			return fmt.Errorf("仅 Base 模型使用 --reference-text")
 		}
 		if vox && d.VoxMode != "continuation" && d.ReferenceText != "" {
@@ -319,8 +357,10 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if !vox && !omni && !qwen && d.Mode == "text" && d.EmotionText == "" && !d.InferEmotion {
 			return fmt.Errorf("文字情绪需要 --emotion-text 或 --infer-emotion")
 		}
-		if err := schema.Validate(d); err != nil {
-			return err
+		if speakerProfile == "" {
+			if err := schema.Validate(d); err != nil {
+				return err
+			}
 		}
 		if output == "" || !strings.EqualFold(filepath.Ext(output), ".wav") {
 			return fmt.Errorf("请通过 --output 指定 WAV 文件")
@@ -374,6 +414,15 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		result = w.Store.Read().Voices
 	case "voices import":
 		result, err = w.ImportVoice(ctx, operand, name)
+	case "speakers list":
+		result, err = w.ListSpeakers()
+	case "speakers delete":
+		err = w.DeleteSpeaker(ctx, operand)
+		result = map[string]any{"id": operand, "deleted": true}
+	case "speakers enroll":
+		result, err = w.EnrollSpeakerNamed(ctx, workbench.SpeakerSource{FilePath: speakerFile, VoiceID: speakerVoice}, name, nameProvided, bindVoice)
+	case "speakers identify":
+		result, err = w.IdentifySpeaker(ctx, workbench.SpeakerSource{FilePath: speakerFile, VoiceID: speakerVoice})
 	case "models import":
 		err = wait(func() error { return w.ImportModel(operand) })
 		result = w.Store.Read().Models
@@ -392,6 +441,29 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		}
 		result = w.Store.Read().Models
 	case "generate":
+		if speakerProfile != "" {
+			g, synthErr := w.SynthesizeSpeaker(ctx, speakerProfile, d)
+			if synthErr != nil {
+				return synthErr
+			}
+			path, pathErr := w.MediaFile("outputs", g.ID)
+			if pathErr != nil {
+				return pathErr
+			}
+			output, pathErr = filepath.Abs(output)
+			if pathErr != nil {
+				return pathErr
+			}
+			if pathErr = copyOutput(path, output); pathErr != nil {
+				return pathErr
+			}
+			boundVoice := ""
+			if g.Settings.VoiceID != nil {
+				boundVoice = *g.Settings.VoiceID
+			}
+			result = map[string]any{"id": g.ID, "path": output, "duration": g.Duration, "model": d.ModelID, "voice": boundVoice, "speakerProfile": speakerProfile}
+			break
+		}
 		if reference != "" {
 			var v schema.Voice
 			v, err = w.ImportVoice(ctx, reference, "")

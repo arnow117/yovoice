@@ -52,11 +52,11 @@ func (e *Engine) stop() {
 		e.key = ""
 	}
 }
-func (e *Engine) start(ctx context.Context, executable, model, family, task, backend string, encoderSamples int, progress func(msg.Code, msg.Params)) error {
+func (e *Engine) start(ctx context.Context, executable, model, family, task, backend string, encoderSamples int, restrictedDiagnostics bool, progress func(msg.Code, msg.Params)) error {
 	if task == "" {
 		task = "tts"
 	}
-	key := fmt.Sprintf("%s|%s|%s|%s|%s|%d", executable, model, family, task, backend, encoderSamples)
+	key := fmt.Sprintf("%s|%s|%s|%s|%s|%d|%t", executable, model, family, task, backend, encoderSamples, restrictedDiagnostics)
 	if e.process != nil && e.key == key {
 		select {
 		case <-e.done:
@@ -114,18 +114,23 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 		}
 	}
 	platform.ConfigureProcess(c)
-	out, err := os.Create(filepath.Join(e.root, "logs", "engine.log.out"))
-	if err != nil {
-		return err
+	if restrictedDiagnostics {
+		c.Stdout = io.Discard
+		c.Stderr = io.Discard
+	} else {
+		out, createErr := os.Create(filepath.Join(e.root, "logs", "engine.log.out"))
+		if createErr != nil {
+			return createErr
+		}
+		defer out.Close()
+		stderr, createErr := os.Create(filepath.Join(e.root, "logs", "engine.log"))
+		if createErr != nil {
+			return createErr
+		}
+		defer stderr.Close()
+		c.Stdout = out
+		c.Stderr = stderr
 	}
-	defer out.Close()
-	stderr, err := os.Create(filepath.Join(e.root, "logs", "engine.log"))
-	if err != nil {
-		return err
-	}
-	defer stderr.Close()
-	c.Stdout = out
-	c.Stderr = stderr
 	if err = c.Start(); err != nil {
 		return err
 	}
@@ -169,7 +174,16 @@ func (e *Engine) start(ctx context.Context, executable, model, family, task, bac
 	}
 	return msg.Err(msg.ErrEngineStartTimeout, nil)
 }
-func (e *Engine) Generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) (err error) {
+func (e *Engine) Generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) error {
+	return e.generate(ctx, executable, m, backend, d, voice, emotion, output, false, progress)
+}
+
+// GenerateProfile 使用受限诊断路径，避免私有档案请求把原生输出写入日志。
+func (e *Engine) GenerateProfile(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) error {
+	return e.generate(ctx, executable, m, backend, d, voice, emotion, output, true, progress)
+}
+
+func (e *Engine) generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, restrictedDiagnostics bool, progress func(msg.Code, msg.Params)) (err error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	defer func() {
@@ -201,7 +215,7 @@ func (e *Engine) Generate(ctx context.Context, executable string, m schema.Insta
 			encoderSamples = max(encoderSamples, int(math.Ceil(duration*16000/2560))*2560)
 		}
 	}
-	if err = e.start(ctx, executable, m.Path, definition.Family, definition.Task, backend, encoderSamples, progress); err != nil {
+	if err = e.start(ctx, executable, m.Path, definition.Family, definition.Task, backend, encoderSamples, restrictedDiagnostics, progress); err != nil {
 		return err
 	}
 	progress(msg.ActivitySynthesizing, nil)
@@ -220,8 +234,12 @@ func (e *Engine) Generate(ctx context.Context, executable string, m schema.Insta
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		b, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
-		_ = os.WriteFile(filepath.Join(e.root, "logs", "last-inference-error.txt"), b, 0600)
+		if restrictedDiagnostics {
+			_, _ = io.Copy(io.Discard, io.LimitReader(res.Body, 1<<20))
+		} else {
+			b, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
+			_ = os.WriteFile(filepath.Join(e.root, "logs", "last-inference-error.txt"), b, 0600)
+		}
 		return msg.Err(msg.ErrGenerateFailed, nil)
 	}
 	var result struct {

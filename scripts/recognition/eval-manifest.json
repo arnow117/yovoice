@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "model": {
+    "path": "artifacts/recognition/models/wespeaker_zh_cnceleb_resnet34.onnx",
+    "sha256": "f86cd6c509f331f0e20b07bd48d1b2eb7de54202643401c4e84695ac861a0e5a",
+    "source": "https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/wespeaker_zh_cnceleb_resnet34.onnx"
+  },
+  "samples": [
+    {"id": "speaker-a-enroll", "path": "artifacts/recognition/samples/speaker-a-enroll.wav", "source": "https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/fangjun-test-sr-1.wav", "sha256": "9175e523081bf6a630ce72a55b05f92148eaafaf58cbbbe743686cd81c50848e", "label": "A", "role": "enroll"},
+    {"id": "speaker-a-query", "path": "artifacts/recognition/samples/speaker-a-query.wav", "source": "https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/fangjun-test-sr-2.wav", "sha256": "c55912144a28817a67d5eac806e5952ffcd29b82db3925f46d33df4c5f038907", "label": "A", "role": "query", "expected": "matched"},
+    {"id": "speaker-b-enroll", "path": "artifacts/recognition/samples/speaker-b-enroll.wav", "source": "https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/leijun-test-sr-1.wav", "sha256": "36cda04ee4d10e38095de73b77c99e8e7c54347232967a9cde4cf54f7d496bab", "label": "B", "role": "enroll"},
+    {"id": "speaker-b-query", "path": "artifacts/recognition/samples/speaker-b-query.wav", "source": "https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/leijun-test-sr-2.wav", "sha256": "84b85e7413b5348303a95bd78813e4d669b4dc70fa5a99990b9860ca6fda91e8", "label": "B", "role": "query", "expected": "matched"},
+    {"id": "unknown-query", "path": "artifacts/recognition/samples/unknown-query.wav", "source": "https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/liudehua-test-sr-1.wav", "sha256": "a855706ad8e8253e341e3f65892c66d7dfb4bdc83675bcf38b863f2f8d167553", "label": "unknown", "role": "query", "expected": "unknown"}
+  ],
+  "decision": {"threshold": 0.6, "margin": 0.05, "timeout": "120s", "dimension": 256}
+}

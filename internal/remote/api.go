@@ -6,7 +6,6 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -49,6 +48,8 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch {
+	case strings.HasPrefix(r.URL.Path, "/v1/speakers"):
+		a.speakersHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/v1/jobs/"):
 		a.jobHTTP(w, r)
 	case r.Method == "GET" && r.URL.Path == "/v1/status":
@@ -118,23 +119,9 @@ func (a *API) generate(w http.ResponseWriter, r *http.Request) {
 }
 
 func decodeGeneration(body io.Reader) (schema.Draft, error) {
-	d := schema.DefaultDraft()
-	d.Title, d.Text, d.Mode, d.EmotionText = "API 语音", "", "speaker", ""
-	input := struct {
-		Text string `json:"text"`
-		schema.SynthesisSettings
-	}{SynthesisSettings: d.SynthesisSettings}
-	decoder := json.NewDecoder(body)
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(&input); err != nil {
+	d, err := decodeGenerationUnchecked(body)
+	if err != nil {
 		return d, err
-	}
-	if err := decoder.Decode(new(any)); err != io.EOF {
-		return d, fmt.Errorf("仅允许一个 JSON 对象")
-	}
-	d.Text, d.SynthesisSettings = input.Text, input.SynthesisSettings
-	if strings.TrimSpace(d.Text) == "" {
-		return d, fmt.Errorf("正文不能为空")
 	}
 	return d, schema.Validate(d)
 }

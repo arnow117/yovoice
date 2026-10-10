@@ -76,6 +76,42 @@ yovoice voices list --json
 
 失败时 stderr 返回错误，退出码为 1；Ctrl-C 的退出码为 130。
 
+## 声纹档案
+
+全局 [使用导航](usage.md#usage-index--使用导航) 维护 USG-SPEAKER-ENROLL、USG-SPEAKER-IDENTIFY、USG-SPEAKER-GENERATE、USG-SPEAKER-DELETE 与 USG-SPEAKER-VERIFY 的场景映射。
+
+声纹识别是可选的本地运行时集成。登记或识别前，设置隔离 Python、WeSpeaker ONNX 模型和仓库 runner 的绝对本地路径：
+
+```sh
+export YOVOICE_SPEAKER_PYTHON=/绝对路径/venv/bin/python
+export YOVOICE_SPEAKER_MODEL=/绝对路径/wespeaker.onnx
+export YOVOICE_SPEAKER_RUNNER=/绝对路径/scripts/recognition/runner.py
+export YOVOICE_SPEAKER_THRESHOLD=0.6
+export YOVOICE_SPEAKER_MARGIN=0.05
+export YOVOICE_SPEAKER_TIMEOUT=120s
+```
+
+`YOVOICE_SPEAKER_THRESHOLD` 必须是 `[-1,1]` 内有限数；`YOVOICE_SPEAKER_MARGIN` 为 `(0,2]`；超时为 `(0,10m]`。服务第一次使用识别时读取这些值。CLI 包含 FFmpeg，但不包含 Python、ONNX 模型或识别样本。
+
+```sh
+yovoice speakers enroll --file speaker-a.wav --name "Speaker A" --bind-voice EXISTING_VOICE_ID --data-dir ./voice-data
+yovoice speakers identify --file query.wav --data-dir ./voice-data
+yovoice speakers list --data-dir ./voice-data
+yovoice speakers delete PROFILE_ID --data-dir ./voice-data
+```
+
+`enroll` 与 `identify` 必须且只能使用 `--file` 或 `--voice` 之一。输入会转换为 mono、16 kHz、PCM16，时长必须为 1–60 秒且不超过 20 MiB。`list` 只返回公开元数据，不返回特征向量或本地路径。空库返回 `unknown`，最佳分数与第二名过近时返回 `ambiguous`。该能力不判断真实身份、多人录音、任意噪声，也不提供防伪结论。
+
+## 通过档案生成
+
+仅已绑定现有音色的档案可用于生成。档案提供该音色和保存的参考原文，调用方的正文与支持的情绪参数仍由调用方控制。
+
+```sh
+yovoice generate --speaker-profile PROFILE_ID --model voxcpm2-q8 --text "你好" --output profile.wav --data-dir ./voice-data
+```
+
+`--speaker-profile` 不能与 `--voice`、`--reference` 或 `--reference-text` 同时使用。支持 IndexTTS、VoxCPM 的 clone/continuation、OmniVoice clone 和 Qwen3-TTS Base；VoiceDesign、CustomVoice 与 Kokoro 会被拒绝。缺少绑定或绑定音色已删除时不会回退到其他音色。
+
 ## 数据目录
 
 默认目录为 `~/.yovoice`，同一时间只能由一个 App、CLI 命令或服务使用。请退出 App，或在每条命令中通过 `--data-dir DIR` 指定独立目录：

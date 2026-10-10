@@ -1,5 +1,13 @@
 # 第三方组件
 
+## 声纹识别开发依赖
+
+- sherpa-onnx 1.13.8：https://github.com/k2-fsa/sherpa-onnx ，Apache-2.0。本项目仅通过用户自行配置的隔离 Python 运行时调用其 API；不将该运行时、模型或测试录音打入发行包。
+- NumPy 2.5.3：https://numpy.org/ ，BSD-3-Clause。仅作为上述隔离 Python 运行时的依赖。
+- WeSpeaker ONNX 模型由用户单独取得和配置；本项目不随源码或安装包再分发该模型、样本录音或其许可文本。使用者须遵守来源提供的模型与录音许可。
+
+## 应用依赖
+
 - Astryx 0.6.1：https://astryx.atmeta.com/ ，保留 npm 包中的许可。
 - audio.cpp v0.9.1：https://github.com/0xShug0/audio.cpp ，Apache-2.0，Copyright 2026 ShugoAI LLC。macOS 包内置 Metal 服务，Windows 包内置 CPU 服务及 DLL；原始 LICENSE 随 engine 目录分发；其他运行包从官方发行页下载并保留许可。
 - IndexTTS：https://github.com/index-tts/index-tts ，模型不随应用分发。中文模型协议原文保存在 web/public/model-license.txt，下载和使用模型须遵守该协议。

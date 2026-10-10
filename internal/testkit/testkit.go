@@ -68,18 +68,54 @@ func RunFakeEngine() {
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte("{}")) })
 	http.HandleFunc("/v1/tasks/run", func(w http.ResponseWriter, r *http.Request) {
 		var p struct {
-			Request struct {
-				Text string `json:"text"`
-			} `json:"request"`
+			Request map[string]any `json:"request"`
 		}
 		_ = json.NewDecoder(r.Body).Decode(&p)
-		if p.Request.Text == "等待取消" {
+		text, _ := p.Request["text"].(string)
+		if strings.HasSuffix(text, "私有标记失败") {
+			const marker = "/private/speaker-profile/marker"
+			if markerFile := os.Getenv("YOVOICE_TEST_MARKER_FILE"); markerFile != "" {
+				if err := os.WriteFile(markerFile, []byte(marker), 0600); err != nil {
+					http.Error(w, "marker proof write failed", http.StatusInternalServerError)
+					return
+				}
+			}
+			_, _ = fmt.Fprintln(os.Stdout, marker)
+			_, _ = fmt.Fprintln(os.Stderr, marker)
+			http.Error(w, marker, http.StatusInternalServerError)
+			return
+		}
+		if expectedText := os.Getenv("YOVOICE_TEST_EXPECTED_TEXT"); expectedText != "" && text != expectedText {
+			http.Error(w, "unexpected profile text", http.StatusBadRequest)
+			return
+		}
+		if text == "等待取消" {
 			<-r.Context().Done()
 			return
 		}
-		if strings.HasSuffix(p.Request.Text, "模拟生成失败") {
+		if strings.HasSuffix(text, "模拟生成失败") {
 			http.Error(w, "模拟生成失败", http.StatusInternalServerError)
 			return
+		}
+		if text == "返回损坏响应" {
+			_, _ = w.Write([]byte(`{"audio":`))
+			return
+		}
+		if text == "检查Vox绑定" {
+			voice, voiceOK := p.Request["voice_ref"].(string)
+			referenceText, referenceTextOK := p.Request["reference_text"].(string)
+			if !voiceOK || voice == "" || voice != os.Getenv("YOVOICE_TEST_EXPECTED_VOICE_REF") || !referenceTextOK || referenceText != "绑定原文" {
+				http.Error(w, "unexpected Vox profile request", http.StatusBadRequest)
+				return
+			}
+		}
+		if text == "检查Index绑定" {
+			voice, voiceOK := p.Request["voice_ref"].(string)
+			options, optionsOK := p.Request["options"].(map[string]any)
+			if !voiceOK || voice == "" || voice != os.Getenv("YOVOICE_TEST_EXPECTED_VOICE_REF") || p.Request["reference_text"] != nil || !optionsOK || options["emotion_text"] != "调用方情绪" {
+				http.Error(w, "unexpected Index profile request", http.StatusBadRequest)
+				return
+			}
 		}
 		_ = json.NewEncoder(w).Encode(map[string]string{"audio": base64.StdEncoding.EncodeToString(WAV())})
 	})

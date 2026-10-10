@@ -83,3 +83,41 @@ func TestEngineLifecycle(t *testing.T) {
 		}
 	}
 }
+
+func TestProfileGenerationDoesNotPersistNativeDiagnostics(t *testing.T) {
+	root := t.TempDir()
+	_, err := store.New(root)
+	must(t, err)
+	service := New(root)
+	defer service.Stop()
+	executable, err := os.Executable()
+	must(t, err)
+	model := filepath.Join(root, "model.gguf")
+	must(t, os.WriteFile(model, []byte("test"), 0600))
+	draft := schema.DefaultDraft()
+	draft.Text = "私有标记失败"
+	output := filepath.Join(root, "outputs", "profile.wav")
+	err = service.GenerateProfile(context.Background(), executable, schema.InstalledModel{ID: draft.ModelID, Path: model}, "cpu", draft, "voice.wav", "", output, func(msg.Code, msg.Params) {})
+	if err == nil {
+		t.Fatalf("profile error = %v", err)
+	}
+	for _, name := range []string{"engine.log.out", "engine.log", "last-inference-error.txt"} {
+		content, readErr := os.ReadFile(filepath.Join(root, "logs", name))
+		if readErr != nil && !os.IsNotExist(readErr) {
+			t.Fatal(readErr)
+		}
+		if strings.Contains(string(content), "/private/speaker-profile/marker") {
+			t.Fatalf("profile diagnostics leaked to %s", name)
+		}
+	}
+	if err = service.Generate(context.Background(), executable, schema.InstalledModel{ID: draft.ModelID, Path: model}, "cpu", draft, "voice.wav", "", output, func(msg.Code, msg.Params) {}); err == nil {
+		t.Fatal("ordinary request should fail")
+	}
+	for _, name := range []string{"engine.log.out", "engine.log", "last-inference-error.txt"} {
+		content, readErr := os.ReadFile(filepath.Join(root, "logs", name))
+		must(t, readErr)
+		if !strings.Contains(string(content), "/private/speaker-profile/marker") {
+			t.Fatalf("ordinary diagnostics changed: %s", name)
+		}
+	}
+}
