@@ -129,6 +129,12 @@
 
 ## Validation
 
+最终正式验证通过（2026-10-10，implementation commit `c1050c4346e67d277a9ffab355418aa1ecf42733`）：独立 validate Agent 完成新版本格式/vet、全量非缓存 race（21.554s，94 顶层／160 含子用例测试，13 包，0 失败／测试 Skip）、Python4+1、recognition coverage 84.4%、CLI build/VCS modified=false 以及固定配置双入口实模，全部 exit0。主核对当前干净业务树、实际SHA和原始汇总后记录 pass。三项正式评审修正分别由CLI actual native emotion/reference路径及导入字节、HTTP运行502/保存500、有限阻塞deadline504/主动cancel408证明；原隐私marker、操作交接、迟取消成功和最终保存失败优先用例保留并实际通过，SCN-01…16 COVERED。
+
+完整时间/命令/环境/日志：`artifacts/verification/20261010-speaker-commit-validate-r3/commands.json`、`summary.json`；实模 `20261010-speaker-commit-eval-r3/summary.json` PASS（3.478s），CLI/HTTP各2登记、2/2已知正确ID、1/1未知拒绝、列表2，HTTP201/200。T=.6/M=.05/120s/256维/CPU一线程，模型/runner/manifest/五样本/binary/源码前后重读一致，私有临时库清理、HTTP子进程退出0。41文件聚合SHA256 `f2f40782f35d41cf1a05ddafd186d73ead87e41df1b1160afaa000c259bf4677`。最终独立覆盖率以84.4%为准，worker脏快照race覆盖84.7%只保留历史，不混作同一命令。
+
+未变Web84、Swift5、原生/发布替身及拒绝保护复用相同输入证据；真实TTS/听测、GPU、Windows、完整原生包、发行FFmpeg8.1.2均NOT_RUN。首轮fail和b2d86f7 validation/review历史保留；c1050c4正式重审仍pending。
+
 正式验证通过（2026-10-10，implementation commit `b2d86f773692db7d58c371b38054e4c2ac114481`）：同一独立 Sol validate Agent 在业务树干净时重验，主核对日志、SHA 与实际树后记录 pass。`gofmt -l cmd internal`、`go vet ./...`、`go test -json -race ./... -count=1 -timeout=90s`（22.752s，93 顶层／157 含子用例，13 包，0 失败／测试 Skip）、`make check-recognition`（4+1）、recognition 覆盖率（84.4%）、CLI build 与 VCS metadata 核对均 exit 0。新精确 T 与低于 T 两个子用例实际执行通过，原等于 M 保留，SCN-01…16 均 COVERED；首轮 fail 历史保留。
 
 证据：`artifacts/verification/20261010-speaker-commit-validate-r2/summary.json`、`commands.json` 和原始日志；实模 `20261010-speaker-commit-eval-r2/summary.json` PASS，CLI/HTTP 各 2 登记、2/2 已知查询正确 ID、1/1 未知拒绝、列表 2，HTTP 201/200。固定 T=.6/M=.05/120s/256维/CPU一线程，A/B score .81814938/.83886787，未知 .46485008；运行前后实际重读模型、runner、manifest、五样本、binary、源码且一致，临时私有库清理、HTTP 子进程退出 0。41 份业务文件聚合 SHA256 `9ed78c3a36df5d347d9d12195072bb1e3d5012a6577db119295e37446b961c9a`，featureVersion `c240757a39516f94237b42893337156ba47d69b40e722d02897944c199975219`。
@@ -178,6 +184,8 @@ T=0.6、M=0.05、120s、256 维、CPU 一线程。实模 A/B 查询相似度分�
 
 ## Review
 
+最终正式独立评审通过（2026-10-10，c1050c4）：`speaker_formal_review` 重审 b2d86f7→c1050c4 六业务文件及调用链，并复用其先前完成的基线→b2d86f7全部41业务文件审查；实际核对业务clean、验证commit一致、diff-check、41文件指纹及r3原始日志，均exit0。原三个P2已关闭：情绪录音在profile生成前正确导入/设置且native路径字节有断言；Generate/StateSave显式区分且CLI/HTTP502/500与脱敏通过；仅本次deadline引起的取消恢复504，408、已成功及非取消最终保存失败/交接保持。无新必须修复项/建议项，未发现有证据支持的重复实现或可避免工程债；guide→USG→参数owner→实际范围一致。主接受标准 `record-review approved` 请求并已记录。真实TTS/听测、GPU、Windows、完整原生包、发行FFmpeg8.1.2未验证；该决定仅覆盖已约定源码分支交接。
+
 正式评审修正提交前接受：原 Terra 仅改 CLI profile 情绪参考导入、SpeakerErrorCode 的 Generate/StateSave 映射、profile 等待的调用方 deadline 归因，以及必要 CLI/Workbench/HTTP 测试与双语 CHANGELOG，共 6 个业务文件。新 CLI 测试捕获实际 native 请求并严格对照主参考和独立情绪参考的媒体路径/内容；HTTP 502/500、有限阻塞下504/408及原真实 marker 脱敏都通过。已成功/最终持久化失败优先及普通合成契约保留。worker 目标 race、vet、非缓存 full race（90s）、core、Python4+1、recognition race覆盖84.7%及diff检查均exit0，日志及复现失败保存在 `artifacts/verification/20261010-speaker-review-fix/`。主只读核对全部6文件diff，另非缓存race执行CLI参考、HTTP分类/取消、Workbench隐私/最终保存失败五个目标测试，3包exit0。TASK-001 done；待新commit正式验证/重审，不以前一commit的pass代替修正版。
 
 首次正式代码评审（2026-10-10，b2d86f7）：新独立 Sol `speaker_formal_review` 审阅基线至 validation commit 的全部 41 业务文件，确认业务 clean/验证版本一致、guide→USG→参数→实际范围可对应，未发现有证据支持的重复实现或可避免工程债。提出三个 P2：profile CLI 在情绪参考导入前 break，合法 `--emotion-reference` 未设置 EmotionVoiceID；ErrGenerateFailed 未映射落入 persistence_failed（500）而非约定 runtime_failed（502），现有 HTTP 测试固化错误；profile 等待在调用方 deadline 后取消 Background 派生操作，返回 Canceled 而非 DeadlineExceeded（预期504）。主只读核对接受源码定位，记录 changes_requested 并恢复同一 TASK-001；上面 Plan 已补明确验证/恢复策略，原 Terra 窄修，保留 b2d86f7 validation pass 历史，修后重验/重审。
@@ -201,3 +209,13 @@ r10 的真实 CLI/HTTP 识别评估 PASS，主已核对 39 份业务源码和 bi
 实现期间的独立只读代码检查（2026-10-10，草稿而非正式 SDLC Review）补出有源码依据的问题：完整操作超时、提交后取消终态、runner 管道读取次序及真实包版本、严格排序、输入限额/错误分类/多余 query/文件增长、空白名称，以及 Engine 原始诊断。主接受这些定位，并在当前 Task 中修正；新增写权限只覆盖上述 Engine 私有诊断路径，仍不新增用户功能或第三次协议复审。最终交付必须以更新后的源码和测试证据重新核对，草稿检查不构成通过决定。
 
 r4 稳定核心快照的增量只读检查仍定位到 P2 问题：普通 Synthesize 错误详情/最终持久化错误优先级回归、JSON 尾随空白超限分类、非法 query 被丢弃、显式空/null 参考输入未拒绝。主同时明确 runner 失败分类，并接受删除/重启/只读/重复登记/并发快照及实际 native 参数、stdout/stderr 隐私测试的有效断言缺口。原型的 83.5% 覆盖率及 2+1 真实识别结果不替代这些验收；由同一 TASK-001 worker 按上面更新后的有效 Plan 修正，保留 r4 证据但尚未接受。已有小范围 race 与 Python 检查通过不代表本次新定位已修复；后续以新源码指纹、针对性断言及最终完整检查为准。
+
+## Release — 已约定的源码交接
+
+2026-10-10 完成源码分发：`https://github.com/arnow117/yovoice/tree/codex/speaker-recognition-mvp`，实现版本（validation/review/release commit）`c1050c4346e67d277a9ffab355418aa1ecf42733`。主已将功能与必要修正推送；ship Agent 实际只读 `git ls-remote --heads origin codex/speaker-recognition-mvp`，exit0，远端SHA精确一致。当前HEAD/业务clean/版本diff/未跟踪源检查均exit0，41文件、usage/参数指南及全部识别资产与r3相同。`go version -m artifacts/yovoice` 确认c1050c4/modified=false；binary SHA256 `3e7870cfcba246e20ae883ab967770fceca6f81531f2f1811b7674646b7f332c` 与r3一致。交接命令/时间/结果在 `artifacts/verification/20261010-speaker-source-handoff/summary.json`。主核对后记录 source-only release；后续仅含SDLC的记录提交不改变该实现版本。
+
+目标为源码交接，部署adapter N/A；未合入main、未创建tag或二进制GitHub Release、未部署App。真实可用证据复用完全相同代码/环境的r3 CLI/HTTP smoke：每入口2登记、2/2已知正确ID、1/1未知拒绝、列表2、HTTP201/200，私有临时库清理及子进程退出成功。T=.6/M=.05/120s/256维/CPU一线程；脚本总墙钟3.478s、评估器内部3.397s，均不当作单请求延迟百分位。真实TTS/听测、GPU、Windows、完整原生包、发行FFmpeg8.1.2仍NOT_RUN。
+
+观察：依据REQ-001非实时原型方向，由用户/开发者在本地人工观察7天，下次检查2026-10-17。记录正确ID、未知拒绝、ambiguous、逐请求耗时和绑定失效；固定smoke baseline/目标维持每入口已知2/2、未知拒绝1/1，不外推人群准确率。源码分发未部署，因而没有生产遥测；信号为本地 `artifacts/verification/` 及后续录音观察表，不创建自动监控。校准/现有缺陷反馈回到REQ-001，实时、diarization和新的音质能力另建Requirement。
+
+last-good：`2401e134d3b0ecd0f25f52a8e1d1e4527159dfde`。必要时使用旧版本，或停止新入口/清除识别配置，保留speakers.json和用户资料。本轮无需回滚，没有执行资料删除。
