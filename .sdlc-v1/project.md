@@ -145,8 +145,10 @@ surfaces:
 `.sdlc-v1/context/REQ-001.product.md` 和 `.sdlc-v1/context/FEAT-001.engineering.md`。
 该 Feature 仅新增 CLI / HTTP 的非实时识别及显式档案绑定，不修改 Web 用户旅程。
 真实识别评估必须经过产品的音频预处理与 CLI / HTTP 入口；直接调用 extractor 的准备实验不能替代它。
-截至本条更新，TASK-001 已完成提交前主验收并置 done；41 份业务文件的最终独立强制 race、
-格式/vet、Python 和实模双入口结果见工程上下文 Validation。业务代码尚未提交，正式 commit 绑定验证/评审仍 pending。
+用户已确认完整源码提交与推送；首个实现 commit `7ae4ffa11a9438629d54701408cfdfaf9489c7ca` 已推送。
+首轮独立正式验证的全部已执行检查通过，但 SCN-06 的精确 T 边界断言缺失，必要验证记 fail。
+同一 TASK-001 已按 CLI 支持的 done → todo → in_progress 恢复，由原 worker 补测试后主接受并置 done；证据和历史见工程上下文。
+正式 validation/review 仍待补证后干净 commit，不将首轮命令通过等同整体验收通过。
 主 Agent 本轮补充 `make check-web` 已退出 0，
 lint / build / 84 项 Playwright 全通过，日志在 `artifacts/verification/primary-20261010/check-web-network.log`；
 首次受限网络的 pnpm fetch 失败保留在同目录 `check-web.log`。Web 源码及测试输入未修改，此结果仅用于原有前端补充回归。
@@ -165,10 +167,11 @@ lint / build / 84 项 Playwright 全通过，日志在 `artifacts/verification/p
 ## 部署与长期上下文
 
 - 目标：macOS arm64 `.app` / DMG / ZIP、Windows x64 Setup / update / CUDA 包、Linux x64 独立 CLI；无独立 Web 生产站点或 staging 配置。
+- 本次 FEAT-001 的已授权交付目标是源码分发：`https://github.com/arnow117/yovoice` 的 `codex/speaker-recognition-mvp` 分支。验证、评审后以 validation commit 交接，可追加仅含 `.sdlc-v1/**` 的记录提交；不合入 main，不创建二进制 Release 或部署 App。last-good 为上游基线 `2401e134d3b0ecd0f25f52a8e1d1e4527159dfde`；停止新入口与清除识别配置可保留旧 TTS，不删除用户档案。没有生产遥测，7 天观察由用户/开发者在本地记录误匹配、拒绝、时延与绑定失效，下次人工检查 2026-10-17；不创建自动监控。
 - 构建/发布位置：`scripts/desktop/`、`scripts/package-cli.py`、`.github/workflows/{check,publish}.yml`；产物位于 `artifacts/`。签名、公证和 GitHub Release 凭据来自 CI secrets，发布需既有外部操作授权。
 - 健康入口：远程认证后的 `/v1/status`、audio.cpp `/health`；本地桌面状态由 `state.get` / state-events 提供。
 - 根指令：`AGENTS.md`；scoped AGENTS：`none`（本次文件扫描未发现）。
 - canonical 文档索引：`README.md`、`README_zh.md`、`docs/development.md`、`docs/development_zh.md`、`docs/api.md`、`docs/api_zh.md`、`docs/cli.md`、`docs/cli_zh.md`、`docs/models.md`、`docs/models_zh.md`、`desktop/macos/README.md`；路径均存在。
 - `.repo-context`：`none`，未发现 manifest/evidence，未把旧研究报告当作当前证据；源码采集 commit 为上述 HEAD。
 - AI readiness：项目已有职责分层、固定前端依赖、跨端契约与多类测试；主要缺口是 SDLC Web runner、原生实机证据、真实模型质量评估与成功产物归档。
-- 当前推进：REQ-001 / FEAT-001 的产品与工程范围已固定，TASK-001 已实现并通过提交前主验收，状态 done。正式 validation/review 需绑定业务代码干净的实际 commit；当前等待用户确认提交/推送，未提交快照上的检查不能冒充正式生命周期通过。
+- 当前推进：REQ-001 / FEAT-001 的产品与工程范围已固定，用户已确认并完成首个源码推送。TASK-001 的精确阈值补证已接受并置 done；正式 validation/review 需绑定补证后的干净 commit，首轮缺口不改写为通过。

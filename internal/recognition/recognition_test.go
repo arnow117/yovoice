@@ -132,6 +132,74 @@ func TestIdentifyDecisionBoundariesAndCompatibility(t *testing.T) {
 	}
 }
 
+func TestIdentifySingleCandidateThresholdBoundary(t *testing.T) {
+	config := testConfig()
+	cases := []struct {
+		name          string
+		score         float64
+		wantStatus    string
+		wantReason    string
+		selectProfile bool
+	}{
+		{
+			name:       "below threshold",
+			score:      config.Threshold - .01,
+			wantStatus: "unknown",
+			wantReason: "below_threshold",
+		},
+		{
+			name:          "at threshold",
+			score:         config.Threshold,
+			wantStatus:    "matched",
+			wantReason:    "matched",
+			selectProfile: true,
+		},
+	}
+
+	for index, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			profileID := strings.Repeat(string(rune('a'+index)), 32)
+			profile, err := NewProfile(profileID, test.name, "", config, unitVector(test.score))
+			if err != nil {
+				t.Fatal(err)
+			}
+			result, err := Identify(config, []Profile{profile}, unitVector(1))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if result.Score == nil {
+				t.Fatal("single-candidate result omitted score")
+			}
+			actualScore := *result.Score
+			if actualScore != test.score {
+				t.Fatalf("score = %v, want %v", actualScore, test.score)
+			}
+			if test.score == config.Threshold && actualScore != config.Threshold {
+				t.Fatalf("threshold score = %v, want exactly %v", actualScore, config.Threshold)
+			}
+			if result.Status != test.wantStatus || result.Reason != test.wantReason {
+				t.Fatalf("identification = %+v", result)
+			}
+			if len(result.Candidates) != 1 {
+				t.Fatalf("candidate count = %d, want 1", len(result.Candidates))
+			}
+			candidate := result.Candidates[0]
+			if candidate.Score != test.score {
+				t.Fatalf("candidate score = %v, want %v", candidate.Score, test.score)
+			}
+			if test.selectProfile {
+				if result.ProfileID != profileID || candidate.ProfileID != profileID {
+					t.Fatalf("selected profile = %+v, want %q", result, profileID)
+				}
+				return
+			}
+			if result.ProfileID != "" {
+				t.Fatalf("below-threshold result selected profile %q", result.ProfileID)
+			}
+		})
+	}
+}
+
 func TestIdentifySortsByExactScoreBeforeDecisionTolerance(t *testing.T) {
 	config := testConfig()
 	config.Threshold = .6

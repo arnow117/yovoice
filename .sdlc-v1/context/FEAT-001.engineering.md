@@ -2,7 +2,7 @@
 
 ## Plan（唯一有效工程方案）
 
-主 Agent 汇总有界分析并确认以下方案；关联 ready 的 `REQ-001.product.md` 和 `project.md`。开发分支 `codex/speaker-recognition-mvp`，基线 HEAD `2401e134d3b0ecd0f25f52a8e1d1e4527159dfde`。单个 TASK-001 串行实现，由主 Agent 验收；不授权 commit/push、生产部署或 GB 级 TTS 下载。新增接口/数据方案在实现前完成独立对抗性复审。
+主 Agent 汇总有界分析并确认以下方案；关联 ready 的 `REQ-001.product.md` 和 `project.md`。开发分支 `codex/speaker-recognition-mvp`，基线 HEAD `2401e134d3b0ecd0f25f52a8e1d1e4527159dfde`。单个 TASK-001 串行实现，由主 Agent 验收。用户在看到完整 46 文件交付后，于 2026-10-10 确认提交/推送；授权范围为 fork `arnow117/yovoice` 的该功能分支源码交接及其必要补证、生命周期记录，不包括合入主分支、GitHub 二进制发行、生产部署或 GB 级 TTS 下载。新增接口/数据方案在实现前完成独立对抗性复审。
 
 ## 已观察事实与复用判断
 
@@ -118,12 +118,17 @@
 - 资产来源：sherpa/WeSpeaker 源代码许可引用官方 Apache-2.0 文件；不能将源代码许可推定为所有权重/录音的再分发许可。ONNX 与公开示例录音仅用于当前本地识别实验，模型、音频、个人环境、Token 不提交，manifest 记录来源与本地 hash；不作商业再分发或用户素材采集声明。
 - 测试质量：recognition 新包的业务、持久化、协议校验及取消/错误路径须有有效断言，目标行覆盖至少 80%；Python runner 做隔离测试及必要静态检查。不得放宽旧断言或无限重试得到通过。
 - 行覆盖不代替业务断言：通过完整 Enroll/Identify/Delete 旅程验证查询只读、同音频/标签重复登记产生不同 ID、删除及真实关闭重启后不复活且 voice/history 保留、识别与删除重叠返回完整快照。假引擎须核对实际 native 请求中的参考文件/参考原文（按模型家族）、正文及情绪，而不是只接受正文后返回静音；成功与失败的 CLI/HTTP profile 入口均有实际断言。受限诊断测试须真正输出 stdout/stderr/body 的私有标记并检查所有相关诊断。结果独立性须在 A 已完成、B 接手后再让 A 调用方取结果/处理取消时验证。识别转码 WAV 本身也须 0600；完全同分且极小 M 应有专门断言。
+- SCN-06 必须用单候选明确构造 score == T，断言 matched、正确 profileId 及实际分数；同一组覆盖明确低于 T 为 unknown 且无选定 ID。T 附近排序、多候选分差与实模 unknown 不代替该边界断言。此次补证只修改识别测试，不改产品决策实现。
 - 配置快照由 Workbench 持有且不可变；list/delete/bound TTS 不强制加载模型，不影响旧功能启动。新 API 错误使用稳定通用文本，不泄露 runner stderr、特征或服务器路径。
 - 近静音+ready 只拒绝已知无效输入；不推断任意噪声/音乐、多人、防伪能力。档案显示名不证明现实身份。
 - 真实 TTS 模型、可用克隆素材与听测环境尚缺，交付证据须单列音质未验证；先完成真实识别及参数绑定链路。
 - 回滚不删除用户资料：停止新入口/清除配置可保留旧 TTS；保留 speakers.json 供用户明确处理，不自动重置或恢复删除过的特征。
 
 ## Validation
+
+正式验证首轮（2026-10-10，commit `7ae4ffa11a9438629d54701408cfdfaf9489c7ca`）：独立 Sol validate Agent 在业务树干净时完成格式、vet、非缓存全量 race（92 个顶层／154 个含子用例测试，13 包，0 失败／Skip）、Python 4+1、83.6% 覆盖率、当前 commit CLI build 及真实 CLI/HTTP 2 登记／2 已知／1 未知识别，所有命令 exit 0，源码和资产前后一致。完整记录为 `artifacts/verification/20261010-speaker-commit-validate/summary.json` 与 `20261010-speaker-commit-eval/summary.json`。但 SCN-06 的 score == T 单候选断言缺失，归因为 INCONCLUSIVE；主已记录 validation fail 并恢复同一 TASK-001，仅交回原 worker 补测试。此 fail 表示必要验证未完整，没有观察到实现失败。下列提交前映射须以此更正为准。
+
+阈值补证提交前接受：仅新增 `TestIdentifySingleCandidateThresholdBoundary`，明确断言实际 score == .6 的 matched/正确 ID，以及 score == .59 的 unknown/below_threshold/无选定 ID，均要求单候选。worker 的目标 race、`make check-core`、覆盖率和 diff 检查 exit 0；覆盖率 84.4%。主只读复核 diff 并执行阈值／既有分差／精确排序三个测试的非缓存 race（30s 上限），exit 0。日志在 `artifacts/verification/20261010-speaker-threshold-fix/attempt3-*`。首次可选 .61 用例逐位相等假设因归一化浮点变化失败，日志保留；已移除该可选用例，精确 .6 的真实计算严格相等断言保留。没有修改生产实现或放宽必需边界；TASK-001 可恢复 done，正式验证仍须绑定新 commit。
 
 主 Agent 于 2026-10-10 接受最终未提交业务快照的实现及必要补证；HEAD 为 `2401e134d3b0ecd0f25f52a8e1d1e4527159dfde`，41 份业务文件内容 SHA256 为 `d50c854f333e8c7b151a140c8dc58f09dcd29bd530d0f19208969808536bb504`。这是提交前验收，不是正式 lifecycle validation/review pass；业务工作树尚未提交，正式验证须绑定业务代码干净的实际 commit。
 
@@ -146,9 +151,9 @@ T=0.6、M=0.05、120s、256 维、CPU 一线程。实模 A/B 查询相似度分�
 | SCN-01 | `TestRepositoryRoundTripDoesNotExposeEmbedding`、`TestSpeakerListSurvivesWorkbenchRestart`、完整登记/删除/重启旅程，以及 CLI/HTTP 实模登记与列表。 |
 | SCN-02 | `TestIdentifyDecisionBoundariesAndCompatibility`、`TestSpeakerEnrollIdentifyDeleteAndRestartJourney` 的查询前后状态/档案比较，实模两个不同查询正确 ID。 |
 | SCN-03 | 决策测试的空库 unknown，无 score/候选；`TestInvalidRecognitionAudioDoesNotMutateWorkbench` 最后合法输入在空库 unknown。 |
-| SCN-04 | 决策测试的低于 T；实模 unknown，无选定 ID。 |
+| SCN-04 | 实模 unknown，无选定 ID；`TestIdentifySingleCandidateThresholdBoundary` 另明确断言 .59 < .6 时 unknown/below_threshold 且不选中 ID。补证已通过目标检查，待新 commit 正式重验。 |
 | SCN-05 | 决策分差、精确排序与同分 ambiguous；`TestIdentifySortsByExactScoreBeforeDecisionTolerance` 含 M=1e-14 同分，无选定 ID。 |
-| SCN-06 | 决策测试的等于 T/M 边界、单候选。 |
+| SCN-06 | 首轮 PARTIAL 历史保留：score == T 当时缺直接断言。现新增 `TestIdentifySingleCandidateThresholdBoundary` 严格断言实际 score == .6 和 matched；原等于 M 边界保留。补证已通过目标检查，待新 commit 正式重验。 |
 | SCN-07 | `TestRecognitionWAVValidatesRecognitionPCM16Bounds` 的空/损坏/截断/近静音/1与60秒边界；完整 `TestInvalidRecognitionAudioDoesNotMutateWorkbench` 登记与识别均拒绝且不写状态/档案/临时目录；copy 字节增长/20MiB、HTTP 输入限额及显式空名、Profile 超长名称测试。 |
 | SCN-08 | Config 绝对路径/限额、Extract 严格协议/文件变化/失败码、旧 feature version 拒绝；Python ready/维度/零向量/非有限特征/实际包版本校验。 |
 | SCN-09 | 完整登记/识别/删除/重启旅程：重复删除、正常关闭重开不复活、绑定 Voice 与 History 保留、已删档案合成拒绝。 |
@@ -163,6 +168,8 @@ T=0.6、M=0.05、120s、256 维、CPU 一线程。实模 A/B 查询相似度分�
 旧 r4/r10/r5 报告、挂起测试与修正历史保留在 Review 和 artifacts；不以这些旧快照为最终业务代码背书。
 
 ## Review
+
+正式验证补证定位（2026-10-10）：`recognition_test.go` 的 T=.6、score 1/.95/.97 只覆盖等于 M 的接受；另一个用例覆盖 T 附近排序及同分，不包含单候选 score == T。主只读核对接受该缺口，以同一 TASK 和原 Terra worker 添加明确等于／低于阈值的回归测试，保留首轮通过命令及 fail 记录，不扩大实现范围。
 
 最终提交前接受（2026-10-10）：主只读复核 r7 新增的 WAV 表驱动及完整 Enroll/Identify 无效输入旅程，确认调用实际产品路径而非仅 helper，精确边界/错误、全状态不变、临时清理和槽复用均有断言。主再次非缓存全量 Go race 退出 0，41 文件内容指纹未变；当前生产实现、Python/资产与主实际指南评估相同，最新 r13 双入口实模也通过。所有已定位的实现/验证问题已关闭，TASK-001 可置 done；此为实现最终接受，正式 SDLC validation/review 仍待提交后的干净 commit，不提前记录 pass。
 

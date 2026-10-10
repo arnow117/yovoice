@@ -23,10 +23,10 @@
           "id": "TASK-001",
           "status": "done",
           "title": "实现非实时声纹 CLI/API、私有档案与迭代验证",
-          "updated_at": "2026-10-10T08:39:01Z"
+          "updated_at": "2026-10-10T11:09:37Z"
         }
       },
-      "updated_at": "2026-10-10T08:39:01Z",
+      "updated_at": "2026-10-10T11:09:37Z",
       "validation": {
         "at": null,
         "command": null,
@@ -47,7 +47,7 @@
       "product_context_ref": ".sdlc-v1/context/REQ-001.product.md",
       "status": "in_delivery",
       "title": "非实时声纹识别与参考音色绑定原型",
-      "updated_at": "2026-10-10T08:39:01Z"
+      "updated_at": "2026-10-10T11:09:37Z"
     }
   },
   "state_format": "sdlc-lightweight-state-v1",
