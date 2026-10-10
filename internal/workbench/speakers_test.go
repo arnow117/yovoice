@@ -681,12 +681,12 @@ func TestSynthesizeSpeakerRedactsNativeDiagnostics(t *testing.T) {
 	draft.ModelID = "voxcpm2-q8"
 	draft.Text = "private request 私有标记失败"
 	draft.Mode = "speaker"
-	if _, err = workbench.SynthesizeSpeaker(context.Background(), profile.ID, draft); SpeakerErrorCode(err) != "persistence_failed" {
+	if _, err = workbench.SynthesizeSpeaker(context.Background(), profile.ID, draft); SpeakerErrorCode(err) != "runtime_failed" {
 		t.Fatalf("profile generation error = %v", err)
 	}
 	const marker = "/private/speaker-profile/marker"
 	activity := workbench.Store.Read().Activity
-	if activity == nil || activity.ErrorCode == nil || len(activity.ErrorParams) != 0 {
+	if activity == nil || activity.ErrorCode == nil || *activity.ErrorCode != msg.ErrGenerateFailed || len(activity.ErrorParams) != 0 {
 		t.Fatalf("profile activity leaked native marker: %+v", activity)
 	}
 	for _, name := range []string{"service.log", "last-error.txt", "engine.log.out", "engine.log", "engine-error.log", "last-inference-error.txt"} {
@@ -805,6 +805,9 @@ func TestProfileOperationFinalPersistenceFailureIsRedacted(t *testing.T) {
 	var callError *msg.CallError
 	if !errors.As(op.Err(), &callError) || callError.Code != msg.ErrStateSaveFailed {
 		t.Fatalf("terminal error = %v", op.Err())
+	}
+	if code := SpeakerErrorCode(op.Err()); code != "persistence_failed" {
+		t.Fatalf("terminal error code = %q", code)
 	}
 	activity := workbench.Store.Read().Activity
 	if activity == nil || activity.Status != "failed" || activity.ErrorCode == nil || *activity.ErrorCode != msg.ErrStateSaveFailed || len(activity.ErrorParams) != 0 {

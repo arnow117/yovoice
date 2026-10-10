@@ -50,10 +50,28 @@ func TestMain(m *testing.M) {
 		_ = json.Unmarshal(b, &c)
 		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "{}") })
 		http.HandleFunc("/v1/tasks/run", func(w http.ResponseWriter, r *http.Request) {
-			var p struct{ Request struct{ Text string } }
+			var p struct {
+				Request map[string]any `json:"request"`
+			}
 			_ = json.NewDecoder(r.Body).Decode(&p)
-			if p.Request.Text == "等待取消" {
+			if capture := os.Getenv("YOVOICE_TEST_REQUEST_CAPTURE"); capture != "" {
+				encoded, err := json.Marshal(p)
+				if err != nil {
+					http.Error(w, "could not encode test request", http.StatusInternalServerError)
+					return
+				}
+				if err = os.WriteFile(capture, encoded, 0600); err != nil {
+					http.Error(w, "could not save test request", http.StatusInternalServerError)
+					return
+				}
+			}
+			text, _ := p.Request["text"].(string)
+			if text == "等待取消" {
 				<-r.Context().Done()
+				return
+			}
+			if strings.HasSuffix(text, "模拟生成失败") {
+				http.Error(w, "模拟生成失败", http.StatusInternalServerError)
 				return
 			}
 			_ = json.NewEncoder(w).Encode(map[string]string{"audio": base64.StdEncoding.EncodeToString(wave())})
@@ -207,6 +225,12 @@ func TestGenerateThroughSpeakerProfileUsesBoundVoice(t *testing.T) {
 	if err = os.WriteFile(reference, wave(), 0600); err != nil {
 		t.Fatal(err)
 	}
+	emotionReferenceInput := filepath.Join(root, "emotion-reference.wav")
+	emotionReferenceData := wave()
+	emotionReferenceData[44] = 1
+	if err = os.WriteFile(emotionReferenceInput, emotionReferenceData, 0600); err != nil {
+		t.Fatal(err)
+	}
 	voice, err := service.ImportVoice(context.Background(), reference, "bound")
 	if err != nil {
 		t.Fatal(err)
@@ -237,13 +261,13 @@ func TestGenerateThroughSpeakerProfileUsesBoundVoice(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("YOVOICE_TEST_EXPECTED_VOICE_REF", voiceReference)
-	t.Setenv("YOVOICE_TEST_EXPECTED_TEXT", "检查Index绑定")
+	capturedRequest := filepath.Join(root, "native-request.json")
+	t.Setenv("YOVOICE_TEST_REQUEST_CAPTURE", capturedRequest)
 	service.Close()
 
 	output := filepath.Join(root, "profile.wav")
 	var out, progress bytes.Buffer
-	args := []string{"generate", "--speaker-profile", profile.ID, "--model", "index-2.5-q8", "--text", "检查Index绑定", "--emotion-text", "调用方情绪", "--output", output, "--data-dir", root}
+	args := []string{"generate", "--speaker-profile", profile.ID, "--model", "index-2.5-q8", "--text", "检查Index绑定和情绪参考", "--emotion-reference", emotionReferenceInput, "--output", output, "--data-dir", root}
 	if err = run(context.Background(), args, &out, &progress); err != nil {
 		t.Fatal(err)
 	}
@@ -257,6 +281,53 @@ func TestGenerateThroughSpeakerProfileUsesBoundVoice(t *testing.T) {
 	}
 	if _, err = os.Stat(output); err != nil {
 		t.Fatal(err)
+	}
+	reopened, err := workbench.New(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	state := reopened.Store.Read()
+	var emotionVoice schema.Voice
+	for _, candidate := range state.Voices {
+		if candidate.ID != voice.ID {
+			emotionVoice = candidate
+			break
+		}
+	}
+	if emotionVoice.ID == "" {
+		reopened.Close()
+		t.Fatal("未导入情绪参考音频")
+	}
+	emotionReference, err := reopened.MediaFile("voices", emotionVoice.ID)
+	reopened.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	storedEmotionReference, err := os.ReadFile(emotionReference)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(storedEmotionReference, emotionReferenceData) {
+		t.Fatal("情绪参考音频未保存为调用方指定的媒体文件")
+	}
+	var request struct {
+		Request struct {
+			VoiceReference   string `json:"voice_ref"`
+			EmotionReference string `json:"audio"`
+		} `json:"request"`
+	}
+	if captured, readErr := os.ReadFile(capturedRequest); readErr != nil || json.Unmarshal(captured, &request) != nil {
+		t.Fatalf("无法读取 native request: %q %v", captured, readErr)
+	}
+	if request.Request.VoiceReference != voiceReference || request.Request.EmotionReference != emotionReference {
+		t.Fatalf("Index profile request references = %#v, want voice=%q emotion=%q", request.Request, voiceReference, emotionReference)
+	}
+
+	out.Reset()
+	failureOutput := filepath.Join(root, "profile-native-failure.wav")
+	err = run(context.Background(), []string{"generate", "--speaker-profile", profile.ID, "--model", "index-2.5-q8", "--text", "模拟生成失败", "--output", failureOutput, "--data-dir", root}, &out, &progress)
+	if workbench.SpeakerErrorCode(err) != "runtime_failed" {
+		t.Fatalf("profile CLI runtime failure = %v, code=%q", err, workbench.SpeakerErrorCode(err))
 	}
 
 	conflict := []string{"generate", "--speaker-profile", profile.ID, "--voice", voice.ID, "--text", "正文", "--output", filepath.Join(root, "conflict.wav"), "--data-dir", root}

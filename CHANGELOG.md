@@ -11,6 +11,8 @@
 
 ### Fixed
 
+- English: Speaker-profile CLI generation now imports an independent IndexTTS emotion reference, reports native generation failures as `runtime_failed`, and distinguishes caller cancellation from a generation timeout.
+- 简体中文：声纹档案 CLI 生成现在会导入独立的 IndexTTS 情绪参考音频；原生生成失败返回 `runtime_failed`，并能区分调用方取消和生成超时。
 - 修复删除最后一个作品时的保存与残留问题，切换历史版本或新建作品失败时显示更具体的错误信息。
 - 新作品优先使用已安装模型，创作页模型选择器减少未安装模型干扰。
 - 远程服务的每次生成请求不再新建作品，避免长期运行后状态文件持续增大；生成失败时返回具体错误码。

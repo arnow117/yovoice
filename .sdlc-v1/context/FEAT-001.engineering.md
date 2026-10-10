@@ -88,6 +88,9 @@
 - 代码检查确认 Engine 会在外层错误转换之前保存 native 错误响应，并把进程 stdout/stderr 直接写日志。允许窄改 `internal/engine/engine.go`：profile 使用专用受限诊断调用，禁止保存该请求的原始 native 响应/stdout/stderr；旧 Generate 调用及其诊断保留。私有与普通推理进程的复用 key 必须区分此模式，切换时不能复用另一模式的日志目标。用失败引擎输出私有路径标记，断言该 profile 请求的所有诊断文件和 Activity 都没有标记。
 - CLI profile 分支在打开 Workbench 后完成绑定/模式/Validate；不能在前置参数检查阶段误判为缺参考或声音设计。新 profile CLI 可走同步 SynthesizeProfile 后复制 WAV，保持输出不覆盖；引用输入用私有临时副本，文件删除竞态不破坏正在提取的查询。
 - 普通 `Synthesize` 的错误文案、终态 code/params 与原 Activity 契约保持一致：普通底层错误保留 `ErrUnknown` 的 detail，最终 Activity 保存失败优先返回 `ErrStateSaveFailed` 及其 detail。可以捕获本次终态，但不得以简化的 operation 原始错误丢弃旧调用方信息；profile 专用脱敏不影响普通入口。
+- profile CLI 同样处理既有 `--emotion-reference`：在进入 `SynthesizeSpeaker` 前完成情绪素材导入与 `EmotionVoiceID` 设置；主要参考仍仅由绑定提供。用 IndexTTS CLI 假引擎断言实际 native 请求的主要参考与情绪参考分别对应正确媒体文件，不以文字情绪用例代替参考情绪。
+- 新 profile 错误分类显式映射 `msg.ErrGenerateFailed` 为 `runtime_failed`（HTTP 502），最终 `ErrStateSaveFailed` 仍为 `persistence_failed`（500）；返回正文、Activity 和诊断继续脱敏，普通入口不改。CLI/HTTP 必须分别断言推理错误分类，原测试中 500 推理失败断言须纠正，不能用宽泛任意错误断言替代。
+- profile 调用方 deadline 导致本次操作取消时，将终态 `context.Canceled` 的返回归因恢复为调用方 `DeadlineExceeded`（HTTP 504）；主动取消仍为 cancelled（408）。仅恢复取消归因，不覆盖已经接受的成功或最终非取消持久化失败，不调用共享全局 Cancel。用有界阻塞假引擎验证 HTTP timeout 与主动取消，保留交接、提交成功及最终保存失败用例。
 - 新 profile 路由/CLI 按“是否显式提供”拒绝主参考输入，包括 JSON `voiceId:null`、`referenceText:""` 与空值 reference/voice flags；旧入口的解码行为不因此改变。新路由用 `url.ParseQuery(RawQuery)` 并拒绝解析错误，不能让非法转义或分号中的未知参数被 `URL.Query()` 静默丢弃。严格 JSON 的尾部解析须保留 `MaxBytesError`，包括仅尾随空白超限的输入。
 
 ## TASK-001 完整实现交付
@@ -126,6 +129,12 @@
 
 ## Validation
 
+正式验证通过（2026-10-10，implementation commit `b2d86f773692db7d58c371b38054e4c2ac114481`）：同一独立 Sol validate Agent 在业务树干净时重验，主核对日志、SHA 与实际树后记录 pass。`gofmt -l cmd internal`、`go vet ./...`、`go test -json -race ./... -count=1 -timeout=90s`（22.752s，93 顶层／157 含子用例，13 包，0 失败／测试 Skip）、`make check-recognition`（4+1）、recognition 覆盖率（84.4%）、CLI build 与 VCS metadata 核对均 exit 0。新精确 T 与低于 T 两个子用例实际执行通过，原等于 M 保留，SCN-01…16 均 COVERED；首轮 fail 历史保留。
+
+证据：`artifacts/verification/20261010-speaker-commit-validate-r2/summary.json`、`commands.json` 和原始日志；实模 `20261010-speaker-commit-eval-r2/summary.json` PASS，CLI/HTTP 各 2 登记、2/2 已知查询正确 ID、1/1 未知拒绝、列表 2，HTTP 201/200。固定 T=.6/M=.05/120s/256维/CPU一线程，A/B score .81814938/.83886787，未知 .46485008；运行前后实际重读模型、runner、manifest、五样本、binary、源码且一致，临时私有库清理、HTTP 子进程退出 0。41 份业务文件聚合 SHA256 `9ed78c3a36df5d347d9d12195072bb1e3d5012a6577db119295e37446b961c9a`，featureVersion `c240757a39516f94237b42893337156ba47d69b40e722d02897944c199975219`。
+
+未变 Web 84、Swift 5、原生／发布替身和评估器拒绝保护仅复用相同输入/环境的已运行证据。真实 TTS／听测、GPU、Windows、完整原生包、发行 FFmpeg 8.1.2 继续 NOT_RUN，不外推人群准确率或音质。正式代码评审仍 pending。
+
 正式验证首轮（2026-10-10，commit `7ae4ffa11a9438629d54701408cfdfaf9489c7ca`）：独立 Sol validate Agent 在业务树干净时完成格式、vet、非缓存全量 race（92 个顶层／154 个含子用例测试，13 包，0 失败／Skip）、Python 4+1、83.6% 覆盖率、当前 commit CLI build 及真实 CLI/HTTP 2 登记／2 已知／1 未知识别，所有命令 exit 0，源码和资产前后一致。完整记录为 `artifacts/verification/20261010-speaker-commit-validate/summary.json` 与 `20261010-speaker-commit-eval/summary.json`。但 SCN-06 的 score == T 单候选断言缺失，归因为 INCONCLUSIVE；主已记录 validation fail 并恢复同一 TASK-001，仅交回原 worker 补测试。此 fail 表示必要验证未完整，没有观察到实现失败。下列提交前映射须以此更正为准。
 
 阈值补证提交前接受：仅新增 `TestIdentifySingleCandidateThresholdBoundary`，明确断言实际 score == .6 的 matched/正确 ID，以及 score == .59 的 unknown/below_threshold/无选定 ID，均要求单候选。worker 的目标 race、`make check-core`、覆盖率和 diff 检查 exit 0；覆盖率 84.4%。主只读复核 diff 并执行阈值／既有分差／精确排序三个测试的非缓存 race（30s 上限），exit 0。日志在 `artifacts/verification/20261010-speaker-threshold-fix/attempt3-*`。首次可选 .61 用例逐位相等假设因归一化浮点变化失败，日志保留；已移除该可选用例，精确 .6 的真实计算严格相等断言保留。没有修改生产实现或放宽必需边界；TASK-001 可恢复 done，正式验证仍须绑定新 commit。
@@ -151,9 +160,9 @@ T=0.6、M=0.05、120s、256 维、CPU 一线程。实模 A/B 查询相似度分�
 | SCN-01 | `TestRepositoryRoundTripDoesNotExposeEmbedding`、`TestSpeakerListSurvivesWorkbenchRestart`、完整登记/删除/重启旅程，以及 CLI/HTTP 实模登记与列表。 |
 | SCN-02 | `TestIdentifyDecisionBoundariesAndCompatibility`、`TestSpeakerEnrollIdentifyDeleteAndRestartJourney` 的查询前后状态/档案比较，实模两个不同查询正确 ID。 |
 | SCN-03 | 决策测试的空库 unknown，无 score/候选；`TestInvalidRecognitionAudioDoesNotMutateWorkbench` 最后合法输入在空库 unknown。 |
-| SCN-04 | 实模 unknown，无选定 ID；`TestIdentifySingleCandidateThresholdBoundary` 另明确断言 .59 < .6 时 unknown/below_threshold 且不选中 ID。补证已通过目标检查，待新 commit 正式重验。 |
+| SCN-04 | COVERED：实模 unknown，无选定 ID；`TestIdentifySingleCandidateThresholdBoundary` 另明确断言 .59 < .6 时 unknown/below_threshold 且不选中 ID，在 b2d86f7 正式重验通过。 |
 | SCN-05 | 决策分差、精确排序与同分 ambiguous；`TestIdentifySortsByExactScoreBeforeDecisionTolerance` 含 M=1e-14 同分，无选定 ID。 |
-| SCN-06 | 首轮 PARTIAL 历史保留：score == T 当时缺直接断言。现新增 `TestIdentifySingleCandidateThresholdBoundary` 严格断言实际 score == .6 和 matched；原等于 M 边界保留。补证已通过目标检查，待新 commit 正式重验。 |
+| SCN-06 | COVERED：`TestIdentifySingleCandidateThresholdBoundary` 严格断言实际 score == .6 和 matched；原等于 M 边界保留，b2d86f7 正式重验通过。首轮 PARTIAL 历史保留。 |
 | SCN-07 | `TestRecognitionWAVValidatesRecognitionPCM16Bounds` 的空/损坏/截断/近静音/1与60秒边界；完整 `TestInvalidRecognitionAudioDoesNotMutateWorkbench` 登记与识别均拒绝且不写状态/档案/临时目录；copy 字节增长/20MiB、HTTP 输入限额及显式空名、Profile 超长名称测试。 |
 | SCN-08 | Config 绝对路径/限额、Extract 严格协议/文件变化/失败码、旧 feature version 拒绝；Python ready/维度/零向量/非有限特征/实际包版本校验。 |
 | SCN-09 | 完整登记/识别/删除/重启旅程：重复删除、正常关闭重开不复活、绑定 Voice 与 History 保留、已删档案合成拒绝。 |
@@ -168,6 +177,12 @@ T=0.6、M=0.05、120s、256 维、CPU 一线程。实模 A/B 查询相似度分�
 旧 r4/r10/r5 报告、挂起测试与修正历史保留在 Review 和 artifacts；不以这些旧快照为最终业务代码背书。
 
 ## Review
+
+正式评审修正提交前接受：原 Terra 仅改 CLI profile 情绪参考导入、SpeakerErrorCode 的 Generate/StateSave 映射、profile 等待的调用方 deadline 归因，以及必要 CLI/Workbench/HTTP 测试与双语 CHANGELOG，共 6 个业务文件。新 CLI 测试捕获实际 native 请求并严格对照主参考和独立情绪参考的媒体路径/内容；HTTP 502/500、有限阻塞下504/408及原真实 marker 脱敏都通过。已成功/最终持久化失败优先及普通合成契约保留。worker 目标 race、vet、非缓存 full race（90s）、core、Python4+1、recognition race覆盖84.7%及diff检查均exit0，日志及复现失败保存在 `artifacts/verification/20261010-speaker-review-fix/`。主只读核对全部6文件diff，另非缓存race执行CLI参考、HTTP分类/取消、Workbench隐私/最终保存失败五个目标测试，3包exit0。TASK-001 done；待新commit正式验证/重审，不以前一commit的pass代替修正版。
+
+首次正式代码评审（2026-10-10，b2d86f7）：新独立 Sol `speaker_formal_review` 审阅基线至 validation commit 的全部 41 业务文件，确认业务 clean/验证版本一致、guide→USG→参数→实际范围可对应，未发现有证据支持的重复实现或可避免工程债。提出三个 P2：profile CLI 在情绪参考导入前 break，合法 `--emotion-reference` 未设置 EmotionVoiceID；ErrGenerateFailed 未映射落入 persistence_failed（500）而非约定 runtime_failed（502），现有 HTTP 测试固化错误；profile 等待在调用方 deadline 后取消 Background 派生操作，返回 Canceled 而非 DeadlineExceeded（预期504）。主只读核对接受源码定位，记录 changes_requested 并恢复同一 TASK-001；上面 Plan 已补明确验证/恢复策略，原 Terra 窄修，保留 b2d86f7 validation pass 历史，修后重验/重审。
+
+评审证据：business diff/状态检查与41文件指纹一致；HTTP现有脱敏旅程的有界非缓存 race 在允许回环网络后 exit 0（受限首轮失败保留，非业务通过证据），明确实际执行了当前错误的500断言。情绪参考及deadline由具体调用链定位，没有用已通过测试掩盖未覆盖分支。本轮不改变产品范围、不新增第三次架构对抗复审。
 
 正式验证补证定位（2026-10-10）：`recognition_test.go` 的 T=.6、score 1/.95/.97 只覆盖等于 M 的接受；另一个用例覆盖 T 附近排序及同分，不包含单候选 score == T。主只读核对接受该缺口，以同一 TASK 和原 Terra worker 添加明确等于／低于阈值的回归测试，保留首轮通过命令及 fail 记录，不扩大实现范围。
 

@@ -442,6 +442,13 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		result = w.Store.Read().Models
 	case "generate":
 		if speakerProfile != "" {
+			if emotionReference != "" {
+				v, importErr := w.ImportVoice(ctx, emotionReference, "")
+				if importErr != nil {
+					return importErr
+				}
+				d.EmotionVoiceID = &v.ID
+			}
 			g, synthErr := w.SynthesizeSpeaker(ctx, speakerProfile, d)
 			if synthErr != nil {
 				return synthErr

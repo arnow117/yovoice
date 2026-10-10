@@ -148,7 +148,7 @@ surfaces:
 用户已确认完整源码提交与推送；首个实现 commit `7ae4ffa11a9438629d54701408cfdfaf9489c7ca` 已推送。
 首轮独立正式验证的全部已执行检查通过，但 SCN-06 的精确 T 边界断言缺失，必要验证记 fail。
 同一 TASK-001 已按 CLI 支持的 done → todo → in_progress 恢复，由原 worker 补测试后主接受并置 done；证据和历史见工程上下文。
-正式 validation/review 仍待补证后干净 commit，不将首轮命令通过等同整体验收通过。
+补证后的 implementation commit `b2d86f773692db7d58c371b38054e4c2ac114481` 已在干净业务树上通过独立正式验证：157 个含子用例 Go race、Python 4+1、recognition 84.4%、双入口实模 2+1 全通过；首轮 fail 历史保留。正式 review 待执行。
 主 Agent 本轮补充 `make check-web` 已退出 0，
 lint / build / 84 项 Playwright 全通过，日志在 `artifacts/verification/primary-20261010/check-web-network.log`；
 首次受限网络的 pnpm fetch 失败保留在同目录 `check-web.log`。Web 源码及测试输入未修改，此结果仅用于原有前端补充回归。
@@ -174,4 +174,4 @@ lint / build / 84 项 Playwright 全通过，日志在 `artifacts/verification/p
 - canonical 文档索引：`README.md`、`README_zh.md`、`docs/development.md`、`docs/development_zh.md`、`docs/api.md`、`docs/api_zh.md`、`docs/cli.md`、`docs/cli_zh.md`、`docs/models.md`、`docs/models_zh.md`、`desktop/macos/README.md`；路径均存在。
 - `.repo-context`：`none`，未发现 manifest/evidence，未把旧研究报告当作当前证据；源码采集 commit 为上述 HEAD。
 - AI readiness：项目已有职责分层、固定前端依赖、跨端契约与多类测试；主要缺口是 SDLC Web runner、原生实机证据、真实模型质量评估与成功产物归档。
-- 当前推进：REQ-001 / FEAT-001 的产品与工程范围已固定，用户已确认并完成首个源码推送。TASK-001 的精确阈值补证已接受并置 done；正式 validation/review 需绑定补证后的干净 commit，首轮缺口不改写为通过。
+- 当前推进：REQ-001 / FEAT-001 的产品与工程范围已固定，用户已确认并完成源码推送。b2d86f7 的正式 validation pass 与首次review changes_requested历史保留；原 TASK-001 的 profile 情绪参考、推理失败分类、deadline归因三处窄修已由主接受并置 done。提交修正后绑定新commit正式验证/重审。

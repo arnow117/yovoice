@@ -227,9 +227,13 @@ func (w *Workbench) SynthesizeSpeaker(ctx context.Context, profileID string, d s
 	select {
 	case <-op.done:
 	case <-ctx.Done():
+		callerErr := ctx.Err()
 		op.cancel()
 		<-op.done
 		if err = op.Err(); err != nil {
+			if errors.Is(err, context.Canceled) && errors.Is(callerErr, context.DeadlineExceeded) {
+				return schema.Generation{}, context.DeadlineExceeded
+			}
 			return schema.Generation{}, err
 		}
 	}
@@ -448,6 +452,10 @@ func SpeakerErrorCode(err error) string {
 			return "input_too_large"
 		case msg.ErrAudioDecode, msg.ErrAudioDuration, msg.ErrAudioFormat, msg.ErrAudioConverterMissing:
 			return "audio"
+		case msg.ErrGenerateFailed:
+			return "runtime_failed"
+		case msg.ErrStateSaveFailed:
+			return "persistence_failed"
 		}
 	}
 	return recognition.Code(err)

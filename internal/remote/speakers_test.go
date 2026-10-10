@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"yovoice/internal/catalog"
 	"yovoice/internal/msg"
@@ -277,7 +278,7 @@ func TestSpeakerGenerationRouteUsesBindingAndRedactsPrivateDiagnostics(t *testin
 	request = speakerRequest(http.MethodPost, "/v1/speakers/"+profile.ID+"/generate", api.Token, `{"text":"私有标记失败","modelId":"index-2.5-q8","mode":"text","emotionText":"调用方情绪"}`)
 	recorder = httptest.NewRecorder()
 	api.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusInternalServerError || !strings.Contains(recorder.Body.String(), `"persistence_failed"`) {
+	if recorder.Code != http.StatusBadGateway || !strings.Contains(recorder.Body.String(), `"runtime_failed"`) {
 		t.Fatalf("profile native failure = %d %s", recorder.Code, recorder.Body.String())
 	}
 	const marker = "/private/speaker-profile/marker"
@@ -286,7 +287,7 @@ func TestSpeakerGenerationRouteUsesBindingAndRedactsPrivateDiagnostics(t *testin
 		t.Fatalf("fake engine did not emit the marker proof: %q %v", proof, err)
 	}
 	activity := service.Store.Read().Activity
-	if activity == nil || activity.ErrorCode == nil || len(activity.ErrorParams) != 0 {
+	if activity == nil || activity.ErrorCode == nil || *activity.ErrorCode != msg.ErrGenerateFailed || len(activity.ErrorParams) != 0 {
 		t.Fatalf("profile activity = %+v", activity)
 	}
 	for _, name := range []string{"service.log", "last-error.txt", "engine.log.out", "engine.log", "engine-error.log", "last-inference-error.txt"} {
@@ -298,6 +299,73 @@ func TestSpeakerGenerationRouteUsesBindingAndRedactsPrivateDiagnostics(t *testin
 			t.Fatalf("native marker leaked to %s", name)
 		}
 	}
+
+	backup := filepath.Join(service.Store.Root, "state.backup.json")
+	if err = os.Remove(backup); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.Mkdir(backup, 0700); err != nil {
+		t.Fatal(err)
+	}
+	request = speakerRequest(http.MethodPost, "/v1/speakers/"+profile.ID+"/generate", api.Token, `{"text":"状态保存失败","modelId":"index-2.5-q8"}`)
+	recorder = httptest.NewRecorder()
+	api.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusInternalServerError || !strings.Contains(recorder.Body.String(), `"persistence_failed"`) {
+		t.Fatalf("profile state save failure = %d %s", recorder.Code, recorder.Body.String())
+	}
+}
+
+func TestSpeakerGenerationRouteDistinguishesDeadlineAndCancellation(t *testing.T) {
+	t.Run("deadline", func(t *testing.T) {
+		api, service, profile, _ := configuredProfileAPI(t)
+		defer service.Close()
+		api.GenerationTimeout = time.Second
+
+		request := speakerRequest(http.MethodPost, "/v1/speakers/"+profile.ID+"/generate", api.Token, `{"text":"等待取消","modelId":"index-2.5-q8"}`)
+		recorder := httptest.NewRecorder()
+		api.ServeHTTP(recorder, request)
+		if recorder.Code != http.StatusGatewayTimeout || !strings.Contains(recorder.Body.String(), `"deadline"`) {
+			t.Fatalf("profile deadline = %d %s", recorder.Code, recorder.Body.String())
+		}
+	})
+
+	t.Run("caller cancellation", func(t *testing.T) {
+		api, service, profile, _ := configuredProfileAPI(t)
+		defer service.Close()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		request := speakerRequest(http.MethodPost, "/v1/speakers/"+profile.ID+"/generate", api.Token, `{"text":"等待取消","modelId":"index-2.5-q8"}`).WithContext(ctx)
+		recorder := httptest.NewRecorder()
+		finished := make(chan struct{})
+		go func() {
+			api.ServeHTTP(recorder, request)
+			close(finished)
+		}()
+
+		waitForProfileSynthesis(t, service)
+		cancel()
+		select {
+		case <-finished:
+		case <-time.After(2 * time.Second):
+			t.Fatal("caller cancellation did not finish the request")
+		}
+		if recorder.Code != http.StatusRequestTimeout || !strings.Contains(recorder.Body.String(), `"cancelled"`) {
+			t.Fatalf("profile caller cancellation = %d %s", recorder.Code, recorder.Body.String())
+		}
+	})
+}
+
+func waitForProfileSynthesis(t *testing.T, service *workbench.Workbench) {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		activity := service.Store.Read().Activity
+		if activity != nil && activity.Code == msg.ActivitySynthesizing {
+			return
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	t.Fatal("profile generation did not reach native synthesis")
 }
 
 func configuredProfileAPI(t *testing.T) (*API, *workbench.Workbench, recognition.Profile, schema.Voice) {
