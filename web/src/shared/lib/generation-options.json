@@ -290,6 +290,75 @@
       "step": 0.01
     }
   ],
+  "breeze_tts": [
+    {
+      "key": "text_chunk_size",
+      "type": "number",
+      "default": 160,
+      "min": 20,
+      "max": 600,
+      "step": 1
+    },
+    {
+      "key": "text_chunk_mode",
+      "type": "select",
+      "default": "default",
+      "values": [
+        "default",
+        "tag_aware",
+        "japanese",
+        "endline"
+      ]
+    },
+    {
+      "key": "max_tokens",
+      "type": "number",
+      "default": 900,
+      "min": 50,
+      "max": 1500,
+      "step": 1
+    },
+    {
+      "key": "guidance_scale",
+      "type": "number",
+      "default": 1,
+      "min": 1,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "key": "temperature",
+      "type": "number",
+      "default": 0.9,
+      "min": 0.05,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "key": "depth_temperature",
+      "type": "number",
+      "default": 0.9,
+      "min": 0.05,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "key": "top_k",
+      "type": "number",
+      "default": 50,
+      "min": 1,
+      "max": 200,
+      "step": 1
+    },
+    {
+      "key": "top_p",
+      "type": "number",
+      "default": 1,
+      "min": 0.01,
+      "max": 1,
+      "step": 0.01
+    }
+  ],
   "kokoro_tts": [
     {
       "key": "text_chunk_size",
@@ -297,6 +366,76 @@
       "default": 64,
       "min": 32,
       "max": 120,
+      "step": 1
+    }
+  ],
+  "ace_step": [
+    {
+      "key": "duration_seconds",
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 300,
+      "step": 1
+    },
+    {
+      "key": "bpm",
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 300,
+      "step": 1
+    },
+    {
+      "key": "keyscale",
+      "type": "select",
+      "default": "auto",
+      "values": [
+        "auto",
+        "C major",
+        "C minor",
+        "C# major",
+        "C# minor",
+        "D major",
+        "D minor",
+        "Eb major",
+        "Eb minor",
+        "E major",
+        "E minor",
+        "F major",
+        "F minor",
+        "F# major",
+        "F# minor",
+        "G major",
+        "G minor",
+        "Ab major",
+        "Ab minor",
+        "A major",
+        "A minor",
+        "Bb major",
+        "Bb minor",
+        "B major",
+        "B minor"
+      ]
+    },
+    {
+      "key": "timesignature",
+      "type": "select",
+      "default": "auto",
+      "values": [
+        "auto",
+        "2",
+        "3",
+        "4",
+        "6"
+      ]
+    },
+    {
+      "key": "num_inference_steps",
+      "type": "number",
+      "default": 8,
+      "min": 1,
+      "max": 20,
       "step": 1
     }
   ]

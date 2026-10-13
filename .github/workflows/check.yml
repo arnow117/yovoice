@@ -1,7 +1,7 @@
 name: Check and Package
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
   workflow_dispatch:
   workflow_call:
@@ -17,7 +17,7 @@ permissions:
 env:
   PYTHONUTF8: "1"
 concurrency:
-  group: build-${{ github.workflow }}-${{ inputs.tag || github.ref }}
+  group: build-${{ github.workflow }}-${{ inputs.tag || github.head_ref || github.ref_name }}
   cancel-in-progress: ${{ !inputs.release }}
 jobs:
   package:
@@ -67,9 +67,9 @@ jobs:
           echo "YOVOICE_BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
       - run: pnpm --dir web install --frozen-lockfile
       - run: pnpm --dir web exec playwright install chromium
-        if: ${{ !inputs.release }}
+        if: ${{ !inputs.release && runner.os == 'Windows' }}
       - run: pnpm --dir web run lint
-        if: ${{ !inputs.release }}
+        if: ${{ !inputs.release && runner.os == 'Windows' }}
       - run: go test -race ./...
         if: ${{ !inputs.release }}
       - run: python3 scripts/desktop/check-signing.py
@@ -80,7 +80,7 @@ jobs:
           swift test --package-path desktop/macos
           python3 scripts/desktop/check-macos-update.py
       - run: pnpm --dir web test
-        if: ${{ !inputs.release }}
+        if: ${{ !inputs.release && runner.os == 'Windows' }}
       - name: Cache audio.cpp runtime
         uses: actions/cache@v4
         with:
@@ -112,7 +112,12 @@ jobs:
       - name: Package Windows
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./scripts/desktop/build-windows.ps1 -Package -Cuda
+        run: |
+          if ('${{ inputs.release }}' -eq 'true') {
+            ./scripts/desktop/build-windows.ps1 -Package -Cuda
+          } else {
+            ./scripts/desktop/build-windows.ps1 -Package
+          }
       - name: Verify Windows service errors and recovery
         if: runner.os == 'Windows'
         shell: pwsh
@@ -197,8 +202,7 @@ jobs:
             artifacts/yovoice-macos-arm64.dmg
             artifacts/yovoice-windows-x64-setup.exe
             artifacts/yovoice-windows-x64-update.exe
-            artifacts/yovoice-windows-x64-cuda12.4-setup.exe
-            artifacts/yovoice-windows-x64-cuda13.3-setup.exe
+            artifacts/yovoice-windows-x64-cuda*.exe
           if-no-files-found: error
           retention-days: 14
       - uses: actions/upload-artifact@v4
@@ -208,7 +212,7 @@ jobs:
           path: artifacts/yovoice-ffmpeg-source.tar.gz
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() && runner.os == 'Windows'
         with:
           name: test-results-${{ matrix.platform }}
           path: web/test-results/

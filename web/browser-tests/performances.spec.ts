@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { seedState } from './seed';
 import { cueAudioStatus, cueSettings, emptyState, synthesisSettings } from '../src/shared/workbench';
 
 test('角色多种演绎独立配置，逐句选择与修改互不影响并持久化', async ({ page }, info) => {
@@ -12,7 +13,7 @@ test('角色多种演绎独立配置，逐句选择与修改互不影响并持�
     { id: 'second', start: 1000, end: 2000, text: '妖怪，站住！', speakerId: 'monkey' },
   ] };
   await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
+  await seedState(page, state);
   await page.reload();
   await page.getByTestId('nav-characters').click();
   await page.getByRole('button', { name: '编辑角色', exact: true }).click();
@@ -20,6 +21,11 @@ test('角色多种演绎独立配置，逐句选择与修改互不影响并持�
   await editor.getByRole('button', { name: '新增演绎', exact: true }).click();
   await expect(editor.getByLabel('演绎名称', { exact: true })).toHaveCount(0);
   await editor.getByRole('button', { name: '演绎操作', exact: true }).click();
+  const renameItemIcon = page.getByRole('menuitem', { name: '重命名演绎', exact: true }).locator('svg');
+  await expect(renameItemIcon).toBeVisible();
+  const iconBox = (await renameItemIcon.boundingBox())!;
+  expect(Math.abs(iconBox.width - 16)).toBeLessThanOrEqual(1);
+  expect(Math.abs(iconBox.height - 16)).toBeLessThanOrEqual(1);
   await page.getByRole('menuitem', { name: '重命名演绎', exact: true }).click();
   await page.getByLabel('演绎名称', { exact: true }).fill('愤怒');
   await page.getByRole('button', { name: '重命名演绎', exact: true }).click();
@@ -97,7 +103,7 @@ test('语音项目选择独立模型演绎并支持回到默认', async ({ page 
   d.modelId = 'index-2.5-q8'; d.speaker = 'Vivian'; d.voiceDescription = '平静'; d.characterId = 'b'.repeat(32);
   state.characters = [{ id: d.characterId, name: '薇薇安', demoText: '', settings: synthesisSettings(d), performances: [{ id: 'c'.repeat(32), name: '开心', settings: synthesisSettings(d) }] }];
   await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
+  await seedState(page, state);
   await page.reload();
   await page.getByTestId('nav-characters').click();
   await page.getByRole('button', { name: '编辑角色', exact: true }).click();

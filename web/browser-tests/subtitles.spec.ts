@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { seedState } from './seed';
 import { SubtitleParser } from '../src/features/create/subtitle-parser';
 import { emptyState, synthesisSettings } from '../src/shared/workbench';
 
@@ -19,12 +20,11 @@ test('字幕格式保留时间、人名和多行文本，拒绝损坏输入', ()
   for (const source of ['', 'garbage', '1\n00:99:00,000 --> 00:00:03,000\nHi', '1\n00:00:03,000 --> 00:00:01,000\nHi']) expect(() => parser.parse('bad.srt', source)).toThrow();
   expect(() => parser.parse('bad.srt', `1\n00:00:01,000 --> 00:00:02,000\n${'x'.repeat(12001)}`)).toThrow();
 });
-
 test('导入新作品、统一角色映射、逐句分配和重载持久化', async ({ page }, testInfo) => {
   const state = emptyState();
   state.characters = [{ id: 'a'.repeat(32), name: '旁白角色', settings: { ...synthesisSettings(state.drafts[0]), modelId: 'voxcpm2-q8', voiceDescription: '温柔' }, demoText: '' }];
   await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
+  await seedState(page, state);
   await page.reload();
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '故事配音', exact: true }).click();
@@ -88,7 +88,7 @@ test('选择台词编辑对应说话人，末尾新增继承上一句并持久�
     cues: ['1', '2', '1'].map((speakerId, index) => ({ start: index * 1000, end: (index + 1) * 1000, text: ['第一句', '第二句', '第三句'][index], speakerId })),
   };
   await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
+  await seedState(page, state);
   await page.reload();
   await page.getByLabel('第 1 句台词', { exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Alice', exact: true })).toBeVisible();
@@ -121,52 +121,4 @@ test('选择台词编辑对应说话人，末尾新增继承上一句并持久�
   expect(saved.subtitles.speakers[1].settings.voiceDescription).toBe('低沉');
   expect(saved.subtitles.cues[3].speakerId).toBe('1');
   expect(saved.text).toBe('第一句\n第二句\n第三句\n新增的一句');
-});
-
-test('空白台词删除后恢复相邻焦点，支持跨页和删除最后一行', async ({ page }) => {
-  const state = emptyState();
-  const draft = state.drafts[0];
-  const cues = Array.from({ length: 51 }, (_, i) => ({ start: i * 1000, end: (i + 1) * 1000, text: i === 49 ? '保留台词' : '', speakerId: '1' }));
-  draft.subtitles = { speakers: [{ id: '1', sourceName: 'Alice' }], cues };
-  draft.text = cues.map(cue => cue.text).join('\n');
-  await page.goto('/');
-  await page.evaluate(state => localStorage.setItem('voice-workbench-v1', JSON.stringify(state)), state);
-  await page.reload();
-  await page.getByRole('button', { name: '下一页', exact: true }).click();
-  await page.getByLabel('第 51 句台词', { exact: true }).press('Backspace');
-  const previous = page.getByLabel('第 50 句台词', { exact: true });
-  await expect(previous).toBeFocused();
-  expect(await previous.evaluate((element: HTMLTextAreaElement) => element.selectionStart)).toBe(4);
-  await previous.press('Backspace');
-  await expect(previous).toHaveValue('保留台');
-  await expect(page.locator('.subtitle-cue')).toHaveCount(50);
-  const first = page.getByLabel('第 1 句台词', { exact: true });
-  await first.press('Delete');
-  await expect(first).toBeFocused();
-  await expect(page.locator('.subtitle-cue')).toHaveCount(49);
-  // 输入法组词期间的退格不能删除整句。
-  await first.dispatchEvent('keydown', { key: 'Backspace', isComposing: true });
-  await expect(page.locator('.subtitle-cue')).toHaveCount(49);
-  for (let i = 0; i < 48; i++) await first.press('Delete');
-  await expect(first).toHaveValue('保留台');
-  await first.fill('  ');
-  await first.press('Backspace');
-  await expect(page.locator('.subtitle-cue')).toHaveCount(0);
-  const addCue = page.getByRole('button', { name: '新增台词', exact: true });
-  await expect(addCue).toBeFocused();
-  await expect(addCue).toHaveCSS('outline-style', 'none');
-  await expect(addCue).toHaveCSS('text-decoration-line', 'underline');
-  await addCue.press('Enter');
-  await expect(first).toBeFocused();
-  await first.press('Backspace');
-  await expect(page.locator('.subtitle-cue')).toHaveCount(0);
-  await expect(page.getByText('已保存', { exact: true })).toBeVisible();
-  await page.reload();
-  await expect(page.locator('.subtitle-cue')).toHaveCount(0);
-  await page.getByRole('button', { name: '新增台词', exact: true }).click();
-  await expect(first).toBeFocused();
-  await first.fill('重新开始');
-  await expect(page.getByRole('heading', { name: 'Alice', exact: true })).toBeVisible();
-  await expect(page.locator('.inspector .subtitle-avatar')).toHaveCount(1);
-  await expect(page.getByText('参数应用于该说话人的所有台词', { exact: true })).toHaveCount(0);
 });

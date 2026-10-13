@@ -111,6 +111,32 @@ yovoice generate --speaker-profile PROFILE_ID --model voxcpm2-q8 --text "你好"
 ```
 
 `--speaker-profile` 不能与 `--voice`、`--reference` 或 `--reference-text` 同时使用。支持 IndexTTS、VoxCPM 的 clone/continuation、OmniVoice clone 和 Qwen3-TTS Base；VoiceDesign、CustomVoice 与 Kokoro 会被拒绝。缺少绑定或绑定音色已删除时不会回退到其他音色。
+## 编曲
+
+用乐谱 JSON 或 MIDI 渲染配乐，需要先下载音色库，不需要推理引擎：
+
+```sh
+yovoice models download musescore-general-sf2
+yovoice score render score.json --output music.wav --stems stems/
+yovoice score midi score.json --output score.mid
+yovoice score from-midi song.mid --output score.json
+```
+
+乐谱格式、混音约定和 MIDI 导入规则见[编曲](score_zh.md)。
+
+## 以 stdio 方式提供 MCP
+
+Claude Desktop、Cursor、Claude Code 等本机 MCP 客户端可以把 yovoice 作为子进程启动，无需令牌和端口：
+
+```json
+{
+  "mcpServers": {
+    "yovoice": {"command": "yovoice", "args": ["mcp"]}
+  }
+}
+```
+
+可执行文件不在客户端的 PATH 中时请写完整路径；在 `args` 中加上 `"--data-dir", "DIR"` 可使用独立目录。工具与[远程 MCP](api_zh.md#连接-mcp-客户端) 相同，区别有两点：结果返回生成 WAV 的本机路径 `path` 而不是 `downloadPath`；`upload_voice` 也可以传本机音频文件的 `path`。与其他命令一样，`yovoice mcp` 独占数据目录；桌面应用打开时，请改为连接它的[本机接口](api_zh.md#在同一台电脑上使用桌面应用) `http://127.0.0.1:8080/mcp`。
 
 ## 数据目录
 

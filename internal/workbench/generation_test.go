@@ -2,6 +2,7 @@ package workbench
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"yovoice/internal/catalog"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
+	"yovoice/internal/testkit"
 )
 
 func TestSynthesizePreservesOrdinaryTerminalErrorDetail(t *testing.T) {
@@ -88,6 +90,84 @@ func TestSynthesizePrioritizesFinalStateSaveFailure(t *testing.T) {
 	}
 }
 
+// 同步请求必须使用自身操作的结果，不能在结束后读取被另一客户端覆盖的 Activity。
+func TestSynthesizeReturnsOwnResultAfterAnotherOperationStarts(t *testing.T) {
+	workbench, err := New(t.TempDir())
+	must(t, err)
+	defer workbench.Close()
+	voice := configureProfileGeneration(t, workbench)
+	draft := schema.DefaultDraft()
+	draft.ID = schema.NewID()
+	draft.ModelID = "voxcpm2-q8"
+	draft.Text = "独立结果"
+	draft.VoiceID = &voice.ID
+	draft.ReferenceText = voice.ReferenceText
+	draft.VoxMode = "continuation"
+
+	saved := make(chan struct{})
+	allowFinish := make(chan struct{})
+	resultReady := make(chan struct{})
+	allowReturn := make(chan struct{})
+	workbench.afterGenerationSaved = func() {
+		close(saved)
+		<-allowFinish
+	}
+	workbench.beforeSynthesizeResultReturn = func() {
+		close(resultReady)
+		<-allowReturn
+	}
+	result := make(chan struct {
+		generation schema.Generation
+		err        error
+	}, 1)
+	go func() {
+		generation, synthErr := workbench.Synthesize(context.Background(), draft)
+		result <- struct {
+			generation schema.Generation
+			err        error
+		}{generation: generation, err: synthErr}
+	}()
+
+	select {
+	case <-saved:
+	case <-time.After(2 * time.Second):
+		t.Fatal("first generation was not saved")
+	}
+	close(allowFinish)
+	select {
+	case <-resultReady:
+	case <-time.After(2 * time.Second):
+		t.Fatal("first synthesis did not reach result return")
+	}
+
+	successor, err := workbench.start("download", msg.ActivityDownload, nil, nil, func(ctx context.Context) error {
+		<-ctx.Done()
+		return ctx.Err()
+	})
+	must(t, err)
+	defer func() {
+		successor.cancel()
+		<-successor.done
+	}()
+	activity := workbench.Store.Read().Activity
+	if activity == nil || activity.Status != "running" || activity.Code != msg.ActivityDownload {
+		t.Fatalf("successor activity = %+v", activity)
+	}
+
+	close(allowReturn)
+	select {
+	case received := <-result:
+		if received.err != nil {
+			t.Fatalf("first synthesis failed after successor started: %v", received.err)
+		}
+		if received.generation.ID == "" || received.generation.Settings.ID != draft.ID {
+			t.Fatalf("first synthesis result = %+v", received.generation)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("first synthesis did not return")
+	}
+}
+
 // 历史快照不携带时间轴，作品自身的时间轴保持不变。
 func TestGenerationSnapshotOmitsTimeline(t *testing.T) {
 	wb, err := New(t.TempDir())
@@ -123,5 +203,83 @@ func TestGenerationSnapshotOmitsTimeline(t *testing.T) {
 	}
 	if state.Drafts[0].ID != d.ID || state.Drafts[0].Timeline == nil {
 		t.Fatal("作品时间轴应保留")
+	}
+}
+
+// 音乐模型需要较新的内核：仅满足应用最低版本时拒绝生成并提示更新，升级后完成闭环。
+func TestMusicGenerationRequiresEngineVersion(t *testing.T) {
+	wb, err := New(t.TempDir())
+	must(t, err)
+	defer wb.Close()
+	executable, err := os.Executable()
+	must(t, err)
+	model := filepath.Join(wb.Store.Root, "models", "ace-step.gguf")
+	must(t, os.WriteFile(model, []byte("test"), 0600))
+	install := func(version string) {
+		must(t, wb.Store.Update(func(s *schema.State) {
+			s.Models = []schema.InstalledModel{{ID: "ace-step-1.5-turbo-bf16", Path: model}}
+			s.RuntimePath = &executable
+			s.RuntimeBackend = ptr("cpu")
+			s.RuntimeVersion = ptr(version)
+			s.Preferences.Backend = "cpu"
+		}, true))
+	}
+	d := schema.DefaultDraft()
+	d.Kind, d.ModelID, d.Text, d.Lyrics = "music", "ace-step-1.5-turbo-bf16", "city pop, chill", "[verse]\n晚风"
+	install(catalog.EngineMinimum)
+	if catalog.EngineMinimum != "v0.9.1" {
+		var ce *msg.CallError
+		if err := wb.Generate(d); !errors.As(err, &ce) || ce.Code != msg.ErrEngineUpgradeRequired {
+			t.Fatalf("旧内核应提示更新：%v", err)
+		}
+	}
+	install(catalog.EngineVersion)
+	must(t, wb.Generate(d))
+	<-wb.Done()
+	state := wb.Store.Read()
+	if state.Activity == nil || state.Activity.Status != "completed" || len(state.History) != 1 || state.History[0].Settings.Lyrics != d.Lyrics || state.Drafts[0].Kind != "music" {
+		t.Fatalf("%+v", state.Activity)
+	}
+}
+
+// 编曲作品不需要推理内核：装好音色库即可渲染为一个版本，未装音色库时提示下载。
+func TestScoreRendersWithoutEngine(t *testing.T) {
+	wb, err := New(t.TempDir())
+	must(t, err)
+	defer wb.Close()
+	d := schema.DefaultDraft()
+	d.Kind, d.ModelID, d.Title = "score", "musescore-general-sf2", "片头"
+	d.Score = &schema.Score{Tempo: 120, TimeSignature: []int{4, 4}, Tracks: []schema.ScoreTrack{{ID: "piano", Name: "钢琴", Role: "piano", Notes: []schema.ScoreNote{{Bar: 1, Beat: 1, Pitch: 62, Length: 2, Velocity: 90}}}}}
+	var ce *msg.CallError
+	if err := wb.Generate(d); !errors.As(err, &ce) || ce.Code != msg.ErrModelRequired {
+		t.Fatalf("未装音色库应提示下载：%v", err)
+	}
+	font := filepath.Join(wb.Store.Root, "models", "test.sf2")
+	must(t, os.WriteFile(font, testkit.SoundFont(), 0600))
+	must(t, wb.Store.Update(func(s *schema.State) { s.Models = []schema.InstalledModel{{ID: "musescore-general-sf2", Path: font}} }, true))
+	broken := d
+	broken.Score = &schema.Score{Tempo: 120, TimeSignature: []int{4, 4}}
+	if err := wb.Generate(broken); !errors.As(err, &ce) || ce.Code != msg.ErrScoreInvalid {
+		t.Fatalf("空乐谱应校验失败：%v", err)
+	}
+	must(t, wb.Generate(d))
+	<-wb.Done()
+	state := wb.Store.Read()
+	if state.Activity == nil || state.Activity.Status != "completed" || len(state.History) != 1 || state.History[0].Settings.Score == nil || state.Drafts[0].Kind != "score" {
+		t.Fatalf("%+v", state.Activity)
+	}
+	if g := state.History[0]; g.Duration < 3.99 || g.Duration > 4.01 { // 一小节 2 秒加 2 秒收尾
+		t.Fatal(g.Duration)
+	}
+
+	generation, err := wb.Synthesize(context.Background(), d)
+	if err != nil {
+		t.Fatalf("同步编曲生成失败：%v", err)
+	}
+	if generation.ID == "" || generation.Settings.Score == nil || generation.Settings.ID != d.ID {
+		t.Fatalf("同步编曲结果 = %+v", generation)
+	}
+	if len(wb.Store.Read().History) != 2 {
+		t.Fatalf("同步编曲未写入历史：%+v", wb.Store.Read().History)
 	}
 }

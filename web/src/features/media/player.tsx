@@ -14,9 +14,10 @@ import type { Track } from '../../shared/workbench';
 // 头像素材仅在展示库列表时加载，避免进入创作首屏主包。
 const SeededAvatar = lazy(() => import('../../shared/ui/seeded-avatar').then(module => ({ default: module.SeededAvatar })));
 
-export function Player({ track, onError, suspended, compact = false, historyControl, actions, laneActions, avatar, inline }: { inline?: { label: string; select: () => void }; avatar?: { seed: string; label: string; disabled?: boolean; select: () => void }; actions?: ReactNode; laneActions?: ReactNode; historyControl?: ReactNode; compact?: boolean; suspended: boolean; track: Track | null; onError: (message: string) => void }) {
+export function Player({ track, onError, suspended, compact = false, historyControl, actions, laneActions, avatar, inline, onProgress, seekRequest }: { onProgress?: (time: number, playing: boolean) => void; seekRequest?: { time: number; nonce: number }; inline?: { label: string; select: () => void }; avatar?: { seed: string; label: string; disabled?: boolean; select: () => void }; actions?: ReactNode; laneActions?: ReactNode; historyControl?: ReactNode; compact?: boolean; suspended: boolean; track: Track | null; onError: (message: string) => void }) {
   const t = useTranslator();
-  const panel = useAudioPanel(!!track || !!historyControl, compact || avatar || inline ? undefined : 'audio-player-compact-height');
+  const resizable = !compact && !avatar && !inline && !!laneActions;
+  const panel = useAudioPanel(!!track || !!historyControl, resizable ? 'audio-player-compact-height' : undefined);
   const audio = useRef<HTMLAudioElement>(null);
   const autoplay = useRef(false);
   const lane = useRef<HTMLElement>(null);
@@ -75,6 +76,10 @@ export function Player({ track, onError, suspended, compact = false, historyCont
     const group = 8 / zoom;
     return Array.from({ length: Math.ceil(peaks.length / group) }, (_, i) => Math.max(...peaks.slice(i * group, (i + 1) * group)));
   }, [peaks, zoom]);
+  // 编曲视图跟随播放位置显示指针，也可以点标尺跳转。
+  const reportProgress = useEffectEvent(() => onProgress?.(time, playing));
+  useEffect(() => reportProgress(), [time, playing]);
+  useEffect(() => { if (seekRequest && audio.current) { audio.current.currentTime = seekRequest.time; setTime(seekRequest.time); } }, [seekRequest]);
   const toggle = async () => {
     if (!audio.current) return;
     if (playing) {
@@ -119,8 +124,8 @@ export function Player({ track, onError, suspended, compact = false, historyCont
     <small className="preview-time">{formatTime(duration)}</small>
     <Button label={volume === 0 ? t('@yovoice.player.unmute') : t('@yovoice.player.mute')} isIconOnly icon={volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />} size="sm" variant="ghost" onClick={() => { const next = volume === 0 ? 1 : 0; setVolume(next); if (audio.current) audio.current.volume = next; }} />
   </HStack>;
-  return <VStack as="footer" className="player audio-panel" gap={0} style={{ height: panel.size }}>
-    <ResizeHandle label={t('@yovoice.timeline.resize')} direction="vertical" pillPlacement="center" isReversed resizable={panel.props} />
+  return <VStack as="footer" className={`player audio-panel ${resizable ? '' : 'player-single'}`.trim()} gap={0} style={resizable ? { height: panel.size } : undefined}>
+    {resizable ? <ResizeHandle label={t('@yovoice.timeline.resize')} direction="vertical" pillPlacement="center" isReversed resizable={panel.props} /> : null}
     {media}
     <PlaybackToolbar time={time} duration={duration} playing={playing} disabled={!url || suspended} toggle={() => void toggle()}
       beforePlay={<Button label={t('@yovoice.player.skipStart')} isIconOnly icon={<SkipBack size={16} />} size="sm" variant="ghost" isDisabled={!url} onClick={() => seek(0)} />}

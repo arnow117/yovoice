@@ -41,10 +41,13 @@ type Workbench struct {
 	beforeSpeakerCommit func()
 	// afterGenerationSaved 仅供受控测试在历史记录已写入、操作最终状态尚未收尾时同步。
 	afterGenerationSaved func()
+	// beforeSynthesizeResultReturn 仅供受控测试在同步生成取得本次结果后、返回调用方前同步。
+	beforeSynthesizeResultReturn func()
 	// beforeSpeakerResultReturn 仅供受控测试在 profile 操作完成后、调用方取得结果前同步。
 	beforeSpeakerResultReturn func()
 	// bundled 记录随安装包分发的内核，键为后端；启动时登记，之后只读。
 	bundled map[string]bundledRuntime
+	ai      aiState
 }
 
 // operation 持有一次后台操作自己的取消、收尾与最终错误，避免已完成请求影响后续请求。
@@ -81,6 +84,10 @@ func New(root string) (*Workbench, error) {
 		return download.Proxy(req, preferences.ProxyURL)
 	}
 	w := &Workbench{Store: s, engine: engine.New(root), client: &http.Client{Transport: transport}, bundled: map[string]bundledRuntime{}}
+	// 先找回已解压的内核再清理，避免把仍可使用的 GPU 内核当作残留删除。
+	if e = w.adoptRuntimes(); e != nil {
+		return nil, e
+	}
 	w.removeStale()
 	if e = w.recordLegacyRuntimeVersion(); e != nil {
 		return nil, e
@@ -259,6 +266,7 @@ func (w *Workbench) Close() {
 		if done != nil {
 			<-done
 		}
+		w.stopAI()
 		w.engine.Stop()
 		w.client.CloseIdleConnections()
 	})

@@ -28,7 +28,8 @@ func (w *Workbench) Synthesize(ctx context.Context, d schema.Draft) (schema.Gene
 	if err := ctx.Err(); err != nil {
 		return schema.Generation{}, err
 	}
-	op, err := w.startGeneration(d, "", "", "", false, nil)
+	var generation schema.Generation
+	op, err := w.startGeneration(d, "", "", "", false, &generation)
 	if err != nil {
 		return schema.Generation{}, err
 	}
@@ -44,6 +45,12 @@ func (w *Workbench) Synthesize(ctx context.Context, d schema.Draft) (schema.Gene
 	}
 	if err := op.Err(); err != nil {
 		return schema.Generation{}, fmt.Errorf("语音生成失败：%s", errorTextForOperation(err))
+	}
+	if generation.ID != "" {
+		if w.beforeSynthesizeResultReturn != nil {
+			w.beforeSynthesizeResultReturn()
+		}
+		return generation, nil
 	}
 	state := w.Store.Read()
 	if activity := state.Activity; activity == nil || activity.Status != "completed" {
@@ -95,6 +102,9 @@ func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clip
 			diag.Log(w.Store.Root, "generation.rejected", "project_id", d.ID, "error", diag.Error(err))
 		}
 	}()
+	if d.Kind == "score" {
+		return w.startScore(d, saveDraft, result)
+	}
 	d.EnsureCueIDs()
 	original := d
 	if cueID != "" {
@@ -136,6 +146,11 @@ func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clip
 
 	if !RuntimeReady(s) {
 		return nil, msg.Err(msg.ErrRuntimeRequired, nil)
+	}
+	for _, part := range parts {
+		if e = modelEngineReady(s, part.model.ID); e != nil {
+			return nil, e
+		}
 	}
 	if saveDraft {
 		if e = w.saveDraft(original); e != nil {

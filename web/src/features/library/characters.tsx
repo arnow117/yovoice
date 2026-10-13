@@ -1,7 +1,8 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
-import { AudioLines, Ellipsis, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Ellipsis, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AppDialog, ConfirmDelete } from '../../shared/ui/app-dialog';
-import { LibraryEmpty, LibraryEntry, LibraryPage } from './library-layout';
+import { LibraryEmpty, LibraryPage, Ticket, TicketStamp } from './library-layout';
+import { RecordCover } from './record-cover';
 import { Studio } from '../create/studio';
 import { Selector } from '../../shared/selector';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
@@ -15,6 +16,7 @@ const VoicePicker = lazy(() => import('../media/voice-picker').then(module => ({
 import { call } from '../../shared/lib/client';
 import { formatActivity, formatActivityError, formatCallError, formatNotice } from '../../shared/i18n/format';
 import { stableJSON, previewStale, performanceSettings, synthesisSettings, type Character, type Draft, type State, type ModelPackage, type Track } from '../../shared/workbench';
+import { overflowTitle } from '../../shared/ui/overflow-title';
 
 export function CharacterEditor({ initial, state, catalog, active = true, close, settings, apply }: { active?: boolean; initial: Character; state: State; catalog: ModelPackage[]; close: (saved?: Character) => void; settings: (modelId?: string) => void; apply?: (saved: Character) => Promise<void> }) {
   const t = useTranslator();
@@ -77,7 +79,7 @@ export function CharacterEditor({ initial, state, catalog, active = true, close,
   const editorActions = <HStack gap={2}><Button label={t('@yovoice.character.close')} variant="secondary" isLoading={saving} isDisabled={editingBusy} onClick={() => void finish()} /><Button label={t('@yovoice.library.save')} variant="primary" isDisabled={editingBusy || !!invalid} onClick={() => void save()} />{apply ? <Button label={t('@yovoice.library.saveApply')} isDisabled={editingBusy || !!invalid} onClick={() => void save(false, true)} /> : null}</HStack>;
   const previewAction = <VStack gap={3}>
     <HStack className="inspector-document-actions" hAlign="end">{editorActions}</HStack>
-    {pending && busy ? <Button label={t('@yovoice.create.cancelGenerate')} width="100%" onClick={() => { void call('operation.cancel').catch(e => setError(formatCallError(t, e))); }} /> : <Button label={t(preview ? '@yovoice.character.regenerate' : '@yovoice.character.preview')} variant="primary" width="100%" size="lg" isLoading={requesting || !!pending} isDisabled={editingBusy || busy || !!invalid || !character.demoText.trim()} onClick={() => void generate()} />}
+    {pending && busy ? <Button label={t('@yovoice.create.cancelGenerate')} width="100%" onClick={() => { void call('operation.cancel').catch(e => setError(formatCallError(t, e))); }} /> : <Button label={t(preview ? '@yovoice.character.regenerate' : '@yovoice.character.preview')} variant="primary" width="100%" isLoading={requesting || !!pending} isDisabled={editingBusy || busy || !!invalid || !character.demoText.trim()} onClick={() => void generate()} />}
     {pending && state.activity ? <small role="status">{formatActivity(t, state.activity)}</small> : null}
   </VStack>;
   return <>
@@ -91,14 +93,14 @@ export function CharacterEditor({ initial, state, catalog, active = true, close,
       actions={editorActions} inspector={<Inspector draft={draft} state={state} catalog={catalog} change={change} chooseVoice={() => setChoosing('voice')} chooseEmotion={() => setChoosing('emotion')} play={value => setTrack({ ...value, playRequest: performance.now() })} generate={() => void generate()} cancel={() => {}} settings={() => settings(draft.modelId)} advanced={advanced} setAdvanced={setAdvanced} close={() => setShowInspector(false)} allowModelManagement generationAction={previewAction} libraryActions={<>
         <HStack gap={2} vAlign="end">
           <Selector label={t('@yovoice.performance.label')} width="100%" value={performanceId} isDisabled={editingBusy} options={[{ value: '', label: t('@yovoice.performance.default') }, ...(character.performances ?? []).map(p => ({ value: p.id, label: p.name }))]} onChange={id => { setPerformanceId(id); setTrack(null); }} />
-          <Button size="md" isIconOnly icon={<Plus />} label={t('@yovoice.performance.add')} isDisabled={editingBusy || (character.performances?.length ?? 0) >= 32} onClick={() => {
+          <Button size="md" isIconOnly icon={<Plus size={16} />} label={t('@yovoice.performance.add')} isDisabled={editingBusy || (character.performances?.length ?? 0) >= 32} onClick={() => {
             const id = crypto.randomUUID().replaceAll('-', '');
             let n = 1; while (character.performances?.some(p => p.name === t('@yovoice.performance.numbered', { n }))) n++;
             setCharacter(c => ({ ...c, performances: [...(c.performances ?? []), { id, name: t('@yovoice.performance.numbered', { n }), settings: activeSettings }] })); setPerformanceId(id); setTrack(null);
           }} />
-          {selectedPerformance ? <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'md', isIconOnly: true, icon: <Ellipsis />, label: t('@yovoice.performance.more'), isDisabled: editingBusy }} items={[
-            { label: t('@yovoice.performance.rename'), icon: <Pencil />, onClick: () => setRename(selectedPerformance.name) },
-            { label: t('@yovoice.performance.delete'), icon: <Trash2 />, variant: 'destructive', onClick: () => { setCharacter(c => ({ ...c, performances: c.performances?.filter(p => p.id !== performanceId) })); setPerformanceId(''); setTrack(null); } },
+          {selectedPerformance ? <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'md', isIconOnly: true, icon: <Ellipsis size={16} />, label: t('@yovoice.performance.more'), isDisabled: editingBusy }} items={[
+            { label: t('@yovoice.performance.rename'), icon: <Pencil size={16} strokeWidth={1.5} />, onClick: () => setRename(selectedPerformance.name) },
+            { label: t('@yovoice.performance.delete'), icon: <Trash2 size={16} strokeWidth={1.5} />, variant: 'destructive', onClick: () => { setCharacter(c => ({ ...c, performances: c.performances?.filter(p => p.id !== performanceId) })); setPerformanceId(''); setTrack(null); } },
           ]} /> : null}
         </HStack>
         {!state.models.some(m => m.id === activeSettings.modelId) ? <Button label={t('@yovoice.create.manageModels')} onClick={() => settings(draft.modelId)} /> : null}
@@ -135,17 +137,21 @@ export function CharacterLibrary({ state, catalog, create, edit, apply, onError,
   const characters = state.characters ?? [];
   const filtered = characters.filter(c => c.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   return <>
-    <LibraryPage title={t('@yovoice.nav.library')} controls={controls} layout="grid"
+    <LibraryPage title={t('@yovoice.nav.library')} controls={controls} layout="tickets"
       actions={characters.length ? <Button label={t('@yovoice.character.create')} size="sm" icon={<Plus />} onClick={create} /> : undefined}
       query={query} onQueryChange={setQuery} searchLabel={t('@yovoice.character.search')}
       hasItems={characters.length > 0} hasResults={filtered.length > 0} noResults={t('@yovoice.character.noResults')}
-      empty={<LibraryEmpty icon={<AudioLines />} title={t('@yovoice.character.empty')} action={<Button label={t('@yovoice.character.create')} variant="primary" onClick={create} />} />}>
-      {filtered.map(c => <LibraryEntry key={c.id} title={`${c.name} · ${catalog.find(m => m.id === c.settings.modelId)?.name ?? c.settings.modelId}`}
-        avatar={<Player compact avatar={{ seed: c.id, label: t('@yovoice.character.listen'), disabled: !c.preview, select: () => setPlaying(c.id) }} suspended={!active || !!deleting} track={playing === c.id && c.preview ? { id: c.preview.id, name: c.name, fileName: c.preview.fileName, kind: 'outputs', subtitle: '', playRequest: 1 } : null} onError={onError} />}
+      empty={<LibraryEmpty art={<RecordCover seed="empty-character" title={t('@yovoice.library.voicesTab')} />} title={t('@yovoice.character.empty')} action={<Button label={t('@yovoice.character.create')} size="sm" icon={<Plus />} onClick={create} />} />}>
+      {/* 角色是一张单曲唱片：头像是唱片标签，点卡片试听，播放时唱片转动；存根记着有几种演绎。 */}
+      {filtered.map((c, index) => <Ticket key={c.id} index={index} className="character-row"
+        cover={<RecordCover seed={c.id} interactive><Player compact avatar={{ seed: c.id, label: t('@yovoice.character.listen'), disabled: !c.preview, select: () => setPlaying(c.id) }} suspended={!active || !!deleting} track={playing === c.id && c.preview ? { id: c.preview.id, name: c.name, fileName: c.preview.fileName, kind: 'outputs', subtitle: '', playRequest: 1 } : null} onError={onError} /></RecordCover>}
+        eyebrow={[catalog.find(m => m.id === c.settings.modelId)?.name ?? c.settings.modelId, t(!c.preview ? '@yovoice.character.emptyPreview' : previewStale(c) ? '@yovoice.character.stale' : '@yovoice.character.ready')].join(' · ')}
+        title={<h3 onPointerEnter={overflowTitle}>{c.name}</h3>} excerpt={c.demoText.trim()}
+        stub={<TicketStamp value={(c.performances?.length ?? 0) + 1} unit={t('@yovoice.library.performanceUnit')} />}
         actions={<>
+          <Button size="sm" label={t('@yovoice.character.apply')} onClick={() => apply(c)} />
           <Button size="sm" variant="ghost" isIconOnly icon={<Pencil />} label={t('@yovoice.character.edit')} onClick={() => { setPlaying(null); edit(c); }} />
           <Button size="sm" variant="ghost" isIconOnly icon={<Trash2 />} label={t('@yovoice.character.delete')} onClick={() => { setError(''); setDeleting(c); }} />
-          <Button size="sm" label={t('@yovoice.character.apply')} onClick={() => apply(c)} />
         </>} />)}
     </LibraryPage>
     {deleting ? <ConfirmDelete title={t('@yovoice.character.delete')} description={`${deleting.name} — ${t('@yovoice.character.deleteConfirm')}`}

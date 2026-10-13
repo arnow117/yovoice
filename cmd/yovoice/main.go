@@ -20,6 +20,8 @@ import (
 	"yovoice/internal/schema"
 	"yovoice/internal/store"
 	"yovoice/internal/workbench"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 var version = "dev"
@@ -27,6 +29,7 @@ var version = "dev"
 const usage = `yovoice：独立本地语音生成，无需桌面 App。
 用法：
   yovoice serve [--listen 127.0.0.1:8080] [--tls-cert FILE --tls-key FILE] [--generation-timeout 30m]
+  yovoice mcp [--generation-timeout 30m]（以 stdio 提供 MCP，供本机客户端作为子进程启动）
   yovoice status [--data-dir DIR] [--json]
   yovoice setup [--backend metal|cpu|vulkan|cuda|cuda13]
   yovoice models list
@@ -39,18 +42,22 @@ const usage = `yovoice：独立本地语音生成，无需桌面 App。
   yovoice speakers list
   yovoice speakers delete PROFILE_ID
   yovoice generate --text-file FILE --reference AUDIO --output WAV
+  yovoice score render|midi|from-midi FILE --output FILE（编曲，详见 yovoice score --help）
 生成选项：--text TEXT（与 --text-file 二选一）、--voice ID（与 --reference 二选一）、
   --model ID、--seed N；IndexTTS：--language zh|en|ja|es|ar、--speed 1、--emotion-text TEXT。
 VoxCPM2：--vox-mode design|clone|continuation、--voice-description TEXT、
   --reference-text TEXT、--guidance-scale 2、--inference-steps 10。
 VoxCPM2 无参考音频默认声音设计；有参考音频默认克隆，有原文默认精细克隆。
 OmniVoice：--voice-mode design|clone、--voice-description TEXT、--reference-text TEXT。
+Breeze TTS 2：--voice-mode design|clone、--voice-description TEXT（克隆时为演绎指导）、
+  --reference-text TEXT（克隆必填），采样参数用 --option，如 --option 'guidance_scale=3'。
 Qwen3-TTS Base：需要参考音频，--reference-text TEXT 可选；不提供原文时仅克隆音色。
 Qwen3-TTS CustomVoice：--speaker Vivian、可选 --voice-description TEXT；VoiceDesign：--voice-description TEXT。
 OmniVoice / Qwen3-TTS 支持 --language；OmniVoice 支持 --speed、--guidance-scale、--inference-steps。
 Kokoro：--speaker zf_xiaobei（v1.0）或 zf_001（v1.1-zh），语言随音色选择，无需参考音频。
 高级选项：--option 'text_chunk_size=512'、--option 'text_chunk_mode="tag_aware"'，可重复。
 serve 同时提供 HTTP API 与 /mcp，启动前设置至少 32 字符的 YOVOICE_API_TOKEN。
+mcp 独占数据目录，无需令牌；结果返回本机 WAV 路径，upload_voice 可传本机音频路径。
 所有命令支持 --data-dir DIR、--json。stdout 输出 JSON，进度写 stderr。
 生成与下载阻塞至完成；Ctrl-C 取消并清理推理进程。已有输出文件不会被覆盖。
 `
@@ -77,6 +84,9 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	}
 	command := args[0]
 	args = args[1:]
+	if command == "score" {
+		return runScore(ctx, args, out, progress)
+	}
 	operand := ""
 	if command == "models" || command == "voices" || command == "speakers" {
 		if len(args) == 0 {
@@ -90,7 +100,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		}
 	}
 	switch command {
-	case "serve", "status", "setup", "models list", "models download", "models import", "voices list", "voices import", "speakers enroll", "speakers identify", "speakers list", "speakers delete", "generate":
+	case "serve", "mcp", "status", "setup", "models list", "models download", "models import", "voices list", "voices import", "speakers enroll", "speakers identify", "speakers list", "speakers delete", "generate":
 	default:
 		return fmt.Errorf("未知命令 %q；使用 --help 查看用法", command)
 	}
@@ -112,11 +122,13 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	textFile, reference, voice, output, speakerProfile := "", "", "", "", ""
 	speakerFile, speakerVoice, bindVoice := "", "", ""
 	switch command {
-	case "serve":
+	case "serve", "mcp":
 		fs.DurationVar(&generationTimeout, "generation-timeout", 30*time.Minute, "单次生成最长时间，包含模型加载")
-		fs.StringVar(&address, "listen", "127.0.0.1:8080", "HTTP API 监听地址")
-		fs.StringVar(&cert, "tls-cert", "", "TLS 证书")
-		fs.StringVar(&key, "tls-key", "", "TLS 私钥")
+		if command == "serve" {
+			fs.StringVar(&address, "listen", "127.0.0.1:8080", "HTTP API 监听地址")
+			fs.StringVar(&cert, "tls-cert", "", "TLS 证书")
+			fs.StringVar(&key, "tls-key", "", "TLS 私钥")
+		}
 	case "setup":
 		initial := "cpu"
 		if runtime.GOOS == "darwin" {
@@ -174,9 +186,9 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		fs.IntVar(&d.NumBeams, "num-beams", d.NumBeams, "IndexTTS 束搜索数量")
 		fs.Float64Var(&d.LengthPenalty, "length-penalty", d.LengthPenalty, "IndexTTS 长度惩罚")
 		fs.StringVar(&d.EmotionText, "emotion-text", "", "IndexTTS 文字情绪指导")
-		fs.StringVar(&d.VoiceMode, "voice-mode", "", "OmniVoice：design 或 clone")
+		fs.StringVar(&d.VoiceMode, "voice-mode", "", "OmniVoice / Breeze TTS 2：design 或 clone")
 		fs.StringVar(&d.VoxMode, "vox-mode", "", "VoxCPM2：design、clone 或 continuation")
-		fs.StringVar(&d.VoiceDescription, "voice-description", "", "VoxCPM2 / OmniVoice / Qwen3-TTS 声音描述")
+		fs.StringVar(&d.VoiceDescription, "voice-description", "", "VoxCPM2 / OmniVoice / Qwen3-TTS / Breeze TTS 2 声音描述")
 		fs.StringVar(&d.ReferenceText, "reference-text", "", "参考音频原文")
 		fs.Float64Var(&d.GuidanceScale, "guidance-scale", 2, "VoxCPM2 引导强度")
 		fs.IntVar(&d.InferenceSteps, "inference-steps", 10, "VoxCPM2 推理步数")
@@ -226,20 +238,21 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if speakerProfile != "" && (referenceProvided || voiceProvided || referenceTextProvided) {
 			return fmt.Errorf("--speaker-profile 不能与 --voice、--reference 或 --reference-text 同时使用")
 		}
+		breeze := strings.HasPrefix(d.ModelID, "breeze-tts-")
 		var unsupported string
 		fs.Visit(func(f *flag.Flag) {
-			if vox || omni || qwen || kokoro {
+			if vox || omni || qwen || kokoro || breeze {
 				switch f.Name {
 				case "emotion-mode", "emotion-reference", "emotion-vector", "emotion-strength", "infer-emotion", "random-emotion", "do-sample", "temperature", "top-p", "top-k", "repetition-penalty", "max-tokens", "interval-silence-ms", "num-beams", "length-penalty":
 					unsupported = f.Name
 				}
 			}
-			if (vox || kokoro) && f.Name == "language" || (vox || qwen || kokoro) && f.Name == "speed" || (vox || omni || qwen || kokoro) && f.Name == "emotion-text" ||
+			if (vox || kokoro || breeze) && f.Name == "language" || (vox || qwen || kokoro || breeze) && f.Name == "speed" || (vox || omni || qwen || kokoro || breeze) && f.Name == "emotion-text" ||
 				!vox && f.Name == "vox-mode" || !(vox || omni) && (f.Name == "guidance-scale" || f.Name == "inference-steps") ||
 				!(strings.Contains(d.ModelID, "customvoice") || kokoro) && f.Name == "speaker" ||
-				!omni && f.Name == "voice-mode" ||
-				!(vox || omni || strings.Contains(d.ModelID, "customvoice") || strings.Contains(d.ModelID, "voicedesign")) && f.Name == "voice-description" ||
-				!(vox || omni || qwen) && f.Name == "reference-text" {
+				!(omni || breeze) && f.Name == "voice-mode" ||
+				!(vox || omni || breeze || strings.Contains(d.ModelID, "customvoice") || strings.Contains(d.ModelID, "voicedesign")) && f.Name == "voice-description" ||
+				!(vox || omni || qwen || breeze) && f.Name == "reference-text" {
 				unsupported = f.Name
 			}
 		})
@@ -286,7 +299,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 				d.VoxMode = "continuation"
 			}
 		}
-		if omni && d.VoiceMode == "" && speakerProfile == "" {
+		if (omni || breeze) && d.VoiceMode == "" && speakerProfile == "" {
 			d.VoiceMode = "design"
 			if reference != "" || voice != "" {
 				d.VoiceMode = "clone"
@@ -294,6 +307,9 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		}
 		if omni && ((d.VoiceMode == "design" && d.ReferenceText != "") || (d.VoiceMode == "clone" && d.VoiceDescription != "")) {
 			return fmt.Errorf("OmniVoice 声音设计使用 --voice-description；克隆使用参考音频和 --reference-text")
+		}
+		if breeze && d.VoiceMode == "design" && d.ReferenceText != "" {
+			return fmt.Errorf("Breeze TTS 2 的 --reference-text 需要 clone 模式")
 		}
 		if reference != "" && voice != "" {
 			return fmt.Errorf("--reference 和 --voice 只能指定一个")
@@ -406,6 +422,8 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	switch command {
 	case "serve":
 		return serveAPI(ctx, w, address, os.Getenv("YOVOICE_API_TOKEN"), cert, key, generationTimeout, out)
+	case "mcp":
+		return serveMCP(ctx, w, generationTimeout, &mcp.StdioTransport{})
 	case "status":
 		result = map[string]any{"dataDirectory": abs, "state": w.Store.Read(), "engineVersion": catalog.EngineVersion, "engineMinimum": catalog.EngineMinimum, "ready": workbench.RuntimeReady(w.Store.Read())}
 	case "models list":

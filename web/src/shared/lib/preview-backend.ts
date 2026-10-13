@@ -1,5 +1,6 @@
 import catalog from './catalog.json';
-import { performanceSettings, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings } from '../workbench';
+import aiPresets from './ai-presets.json';
+import { performanceSettings, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type LocalAPIStatus, aiTimeoutDefault } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 
@@ -8,6 +9,9 @@ import { CallError } from './call-error';
 const primaryKey = 'voice-workbench-v1';
 const backupKey = 'voice-workbench-backup';
 const maxUploadBytes = 20 * 1024 * 1024;
+
+// 预览不监听端口：本机接口只记录开关与端口，用于演示设置页。
+let localApi: LocalAPIStatus = { enabled: false, port: 8080, token: 'preview'.padEnd(64, '0'), running: false };
 
 const listeners = new Set<(state: State) => void>();
 let stored: State | undefined;
@@ -21,7 +25,7 @@ function load(): State {
       state = value; break;
     } catch { /* 主副本损坏时继续读取恢复备份。 */ }
   }
-  state.characters ??= []; state.previews = [];
+  state.characters ??= []; state.previews = []; delete state.aiTask;
   if (!['zh-CN', 'en'].includes(state.preferences?.uiLocale)) {
     state = { ...state, preferences: { ...state.preferences, uiLocale: 'zh-CN' } };
   }
@@ -106,11 +110,83 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     publish(); return true as T;
   }
   if (method === 'draft.delete') { state.drafts = state.drafts.filter(draft => draft.id !== (data as { id: string }).id); publish(); return true as T; }
+  if (method === 'localApi.get' || method === 'localApi.save' || method === 'localApi.resetToken') {
+    if (method === 'localApi.save') {
+      const { enabled, port } = data as { enabled: boolean; port: number };
+      if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new CallError('@yovoice.error.localApiPort');
+      localApi = { ...localApi, enabled, port };
+    }
+    if (method === 'localApi.resetToken') localApi = { ...localApi, token: crypto.randomUUID().replaceAll('-', '').repeat(2) };
+    localApi = { ...localApi, running: localApi.enabled, url: localApi.enabled ? `http://127.0.0.1:${localApi.port}` : undefined };
+    return structuredClone(localApi) as T;
+  }
   if (method === 'preferences.save') { state.preferences = data as Preferences; publish(); return true as T; }
   if (method === 'voice.record') {
     const recording = data as { base64: string; name: string };
     const bytes = Uint8Array.from(atob(recording.base64), c => c.charCodeAt(0));
     return await previewImportVoice(new File([bytes], `${recording.name}.wav`, { type: 'audio/wav' })) as T;
+  }
+  // AI 服务配置可在预览中编辑（不保存密钥），实际调用模型只在桌面端进行。
+  if (method === 'ai.provider.save') {
+    const input = data as AIProvider & { key?: string | null };
+    const preset = aiPresets.find(p => p.key === input.preset);
+    if (!preset) throw new CallError('@yovoice.error.aiProviderInvalid');
+    const editable = preset.endpoint !== 'fixed';
+    const next: AIProvider = { id: input.id || crypto.randomUUID().replaceAll('-', ''), preset: preset.key, name: input.name?.trim() || preset.name, format: preset.endpoint === 'custom' ? input.format : preset.format, baseURL: editable ? input.baseURL.trim() : preset.baseURL, modelsPath: preset.endpoint === 'custom' ? input.modelsPath : preset.modelsPath, model: input.model?.trim() ?? '' };
+    if (!/^https?:\/\/[^/]+/.test(next.baseURL)) throw new CallError('@yovoice.error.aiProviderInvalid');
+    const providers = state.aiProviders ?? [];
+    const old = providers.find(p => p.id === next.id);
+    next.keyMask = input.key == null ? old?.keyMask : input.key.trim() ? '••••••••' : undefined;
+    next.models = old?.models;
+    state.aiProviders = old ? providers.map(p => p.id === next.id ? next : p) : [...providers, next];
+    state.aiProviderID ||= next.id;
+    publish(); return next as T;
+  }
+  if (method === 'ai.provider.delete' || method === 'ai.provider.use') {
+    const id = (data as { id: string }).id;
+    if (method === 'ai.provider.delete') {
+      state.aiProviders = (state.aiProviders ?? []).filter(p => p.id !== id);
+      if (state.aiProviderID === id) state.aiProviderID = state.aiProviders[0]?.id ?? '';
+    } else {
+      // 写作栏切换模型时同时改服务的当前模型。
+      const model = (data as { model?: string }).model?.trim();
+      state.aiProviderID = id;
+      if (model) state.aiProviders = (state.aiProviders ?? []).map(p => p.id === id ? { ...p, model } : p);
+    }
+    publish(); return true as T;
+  }
+  // 预览模拟 OrcaRouter 一键授权：不打开外部页面，稍后直接添加使用免费模型的服务并设为当前服务。
+  if (method === 'ai.connect') {
+    setTimeout(() => {
+      const providers = state.aiProviders ?? [];
+      const old = providers.find(p => p.preset === 'orcarouter');
+      const next: AIProvider = { id: old?.id ?? crypto.randomUUID().replaceAll('-', ''), preset: 'orcarouter', name: old?.name ?? 'OrcaRouter', format: 'chat_completions', baseURL: 'https://api.orcarouter.ai/v1', modelsPath: '/models', model: old?.model || 'orcarouter/free', models: old?.models, keyMask: '••••••••' };
+      state.aiProviders = old ? providers.map(p => p.id === next.id ? next : p) : [...providers, next];
+      state.aiProviderID = next.id; publish();
+    }, 300);
+    return { url: '' } as T;
+  }
+  // 预览模拟 AI 后台任务的生命周期：开始后短暂运行，再以“仅桌面可用”结束，便于检查界面闭环。
+  if (method === 'ai.score' || method === 'ai.lyrics') {
+    const input = data as { projectId: string; brief: string };
+    const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
+    if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
+    if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
+    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    state.aiTask = task; publish();
+    setTimeout(() => {
+      if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;
+      state.aiTask = { ...state.aiTask, status: 'failed', finishedAt: new Date().toISOString(), errorCode: '@yovoice.error.previewDesktopOnly' }; publish();
+    }, 1500);
+    return task as T;
+  }
+  if (method === 'ai.cancel') {
+    if (state.aiTask?.status === 'running') { state.aiTask = { ...state.aiTask, status: 'cancelled', finishedAt: new Date().toISOString() }; publish(); }
+    return true as T;
+  }
+  if (method === 'ai.dismiss') {
+    if (state.aiTask?.id === (data as { id: string }).id && state.aiTask.status !== 'running') { delete state.aiTask; publish(); }
+    return true as T;
   }
   throw new CallError('@yovoice.error.previewDesktopOnly');
 }

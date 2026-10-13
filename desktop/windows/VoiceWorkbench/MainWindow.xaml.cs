@@ -43,6 +43,11 @@ public partial class MainWindow : Window
         tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "yovoice", ContextMenuStrip = trayMenu, Visible = true };
         tray.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) RestoreWindow(); };
         updater = new AppUpdater(this, CheckUpdatesMenu, service.Root);
+        updater.Changed += snapshot => { if (!closed) PostJson(JsonSerializer.Serialize(new { @event = "update", update = snapshot }, WebJson)); };
+        // 窗口隐藏在托盘时，用系统通知提示新版本已就绪。
+        updater.Ready += version => { if (!IsVisible && !closed) tray.ShowBalloonTip(8000, "yovoice 有新版本", $"{version} 已下载完成，打开 yovoice 重启即可更新。", Forms.ToolTipIcon.Info); };
+        tray.BalloonTipClicked += (_, _) => { RestoreWindow(); ShowUpdateInApp(); };
+        updater.ShowInApp = ShowUpdateInApp;
         service.StateChanged += json => { if (!closed) _ = Dispatcher.InvokeAsync(() => PostJson(json)); };
         service.Failed += error => { if (!closed && !shuttingDown) _ = Dispatcher.InvokeAsync(() => AppDialog.Show(this, "本地服务已停止", error)); };
         Loaded += async (_, _) => { await InitializeWebAsync(); updater.Start(); };
@@ -158,6 +163,14 @@ public partial class MainWindow : Window
         exitRequested = true;
         Close();
     }
+    // 菜单“检查更新”在界面内打开更新详情；界面尚未就绪时返回 false，由更新器弹原生对话框。
+    private bool ShowUpdateInApp()
+    {
+        if (web?.CoreWebView2 is null || recovering || shuttingDown) return false;
+        RestoreWindow();
+        try { _ = web.CoreWebView2.ExecuteScriptAsync("window.dispatchEvent(new Event('workbench-show-update'))"); return true; }
+        catch (InvalidOperationException) { return false; }
+    }
     private void ExitMenu_Click(object sender, RoutedEventArgs e) => RequestExit();
     private void ShowWindowMenu_Click(object sender, RoutedEventArgs e)
     {
@@ -175,6 +188,12 @@ public partial class MainWindow : Window
     {
         if (web?.CoreWebView2 is null || recovering || shuttingDown) return;
         try { await web.CoreWebView2.ExecuteScriptAsync("window.dispatchEvent(new Event('workbench-toggle-sidebar'))"); }
+        catch (InvalidOperationException) { }
+    }
+    private async void ToggleInspector_Click(object sender, RoutedEventArgs e)
+    {
+        if (web?.CoreWebView2 is null || recovering || shuttingDown) return;
+        try { await web.CoreWebView2.ExecuteScriptAsync("window.dispatchEvent(new Event('workbench-toggle-inspector'))"); }
         catch (InvalidOperationException) { }
     }
     private async Task InitializeWebAsync()
@@ -208,7 +227,13 @@ public partial class MainWindow : Window
             string sidebar = File.Exists(sidebarFile) ? await File.ReadAllTextAsync(sidebarFile) : "";
             await core.AddScriptToExecuteOnDocumentCreatedAsync("window.__workbenchMediaBase = '/media/'; const savedSidebar = " + JsonSerializer.Serialize(sidebar) + "; if (savedSidebar) localStorage.setItem('astryx-resizable:workbench-sidebar', savedSidebar);");
             core.NavigationStarting += (_, args) => { if (!Trusted(args.Uri)) args.Cancel = true; };
-            core.NewWindowRequested += (_, args) => { args.Handled = true; };
+            // 页面不开新窗口；用户点击打开的 https 链接（如获取 AI 密钥）交给系统浏览器。
+            core.NewWindowRequested += (_, args) =>
+            {
+                args.Handled = true;
+                if (args.IsUserInitiated && Uri.TryCreate(args.Uri, UriKind.Absolute, out var link) && link.Scheme == Uri.UriSchemeHttps)
+                    Process.Start(new ProcessStartInfo(link.AbsoluteUri) { UseShellExecute = true });
+            };
             core.PermissionRequested += (_, args) => args.State = Trusted(args.Uri) && args.PermissionKind == CoreWebView2PermissionKind.Microphone ? CoreWebView2PermissionState.Allow : CoreWebView2PermissionState.Deny;
             core.WebMessageReceived += async (_, args) => await HandleMessageAsync(args);
             // 浏览器进程失效时必须重建控件，任务和草稿继续由 Go 服务持有。
@@ -243,6 +268,11 @@ public partial class MainWindow : Window
             object? result;
             switch (method)
             {
+                case "inspector.available":
+                    // 只有工作区有右侧面板，离开工作区时隐藏标题栏开关并禁用菜单项。
+                    bool available = data.GetProperty("available").GetBoolean();
+                    ToggleInspectorButton.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
+                    ToggleInspectorMenu.IsEnabled = available; result = true; break;
                 case "sidebar.save":
                     double size = data.GetProperty("size").GetDouble();
                     bool collapsed = data.GetProperty("isCollapsed").GetBoolean();
@@ -256,6 +286,14 @@ public partial class MainWindow : Window
                 case "project.import":
                     var projectOpen = new OpenFileDialog { Filter = "Yovoice 工程|*.yovoice" };
                     result = projectOpen.ShowDialog(this) == true ? await service.CallAsync(method, new { path = projectOpen.FileName }) : null; break;
+                case "score.import":
+                    var scoreOpen = new OpenFileDialog { Filter = "MIDI 或乐谱|*.mid;*.midi;*.json" };
+                    result = scoreOpen.ShowDialog(this) == true ? await service.CallAsync(method, new { path = scoreOpen.FileName }) : null; break;
+                case "score.export":
+                    // 编曲导出 MIDI 或乐谱 JSON，扩展名由界面指定，写文件交给本地服务。
+                    string scoreFormat = data.TryGetProperty("format", out var formatValue) && formatValue.GetString() == "json" ? "json" : "mid";
+                    var scoreSave = new SaveFileDialog { Filter = scoreFormat == "json" ? "乐谱 JSON|*.json" : "MIDI|*.mid", DefaultExt = "." + scoreFormat, FileName = Path.GetFileName(data.GetProperty("name").GetString() ?? "score") + "." + scoreFormat, OverwritePrompt = true };
+                    result = scoreSave.ShowDialog(this) == true ? await service.CallAsync(method, new { path = scoreSave.FileName, score = data.GetProperty("score") }) : false; break;
                 case "audio.export":
                     string encoded = data.GetProperty("base64").GetString() ?? "";
                     if (encoded.Length > 240_000_000) throw new ArgumentException("导出音频超过大小限制。");
@@ -296,6 +334,12 @@ public partial class MainWindow : Window
                     string modelDirectory = state.GetProperty("preferences").GetProperty("modelDirectory").GetString() ?? Path.Combine(service.Root, "models");
                     Directory.CreateDirectory(modelDirectory);
                     Process.Start(new ProcessStartInfo(modelDirectory) { UseShellExecute = true }); result = true; break;
+                case "app.update.get":
+                    result = JsonSerializer.SerializeToElement(updater.Snapshot, WebJson); break;
+                case "app.update.check":
+                    _ = updater.CheckFromAppAsync(); result = true; break;
+                case "app.update.install":
+                    result = updater.Install(); break;
                 case "logs.open":
                     Process.Start(new ProcessStartInfo(Path.Combine(service.Root, "logs")) { UseShellExecute = true }); result = true; break;
                 default: result = await service.CallAsync(method, data); break;
@@ -305,6 +349,8 @@ public partial class MainWindow : Window
         catch (ServiceCallException error) { HostLog.Write(service.Root, "rpc.failed:" + method, error); Post(new { id, error = error.Wire }); }
         catch (Exception error) { HostLog.Write(service.Root, "bridge.failed:" + method, error); Post(new { id, error = error.Message }); }
     }
+    // 更新状态按网页约定使用驼峰字段名。
+    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
     private void Post(object value) => PostJson(JsonSerializer.Serialize(value));
     private void PostJson(string json)
     {

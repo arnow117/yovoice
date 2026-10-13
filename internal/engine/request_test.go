@@ -108,6 +108,12 @@ func TestOmniAndQwenRequests(t *testing.T) {
 func TestModelVariantsAndOptions(t *testing.T) {
 	for _, m := range catalog.Models {
 		t.Run(m.ID, func(t *testing.T) {
+			if catalog.IsMusic(m.Family) {
+				t.Skip("音乐模型参数由 TestMusicRequest、TestYuE2Request 覆盖")
+			}
+			if m.Family == "soundfont" {
+				t.Skip("音色库由编曲渲染使用，不经过推理引擎")
+			}
 			d := schema.DefaultDraft()
 			d.ModelID = m.ID
 			d.VoiceDescription = "female, young adult"
@@ -153,6 +159,151 @@ func TestModelVariantsAndOptions(t *testing.T) {
 		d.VoiceDescription = invalid
 		if schema.Validate(d) == nil {
 			t.Fatal("拒绝无效或互斥的音色属性", invalid)
+		}
+	}
+}
+
+func TestYuE2Request(t *testing.T) {
+	d := schema.DefaultDraft()
+	d.Kind, d.ModelID, d.Text, d.Lyrics = "music", "yue2-3b-q8", "Mandarin, city pop, warm synths", " [verse]\n晚风吹过招牌 "
+	// 音乐草稿默认带 ACE-Step 时长，YuE2 不使用也不应因此失败。
+	d.ModelOptions = map[string]map[string]any{"ace_step": {"duration_seconds": float64(60)}}
+	seed := 9
+	d.Seed = &seed
+	p, err := BuildRequest(d, "", "")
+	must(t, err)
+	r := p["request"].(map[string]any)
+	o := r["options"].(map[string]any)
+	if r["text"] != "[verse]\n晚风吹过招牌" || o["lyrics"] != r["text"] || o["style"] != d.Text || o["seed"] != 9 || len(o) != 3 {
+		t.Fatal(r)
+	}
+	if d.RequiresVoice() {
+		t.Fatal("YuE2 不需要参考音色")
+	}
+	for _, patch := range []func(*schema.Draft){
+		func(d *schema.Draft) { d.Lyrics = " " },
+		func(d *schema.Draft) { d.Instrumental = true },
+		func(d *schema.Draft) { d.Text = "" },
+	} {
+		invalid := d
+		patch(&invalid)
+		if _, err := BuildRequest(invalid, "", ""); err == nil {
+			t.Fatal("无效的 YuE2 草稿应失败", invalid)
+		}
+	}
+	m, _ := catalog.Lookup("yue2-3b-bf16")
+	if len(m.Files) != 6 || m.SessionOptions["yue2.model_gguf"] != "yue2-3b-bf16.gguf" || m.Files[0].Path != m.RemotePath {
+		t.Fatal(m)
+	}
+	var total int64
+	for _, f := range m.Files {
+		total += f.Size
+	}
+	if total != m.Size {
+		t.Fatal("模型包大小应为各文件之和", total, m.Size)
+	}
+}
+
+func TestMusicRequest(t *testing.T) {
+	d := schema.DefaultDraft()
+	d.Kind, d.ModelID, d.Text, d.Lyrics, d.SynthesisLanguage = "music", "ace-step-1.5-turbo-bf16", "city pop, 温暖的合成器", "[verse]\n晚风吹过招牌", "zh"
+	// 自动值不下发，由 ACE-Step 规划器决定。
+	d.ModelOptions = map[string]map[string]any{"ace_step": {"duration_seconds": float64(60), "bpm": float64(0), "keyscale": "auto", "timesignature": "4"}}
+	seed := 7
+	d.Seed = &seed
+	p, err := BuildRequest(d, "", "")
+	must(t, err)
+	r := p["request"].(map[string]any)
+	o := r["options"].(map[string]any)
+	if r["text"] != d.Text || r["language"] != "zh" || o["route"] != "text2music" || o["lyrics"] != d.Lyrics || o["duration_seconds"] != float64(60) || o["timesignature"] != "4" || o["seed"] != 7 {
+		t.Fatal(r)
+	}
+	if _, ok := o["bpm"]; ok {
+		t.Fatal(o)
+	}
+	if _, ok := o["keyscale"]; ok {
+		t.Fatal(o)
+	}
+	if _, ok := r["voice_ref"]; ok || d.RequiresVoice() {
+		t.Fatal("音乐生成不需要参考音色", r)
+	}
+	d.Instrumental = true
+	p, err = BuildRequest(d, "", "")
+	must(t, err)
+	if p["request"].(map[string]any)["options"].(map[string]any)["lyrics"] != "[Instrumental]" {
+		t.Fatal(p)
+	}
+	for _, patch := range []func(*schema.Draft){
+		func(d *schema.Draft) { d.Text = " " },
+		func(d *schema.Draft) { d.Text = string(make([]rune, 513)) },
+		func(d *schema.Draft) { d.Lyrics = string(make([]rune, 4001)) },
+		func(d *schema.Draft) { d.SynthesisLanguage = "klingon" },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["duration_seconds"] = float64(5) },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["duration_seconds"] = float64(301) },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["bpm"] = float64(20) },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["keyscale"] = "H major" },
+		func(d *schema.Draft) { d.ModelOptions["ace_step"]["lyrics"] = "绕过校验" },
+	} {
+		invalid := d
+		invalid.ModelOptions = map[string]map[string]any{"ace_step": {}}
+		for k, v := range d.ModelOptions["ace_step"] {
+			invalid.ModelOptions["ace_step"][k] = v
+		}
+		patch(&invalid)
+		if schema.Validate(invalid) == nil {
+			t.Fatal("应拒绝无效音乐参数", invalid.Text[:min(len(invalid.Text), 20)], invalid.ModelOptions)
+		}
+	}
+}
+
+func TestBreezeRequest(t *testing.T) {
+	d := schema.DefaultDraft()
+	d.ModelID = "breeze-tts-2-q8"
+	d.Text = " 你好，世界。\n"
+	d.VoiceDescription = "温暖的女声，语速平稳"
+	// IndexTTS 的采样参数不能泄漏到 Breeze 请求中。
+	d.Mode = "reference"
+	d.Language = "ja"
+	p, err := BuildRequest(d, "voice.wav", "emotion.wav")
+	must(t, err)
+	r := p["request"].(map[string]any)
+	o := r["options"].(map[string]any)
+	if r["text"] != "你好，世界。" || r["voice_ref"] != nil || o["instruction"] != d.VoiceDescription || o["text_chunk_size"] != 160 || o["max_tokens"] != 900 || len(o) != 3 {
+		t.Fatal(r)
+	}
+	// 克隆需要参考音频和原文；描述作为演绎指导一并传入，用户设置的分段覆盖默认值。
+	d.VoiceMode = "clone"
+	d.ReferenceText = " 参考原文 "
+	d.ModelOptions = map[string]map[string]any{"breeze_tts": {"text_chunk_size": float64(80), "guidance_scale": float64(3)}}
+	seed := 7
+	d.Seed = &seed
+	if !d.RequiresVoice() {
+		t.Fatal("克隆应要求参考音频")
+	}
+	p, err = BuildRequest(d, "voice.wav", "")
+	must(t, err)
+	r = p["request"].(map[string]any)
+	o = r["options"].(map[string]any)
+	if r["voice_ref"] != "voice.wav" || o["reference_text"] != "参考原文" || o["instruction"] != d.VoiceDescription || o["text_chunk_size"] != float64(80) || o["guidance_scale"] != float64(3) || o["seed"] != seed {
+		t.Fatal(r)
+	}
+	if _, err = BuildRequest(d, "", ""); err == nil {
+		t.Fatal("克隆缺少参考音频时应报错")
+	}
+	for _, patch := range []func(*schema.Draft){
+		func(d *schema.Draft) { d.ReferenceText = " " },
+		func(d *schema.Draft) { d.VoiceMode = "continuation" },
+		func(d *schema.Draft) {
+			d.ModelOptions = map[string]map[string]any{"breeze_tts": {"text_chunk_size": float64(0)}}
+		},
+		func(d *schema.Draft) {
+			d.ModelOptions = map[string]map[string]any{"breeze_tts": {"max_tokens": float64(2000)}}
+		},
+	} {
+		invalid := d
+		patch(&invalid)
+		if schema.Validate(invalid) == nil {
+			t.Fatal("应拒绝无效参数", invalid)
 		}
 	}
 }

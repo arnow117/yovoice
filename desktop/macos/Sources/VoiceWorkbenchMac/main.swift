@@ -7,6 +7,7 @@ import UniformTypeIdentifiers
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
     private var window: NSWindow!
     private var web: WKWebView!
+    private var inspectorAccessory: NSTitlebarAccessoryViewController?
     private let service = Process()
     private let input = Pipe()
     private var origin: URL?
@@ -29,6 +30,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         makeMenu()
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1280, height: 840), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "yovoice"
+        window.titlebarSeparatorStyle = .none
+        window.titlebarAppearsTransparent = true
+        window.backgroundColor = NSColor(srgbRed: 247.0 / 255.0, green: 247.0 / 255.0, blue: 247.0 / 255.0, alpha: 1.0)
         let accessory = NSTitlebarAccessoryViewController()
         accessory.layoutAttribute = .left
         let sidebarButton = NSButton(image: NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: HostL10n.t("sidebar.toggle"))!, target: self, action: #selector(toggleSidebar))
@@ -37,6 +41,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         sidebarButton.frame = NSRect(x: 0, y: 0, width: 32, height: 28)
         accessory.view = sidebarButton
         window.addTitlebarAccessoryViewController(accessory)
+        let rightAccessory = NSTitlebarAccessoryViewController()
+        rightAccessory.layoutAttribute = .right
+        let inspectorButton = NSButton(image: NSImage(systemSymbolName: "sidebar.right", accessibilityDescription: HostL10n.t("inspector.toggle"))!, target: self, action: #selector(toggleInspector))
+        inspectorButton.isBordered = false
+        inspectorButton.toolTip = HostL10n.t("inspector.tooltip")
+        inspectorButton.frame = NSRect(x: 0, y: 0, width: 32, height: 28)
+        rightAccessory.view = inspectorButton
+        // 只有工作区有右侧面板，由前端在进入或离开工作区时通知显示。
+        self.inspectorAccessory = rightAccessory
         window.minSize = NSSize(width: 390, height: 600)
         window.isReleasedWhenClosed = false
         window.delegate = self
@@ -53,6 +66,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     @objc private func toggleSidebar() {
         // 侧栏状态由前端统一管理，标题栏仅发送切换事件。
         web?.evaluateJavaScript("window.dispatchEvent(new Event('workbench-toggle-sidebar'))", completionHandler: nil)
+    }
+
+    @objc private func toggleInspector() {
+        // 检查器状态由前端统一管理，标题栏仅发送切换事件。
+        web?.evaluateJavaScript("window.dispatchEvent(new Event('workbench-toggle-inspector'))", completionHandler: nil)
+    }
+
+    private func updateInspectorAccessory(visible: Bool) {
+        guard let accessory = inspectorAccessory else { return }
+        let isPresent = window.titlebarAccessoryViewControllers.contains(accessory)
+        if visible && !isPresent {
+            window.addTitlebarAccessoryViewController(accessory)
+        } else if !visible && isPresent {
+            if let index = window.titlebarAccessoryViewControllers.firstIndex(of: accessory) {
+                window.removeTitlebarAccessoryViewController(at: index)
+            }
+        }
     }
 
     @objc private func showAbout() {
@@ -80,6 +110,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         let updateItem = NSMenuItem(title: HostL10n.t("menu.checkUpdates"), action: nil, keyEquivalent: "")
         appItem.submenu?.addItem(updateItem)
         updater = AppUpdater(menuItem: updateItem, root: root)
+        updater?.onChange = { [weak self] snapshot in
+            guard let self, self.web != nil else { return }
+            self.post(["event": "update", "update": snapshot.json])
+        }
+        // 菜单“检查更新”在界面内打开更新详情；界面尚未就绪时由更新器弹原生对话框。
+        updater?.showInApp = { [weak self] in
+            guard let self, let web = self.web, web.url != nil else { return false }
+            self.window.makeKeyAndOrderFront(nil)
+            web.evaluateJavaScript("window.dispatchEvent(new Event('workbench-show-update'))", completionHandler: nil)
+            return true
+        }
         appItem.submenu?.addItem(.separator())
         appItem.submenu?.addItem(withTitle: HostL10n.t("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         let edit = NSMenuItem()
@@ -184,6 +225,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         web.navigationDelegate = self
         web.uiDelegate = self
         web.isInspectable = ProcessInfo.processInfo.environment["WORKBENCH_DEBUG"] == "1"
+        web.underPageBackgroundColor = window.backgroundColor
         let cookie = HTTPCookie(properties: [.name: cookieName, .value: token, .domain: "127.0.0.1", .path: "/", .init("HttpOnly"): "TRUE"])!
         configuration.websiteDataStore.httpCookieStore.setCookie(cookie) { [weak self] in
             Task { @MainActor in
@@ -204,6 +246,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     }
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         decisionHandler(trusted(navigationAction.request.url) ? .allow : .cancel)
+    }
+    // 页面不开新窗口；本地页面打开的 https 链接（如获取 AI 密钥）交给系统浏览器。
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if let url = navigationAction.request.url, url.scheme == "https", trusted(webView.url) { NSWorkspace.shared.open(url) }
+        return nil
     }
     #if DEBUG
     // 本地原生冒烟测试使用独立数据目录；发行构建不开放脚本入口。
@@ -262,6 +309,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         var message = message
         var data = message["data"] as? [String: Any] ?? [:]
         let method = message["method"] as? String ?? ""
+        if method == "inspector.available" {
+            let available = data["available"] as? Bool == true
+            updateInspectorAccessory(visible: available)
+            return ["id": message["id"]!, "result": true]
+        }
         if method == "sidebar.save" {
             guard let size = data["size"] as? Double, size.isFinite, (180...360).contains(size), let collapsed = data["isCollapsed"] as? Bool else { throw failure(HostL10n.t("err.sidebarInvalid")) }
             let saved = try JSONSerialization.data(withJSONObject: ["size": size, "isCollapsed": collapsed])
@@ -274,6 +326,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             panel.nameFieldStringValue = (data["name"] as? String ?? "project") + ".yovoice"
             let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
             guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": false] }
+            data["path"] = url.path
+            message["data"] = data
+        }
+        if method == "score.export" {
+            // 编曲导出 MIDI 或乐谱 JSON，扩展名由界面指定，写文件交给本地服务。
+            let format = (data["format"] as? String) == "json" ? "json" : "mid"
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [UTType(filenameExtension: format) ?? .data]
+            panel.nameFieldStringValue = (data["name"] as? String ?? "score") + "." + format
+            let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": false] }
+            data["path"] = url.path
+            message["data"] = data
+        }
+        if method == "score.import" {
+            let panel = NSOpenPanel()
+            panel.allowedContentTypes = ["mid", "midi", "json"].compactMap { UTType(filenameExtension: $0) }
+            panel.allowsMultipleSelection = false
+            let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": NSNull()] }
             data["path"] = url.path
             message["data"] = data
         }
@@ -327,6 +399,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             guard NSWorkspace.shared.open(directory) else { throw failure(HostL10n.t("err.modelDirOpen")) }
             return ["id": message["id"]!, "result": true]
         }
+        if method == "app.update.get" {
+            return ["id": message["id"]!, "result": updater.map { $0.snapshot.json as Any } ?? NSNull()]
+        }
+        if method == "app.update.check" {
+            updater?.checkFromApp()
+            return ["id": message["id"]!, "result": true]
+        }
+        if method == "app.update.install" {
+            return ["id": message["id"]!, "result": updater?.install() ?? false]
+        }
         if method == "logs.open" {
             NSWorkspace.shared.open(root.appendingPathComponent("logs"))
             return ["id": message["id"]!, "result": true]
@@ -348,6 +430,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("\(cookieName)=\(token)", forHTTPHeaderField: "Cookie")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        // AI 写作在服务端后台运行，调用立即返回，所有请求统一 120 秒上限。
         request.timeoutInterval = 120
         let (data, response) = try await URLSession.shared.data(for: request)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw failure(HostL10n.t("err.serviceRequest")) }

@@ -111,6 +111,32 @@ yovoice generate --speaker-profile PROFILE_ID --model voxcpm2-q8 --text "Hello" 
 ```
 
 `--speaker-profile` cannot be combined with `--voice`, `--reference`, or `--reference-text`. It supports IndexTTS, VoxCPM clone/continuation, OmniVoice clone, and Qwen3-TTS Base. VoiceDesign, CustomVoice and Kokoro are rejected. A missing binding or a deleted bound voice does not fall back to another voice.
+## Score
+
+Render music from score JSON or MIDI. It needs the sound font but not the inference engine:
+
+```sh
+yovoice models download musescore-general-sf2
+yovoice score render score.json --output music.wav --stems stems/
+yovoice score midi score.json --output score.mid
+yovoice score from-midi song.mid --output score.json
+```
+
+See [Score](score.md) for the format, mixing defaults and MIDI import rules.
+
+## MCP over stdio
+
+Local MCP clients such as Claude Desktop, Cursor or Claude Code can start yovoice as a subprocess. No token or port is needed:
+
+```json
+{
+  "mcpServers": {
+    "yovoice": {"command": "yovoice", "args": ["mcp"]}
+  }
+}
+```
+
+Use the full path to the executable if it is not on the client's PATH, and add `"--data-dir", "DIR"` to `args` to use a separate directory. The tools are the same as the [remote MCP](api.md#connect-an-mcp-client) tools, with two differences: results return the generated WAV's local `path` instead of a `downloadPath`, and `upload_voice` also accepts a local audio file `path`. Like other commands, `yovoice mcp` uses the data directory exclusively; while the desktop app is open, connect to its [local API](api.md#use-the-desktop-app-on-the-same-computer) at `http://127.0.0.1:8080/mcp` instead.
 
 ## Data directory
 

@@ -10,8 +10,10 @@ export const isMac = window.__workbenchPlatform === 'macos';
 
 const listeners = new Set<(state: State) => void>();
 const pending = new Map<string, { resolve: (value: unknown) => void; reject: (reason: Error) => void; timer: ReturnType<typeof setTimeout> }>();
+const updateListeners = new Set<(update: unknown) => void>();
 native?.addEventListener('message', ({ data }) => {
   if (data.event === 'state') { listeners.forEach(fn => fn(data.state)); return; }
+  if (data.event === 'update') { updateListeners.forEach(fn => fn(data.update)); return; }
   const callback = pending.get(data.id);
   if (!callback) return;
   clearTimeout(callback.timer); pending.delete(data.id);
@@ -20,12 +22,23 @@ native?.addEventListener('message', ({ data }) => {
 
 export function subscribeDesktop(listener: (state: State) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; }
 
+// 宿主推送的应用更新状态，结构见 features/update/app-update.ts。
+export function subscribeDesktopUpdate(listener: (update: unknown) => void) { updateListeners.add(listener); return () => { updateListeners.delete(listener); }; }
+
 export function desktopCall<T>(method: string, data: unknown): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const id = crypto.randomUUID();
-    const timer = setTimeout(() => { pending.delete(id); reject(new CallError('@yovoice.error.unknown', { detail: 'desktop timeout' })); }, 120000);
+    const timer = setTimeout(() => {
+      pending.delete(id); reportDesktop('timeout', method, 'no reply within 120s');
+      reject(new CallError('@yovoice.error.unknown', { detail: 'desktop timeout' }));
+    }, 120000);
     pending.set(id, { resolve: value => resolve(value as T), reject, timer }); native!.postMessage({ id, method, data });
   });
+}
+
+// 界面侧异常写入服务日志；只上报不等回复，上报失败也不影响界面。
+export function reportDesktop(event: string, method: string, detail: string) {
+  try { native?.postMessage({ id: crypto.randomUUID(), method: 'diag.client', data: { event, method, detail: detail.slice(0, 2000) } }); } catch { /* 宿主不可用时放弃上报。 */ }
 }
 
 export function desktopMediaUrl(kind: 'voices' | 'outputs', file: string): string {

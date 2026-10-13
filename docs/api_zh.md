@@ -4,6 +4,12 @@
 
 在一台机器上运行 yovoice，其他机器通过 HTTP 或 MCP 生成语音。客户端无需安装模型或桌面 App。
 
+## 在同一台电脑上使用桌面应用
+
+如果只需要让运行 yovoice 的这台电脑上的其他软件（例如幻灯片配音工具或本地脚本）调用，打开桌面应用的 **设置 › 常规 › 本机接口** 并开启即可。它在 `http://127.0.0.1:8080`（端口可改）提供下文所述的同一套 HTTP 与 MCP 接口，直接使用应用里已有的模型和音色，只有本机可以访问。复制页面上的访问令牌，按 `Authorization: Bearer 令牌` 发送；重置令牌后旧令牌立即失效。设置会被记住，应用启动时自动开启。生成与应用共用推理引擎，应用正在生成或下载时，生成请求会按繁忙拒绝。
+
+本机 MCP 客户端也可以用 `yovoice mcp` 把 CLI 作为子进程启动，见[以 stdio 方式提供 MCP](cli_zh.md#以-stdio-方式提供-mcp)。需要供其他机器调用时，请改用下面的 CLI 服务。
+
 ## 启动服务
 
 [安装 CLI](cli_zh.md#安装)，保留可执行文件同级的 `tools/` 目录。在独立数据目录中准备引擎和模型：
@@ -53,6 +59,7 @@ yovoice serve --listen 0.0.0.0:8443 --data-dir ./server-data --tls-cert server.c
 | `get_generation` | 按 `requestId` 查询任务 |
 | `cancel_generation` | 按 `requestId` 请求取消 |
 | `generate` | 兼容同步生成 |
+| `render_score` | 提交 `score` 乐谱和可选的 `title`、`soundFont`，同步渲染编曲配乐，返回 `id`、`duration`、`downloadPath`；格式见[编曲](score_zh.md) |
 
 长任务优先使用 `submit_generation`。提交前通过 `openssl rand -hex 16` 生成随机 ID 并保存：
 

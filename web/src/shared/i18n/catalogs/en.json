@@ -1052,6 +1052,15 @@
   "@yovoice.vox.voiceDescriptionPlaceholder": {
     "defaultMessage": "e.g. gentle female voice, relaxed pace; leave blank for natural delivery"
   },
+  "@yovoice.breeze.voiceDescriptionPlaceholder": {
+    "defaultMessage": "e.g. A warm female voice, steady pace, clear diction; leave empty for a natural read"
+  },
+  "@yovoice.breeze.instructionHelp": {
+    "defaultMessage": "Describe pace, emotion and tone in the same language as the text. Insert (laugh) or (sigh) in English text, [笑] or [叹气] in Chinese."
+  },
+  "@yovoice.breeze.referenceTextHelp": {
+    "defaultMessage": "Type exactly what the reference audio says, including any repeats. Use 5–15 seconds of clean speech without background noise."
+  },
   "@yovoice.reference.transcript": {
     "defaultMessage": "Reference transcript (optional)"
   },
@@ -1063,6 +1072,9 @@
   },
   "@yovoice.settings.modelDesc.omni": {
     "defaultMessage": "Multilingual · Voice design and cloning"
+  },
+  "@yovoice.settings.modelDesc.breeze": {
+    "defaultMessage": "Chinese, English · voice design and cloning · GPU recommended. Model license allows research and non-commercial use only."
   },
   "@yovoice.settings.modelDesc.qwen": {
     "defaultMessage": "10 languages · Reference voice cloning"
@@ -1105,6 +1117,9 @@
   },
   "@yovoice.options.top_p": {
     "defaultMessage": "Top P"
+  },
+  "@yovoice.options.depth_temperature": {
+    "defaultMessage": "Depth decoder temperature"
   },
   "@yovoice.options.repetition_penalty": {
     "defaultMessage": "Repetition penalty"
@@ -1378,6 +1393,9 @@
   },
   "@yovoice.error.omniReferenceRequired": {
     "defaultMessage": "OmniVoice cloning requires the reference transcript."
+  },
+  "@yovoice.error.breezeReferenceRequired": {
+    "defaultMessage": "Breeze TTS 2 cloning requires the full reference transcript."
   },
   "@yovoice.reference.omniTranscriptHelp": {
     "defaultMessage": "The transcript must match the reference audio."
@@ -2026,5 +2044,821 @@
   },
   "@yovoice.performance.rename": {
     "defaultMessage": "Rename performance"
+  },
+  "@yovoice.error.musicStyle": {
+    "defaultMessage": "Describe the style in 1–512 characters."
+  },
+  "@yovoice.error.musicLyrics": {
+    "defaultMessage": "Lyrics can be up to 4000 characters."
+  },
+  "@yovoice.error.musicParams": {
+    "defaultMessage": "Duration must be 10–300 seconds and tempo 30–300 BPM."
+  },
+  "@yovoice.project.music": {
+    "defaultMessage": "Music generation"
+  },
+  "@yovoice.project.new.music": {
+    "defaultMessage": "New song"
+  },
+  "@yovoice.music.style": {
+    "defaultMessage": "Style"
+  },
+  "@yovoice.music.example": {
+    "defaultMessage": "Try an example"
+  },
+  "@yovoice.music.stylePlaceholder": {
+    "defaultMessage": "Describe the sound, e.g. city pop, warm synths, chill, female vocals"
+  },
+  "@yovoice.music.tags": {
+    "defaultMessage": "Style tags"
+  },
+  "@yovoice.music.tagGroup.genre": {
+    "defaultMessage": "Genre"
+  },
+  "@yovoice.music.tagGroup.mood": {
+    "defaultMessage": "Mood"
+  },
+  "@yovoice.music.tagGroup.instrument": {
+    "defaultMessage": "Instruments"
+  },
+  "@yovoice.music.tagGroup.vocal": {
+    "defaultMessage": "Vocals"
+  },
+  "@yovoice.music.lyrics": {
+    "defaultMessage": "Lyrics"
+  },
+  "@yovoice.music.insertSection": {
+    "defaultMessage": "Insert section"
+  },
+  "@yovoice.music.instrumental": {
+    "defaultMessage": "Instrumental"
+  },
+  "@yovoice.music.instrumentalHint": {
+    "defaultMessage": "Instrumental tracks ignore the lyrics and follow the style only. Your lyrics are kept; turn this off to keep editing them."
+  },
+  "@yovoice.music.lyricsPlaceholder": {
+    "defaultMessage": "Write lyrics and mark sections with [verse], [chorus] and so on. Leave empty to let the model hum along."
+  },
+  "@yovoice.music.takes": {
+    "defaultMessage": "Versions"
+  },
+  "@yovoice.music.takeCount": {
+    "defaultMessage": "{count} versions"
+  },
+  "@yovoice.music.take": {
+    "defaultMessage": "Version {n}"
+  },
+  "@yovoice.music.noTakes": {
+    "defaultMessage": "Each generation becomes a version here, so you can compare and keep the best one."
+  },
+  "@yovoice.music.generate": {
+    "defaultMessage": "Generate song"
+  },
+  "@yovoice.music.modelSize": {
+    "defaultMessage": "Not installed · {size}"
+  },
+  "@yovoice.music.duration": {
+    "defaultMessage": "Duration"
+  },
+  "@yovoice.music.auto": {
+    "defaultMessage": "Auto"
+  },
+  "@yovoice.music.language": {
+    "defaultMessage": "Vocal language"
+  },
+  "@yovoice.music.languageName.zh": {
+    "defaultMessage": "Mandarin"
+  },
+  "@yovoice.music.languageName.en": {
+    "defaultMessage": "English"
+  },
+  "@yovoice.music.languageName.yue": {
+    "defaultMessage": "Cantonese"
+  },
+  "@yovoice.music.languageName.ja": {
+    "defaultMessage": "Japanese"
+  },
+  "@yovoice.music.languageName.ko": {
+    "defaultMessage": "Korean"
+  },
+  "@yovoice.music.languageName.es": {
+    "defaultMessage": "Spanish"
+  },
+  "@yovoice.music.languageName.fr": {
+    "defaultMessage": "French"
+  },
+  "@yovoice.music.languageName.de": {
+    "defaultMessage": "German"
+  },
+  "@yovoice.music.languageName.pt": {
+    "defaultMessage": "Portuguese"
+  },
+  "@yovoice.music.languageName.ru": {
+    "defaultMessage": "Russian"
+  },
+  "@yovoice.music.languageName.it": {
+    "defaultMessage": "Italian"
+  },
+  "@yovoice.music.bpm": {
+    "defaultMessage": "Tempo (BPM)"
+  },
+  "@yovoice.music.keyscale": {
+    "defaultMessage": "Key"
+  },
+  "@yovoice.music.timesignature": {
+    "defaultMessage": "Time signature"
+  },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Sampling steps"
+  },
+  "@yovoice.error.engineUpgradeRequired": {
+    "defaultMessage": "This model needs inference engine {version} or later. Update the engine in Settings."
+  },
+  "@yovoice.music.engineRequired": {
+    "defaultMessage": "Music generation needs inference engine {version} or later."
+  },
+  "@yovoice.music.updateEngine": {
+    "defaultMessage": "Update engine"
+  },
+  "@yovoice.error.scoreInvalid": {
+    "defaultMessage": "The score is invalid: check tempo, meter, tracks and note positions (up to 512 bars, 32 tracks, 20,000 notes, 10 minutes)."
+  },
+  "@yovoice.error.midiInvalid": {
+    "defaultMessage": "This MIDI file can't be read. Use a standard type 0 or 1 MIDI file with notes."
+  },
+  "@yovoice.activity.rendering": {
+    "defaultMessage": "Rendering tracks ({done}/{total})"
+  },
+  "@yovoice.project.score": {
+    "defaultMessage": "Score"
+  },
+  "@yovoice.project.new.score": {
+    "defaultMessage": "New score"
+  },
+  "@yovoice.score.arrangement": {
+    "defaultMessage": "Arrangement"
+  },
+  "@yovoice.score.barCount": {
+    "defaultMessage": "{count} bars"
+  },
+  "@yovoice.score.bars": {
+    "defaultMessage": "Bars {start}–{end}"
+  },
+  "@yovoice.score.copyPromptHint": {
+    "defaultMessage": "Ask an AI Agent to write the score JSON, then import it here or render it with the CLI."
+  },
+  "@yovoice.score.downloadSoundFont": {
+    "defaultMessage": "Download"
+  },
+  "@yovoice.score.drumKit": {
+    "defaultMessage": "Drum kit"
+  },
+  "@yovoice.score.duration": {
+    "defaultMessage": "Length {time}"
+  },
+  "@yovoice.score.empty": {
+    "defaultMessage": "Write each part as notes in bars and beats, then render a mixed track with stems. Import MIDI or a score written by an Agent, or start from the example."
+  },
+  "@yovoice.score.example": {
+    "defaultMessage": "Use example"
+  },
+  "@yovoice.score.export": {
+    "defaultMessage": "Export"
+  },
+  "@yovoice.score.exportMidi": {
+    "defaultMessage": "MIDI file (.mid)"
+  },
+  "@yovoice.score.exportJson": {
+    "defaultMessage": "Score JSON (.json)"
+  },
+  "@yovoice.score.file": {
+    "defaultMessage": "MIDI or score file"
+  },
+  "@yovoice.score.import": {
+    "defaultMessage": "Import MIDI or score"
+  },
+  "@yovoice.score.key": {
+    "defaultMessage": "Key"
+  },
+  "@yovoice.score.keyPlaceholder": {
+    "defaultMessage": "e.g. D minor"
+  },
+  "@yovoice.score.levelOf": {
+    "defaultMessage": "Target level of {name}"
+  },
+  "@yovoice.score.meter": {
+    "defaultMessage": "Meter"
+  },
+  "@yovoice.score.noteCount": {
+    "defaultMessage": "{count} notes"
+  },
+  "@yovoice.score.playTrack": {
+    "defaultMessage": "Play {name}"
+  },
+  "@yovoice.score.render": {
+    "defaultMessage": "Render music"
+  },
+  "@yovoice.score.rhythm": {
+    "defaultMessage": "Tempo and meter"
+  },
+  "@yovoice.score.rollLabel": {
+    "defaultMessage": "Overview of {tracks} tracks and {notes} notes"
+  },
+  "@yovoice.score.sections": {
+    "defaultMessage": "Sections"
+  },
+  "@yovoice.score.soundFont": {
+    "defaultMessage": "Sound font"
+  },
+  "@yovoice.score.soundFontRequired": {
+    "defaultMessage": "Rendering needs the sound font ({size})."
+  },
+  "@yovoice.score.tempo": {
+    "defaultMessage": "Tempo (BPM)"
+  },
+  "@yovoice.score.trackName": {
+    "defaultMessage": "Track {n}"
+  },
+  "@yovoice.score.tracks": {
+    "defaultMessage": "Tracks"
+  },
+  "@yovoice.score.role.melody": {
+    "defaultMessage": "Melody"
+  },
+  "@yovoice.score.role.piano": {
+    "defaultMessage": "Piano"
+  },
+  "@yovoice.score.role.strings": {
+    "defaultMessage": "Strings"
+  },
+  "@yovoice.score.role.bass": {
+    "defaultMessage": "Bass"
+  },
+  "@yovoice.score.role.drums": {
+    "defaultMessage": "Drums"
+  },
+  "@yovoice.score.role.pad": {
+    "defaultMessage": "Pad"
+  },
+  "@yovoice.score.role.arp": {
+    "defaultMessage": "Arpeggio"
+  },
+  "@yovoice.score.role.other": {
+    "defaultMessage": "Other"
+  },
+  "@yovoice.settings.modelDesc.music": {
+    "defaultMessage": "Generates songs and instrumentals from a style description and lyrics."
+  },
+  "@yovoice.settings.modelDesc.soundfont": {
+    "defaultMessage": "General MIDI sound font with 128 instruments and drum kits; balanced and suited to most scores."
+  },
+  "@yovoice.settings.tabAI": {
+    "defaultMessage": "AI services"
+  },
+  "@yovoice.ai.intro": {
+    "defaultMessage": "Connect a large language model to let AI write arrangements in Score and lyrics in Music. Requests go straight from this computer to the service you choose."
+  },
+  "@yovoice.ai.addProvider": {
+    "defaultMessage": "Add service"
+  },
+  "@yovoice.ai.customProvider": {
+    "defaultMessage": "Custom service"
+  },
+  "@yovoice.ai.name": {
+    "defaultMessage": "Name"
+  },
+  "@yovoice.ai.baseURL": {
+    "defaultMessage": "Endpoint"
+  },
+  "@yovoice.ai.format": {
+    "defaultMessage": "Protocol"
+  },
+  "@yovoice.ai.formatName.chat_completions": {
+    "defaultMessage": "OpenAI Chat Completions"
+  },
+  "@yovoice.ai.formatName.responses": {
+    "defaultMessage": "OpenAI Responses"
+  },
+  "@yovoice.ai.formatName.anthropic_messages": {
+    "defaultMessage": "Anthropic Messages"
+  },
+  "@yovoice.ai.modelsPath": {
+    "defaultMessage": "Model list path"
+  },
+  "@yovoice.ai.key": {
+    "defaultMessage": "API key"
+  },
+  "@yovoice.ai.keyOptional": {
+    "defaultMessage": "Usually not needed for local services"
+  },
+  "@yovoice.ai.getKey": {
+    "defaultMessage": "Get a key"
+  },
+  "@yovoice.ai.model": {
+    "defaultMessage": "Model"
+  },
+  "@yovoice.ai.modelPlaceholder": {
+    "defaultMessage": "Model name, or fetch the list"
+  },
+  "@yovoice.ai.test": {
+    "defaultMessage": "Test"
+  },
+  "@yovoice.ai.testOk": {
+    "defaultMessage": "Connected. The model replied."
+  },
+  "@yovoice.ai.testFailed": {
+    "defaultMessage": "Test failed: {reason}"
+  },
+  "@yovoice.ai.inUse": {
+    "defaultMessage": "In use"
+  },
+  "@yovoice.ai.deleteNamed": {
+    "defaultMessage": "Delete {name}"
+  },
+  "@yovoice.ai.deleteTitle": {
+    "defaultMessage": "Delete this AI service?"
+  },
+  "@yovoice.ai.deleteBody": {
+    "defaultMessage": "{name} and its stored key will be removed from this computer."
+  },
+  "@yovoice.ai.configure": {
+    "defaultMessage": "Set up AI"
+  },
+  "@yovoice.ai.notConfigured": {
+    "defaultMessage": "This feature needs a language model. Add a service and choose a model in Settings › AI services first."
+  },
+  "@yovoice.ai.scorePlaceholder": {
+    "defaultMessage": "Describe the music in a sentence and AI writes the whole arrangement, e.g. a warm, slow piano piece for a travel vlog intro, with soft strings joining later"
+  },
+  "@yovoice.ai.scoreSeconds": {
+    "defaultMessage": "Length"
+  },
+  "@yovoice.ai.scoreSubmit": {
+    "defaultMessage": "Compose"
+  },
+  "@yovoice.ai.lyricsPlaceholder": {
+    "defaultMessage": "Describe the song in a sentence and AI writes the style, lyrics and title, e.g. a city pop song about a summer night drive by the sea"
+  },
+  "@yovoice.ai.lyricsSubmit": {
+    "defaultMessage": "Write"
+  },
+  "@yovoice.error.aiProviderInvalid": {
+    "defaultMessage": "The AI service settings are invalid. Check the address, name and model."
+  },
+  "@yovoice.error.aiNotConfigured": {
+    "defaultMessage": "No AI service is set up. Add one and choose a model in Settings › AI."
+  },
+  "@yovoice.error.aiAuth": {
+    "defaultMessage": "The AI service rejected the key (HTTP {status}). Check the API key."
+  },
+  "@yovoice.error.aiRateLimit": {
+    "defaultMessage": "The AI service is busy or out of quota. Free models are often rate limited when many people use them; wait a minute and try again, or pick another model in the writing panel."
+  },
+  "@yovoice.error.aiNetwork": {
+    "defaultMessage": "Could not reach the AI service: {detail}"
+  },
+  "@yovoice.error.aiResponse": {
+    "defaultMessage": "The AI service returned an error (HTTP {status}): {detail}"
+  },
+  "@yovoice.error.aiModelsPath": {
+    "defaultMessage": "This service has no model list. Enter the model name directly."
+  },
+  "@yovoice.error.aiResultInvalid": {
+    "defaultMessage": "The AI result could not be used: {detail}. Try again or rephrase."
+  },
+  "@yovoice.music.allTags": {
+    "defaultMessage": "All tags"
+  },
+  "@yovoice.music.fewerTags": {
+    "defaultMessage": "Fewer tags"
+  },
+  "@yovoice.settings.tabSoundfonts": {
+    "defaultMessage": "Sound fonts"
+  },
+  "@yovoice.settings.downloads": {
+    "defaultMessage": "Downloads"
+  },
+  "@yovoice.settings.downloaded": {
+    "defaultMessage": "Downloaded"
+  },
+  "@yovoice.settings.available": {
+    "defaultMessage": "Available"
+  },
+  "@yovoice.settings.importLocal": {
+    "defaultMessage": "Import a local model"
+  },
+  "@yovoice.settings.importLocalHint": {
+    "defaultMessage": "Already have a GGUF file? Import it instead of downloading."
+  },
+  "@yovoice.settings.soundfontIntro": {
+    "defaultMessage": "General MIDI sound fonts used to render scores, managed separately from voice and music models."
+  },
+  "@yovoice.settings.uiLocaleHint": {
+    "defaultMessage": "Takes effect immediately."
+  },
+  "@yovoice.settings.proxyHint": {
+    "defaultMessage": "Used for model and runtime downloads and AI services."
+  },
+  "@yovoice.settings.preferences": {
+    "defaultMessage": "Preferences"
+  },
+  "@yovoice.ai.added": {
+    "defaultMessage": "Added"
+  },
+  "@yovoice.ai.replaceKey": {
+    "defaultMessage": "Replace key"
+  },
+  "@yovoice.ai.clearKey": {
+    "defaultMessage": "Clear key"
+  },
+  "@yovoice.ai.keyNotSet": {
+    "defaultMessage": "No key set"
+  },
+  "@yovoice.ai.getKeyFrom": {
+    "defaultMessage": "Get an API key from {name}"
+  },
+  "@yovoice.ai.syncModels": {
+    "defaultMessage": "Sync model list"
+  },
+  "@yovoice.ai.searchModels": {
+    "defaultMessage": "Search models"
+  },
+  "@yovoice.ai.noModels": {
+    "defaultMessage": "No model list yet. Type a model name or sync the list."
+  },
+  "@yovoice.ai.currentModel": {
+    "defaultMessage": "Current model"
+  },
+  "@yovoice.ai.saveProvider": {
+    "defaultMessage": "Add service"
+  },
+  "@yovoice.ai.saveChanges": {
+    "defaultMessage": "Save changes"
+  },
+  "@yovoice.ai.removeProvider": {
+    "defaultMessage": "Remove service"
+  },
+  "@yovoice.ai.unsaved": {
+    "defaultMessage": "Unsaved changes"
+  },
+  "@yovoice.library.performanceUnit": {
+    "defaultMessage": "styles"
+  },
+  "@yovoice.library.duration": {
+    "defaultMessage": "length"
+  },
+  "@yovoice.ai.apply": {
+    "defaultMessage": "Apply"
+  },
+  "@yovoice.ai.discard": {
+    "defaultMessage": "Discard"
+  },
+  "@yovoice.ai.retry": {
+    "defaultMessage": "Try again"
+  },
+  "@yovoice.ai.openLogs": {
+    "defaultMessage": "View logs"
+  },
+  "@yovoice.ai.openProject": {
+    "defaultMessage": "Open project"
+  },
+  "@yovoice.ai.backgroundHint": {
+    "defaultMessage": "Writing in the background. Keep editing or move on; you'll be told when it's done."
+  },
+  "@yovoice.ai.busyElsewhere": {
+    "defaultMessage": "Another AI task is running. Start this one after it finishes."
+  },
+  "@yovoice.ai.failedMeta": {
+    "defaultMessage": "After {time} · {model}"
+  },
+  "@yovoice.ai.lyricsPlaceholderInstrumental": {
+    "defaultMessage": "Describe the instrumental in a sentence and AI writes the style and sections, e.g. lo-fi for a slow late-night drive through the city"
+  },
+  "@yovoice.ai.scoreLength": {
+    "defaultMessage": "About {time}"
+  },
+  "@yovoice.ai.brief.score": {
+    "defaultMessage": "Describe the music you want"
+  },
+  "@yovoice.ai.brief.lyrics": {
+    "defaultMessage": "Describe the song you want"
+  },
+  "@yovoice.ai.setup.score": {
+    "defaultMessage": "Connect a language model to let AI write a whole arrangement from one sentence."
+  },
+  "@yovoice.ai.setup.lyrics": {
+    "defaultMessage": "Connect a language model to let AI write the style and lyrics from one sentence."
+  },
+  "@yovoice.ai.stage.writing": {
+    "defaultMessage": "{model} is writing"
+  },
+  "@yovoice.ai.stage.repairing": {
+    "defaultMessage": "{model} is fixing the format"
+  },
+  "@yovoice.ai.task.running.score": {
+    "defaultMessage": "AI is composing"
+  },
+  "@yovoice.ai.task.running.lyrics": {
+    "defaultMessage": "AI is writing lyrics"
+  },
+  "@yovoice.ai.task.done.score": {
+    "defaultMessage": "AI finished a new arrangement"
+  },
+  "@yovoice.ai.task.done.lyrics": {
+    "defaultMessage": "AI finished the style and lyrics"
+  },
+  "@yovoice.ai.task.failed.score": {
+    "defaultMessage": "AI couldn't compose this"
+  },
+  "@yovoice.ai.task.failed.lyrics": {
+    "defaultMessage": "AI couldn't write the lyrics"
+  },
+  "@yovoice.ai.task.replace.score": {
+    "defaultMessage": "Applying replaces the current arrangement."
+  },
+  "@yovoice.ai.task.replace.lyrics": {
+    "defaultMessage": "Applying replaces the current style and lyrics."
+  },
+  "@yovoice.error.aiTimeout": {
+    "defaultMessage": "The AI service didn't finish within {seconds} seconds. Increase the AI request timeout in Settings › General, or pick a faster model."
+  },
+  "@yovoice.music.lyricsMode": {
+    "defaultMessage": "Lyrics mode"
+  },
+  "@yovoice.music.vocal": {
+    "defaultMessage": "With lyrics"
+  },
+  "@yovoice.score.instrumentOf": {
+    "defaultMessage": "Instrument for {name}"
+  },
+  "@yovoice.score.roleOf": {
+    "defaultMessage": "Role for {name}"
+  },
+  "@yovoice.settings.aiGroup": {
+    "defaultMessage": "AI writing"
+  },
+  "@yovoice.settings.aiTimeout": {
+    "defaultMessage": "Request timeout"
+  },
+  "@yovoice.settings.aiTimeoutHint": {
+    "defaultMessage": "A full arrangement can take several minutes. A request still running after this counts as failed and is logged."
+  },
+  "@yovoice.settings.minutes": {
+    "defaultMessage": "{n} min"
+  },
+  "@yovoice.settings.minutesDefault": {
+    "defaultMessage": "{n} min (default)"
+  },
+  "@yovoice.settings.diagnosticsGroup": {
+    "defaultMessage": "Diagnostics"
+  },
+  "@yovoice.settings.diagnosticsHint": {
+    "defaultMessage": "Logs for the service, inference engine and AI requests. Attach them when reporting a problem."
+  },
+  "@yovoice.settings.searchModels": {
+    "defaultMessage": "Search name, precision or use"
+  },
+  "@yovoice.settings.noModelMatch": {
+    "defaultMessage": "No matching models."
+  },
+  "@yovoice.app.collapseInspector": {
+    "defaultMessage": "Collapse side panel"
+  },
+  "@yovoice.app.expandInspector": {
+    "defaultMessage": "Expand side panel"
+  },
+  "@yovoice.ai.group.api": {
+    "defaultMessage": "Pay-as-you-go APIs"
+  },
+  "@yovoice.ai.group.coding": {
+    "defaultMessage": "Coding plans"
+  },
+  "@yovoice.ai.group.local": {
+    "defaultMessage": "Local & custom"
+  },
+  "@yovoice.error.musicLyricsRequired": {
+    "defaultMessage": "YuE2 needs lyrics; instrumental tracks are not supported."
+  },
+  "@yovoice.settings.modelDesc.yue2": {
+    "defaultMessage": "Generates a full vocal song from lyrics and style; length follows the lyrics. Licensed CC BY-NC 4.0, non-commercial use only."
+  },
+  "@yovoice.music.yueLength": {
+    "defaultMessage": "YuE2 sings section by section, so the lyrics decide the song length."
+  },
+  "@yovoice.music.yueVocalOnly": {
+    "defaultMessage": "YuE2 only makes vocal songs"
+  },
+  "@yovoice.music.reuseTake": {
+    "defaultMessage": "Reuse this take's style and lyrics"
+  },
+  "@yovoice.score.importShort": {
+    "defaultMessage": "Import"
+  },
+  "@yovoice.settings.modelDesc.soundfontGeneralUser": {
+    "defaultMessage": "Compact, clean GM/GS sound font with detailed piano and drums and well-balanced instrument levels. Free for personal and commercial music."
+  },
+  "@yovoice.settings.modelDesc.soundfontSgm": {
+    "defaultMessage": "More realistic GM sound font with richer piano, string, guitar and brass samples; larger and slower to render. The author states no license, so check before commercial use."
+  },
+  "@yovoice.update.group": {
+    "defaultMessage": "Version and updates"
+  },
+  "@yovoice.update.title": {
+    "defaultMessage": "Software update"
+  },
+  "@yovoice.update.currentVersion": {
+    "defaultMessage": "yovoice {version}"
+  },
+  "@yovoice.update.versionChange": {
+    "defaultMessage": "Current {current} → new {version}"
+  },
+  "@yovoice.update.published": {
+    "defaultMessage": "Released {date}"
+  },
+  "@yovoice.update.autoHint": {
+    "defaultMessage": "Checked at launch and every 4 hours; new versions download in the background."
+  },
+  "@yovoice.update.latestHint": {
+    "defaultMessage": "Up to date · Last checked {time}"
+  },
+  "@yovoice.update.checking": {
+    "defaultMessage": "Checking for updates…"
+  },
+  "@yovoice.update.check": {
+    "defaultMessage": "Check for updates"
+  },
+  "@yovoice.update.foundTitle": {
+    "defaultMessage": "New version {version} available"
+  },
+  "@yovoice.update.downloading": {
+    "defaultMessage": "Downloading {version}"
+  },
+  "@yovoice.update.downloadStarting": {
+    "defaultMessage": "Connecting…"
+  },
+  "@yovoice.update.verifying": {
+    "defaultMessage": "Verifying update…"
+  },
+  "@yovoice.update.progress": {
+    "defaultMessage": "Download progress"
+  },
+  "@yovoice.update.background": {
+    "defaultMessage": "Continue in background"
+  },
+  "@yovoice.update.readyTitle": {
+    "defaultMessage": "{version} is ready"
+  },
+  "@yovoice.update.readyBody": {
+    "defaultMessage": "The update is downloaded and verified. It installs on restart, and your work is saved first."
+  },
+  "@yovoice.update.restart": {
+    "defaultMessage": "Restart to update"
+  },
+  "@yovoice.update.later": {
+    "defaultMessage": "Later"
+  },
+  "@yovoice.update.installingTitle": {
+    "defaultMessage": "Saving and restarting…"
+  },
+  "@yovoice.update.installingBody": {
+    "defaultMessage": "Saving your work and stopping the local service before installing. yovoice reopens when done."
+  },
+  "@yovoice.update.failedTitle": {
+    "defaultMessage": "Update could not finish"
+  },
+  "@yovoice.update.failedBody": {
+    "defaultMessage": "Updates are unavailable right now. Try again later."
+  },
+  "@yovoice.update.retry": {
+    "defaultMessage": "Try again"
+  },
+  "@yovoice.update.openDownloads": {
+    "defaultMessage": "Open download page"
+  },
+  "@yovoice.update.latestTitle": {
+    "defaultMessage": "You are up to date"
+  },
+  "@yovoice.update.disabled": {
+    "defaultMessage": "Development builds do not check for updates. Install a release build."
+  },
+  "@yovoice.update.close": {
+    "defaultMessage": "Close"
+  },
+  "@yovoice.update.whatsNew": {
+    "defaultMessage": "What's new"
+  },
+  "@yovoice.update.thisVersion": {
+    "defaultMessage": "What's new in this version"
+  },
+  "@yovoice.update.fullNotes": {
+    "defaultMessage": "View on GitHub"
+  },
+  "@yovoice.update.viewNotes": {
+    "defaultMessage": "What's new"
+  },
+  "@yovoice.update.noticeFound": {
+    "defaultMessage": "New version {version} found, downloading in the background"
+  },
+  "@yovoice.update.noticeReady": {
+    "defaultMessage": "Version {version} is ready. Restart to update"
+  },
+  "@yovoice.update.noticeUpdated": {
+    "defaultMessage": "Updated to {version}"
+  },
+  "@yovoice.update.sidebarDownloading": {
+    "defaultMessage": "Downloading {version}"
+  },
+  "@yovoice.update.sidebarReady": {
+    "defaultMessage": "Version {version}"
+  },
+  "@yovoice.ai.orca.connect": {
+    "defaultMessage": "Connect OrcaRouter for free"
+  },
+  "@yovoice.ai.orca.waiting": {
+    "defaultMessage": "OrcaRouter is open in your browser. Sign in and approve, and yovoice connects automatically."
+  },
+  "@yovoice.ai.orca.hint": {
+    "defaultMessage": "No key to copy: sign in to OrcaRouter in your browser and approve, and it is added with a free model."
+  },
+  "@yovoice.error.aiFreeRate": {
+    "defaultMessage": "The free model's allowance is used up for now. It resets in about {seconds} seconds; try again then."
+  },
+  "@yovoice.error.aiFreeBusy": {
+    "defaultMessage": "The free model is busy right now. Wait a moment and try again, or pick another model in the writing panel."
+  },
+  "@yovoice.error.aiFreePromptCap": {
+    "defaultMessage": "This request is longer than the free model allows in one go, so retrying will not help. Shorten the description, or claim credit (orcarouter.ai/offers) or top up on OrcaRouter and switch to a paid model."
+  },
+  "@yovoice.error.aiFreeAccess": {
+    "defaultMessage": "OrcaRouter only offers free models to accounts linked to an established GitHub account. Link GitHub in your OrcaRouter profile settings, or top up first."
+  },
+  "@yovoice.settings.localApi": {
+    "defaultMessage": "Local API"
+  },
+  "@yovoice.settings.localApiIntro": {
+    "defaultMessage": "Let other apps on this computer generate speech with yovoice through HTTP or MCP. It listens only on 127.0.0.1, so other devices on your network cannot reach it."
+  },
+  "@yovoice.settings.localApiEnabled": {
+    "defaultMessage": "Enable local API"
+  },
+  "@yovoice.settings.localApiOff": {
+    "defaultMessage": "Off. No port is in use."
+  },
+  "@yovoice.settings.localApiRunning": {
+    "defaultMessage": "Running at {url}"
+  },
+  "@yovoice.settings.localApiRunningShort": {
+    "defaultMessage": "Running"
+  },
+  "@yovoice.settings.localApiFailed": {
+    "defaultMessage": "Not started"
+  },
+  "@yovoice.settings.localApiPort": {
+    "defaultMessage": "Port"
+  },
+  "@yovoice.settings.localApiPortHint": {
+    "defaultMessage": "1024–65535. Default 8080."
+  },
+  "@yovoice.settings.localApiToken": {
+    "defaultMessage": "Access token"
+  },
+  "@yovoice.settings.localApiTokenHint": {
+    "defaultMessage": "Send it as Authorization: Bearer followed by this token. Resetting it revokes the old token immediately."
+  },
+  "@yovoice.settings.localApiCopy": {
+    "defaultMessage": "Copy"
+  },
+  "@yovoice.settings.localApiCopied": {
+    "defaultMessage": "Copied"
+  },
+  "@yovoice.settings.localApiReset": {
+    "defaultMessage": "Reset"
+  },
+  "@yovoice.settings.localApiExample": {
+    "defaultMessage": "Example"
+  },
+  "@yovoice.settings.localApiExampleHint": {
+    "defaultMessage": "HTTP endpoints are under {url}/v1 and MCP is at {url}/mcp. Replace YOUR_TOKEN with the token copied above."
+  },
+  "@yovoice.error.localApiPort": {
+    "defaultMessage": "Use a port between 1024 and 65535."
+  },
+  "@yovoice.error.localApiPortInUse": {
+    "defaultMessage": "Port {port} is already used by another program. Choose a different port."
+  },
+  "@yovoice.import.file": {
+    "defaultMessage": "Import a file to voice"
+  },
+  "@yovoice.import.unsupported": {
+    "defaultMessage": "Import a TXT or Markdown text file, or an SRT, VTT or ASS subtitle file."
+  },
+  "@yovoice.import.empty": {
+    "defaultMessage": "The file has no text to read aloud."
+  },
+  "@yovoice.import.tooLong": {
+    "defaultMessage": "The text is longer than 12,000 characters. Split it into several files and import them separately."
+  },
+  "@yovoice.import.tooLarge": {
+    "defaultMessage": "The file is larger than 2 MB. Split it before importing."
   }
 }

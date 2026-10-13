@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+- 新增 Breeze TTS 2（中英，Q4 / Q8 / BF16）：可用文字描述设计音色，或用参考音频和原文克隆并以描述调整语速、情绪和语气；默认缩短分段、限制单段生成长度并在显卡上使用 bf16 推理，减少拖音和长段静音。模型需要 v0.9.1 内核，权重仅限非商业用途。
+- 新建作品菜单新增“导入文件配音”：导入 TXT 或 Markdown 文本直接生成语音作品，导入 SRT、VTT、ASS 字幕生成故事作品；自动识别 UTF-8、UTF-16 与 GBK 编码，Markdown 的标记符号会被去掉。
+- CLI 新增 `yovoice mcp`，以 stdio 方式提供 MCP，Claude Desktop、Cursor 等本机客户端可直接作为子进程启动，无需令牌；结果直接返回生成音频的本机路径，`upload_voice` 也可按本机路径导入参考音频。
+- 设置 › 常规新增“本机接口”：开启后在 127.0.0.1 上提供与 `yovoice serve` 相同的 HTTP / MCP 接口（默认端口 8080，可修改），本机其他软件凭访问令牌即可调用桌面应用里的模型生成语音；令牌可复制、重置，端口被占用时直接提示。
+- AI 服务新增 OrcaRouter（兼容 OpenAI 接口）：点“免费连接 OrcaRouter”在浏览器登录并同意授权后自动添加，默认使用免费模型，不用复制密钥；免费模型被拒绝时分别提示还需等待几秒、内容超过免费长度上限或需要绑定 GitHub。
+- Windows 与 macOS 应用内更新提示：发现新版本时弹出提示并在侧栏显示下载进度，可查看对应语言的更新内容，下载完成后一键重启更新；设置页新增“版本与更新”，可随时检查更新，更新后首次启动会提示新版本内容。
+- 修复语音生成面板中“更多情绪”与“微调情绪”折叠按钮残留边框与背景的问题，统一为轻量幽灵折叠外观。
+- 修复缺少乐谱数据的旧编曲作品在启动或打开时导致整个窗口白屏的问题，这类作品会自动补上空乐谱。
+- 侧栏导航与新建作品菜单将“语音生成”置于首位（排在“故事配音”上方）；桌面端重新打开时默认展示作品列表（不自动打开内容页），并记住离开前所在的分类页面。
+
 ### Added
 
 - English: Added opt-in local speaker-profile CLI and HTTP workflows backed by an externally configured WeSpeaker/Sherpa-ONNX runtime. Profiles remain private to the local data directory and can optionally select an existing TTS voice.
@@ -22,11 +32,25 @@
 - 修复部分界面尺寸失效：音量滑块过宽挤掉“保存为角色”按钮、窄屏导航与空状态留白异常。
 - 重新安装或切换推理后端后清理旧的运行时，过时的更新安装包不再保留，启动时回收中断操作遗留的临时文件。
 
-### Improved
+## [0.2.0] - 2026-10-11
 
-- 推理内核升级到 audio.cpp v0.9.1，应用与内核分开更新：Windows 自动更新只下载应用本体并保留已安装的内核；内核满足应用最低版本即可继续使用，有更新的推荐版本时可在设置中选择升级。已安装的 v0.7.4 内核可继续使用，可在设置中选择升级到 v0.9.1。
-- 新增 Windows CUDA 12.4 与 CUDA 13.3 安装包（`-cuda12.4-setup.exe`、`-cuda13.3-setup.exe`），各自只内置对应的 CUDA 内核，首次启动即使用 NVIDIA 显卡；设置中也可选择 CUDA 13.3。Windows Vulkan 改用兼容更多 CPU 的便携包。
-- 桌面端操作不再互相排队：导入音色或工程期间，作品仍可自动保存，界面保持响应；退出时会中止正在进行的音频转码。
+### English
+
+- New Music projects: set the style with tags, write lyrics with section markers or go instrumental, and generate full songs with ACE-Step 1.5 Turbo / XL Turbo or YuE2 3B (vocal songs whose length follows the lyrics; CC BY-NC 4.0, non-commercial). Each take is kept as a version you can preview, compare, reuse and export. Models made of several files can now be downloaded.
+- New Score projects: write notes per track by bar and beat, import MIDI, or let an agent compose, then render every track with a General MIDI sound font and mix by role. The track area spans the bottom of the window with sections on the timeline, zoom, scrolling and a playhead; export MIDI or score JSON. Choose MuseScore General, GeneralUser GS or SGM-V2.01. The CLI adds `yovoice score render|midi|from-midi` with stems, MCP adds `render_score`, and the Agent Skill adds a score guide.
+- Optional AI providers (DeepSeek, Qwen, Zhipu, Kimi, Doubao, MiniMax, OpenAI, Anthropic, OpenRouter, coding plans, local and custom endpoints) write a whole score or song style, lyrics and title from one sentence, run in the background, and can switch models on the spot.
+- A refreshed interface: ticket-style project lists with record and cassette covers, grouped settings, a separate sound font page, side panel toggles in the title bar (the right panel toggle only appears in a workspace), and hover hints only for truncated text or icon buttons.
+- The audio.cpp engine is upgraded to v0.9.1 and updates separately from the app; new Windows CUDA 12.4 and 13.3 installers.
+- Fixes for long AI requests timing out, saving on exit, Windows time-zone saves, timeline menus, deleting the last project, and clearer error messages and diagnostic logs.
+
+### 简体中文
+
+- 新增“音乐生成”：用标签定风格，写带段落标记的歌词或改为纯音乐，由 ACE-Step 1.5 Turbo / XL Turbo 或 YuE2 3B（带人声、长度随歌词，CC BY-NC 4.0 仅限非商业）生成整首歌曲；每次生成保留为版本，可试听、对比、复用和导出。支持下载由多个文件组成的模型。
+- 新增“编曲”：按小节和拍写各声部音符，或导入 MIDI、让 Agent 写谱，用 General MIDI 音色库逐声部渲染并按角色混音。轨道区横跨窗口底部，段落标在时间轴上，可缩放、滚动并显示播放指针；可导出 MIDI 或乐谱 JSON。音色库可选 MuseScore General、GeneralUser GS 或 SGM-V2.01。CLI 新增 `yovoice score render|midi|from-midi`（含分轨），MCP 新增 `render_score`，Agent Skill 新增编曲参考。
+- 可选接入 AI 服务（DeepSeek、通义千问、智谱、Kimi、豆包、MiniMax、OpenAI、Anthropic、OpenRouter、编程套餐、本地与自定义接口），一句话写出整份编曲或歌曲的风格、歌词和标题，在后台进行，可随时切换模型。
+- 界面焕新：票根式作品列表配唱片与磁带封面，设置页分组，音色库单独成页，左右面板开关集成到标题栏（右侧面板开关只在工作区显示），悬浮提示只在文字被截断或图标按钮需要说明时出现。
+- 推理内核升级到 audio.cpp v0.9.1，与应用分开更新；新增 Windows CUDA 12.4 与 13.3 安装包。
+- 修复长 AI 请求超时、退出保存、Windows 时区作品保存、时间线菜单、删除最后一个作品等问题，错误提示和诊断日志更具体。
 
 ## [0.1.7] - 2026-10-05
 

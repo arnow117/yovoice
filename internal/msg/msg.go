@@ -18,6 +18,7 @@ const (
 
 	ErrModelImportRequired      Code = "@yovoice.error.modelImportRequired"
 	ErrOmniReferenceRequired    Code = "@yovoice.error.omniReferenceRequired"
+	ErrBreezeReferenceRequired  Code = "@yovoice.error.breezeReferenceRequired"
 	ErrVoiceDescriptionRequired Code = "@yovoice.error.voiceDescriptionRequired"
 	ErrOmniAttributes           Code = "@yovoice.error.omniAttributes"
 	ErrSpeakerInvalid           Code = "@yovoice.error.speakerInvalid"
@@ -34,6 +35,7 @@ const (
 	ActivityGenerate        Code = "@yovoice.activity.generate"
 	ActivitySynthesizing    Code = "@yovoice.activity.synthesizing"
 	ActivitySavingAudio     Code = "@yovoice.activity.savingAudio"
+	ActivityRendering       Code = "@yovoice.activity.rendering"
 	ActivityCompleted       Code = "@yovoice.activity.completed"
 	ActivityCancelled       Code = "@yovoice.activity.cancelled"
 	ActivityPaused          Code = "@yovoice.activity.paused"
@@ -105,7 +107,32 @@ const (
 	ErrVoxReferenceRequired  Code = "@yovoice.error.voxReferenceRequired"
 	ErrVoxParams             Code = "@yovoice.error.voxParams"
 	ErrLegacyRestore         Code = "@yovoice.error.legacyRestore"
-	ErrUnknown               Code = "@yovoice.error.unknown"
+	ErrMusicStyle            Code = "@yovoice.error.musicStyle"
+	ErrMusicLyrics           Code = "@yovoice.error.musicLyrics"
+	ErrMusicParams           Code = "@yovoice.error.musicParams"
+	ErrMusicLyricsRequired   Code = "@yovoice.error.musicLyricsRequired"
+	ErrScoreInvalid          Code = "@yovoice.error.scoreInvalid"
+	ErrMidiInvalid           Code = "@yovoice.error.midiInvalid"
+	ErrEngineUpgradeRequired Code = "@yovoice.error.engineUpgradeRequired"
+	// AI 服务（可选）：未配置、鉴权、限流、网络、响应异常与结果无效。
+	ErrAIProviderInvalid Code = "@yovoice.error.aiProviderInvalid"
+	ErrAINotConfigured   Code = "@yovoice.error.aiNotConfigured"
+	ErrAIAuth            Code = "@yovoice.error.aiAuth"
+	ErrAIRateLimit       Code = "@yovoice.error.aiRateLimit"
+	ErrAINetwork         Code = "@yovoice.error.aiNetwork"
+	ErrAIResponse        Code = "@yovoice.error.aiResponse"
+	ErrAIModelsPath      Code = "@yovoice.error.aiModelsPath"
+	ErrAIResultInvalid   Code = "@yovoice.error.aiResultInvalid"
+	ErrAITimeout         Code = "@yovoice.error.aiTimeout"
+	// OrcaRouter 免费模型的四种拒绝：窗口已满、通道繁忙、单次提示超长、账号未满足免费条件。
+	ErrAIFreeRate      Code = "@yovoice.error.aiFreeRate"
+	ErrAIFreeBusy      Code = "@yovoice.error.aiFreeBusy"
+	ErrAIFreePromptCap Code = "@yovoice.error.aiFreePromptCap"
+	ErrAIFreeAccess    Code = "@yovoice.error.aiFreeAccess"
+	// 本机接口：端口超出范围、端口已被占用。
+	ErrLocalAPIPort      Code = "@yovoice.error.localApiPort"
+	ErrLocalAPIPortInUse Code = "@yovoice.error.localApiPortInUse"
+	ErrUnknown           Code = "@yovoice.error.unknown"
 )
 
 // Params carries ICU values. Keys match catalog placeholders.
@@ -145,11 +172,11 @@ func All() []Code {
 	return []Code{ErrProjectPackage, ErrProjectPackageLimit, ErrTimelineImportDuration, ErrTimelineInvalid, ErrTimelineInUse, ErrSubtitleInvalid, ActivitySubtitle,
 		ErrVoiceInUse, ErrVoiceReferenced, ErrCharacterInvalid,
 		ErrModelImportRequired,
-		ErrOmniReferenceRequired,
+		ErrOmniReferenceRequired, ErrBreezeReferenceRequired,
 		ErrVoiceDescriptionRequired, ErrOmniAttributes, ErrSpeakerInvalid,
 		ActivityDownload, ActivityDownloading, ActivityVerifying, ActivityImport,
 		ActivityRuntimeDownload, ActivityRuntimeExtract, ActivityEngineStart,
-		ActivityGenerate, ActivitySynthesizing, ActivitySavingAudio,
+		ActivityGenerate, ActivitySynthesizing, ActivitySavingAudio, ActivityRendering,
 		ActivityCompleted, ActivityCancelled, ActivityPaused, ActivityFailed, ActivityInterrupted,
 		ErrBusy, ErrProxyURL, ErrModelDirAbsolute, ErrModelDirSpace,
 		ErrDownloadHTTP, ErrDownloadRange, ErrDownloadSize, ErrDownloadIncomplete,
@@ -167,6 +194,10 @@ func All() []Code {
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
+		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrMidiInvalid,
+		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout,
+		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess,
+		ErrLocalAPIPort, ErrLocalAPIPortInUse,
 		ErrLegacyRestore, ErrUnknown,
 	}
 }

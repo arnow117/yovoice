@@ -3,22 +3,35 @@
 </p>
 
 <h1 align="center">yovoice</h1>
-<p align="center">Give your words a voice.</p>
+<p align="center">Give your words a voice. Compose your ideas into songs.</p>
 <p align="center">
-  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.1.7-blue?style=flat-square" alt="Version 0.1.7" /></a>
+  <a href="https://yovoice.leemysw.com"><img src="https://img.shields.io/badge/website-yovoice.leemysw.com-10b981?style=flat-square" alt="Website" /></a>
+  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.2.0-blue?style=flat-square" alt="Version 0.2.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-orange?style=flat-square" alt="License: Apache-2.0" /></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-black?style=flat-square" alt="macOS 14+ (Apple Silicon)" />
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square" alt="Windows 10/11 (x64)" />
 </p>
 <p align="center">English · <a href="README_zh.md">简体中文</a></p>
 
-<p align="center"><a href="docs/cli.md">CLI & Agent Skill</a> · <a href="docs/api.md">API / MCP Deployment</a> · <a href="docs/development.md">Development</a> · <a href="docs/usage.md">Usage index</a></p>
+<p align="center"><a href="https://yovoice.leemysw.com">Website</a> · <a href="docs/cli.md">CLI & Agent Skill</a> · <a href="docs/api.md">API / MCP Deployment</a> · <a href="docs/development.md">Development</a> · <a href="docs/usage.md">Usage index</a></p>
 
 ---
 
-yovoice is an open-source voice creation tool for macOS and Windows that turns text into natural, expressive speech locally. With voice cloning, emotion control, audio project management, and a choice of TTS models, it requires no cloud API calls and incurs no per-character charges, giving you more control over narration, voiceovers, and audio content creation at a lower cost.
+yovoice is an open-source, local-first audio and music creation studio for macOS and Windows.
+
+Turn text into expressive speech, natural cloned voices, complete vocal songs, and multi-track scores right on your machine. Featuring zero-shot voice cloning, emotional performance controls, AI music generation with lyrics, and General MIDI score arranging—**all running 100% locally with zero cloud API calls, zero per-character fees, and zero Python environment headaches.**
 
 ![yovoice creation workspace — browser preview](docs/images/yovoice-workspace.png)
+
+---
+
+## Why yovoice?
+
+- 🔒 **100% Local Privacy**: Runs entirely on your local GPU/CPU. Your manuscripts, reference voices, and creations never leave your computer.
+- 💸 **Zero Recurring Fees**: Say goodbye to per-character/per-minute meters and expensive cloud voice/music subscriptions.
+- ⚡ **Native C++ Performance (No Python Hell)**: Powered by [audio.cpp](https://github.com/0xShug0/audio.cpp) v0.9.1. Ships with bundled Windows CUDA 12.4/13.3 runtimes and native macOS Metal support. Double-click and create—no Conda or PyTorch conflicts.
+- 🎛️ **Creator Workstation**: Multi-take versioning for side-by-side comparison, waveform trimming, timeline scrolling, and clean stems/MIDI export.
+- 🤖 **MCP & AI Agent Ecosystem**: Connect DeepSeek, Qwen, Claude, OpenAI, or local Ollama to write scores and lyrics in seconds. Includes a native Model Context Protocol (MCP) server for Cursor and Claude Code.
 
 ---
 
@@ -27,9 +40,22 @@ yovoice is an open-source voice creation tool for macOS and Windows that turns t
 - **Voice and expression** — use a reference voice, match a reference performance, adjust emotions, or describe the delivery in words.
 - **A complete audio workflow** — import or record reference audio, trim clips, preview speech, and export your work.
 - **Voice design and cloning** — VoxCPM2 offers text-guided voice design, controllable cloning, and transcript-assisted cloning with automatic multilingual handling, and 48 kHz output.
-- **Local models** — run IndexTTS 2.0 / 2.5, VoxCPM2, OmniVoice, Qwen3-TTS and Kokoro through audio.cpp, with resumable model downloads and GGUF import.
+- **Music generation** — describe a style, write lyrics with section markers, and generate full songs or instrumentals with ACE-Step 1.5; every take is kept as a version to compare.
+- **Score** — write each part by bar and beat, import MIDI or let an Agent write the score, then render it with a General MIDI sound font and a role-based mix; results are exactly repeatable and export to MIDI and stems. See [Score](docs/score.md).
+- **Optional AI service** — connect DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API to let AI write arrangements and lyrics; keys stay on this computer. See [AI service](docs/ai.md).
+- **Local models** — run IndexTTS 2.0 / 2.5, VoxCPM2, OmniVoice, Qwen3-TTS, Breeze TTS 2 and Kokoro through audio.cpp, with resumable model downloads and GGUF import.
 - **Hardware acceleration** — Metal on Apple Silicon; CPU, NVIDIA CUDA, and experimental Vulkan on Windows.
-- **Agent Skill** — ask your AI agent to set up local speech generation and create voiceovers from text and reference audio.
+- **Agent Skill & MCP** — ask your AI agent to set up local speech generation and create voiceovers from text and reference audio.
+
+---
+
+## Hardware & VRAM Quick Guide
+
+| Use Case | Recommended Hardware | Recommended Models |
+| --- | --- | --- |
+| 🟢 **Lightweight & Blazing Fast** | Any CPU / 4 GB+ RAM | **Kokoro-82M** (only 189 MB Q8, millisecond latency, runs great on CPU) |
+| 🟡 **High-Fidelity Voice Cloning** | 4 GB – 6 GB VRAM / 8 GB+ Apple Silicon | **VoxCPM2** (2B, 48 kHz), **IndexTTS 2.0/2.5**, **Qwen3-TTS** |
+| 🔴 **Full Song & Music Generation** | 12 GB+ VRAM / 16 GB+ Apple Silicon | **ACE-Step 1.5 Turbo** (BF16, 10 GB), **YuE2 3B** |
 
 ---
 
@@ -45,18 +71,19 @@ yovoice is an open-source voice creation tool for macOS and Windows that turns t
 | Qwen3-TTS Base | 1.7B | Q8 · 2.70 GB<br>BF16 · 4.20 GB<br>ORIG · 4.54 GB | Reference voice cloning, optional transcript guidance, multilingual speech |
 | Qwen3-TTS CustomVoice | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 9 built-in voices, text-guided style and emotion |
 | Qwen3-TTS VoiceDesign | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | Voice design from natural-language descriptions, no reference audio required |
+| Breeze TTS 2 | ~3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | Chinese and English voice design, cloning and voice direction; GPU recommended, requires the v0.9.1 engine |
 | Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 built-in voices, multilingual speech excluding Japanese |
 | Kokoro-82M 1.0 | 82M | Q8 · 932.66 MB | 54 built-in voices, full multilingual resources including Japanese; import only |
 | Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 Chinese and 3 English voices; experimental, import only |
+| ACE-Step 1.5 Turbo | — | BF16 · 10.09 GB | Songs and instrumentals from a style prompt and lyrics, 50+ vocal languages; requires engine v0.9.1 |
 
-
-All models are available in the App and CLI. See [model selection](docs/models.md) for input requirements and examples. OmniVoice weights use the CC-BY-NC license and are restricted to non-commercial use.
+All models are available in the App and CLI. See [model selection](docs/models.md) for input requirements and examples. OmniVoice (CC-BY-NC) and Breeze TTS 2 (BreezeBlue Research and Non-Commercial License) weights are restricted to non-commercial use.
 
 ---
 
 ## Installation
 
-Choose the package for your platform from the repository’s [Releases](../../releases) tab.
+Choose the package for your platform from the repository’s [Releases](../../releases) tab or visit the [official website](https://yovoice.leemysw.com).
 
 | Platform | Package | Install |
 | --- | --- | --- |
@@ -67,7 +94,7 @@ Choose the package for your platform from the repository’s [Releases](../../re
 
 The Windows installer downloads and installs [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) if needed. Models are downloaded inside the app; uninstalling preserves user data in `~/.yovoice`.
 
-Check for updates from the app menu on macOS or Windows. Updates are also checked and downloaded in the background; restart to install when ready. Windows updates download only the app (`-update.exe`) and keep the installed runtime; when a release recommends a newer runtime you can upgrade it in Settings → Inference engine, and it is required only when the runtime is below the minimum version the app needs.
+Check for updates from the app menu on macOS or Windows. Updates are also checked and downloaded in the background; restart to install when ready. Windows updates download only the app (`-update.exe`) and keep the installed runtime; when a release recommends a newer runtime you can upgrade it in Settings → Inference engine.
 
 ![Install yovoice on macOS](docs/images/yovoice-macos-install.png)
 
@@ -75,10 +102,10 @@ Check for updates from the app menu on macOS or Windows. Updates are also checke
 
 ## Quick Start
 
-1. **Set up a model.** Download a model in Settings.
-2. **Create a project.** Choose Story dubbing or Speech generation.
-3. **Add content.** Enter text or import subtitles, then choose a character and adjust the voice.
-4. **Generate audio.** Select Generate speech, then preview, edit and export.
+1. **Set up a model.** Download a model in Settings (e.g. Kokoro-82M for fast narration, or VoxCPM2 for cloning).
+2. **Create a project.** Choose Story dubbing, Speech generation, Music, or Score.
+3. **Add content.** Enter text, lyrics, or notes, then pick a character and adjust style.
+4. **Generate audio.** Select Generate, then preview, compare takes, edit, and export.
 
 ---
 
@@ -122,7 +149,21 @@ Bug reports, feature suggestions, and pull requests are welcome. Include your pl
 - [IndexTTS](https://github.com/index-tts/index-tts) — the speech synthesis models behind yovoice.
 - [OmniVoice](https://github.com/k2-fsa/OmniVoice) — voice design and cloning models.
 - [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) — voice cloning, built-in voices, and text-guided voice design.
+- [ACE-Step](https://github.com/ace-step/ACE-Step-1.5) — music generation from style prompts and lyrics.
+- [go-meltysynth](https://github.com/sinshu/go-meltysynth), [MuseScore General](https://musescore.org/en/handbook/3/soundfonts-and-sfz-files#gm_soundfonts), [GeneralUser GS](https://www.schristiancollins.com/generaluser) and SGM-V2.01 by David Shan — the SoundFont synthesizer and sound fonts behind score rendering.
 - Kokoro — lightweight speech synthesis with built-in voices: [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) and [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh).
+
+---
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=leemysw%2Fyovoice&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=leemysw/yovoice&type=date&theme=dark&legend=bottom-right" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=leemysw/yovoice&type=date&legend=bottom-right" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=leemysw/yovoice&type=date&legend=bottom-right" />
+ </picture>
+</a>
 
 ---
 
