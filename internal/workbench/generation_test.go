@@ -106,15 +106,15 @@ func TestSynthesizeReturnsOwnResultAfterAnotherOperationStarts(t *testing.T) {
 
 	saved := make(chan struct{})
 	allowFinish := make(chan struct{})
-	resultReady := make(chan struct{})
-	allowReturn := make(chan struct{})
+	decisionReady := make(chan struct{})
+	allowDecision := make(chan struct{})
 	workbench.afterGenerationSaved = func() {
 		close(saved)
 		<-allowFinish
 	}
 	workbench.beforeSynthesizeResultReturn = func() {
-		close(resultReady)
-		<-allowReturn
+		close(decisionReady)
+		<-allowDecision
 	}
 	result := make(chan struct {
 		generation schema.Generation
@@ -135,7 +135,7 @@ func TestSynthesizeReturnsOwnResultAfterAnotherOperationStarts(t *testing.T) {
 	}
 	close(allowFinish)
 	select {
-	case <-resultReady:
+	case <-decisionReady:
 	case <-time.After(2 * time.Second):
 		t.Fatal("first synthesis did not reach result return")
 	}
@@ -154,7 +154,7 @@ func TestSynthesizeReturnsOwnResultAfterAnotherOperationStarts(t *testing.T) {
 		t.Fatalf("successor activity = %+v", activity)
 	}
 
-	close(allowReturn)
+	close(allowDecision)
 	select {
 	case received := <-result:
 		if received.err != nil {

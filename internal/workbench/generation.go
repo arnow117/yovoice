@@ -46,10 +46,11 @@ func (w *Workbench) Synthesize(ctx context.Context, d schema.Draft) (schema.Gene
 	if err := op.Err(); err != nil {
 		return schema.Generation{}, fmt.Errorf("语音生成失败：%s", errorTextForOperation(err))
 	}
+	// 测试同步点必须位于结果和共享 Activity 判断之前，才能覆盖多客户端竞态。
+	if w.beforeSynthesizeResultReturn != nil {
+		w.beforeSynthesizeResultReturn()
+	}
 	if generation.ID != "" {
-		if w.beforeSynthesizeResultReturn != nil {
-			w.beforeSynthesizeResultReturn()
-		}
 		return generation, nil
 	}
 	state := w.Store.Read()
