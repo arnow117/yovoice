@@ -935,12 +935,6 @@
   "@yovoice.settings.uiLocale": {
     "defaultMessage": "Interface language"
   },
-  "@yovoice.settings.uiLocale.en": {
-    "defaultMessage": "English"
-  },
-  "@yovoice.settings.uiLocale.zhCN": {
-    "defaultMessage": "简体中文"
-  },
   "@yovoice.settings.verified": {
     "defaultMessage": "Verified"
   },
@@ -3079,5 +3073,107 @@
   },
   "@yovoice.music.syncProgress": {
     "defaultMessage": "{done} / {total} lines"
+  },
+  "@yovoice.music.preset.city-pop": {
+    "defaultMessage": "City Pop"
+  },
+  "@yovoice.music.preset.lofi": {
+    "defaultMessage": "Lo-Fi"
+  },
+  "@yovoice.music.preset.folk": {
+    "defaultMessage": "Folk"
+  },
+  "@yovoice.music.preset.electronic": {
+    "defaultMessage": "Electronic"
+  },
+  "@yovoice.music.preset.chinese": {
+    "defaultMessage": "Chinese"
+  },
+  "@yovoice.music.preset.romantic": {
+    "defaultMessage": "Romantic"
+  },
+  "@yovoice.music.preset.hiphop": {
+    "defaultMessage": "Hip Hop"
+  },
+  "@yovoice.music.preset.rock": {
+    "defaultMessage": "Rock"
+  },
+  "@yovoice.music.tagHint.pop": {
+    "defaultMessage": "Pop music"
+  },
+  "@yovoice.music.tagHint.city-pop": {
+    "defaultMessage": "80s Japanese urban pop"
+  },
+  "@yovoice.music.tagHint.lo-fi": {
+    "defaultMessage": "Relaxed low fidelity beats"
+  },
+  "@yovoice.music.tagHint.folk": {
+    "defaultMessage": "Acoustic folk storytelling"
+  },
+  "@yovoice.music.tagHint.rock": {
+    "defaultMessage": "High energy rock sound"
+  },
+  "@yovoice.music.tagHint.electronic": {
+    "defaultMessage": "Modern electronic beats"
+  },
+  "@yovoice.music.tagHint.r-b": {
+    "defaultMessage": "Smooth rhythm and blues"
+  },
+  "@yovoice.music.tagHint.jazz": {
+    "defaultMessage": "Classic jazz chords"
+  },
+  "@yovoice.music.tagHint.hip-hop": {
+    "defaultMessage": "Booming beats and flow"
+  },
+  "@yovoice.music.tagHint.chinese-traditional": {
+    "defaultMessage": "Traditional Chinese melodies"
+  },
+  "@yovoice.music.tagHint.upbeat": {
+    "defaultMessage": "Bright and energetic mood"
+  },
+  "@yovoice.music.tagHint.chill": {
+    "defaultMessage": "Calm and relaxing vibe"
+  },
+  "@yovoice.music.tagHint.dreamy": {
+    "defaultMessage": "Ethereal atmosphere"
+  },
+  "@yovoice.music.tagHint.melancholic": {
+    "defaultMessage": "Bittersweet nostalgia"
+  },
+  "@yovoice.music.tagHint.epic": {
+    "defaultMessage": "Cinematic grand scale"
+  },
+  "@yovoice.music.tagHint.romantic": {
+    "defaultMessage": "Sweet and loving tone"
+  },
+  "@yovoice.music.tagHint.warm-synths": {
+    "defaultMessage": "Warm analog synthesizer"
+  },
+  "@yovoice.music.tagHint.acoustic-guitar": {
+    "defaultMessage": "Acoustic guitar strums"
+  },
+  "@yovoice.music.tagHint.piano": {
+    "defaultMessage": "Expressive acoustic piano"
+  },
+  "@yovoice.music.tagHint.strings": {
+    "defaultMessage": "Orchestral string section"
+  },
+  "@yovoice.music.tagHint.808-bass": {
+    "defaultMessage": "Heavy sub bass tone"
+  },
+  "@yovoice.music.tagHint.guzheng": {
+    "defaultMessage": "Traditional Guzheng plucks"
+  },
+  "@yovoice.music.tagHint.female-vocals": {
+    "defaultMessage": "Clear female vocal style"
+  },
+  "@yovoice.music.tagHint.male-vocals": {
+    "defaultMessage": "Deep male vocal style"
+  },
+  "@yovoice.music.tagHint.choir": {
+    "defaultMessage": "Multi-part choir harmony"
+  },
+  "@yovoice.music.tagHint.rap": {
+    "defaultMessage": "Fast rhythmic rap delivery"
   }
 }
