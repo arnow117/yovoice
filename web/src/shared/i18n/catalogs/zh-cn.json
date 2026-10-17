@@ -2585,6 +2585,9 @@
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "AI 服务在 {seconds} 秒内没有写完。可以在“设置 › 常规”里延长 AI 请求超时，或换一个更快的模型。"
   },
+  "@yovoice.error.assistantMissing": {
+    "defaultMessage": "内置创作助手缺失。请重新安装应用，或通过 YOVOICE_OCHO_PATH 指定 ocho 运行时。"
+  },
   "@yovoice.music.lyricsMode": {
     "defaultMessage": "歌词模式"
   },

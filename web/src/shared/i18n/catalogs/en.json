@@ -2585,6 +2585,9 @@
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "The AI service didn't finish within {seconds} seconds. Increase the AI request timeout in Settings › General, or pick a faster model."
   },
+  "@yovoice.error.assistantMissing": {
+    "defaultMessage": "The built-in assistant runtime is missing. Reinstall the app, or point YOVOICE_OCHO_PATH to the ocho executable."
+  },
   "@yovoice.music.lyricsMode": {
     "defaultMessage": "Lyrics mode"
   },

@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 	"yovoice/internal/diag"
 	"yovoice/internal/llm"
@@ -38,6 +39,8 @@ type aiState struct {
 	secrets sync.Mutex
 	// connect 是进行中的 OrcaRouter 一键授权。
 	connect *connectSession
+	// draft 是当前助手任务的上下文，get_draft 读取、submit_* 写入。
+	draft atomic.Pointer[aiDraft]
 }
 
 // aiKeysPrivate 是状态库私有设置中保存 AI 服务密钥的键，值为服务 ID 到密钥的映射。
