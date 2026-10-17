@@ -40,6 +40,8 @@ const (
 	ActivityFailed          Code = "@yovoice.activity.failed"
 	ActivityInterrupted     Code = "@yovoice.activity.interrupted"
 	ActivityRelocate        Code = "@yovoice.activity.relocate"
+	ActivityPlanMelody      Code = "@yovoice.activity.planMelody"
+	ActivityTranscribe      Code = "@yovoice.activity.transcribe"
 
 	ErrBusy                  Code = "@yovoice.error.busy"
 	ErrProxyURL              Code = "@yovoice.error.proxyURL"
@@ -112,6 +114,10 @@ const (
 	ErrScoreInvalid          Code = "@yovoice.error.scoreInvalid"
 	ErrScoreTooLong          Code = "@yovoice.error.scoreTooLong"
 	ErrMidiInvalid           Code = "@yovoice.error.midiInvalid"
+	// 旋律谱：谱面不合方言（参数含小节与声部）、引擎没有写出谱、扒谱模型未下载。
+	ErrMelodyInvalid         Code = "@yovoice.error.melodyInvalid"
+	ErrMelodyEmpty           Code = "@yovoice.error.melodyEmpty"
+	ErrCoverModelRequired    Code = "@yovoice.error.coverModelRequired"
 	ErrEngineUpgradeRequired Code = "@yovoice.error.engineUpgradeRequired"
 	// AI 服务（可选）：未配置、鉴权、限流、网络、响应异常与结果无效。
 	ErrAIProviderInvalid Code = "@yovoice.error.aiProviderInvalid"
@@ -185,7 +191,7 @@ func All() []Code {
 		ActivityDownload, ActivityDownloading, ActivityVerifying,
 		ActivityRuntimeDownload, ActivityRuntimeExtract, ActivityEngineStart,
 		ActivityGenerate, ActivitySynthesizing, ActivitySavingAudio, ActivityRendering,
-		ActivityCompleted, ActivityCancelled, ActivityPaused, ActivityFailed, ActivityInterrupted, ActivityRelocate,
+		ActivityCompleted, ActivityCancelled, ActivityPaused, ActivityFailed, ActivityInterrupted, ActivityRelocate, ActivityPlanMelody, ActivityTranscribe,
 		ErrBusy, ErrProxyURL, ErrModelDirAbsolute, ErrModelDirSpace,
 		ErrDownloadHTTP, ErrDownloadRange, ErrDownloadSize, ErrDownloadIncomplete,
 		ErrDownloadStale, ErrDownloadChecksum, ErrDownloadOversized,
@@ -202,7 +208,7 @@ func All() []Code {
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
-		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid,
+		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired,
 		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout,
 		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess,
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,

@@ -1,6 +1,6 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type LocalAPIStatus, aiTimeoutDefault } from '../workbench';
+import { performanceSettings, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type LocalAPIStatus, type MelodyInspection, type ScoreNote, aiTimeoutDefault } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 
@@ -26,7 +26,7 @@ function load(): State {
       state = value; break;
     } catch { /* 主副本损坏时继续读取恢复备份。 */ }
   }
-  state.characters ??= []; state.previews = []; delete state.aiTask;
+  state.characters ??= []; state.previews = []; delete state.aiTask; delete state.melody;
   if (!['zh-CN', 'en'].includes(state.preferences?.uiLocale)) {
     state = { ...state, preferences: { ...state.preferences, uiLocale: 'zh-CN' } };
   }
@@ -233,12 +233,24 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     return { url: '' } as T;
   }
   // 预览模拟 AI 后台任务的生命周期：开始后短暂运行，再以“仅桌面可用”结束，便于检查界面闭环。
-  if (method === 'ai.score' || method === 'ai.lyrics') {
+  // 旋律谱的完整校验在 Go 中；预览只读出谱头与人声旋律，便于查看导入的谱。
+  if (method === 'melody.inspect') return previewInspectMelody((data as { abc: string }).abc) as T;
+  if (method === 'melody.transform') {
+    const { abc, op, tempo } = data as { abc: string; op: string; tempo: number };
+    if (op === 'stripChords') return abc.split('\n').map(line => /^[A-Za-z]:|^%/.test(line) ? line : line.replace(/"[^"]*"/g, '')).join('\n') as T;
+    if (op === 'tempo' && tempo >= 30 && tempo <= 300) return abc.replace(/^Q:.*$/m, `Q:1/4=${tempo}`) as T;
+    throw new CallError('@yovoice.error.requestInvalid');
+  }
+  if (method === 'melody.dismiss') {
+    if (state.melody?.id === (data as { id: string }).id) { delete state.melody; publish(); }
+    return true as T;
+  }
+  if (method === 'ai.score' || method === 'ai.lyrics' || method === 'ai.melody') {
     const input = data as { projectId: string; brief: string };
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
     if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
-    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : method === 'ai.melody' ? 'melody' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
     state.aiTask = task; publish();
     setTimeout(() => {
       if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;
@@ -255,6 +267,34 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     return true as T;
   }
   throw new CallError('@yovoice.error.previewDesktopOnly');
+}
+
+function previewInspectMelody(abc: string): MelodyInspection {
+  const header = (field: string) => new RegExp(`^${field}:\\s*(.+)$`, 'm').exec(abc)?.[1].trim() ?? '';
+  const tempo = Number(/=(\d+)/.exec(header('Q'))?.[1]), meter = header('M').split('/').map(Number), unit = Number(header('L').split('/')[1]);
+  if (!(tempo > 0) || meter.length !== 2 || !(unit > 0)) return { issue: { code: 'header', detail: '' } };
+  const lines = abc.split('\n'), notes: ScoreNote[] = [];
+  const steps: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }, beatUnits = unit / meter[1];
+  let bars = 0, chords = false, position = 0;
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^V:\s*Vocal\s*$/.test(lines[i]) || !lines[i + 1]) continue;
+    const music = lines[i + 1];
+    chords ||= music.includes('"');
+    for (const m of music.replace(/"[^"]*"/g, '').matchAll(/(\|)|([_^=]*)([A-Ga-gzZ])([,']*)(\d*)/g)) {
+      if (m[1]) { bars++; position = bars * meter[0]; continue; }
+      const length = (Number(m[5]) || 1) / beatUnits;
+      if (m[3] === 'Z') { bars += (Number(m[5]) || 1) - 1; continue; }
+      if (m[3] !== 'z') {
+        const accidental = m[2].includes('^') ? 1 : m[2].includes('_') ? -1 : 0;
+        const pitch = 60 + steps[m[3].toUpperCase()] + accidental + (m[3] === m[3].toLowerCase() ? 12 : 0) + [...m[4]].reduce((n, c) => n + (c === ',' ? -12 : 12), 0);
+        notes.push({ bar: Math.floor(position / meter[0]) + 1, beat: position % meter[0] + 1, length, pitch, velocity: 90 });
+      }
+      position += length;
+    }
+  }
+  if (!bars) return { issue: { code: 'group', detail: '' } };
+  const score = { tempo, timeSignature: [meter[0], meter[1]] as [number, number], tracks: [{ id: 'vocal', name: 'Vocal', role: 'melody' as const, program: 53, notes }] };
+  return { tempo, meter: [meter[0], meter[1]], key: header('K'), bars, seconds: bars * meter[0] * 60 / tempo, chords, score };
 }
 
 export function assertUploadSize(file: Blob) {

@@ -27,6 +27,10 @@ func Validate(d Draft) error {
 	if e != nil {
 		return e
 	}
+	// SheetSage2 只用于从歌曲扒旋律谱，不能作为作品的生成模型。
+	if m.Family == "sheetsage2" {
+		return msg.Err(msg.ErrModelUnsupported, nil)
+	}
 	if _, e := d.GenerationOptions(m.Family); e != nil {
 		return e
 	}
@@ -158,6 +162,10 @@ func validateMusic(d Draft, family string) error {
 	}
 	if TextLen(d.Lyrics) > 4000 {
 		return msg.Err(msg.ErrMusicLyrics, nil)
+	}
+	// 谱面方言由 score.ParseABC 在生成前校验，这里只限制长度，避免作品状态被超长文本撑大。
+	if len(d.Abc) > 64<<10 {
+		return msg.Err(msg.ErrMelodyInvalid, msg.Params{"code": "length"})
 	}
 	if d.SynthesisLanguage != "" && !slices.Contains(MusicLanguages, d.SynthesisLanguage) {
 		return msg.Err(msg.ErrLanguageUnsupported, nil)

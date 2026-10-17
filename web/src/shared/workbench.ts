@@ -4,6 +4,8 @@ export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
 export interface SynthesisSettings {
   modelOptions?: Record<string, Record<string, string | number | boolean>>; speaker?: string; synthesisLanguage?: string; omniSpeed?: number;
   lyrics?: string; instrumental?: boolean;
+  // YuE2 的 ABC 旋律谱：带和弦按谱编曲，只有旋律时按旋律填配器。
+  abc?: string;
   voiceMode?: 'design' | 'clone';
   voxMode?: 'design' | 'clone' | 'continuation'; voiceDescription?: string; referenceText?: string; guidanceScale?: number; inferenceSteps?: number;
   modelId: string; voiceId: string | null;
@@ -74,6 +76,8 @@ export interface Activity {
   startedAt?: string | null;
   modelId?: string | null;
   kind: string;
+  // melody 为出谱或扒谱。
+  task?: 'melody';
   code: MessageCode;
   params: MessageParams | null;
   status: string;
@@ -103,12 +107,20 @@ export interface State {
   characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
   aiProviders?: AIProvider[]; aiProviderID?: string; aiTask?: AITask;
+  melody?: MelodyResult;
 }
+
+// 引擎写出的旋律谱，与 Go 的 schema.MelodyResult 一致：plan 为按歌词出谱，cover 为从歌曲扒谱；只在本次会话有效。
+export interface MelodyResult { id: string; projectId: string; source: 'plan' | 'cover'; abc: string; truncated?: boolean; createdAt: string }
+/** 后端解析旋律谱的结果；issue 指出第一处问题所在的小节与声部。 */
+export interface MelodyIssue { code: string; line?: number; bar?: number; voice?: string; detail?: string }
+export interface MelodyInspection { issue?: MelodyIssue; tempo?: number; meter?: [number, number]; key?: string; bars?: number; seconds?: number; chords?: boolean; score?: Score }
+export interface MelodyChanges { tempo?: boolean; key?: boolean; vocal?: number[]; ins?: number[]; chords?: number[]; bars: [number, number] }
 
 // 可选的大模型服务，与 Go 的 schema.AIProvider 一致；密钥不在状态中，只有掩码。
 export interface AITest { ok: boolean; code?: string; params?: Record<string, unknown>; at: string }
 // 后台 AI 写作任务，与 Go 的 schema.AITask 一致；只在本次会话有效。
-export type AITaskKind = 'score' | 'lyrics';
+export type AITaskKind = 'score' | 'lyrics' | 'melody';
 export interface AITask {
   id: string; kind: AITaskKind; projectId: string; brief: string; status: 'running' | 'completed' | 'failed' | 'cancelled'; stage: 'writing' | 'repairing';
   provider: string; model: string; timeout: number; startedAt: string; finishedAt?: string; result?: unknown; errorCode?: string; errorParams?: Record<string, unknown>;
@@ -172,7 +184,9 @@ export const isMusicModel = (id: string) => id.startsWith('ace-step-') || id.sta
 export const isYuE = (id: string) => id.startsWith('yue2-');
 // 音色库只供编曲作品渲染使用。
 export const isSoundFont = (id: string) => id.endsWith('-sf2');
-export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id);
+// 扒谱模型只用于从歌曲提取旋律谱。
+export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
+export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id);
 export const isVoxModel = (id: string) => id.startsWith('voxcpm2-');
 export const isReferenceModel = (id: string) => id.startsWith('omnivoice-') || id.startsWith('qwen3-tts-');
 export const isBreezeModel = (id: string) => id.startsWith('breeze-tts-');

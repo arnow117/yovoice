@@ -167,6 +167,46 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			return nil, e
 		}
 		return w.StartLyrics(input)
+	case "ai.melody":
+		var input workbench.MelodyBrief
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		return w.StartMelodyEdit(input)
+	case "melody.plan":
+		d := schema.DefaultDraft()
+		if e := json.Unmarshal(data, &d); e != nil {
+			return nil, e
+		}
+		return true, w.PlanMelody(d)
+	case "melody.cover":
+		var input struct {
+			ProjectID string `json:"projectId"`
+			Base64    string `json:"base64"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		b, e := base64.StdEncoding.DecodeString(input.Base64)
+		if e != nil {
+			return nil, e
+		}
+		return true, w.CoverMelody(input.ProjectID, bytes.NewReader(b))
+	case "melody.dismiss":
+		return true, w.DismissMelody(p.ID)
+	case "melody.inspect", "melody.transform":
+		var input struct {
+			Abc   string `json:"abc"`
+			Op    string `json:"op"`
+			Tempo int    `json:"tempo"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		if method == "melody.inspect" {
+			return workbench.InspectMelody(input.Abc), nil
+		}
+		return workbench.TransformMelody(input.Abc, input.Op, input.Tempo)
 	case "ai.cancel":
 		w.CancelAI()
 		return true, nil

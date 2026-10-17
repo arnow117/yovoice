@@ -1,13 +1,24 @@
 package engine
 
 import (
+	"errors"
 	"math"
 	"strconv"
 	"strings"
 	"yovoice/internal/catalog"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
+	"yovoice/internal/score"
 )
+
+// melodyError 把谱面问题转成界面可显示的错误，带上小节与声部。
+func melodyError(e error) error {
+	var issue *score.ABCIssue
+	if errors.As(e, &issue) {
+		return msg.Err(msg.ErrMelodyInvalid, msg.Params{"bar": issue.Bar, "voice": issue.Voice, "code": issue.Code, "detail": issue.Detail})
+	}
+	return e
+}
 
 func BuildRequest(d schema.Draft, voice, emotion string) (map[string]any, error) {
 	if e := schema.Validate(d); e != nil {
@@ -33,8 +44,20 @@ func BuildRequest(d schema.Draft, voice, emotion string) (map[string]any, error)
 	}
 	if m.Family == "yue2" {
 		// YuE2 以歌词为正文、风格为请求参数；没有时长参数，长度由歌词决定。
+		// 规划模式：有谱时按谱演唱，谱里有和弦用 full、只有旋律用 melody；没谱时用 full 让模型自己出谱，
+		// 结果会附带这次的旋律谱，之后可以载入编辑。
 		lyrics := strings.TrimSpace(d.Lyrics)
-		o := map[string]any{"style": strings.TrimSpace(d.Text), "lyrics": lyrics}
+		o := map[string]any{"style": strings.TrimSpace(d.Text), "lyrics": lyrics, "cot": "full"}
+		if strings.TrimSpace(d.Abc) != "" {
+			s, e := score.ParseABC(d.Abc)
+			if e != nil {
+				return nil, melodyError(e)
+			}
+			o["abc"] = d.Abc
+			if !s.HasChords() {
+				o["cot"] = "melody"
+			}
+		}
 		if d.Seed != nil {
 			o["seed"] = *d.Seed
 		}
