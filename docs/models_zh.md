@@ -17,6 +17,31 @@
 
 通过 `yovoice models list --json` 查询模型 ID、精度、文件大小、音色和高级参数定义。App 的设置中也可查看模型。引擎和模型下载见 [CLI 指南](cli_zh.md)。
 
+## 模型文件与硬件
+
+| 模型 | 参数量 | 模型文件大小（按精度） | 核心能力 |
+| --- | --- | --- | --- |
+| IndexTTS 2.0 | — | Q8 · 3.63 GB<br>F16 · 4.65 GB<br>ORIG · 8.08 GB | 中英音色克隆、情绪控制、参考演绎 |
+| IndexTTS 2.5 | — | Q8 · 3.50 GB<br>F16 · 4.55 GB<br>ORIG · 7.89 GB | 多语言音色克隆、情绪控制、发音调整 |
+| VoxCPM2 | 2B | Q8 · 2.96 GB<br>BF16 · 4.77 GB<br>ORIG · 4.96 GB | 文字设计音色、音色克隆、参考原文辅助的精细克隆 |
+| OmniVoice | 0.6B | Q8 · 1.35 GB<br>BF16 · 1.64 GB<br>F16 · 1.64 GB | 属性设计音色、音色克隆、非语言声音标签 |
+| Qwen3-TTS Base | 0.6B | Q8 · 1.99 GB<br>BF16 · 2.52 GB | 参考音色克隆、可选原文辅助、多语言生成 |
+| Qwen3-TTS Base | 1.7B | Q8 · 2.70 GB<br>BF16 · 4.20 GB<br>ORIG · 4.54 GB | 参考音色克隆、可选原文辅助、多语言生成 |
+| Qwen3-TTS CustomVoice | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 9 种内置音色、文字控制风格与情绪 |
+| Qwen3-TTS VoiceDesign | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 自然语言描述设计音色，无需参考音频 |
+| Breeze TTS 2 | 约 3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | 中英自然语言设计音色、音色克隆与演绎指导；建议使用显卡，需要 v0.9.1 内核 |
+| Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 种内置音色、多语言生成，不含日语 |
+| Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 种中文音色及 3 种英文音色；实验性 |
+| ACE-Step 1.5 Turbo | — | Q8 · 6.19 GB<br>BF16 · 10.09 GB | 根据风格描述和歌词生成歌曲或纯音乐，支持 50 多种演唱语言；需要 v0.9.1 内核 |
+| ACE-Step 1.5 XL Turbo | — | Q8 · 10.71 GB<br>BF16 · 15.28 GB | 更大的 ACE-Step 模型，歌曲与纯音乐质量更高；需要 v0.9.1 内核 |
+| YuE2 3B | 3B | Q4 · 2.93 GB<br>Q8 · 4.53 GB<br>BF16 · 7.53 GB | 根据歌词和风格生成整首带人声歌曲，长度由歌词决定，不支持纯音乐；需要 v0.9.1 内核 |
+
+| 创作场景 | 推荐配置 | 适用模型推荐 |
+| --- | --- | --- |
+| 🟢 **轻量极速朗读与旁白** | 任何 CPU / 4GB+ 内存 | **Kokoro-82M** (Q8 仅 189 MB，毫秒级合成，纯 CPU 也能飞快运行) |
+| 🟡 **高音质克隆与声音设计** | 4GB ~ 6GB 显存 / Apple Silicon 8GB+ | **VoxCPM2** (2B, 48kHz)、**IndexTTS 2.0/2.5**、**Qwen3-TTS** |
+| 🔴 **整首歌生成与伴奏演奏** | 12GB+ 显存 / Apple Silicon 16GB+ | **ACE-Step 1.5 Turbo** (Q8 6GB / BF16 10GB)、**ACE-Step 1.5 XL Turbo**、**YuE2 3B** |
+
 ## 音色克隆
 
 ```sh
@@ -108,14 +133,14 @@ Kokoro 不支持音色克隆或文字情绪控制。请保留 CLI 安装包中�
 
 ## 音乐生成
 
-桌面端的“音乐生成”作品使用 ACE-Step 1.5 Turbo（`ace-step-1.5-turbo-bf16`，约 10.1 GB），需要 v0.9.1 及以上的推理内核。
+桌面端的“音乐生成”作品可用 ACE-Step 1.5 Turbo 或 XL Turbo 生成歌曲与纯音乐，或用 YuE2 3B 生成带人声的歌曲，均需要 v0.9.1 及以上的推理内核。
 
 - **风格**：一句描述加若干标签，例如 `city pop, warm synths, chill, female vocals`，最多 512 字。
 - **歌词**：用 `[verse]`、`[chorus]`、`[bridge]` 等标记段落，最多 4000 字；打开“纯音乐”后只生成伴奏，歌词仍会保留。
 - **时长与语言**：时长可选自动或 10–300 秒；演唱语言需与歌词一致。
 - **编曲细节**：速度（30–300 BPM）、调性、拍号默认由模型规划，也可手动指定。
 
-上游标注 ACE-Step 的全量 Q8 包会让规划器生成另一首歌，因此只提供 BF16 包。续写、翻唱、局部重绘和分轨提取暂未开放。
+YuE2 只生成带人声的歌曲：必须填写歌词，歌曲长度由歌词决定。续写、翻唱、局部重绘和分轨提取暂未开放。
 
 ## 编曲音色库
 
@@ -123,4 +148,4 @@ Kokoro 不支持音色克隆或文字情绪控制。请保留 CLI 安装包中�
 
 ## 使用协议
 
-OmniVoice 权重使用 CC-BY-NC 协议，仅限非商业用途。Breeze TTS 2 权重使用 [BreezeBlue 研究与非商业许可](https://huggingface.co/BreezeBlue/Breeze-TTS-2)，生成结果同样不可商用。IndexTTS 有独立的[模型协议](../web/public/model-license.txt)。商业使用前请确认所选模型发布方的使用条款。
+OmniVoice 权重使用 CC-BY-NC 协议，YuE2 权重使用 CC BY-NC 4.0 协议，均仅限非商业用途。Breeze TTS 2 权重使用 [BreezeBlue 研究与非商业许可](https://huggingface.co/BreezeBlue/Breeze-TTS-2)，生成结果同样不可商用。IndexTTS 有独立的[模型协议](../web/public/model-license.txt)。商业使用前请确认所选模型发布方的使用条款。

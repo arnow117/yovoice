@@ -49,49 +49,24 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 
 ## Features
 
-- **Voice and expression** — use a reference voice, match a reference performance, adjust emotions, or describe the delivery in words.
-- **A complete audio workflow** — import or record reference audio, trim clips, preview speech, and export your work.
-- **Voice design and cloning** — VoxCPM2 offers text-guided voice design, controllable cloning, and transcript-assisted cloning with automatic multilingual handling, and 48 kHz output.
-- **Story dubbing and speech** — import text or subtitle files, split them into lines, assign characters, generate line by line, and edit the result on a timeline.
-- **Music generation** — describe a style, write lyrics with section markers, and generate full songs or instrumentals with ACE-Step 1.5 Turbo / XL Turbo, or vocal songs with YuE2 3B; every take is kept as a version to compare, and the playback page shows lyrics synced to the vocals.
-- **Score** — write each part by bar and beat, import MIDI or let an Agent write the score, then render it with a General MIDI sound font and a role-based mix; results are exactly repeatable and export to MIDI and stems. See [Score](docs/score.md).
-- **Optional AI service** — connect DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API to let AI write arrangements and lyrics; keys stay on this computer. See [AI service](docs/ai.md).
-- **Local models** — run IndexTTS 2.0 / 2.5, VoxCPM2, OmniVoice, Qwen3-TTS, Breeze TTS 2, Kokoro, ACE-Step 1.5 and YuE2 through audio.cpp, with resumable, verified model downloads.
-- **Hardware acceleration** — Metal on Apple Silicon; CPU, NVIDIA CUDA, and experimental Vulkan on Windows.
-- **Agent Skill & MCP** — ask your AI agent to set up local speech generation and create voiceovers from text and reference audio.
-
----
-
-## Hardware & VRAM Quick Guide
-
-| Use Case | Recommended Hardware | Recommended Models |
-| --- | --- | --- |
-| 🟢 **Lightweight & Blazing Fast** | Any CPU / 4 GB+ RAM | **Kokoro-82M** (only 189 MB Q8, millisecond latency, runs great on CPU) |
-| 🟡 **High-Fidelity Voice Cloning** | 4 GB – 6 GB VRAM / 8 GB+ Apple Silicon | **VoxCPM2** (2B, 48 kHz), **IndexTTS 2.0/2.5**, **Qwen3-TTS** |
-| 🔴 **Full Song & Music Generation** | 12 GB+ VRAM / 16 GB+ Apple Silicon | **ACE-Step 1.5 Turbo** (Q8 6 GB / BF16 10 GB), **ACE-Step 1.5 XL Turbo**, **YuE2 3B** |
+- **Speech, voice design and cloning** — clone a reference voice, design a voice from a description, adjust emotion and delivery, and edit takes on a timeline.
+- **Story dubbing** — import text or subtitle files, assign a character to each line, and generate line by line.
+- **Music** — write a style and lyrics with section markers, then generate songs or instrumentals with ACE-Step 1.5, or vocal songs with YuE2; the playback page syncs lyrics to the vocals.
+- **Score** — write parts by bar and beat, import MIDI or let an Agent compose, render with a General MIDI sound font, and export MIDI and stems. See [Score](docs/score.md).
+- **Optional AI service** — let DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API write arrangements and lyrics; keys stay on this computer. See [AI service](docs/ai.md).
 
 ---
 
 ## Supported Models
 
-| Model | Parameters | Model file size by precision | Core capabilities |
-| --- | --- | --- | --- |
-| IndexTTS 2.0 | — | Q8 · 3.63 GB<br>F16 · 4.65 GB<br>ORIG · 8.08 GB | Chinese/English voice cloning, emotion control, reference performance |
-| IndexTTS 2.5 | — | Q8 · 3.50 GB<br>F16 · 4.55 GB<br>ORIG · 7.89 GB | Multilingual voice cloning, emotion control, pronunciation editing |
-| VoxCPM2 | 2B | Q8 · 2.96 GB<br>BF16 · 4.77 GB<br>ORIG · 4.96 GB | Text-guided voice design, voice cloning, transcript-assisted cloning |
-| OmniVoice | 0.6B | Q8 · 1.35 GB<br>BF16 · 1.64 GB<br>F16 · 1.64 GB | Attribute-based voice design, voice cloning, non-verbal sound tags |
-| Qwen3-TTS Base | 0.6B | Q8 · 1.99 GB<br>BF16 · 2.52 GB | Reference voice cloning, optional transcript guidance, multilingual speech |
-| Qwen3-TTS Base | 1.7B | Q8 · 2.70 GB<br>BF16 · 4.20 GB<br>ORIG · 4.54 GB | Reference voice cloning, optional transcript guidance, multilingual speech |
-| Qwen3-TTS CustomVoice | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 9 built-in voices, text-guided style and emotion |
-| Qwen3-TTS VoiceDesign | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | Voice design from natural-language descriptions, no reference audio required |
-| Breeze TTS 2 | ~3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | Chinese and English voice design, cloning and voice direction; GPU recommended, requires the v0.9.1 engine |
-| Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 built-in voices, multilingual speech excluding Japanese |
-| Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 Chinese and 3 English voices; experimental |
-| ACE-Step 1.5 Turbo | — | Q8 · 6.19 GB<br>BF16 · 10.09 GB | Songs and instrumentals from a style prompt and lyrics, 50+ vocal languages; requires engine v0.9.1 |
-| ACE-Step 1.5 XL Turbo | — | Q8 · 10.71 GB<br>BF16 · 15.28 GB | Larger ACE-Step model for higher-quality songs and instrumentals; requires engine v0.9.1 |
-| YuE2 3B | 3B | Q4 · 2.93 GB<br>Q8 · 4.53 GB<br>BF16 · 7.53 GB | Full vocal songs from lyrics and style, length follows the lyrics; no instrumentals; requires engine v0.9.1 |
+| Use | Models |
+| --- | --- |
+| Voice cloning and emotion | IndexTTS 2.0 / 2.5, Qwen3-TTS Base |
+| Voice design and cloning | VoxCPM2, OmniVoice, Qwen3-TTS VoiceDesign, Breeze TTS 2 |
+| Built-in voices | Kokoro-82M, Qwen3-TTS CustomVoice |
+| Songs and instrumentals | ACE-Step 1.5 Turbo / XL Turbo, YuE2 3B |
 
-All models are available in the App and CLI. See [model selection](docs/models.md) for input requirements and examples. OmniVoice (CC-BY-NC), YuE2 (CC BY-NC 4.0) and Breeze TTS 2 (BreezeBlue Research and Non-Commercial License) weights are restricted to non-commercial use.
+All models are downloaded inside the App or with the CLI. See [model selection](docs/models.md) for file sizes, hardware requirements, inputs and examples. OmniVoice, YuE2 and Breeze TTS 2 weights are restricted to non-commercial use.
 
 ---
 
@@ -109,8 +84,6 @@ Choose the package for your platform from the repository’s [Releases](../../re
 The Windows installer downloads and installs [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) if needed. Models are downloaded inside the app; uninstalling preserves user data in `~/.yovoice`.
 
 Check for updates from the app menu on macOS or Windows. Updates are also checked and downloaded in the background; restart to install when ready. Windows updates download only the app (`-update.exe`) and keep the installed runtime; when a release recommends a newer runtime you can upgrade it in Settings → Inference engine.
-
-![Install yovoice on macOS](docs/images/yovoice-macos-install.png)
 
 ---
 

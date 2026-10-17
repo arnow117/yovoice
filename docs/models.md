@@ -17,6 +17,31 @@ Choose a model based on whether you have a reference recording or want a built-i
 
 Use `yovoice models list --json` for model IDs, available precisions, file sizes, voices, and advanced parameter definitions. The app lists models in Settings. See the [CLI guide](cli.md) to download an engine and model.
 
+## Model files and hardware
+
+| Model | Parameters | Model file size by precision | Core capabilities |
+| --- | --- | --- | --- |
+| IndexTTS 2.0 | — | Q8 · 3.63 GB<br>F16 · 4.65 GB<br>ORIG · 8.08 GB | Chinese/English voice cloning, emotion control, reference performance |
+| IndexTTS 2.5 | — | Q8 · 3.50 GB<br>F16 · 4.55 GB<br>ORIG · 7.89 GB | Multilingual voice cloning, emotion control, pronunciation editing |
+| VoxCPM2 | 2B | Q8 · 2.96 GB<br>BF16 · 4.77 GB<br>ORIG · 4.96 GB | Text-guided voice design, voice cloning, transcript-assisted cloning |
+| OmniVoice | 0.6B | Q8 · 1.35 GB<br>BF16 · 1.64 GB<br>F16 · 1.64 GB | Attribute-based voice design, voice cloning, non-verbal sound tags |
+| Qwen3-TTS Base | 0.6B | Q8 · 1.99 GB<br>BF16 · 2.52 GB | Reference voice cloning, optional transcript guidance, multilingual speech |
+| Qwen3-TTS Base | 1.7B | Q8 · 2.70 GB<br>BF16 · 4.20 GB<br>ORIG · 4.54 GB | Reference voice cloning, optional transcript guidance, multilingual speech |
+| Qwen3-TTS CustomVoice | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 9 built-in voices, text-guided style and emotion |
+| Qwen3-TTS VoiceDesign | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | Voice design from natural-language descriptions, no reference audio required |
+| Breeze TTS 2 | ~3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | Chinese and English voice design, cloning and voice direction; GPU recommended, requires the v0.9.1 engine |
+| Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 built-in voices, multilingual speech excluding Japanese |
+| Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 Chinese and 3 English voices; experimental |
+| ACE-Step 1.5 Turbo | — | Q8 · 6.19 GB<br>BF16 · 10.09 GB | Songs and instrumentals from a style prompt and lyrics, 50+ vocal languages; requires engine v0.9.1 |
+| ACE-Step 1.5 XL Turbo | — | Q8 · 10.71 GB<br>BF16 · 15.28 GB | Larger ACE-Step model for higher-quality songs and instrumentals; requires engine v0.9.1 |
+| YuE2 3B | 3B | Q4 · 2.93 GB<br>Q8 · 4.53 GB<br>BF16 · 7.53 GB | Full vocal songs from lyrics and style, length follows the lyrics; no instrumentals; requires engine v0.9.1 |
+
+| Use Case | Recommended Hardware | Recommended Models |
+| --- | --- | --- |
+| 🟢 **Lightweight & Blazing Fast** | Any CPU / 4 GB+ RAM | **Kokoro-82M** (only 189 MB Q8, millisecond latency, runs great on CPU) |
+| 🟡 **High-Fidelity Voice Cloning** | 4 GB – 6 GB VRAM / 8 GB+ Apple Silicon | **VoxCPM2** (2B, 48 kHz), **IndexTTS 2.0/2.5**, **Qwen3-TTS** |
+| 🔴 **Full Song & Music Generation** | 12 GB+ VRAM / 16 GB+ Apple Silicon | **ACE-Step 1.5 Turbo** (Q8 6 GB / BF16 10 GB), **ACE-Step 1.5 XL Turbo**, **YuE2 3B** |
+
 ## Voice cloning
 
 ```sh
@@ -108,14 +133,14 @@ Kokoro does not support voice cloning or text-guided emotion control. Keep the C
 
 ## Music generation
 
-Music projects in the desktop app use ACE-Step 1.5 Turbo (`ace-step-1.5-turbo-bf16`, about 10.1 GB) and need inference engine v0.9.1 or later.
+Music projects in the desktop app use ACE-Step 1.5 Turbo or XL Turbo for songs and instrumentals, or YuE2 3B for vocal songs. All need inference engine v0.9.1 or later.
 
 - **Style**: a short description plus tags such as `city pop, warm synths, chill, female vocals`, up to 512 characters.
 - **Lyrics**: mark sections with `[verse]`, `[chorus]`, `[bridge]` and so on, up to 4000 characters. Turn on Instrumental to generate music without vocals; your lyrics are kept.
 - **Duration and language**: choose Auto or 10–300 seconds, and a vocal language that matches the lyrics.
 - **Arrangement**: tempo (30–300 BPM), key and time signature are planned by the model unless you set them.
 
-Upstream reports that a fully quantized Q8 ACE-Step package makes the planner produce a different song, so only the BF16 package is offered. Continuation, covers, repainting and stem extraction are not available yet.
+YuE2 generates vocal songs only: it needs lyrics, and the song length follows the lyrics. Continuation, covers, repainting and stem extraction are not available yet.
 
 ## Score sound font
 
@@ -123,4 +148,4 @@ Score projects and `yovoice score render` use the MuseScore General sound font (
 
 ## Licenses
 
-OmniVoice weights are licensed under CC-BY-NC for non-commercial use. Breeze TTS 2 weights use the [BreezeBlue Research and Non-Commercial License](https://huggingface.co/BreezeBlue/Breeze-TTS-2), and generated speech is not licensed for commercial use either. IndexTTS has a separate [model license](../web/public/model-license.txt). Check the model publisher's license before using generated speech commercially.
+OmniVoice weights are licensed under CC-BY-NC and YuE2 weights under CC BY-NC 4.0, both for non-commercial use only. Breeze TTS 2 weights use the [BreezeBlue Research and Non-Commercial License](https://huggingface.co/BreezeBlue/Breeze-TTS-2), and generated speech is not licensed for commercial use either. IndexTTS has a separate [model license](../web/public/model-license.txt). Check the model publisher's license before using generated speech commercially.

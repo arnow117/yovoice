@@ -48,49 +48,24 @@ yovoice 是一款适用于 macOS 和 Windows 的开源、本地优先（Local-fi
 
 ## 功能
 
-- **音色与表达** — 跟随参考音色、模仿参考演绎、调整情绪，或用文字描述想要的表达方式。
-- **完整音频流程** — 导入或录制参考音频、裁剪片段、试听语音、导出作品。
-- **声音设计与克隆** — VoxCPM2 支持文字设计音色、带风格指导的克隆及参考原文辅助的精细克隆，自动多语言、48 kHz 输出。
-- **故事配音与语音生成** — 导入文本或字幕文件，拆分台词、分配角色、逐句生成，并在音轨上剪辑。
-- **音乐生成** — 描述风格、写下带段落标记的歌词，用 ACE-Step 1.5 Turbo / XL Turbo 生成整首歌曲或纯音乐，或用 YuE2 3B 生成带人声的歌曲；每次生成都保留为可对比的版本，播放页按人声同步显示歌词。
-- **编曲** — 按小节和拍写下每个声部，或导入 MIDI、交给 Agent 写谱，用 General MIDI 音色库渲染并按角色对齐电平混音；结果可精确复现，可导出 MIDI 和分轨。详见[编曲](docs/score_zh.md)。
-- **可选 AI 服务** — 接入 DeepSeek、通义千问、Kimi、OpenAI、Anthropic、Ollama 或任意兼容接口，让 AI 写谱、写歌词；密钥只保存在本机。详见[AI 服务](docs/ai_zh.md)。
-- **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 / 2.5、VoxCPM2、OmniVoice、Qwen3-TTS、Breeze TTS 2、Kokoro、ACE-Step 1.5 和 YuE2，支持模型下载续传与自动校验。
-- **硬件加速** — Apple Silicon 支持 Metal；Windows 支持 CPU、NVIDIA CUDA 和实验性 Vulkan。
-- **Agent Skill & MCP** — 让 AI Agent 准备本地语音生成环境，根据文稿和参考音频完成配音。
-
----
-
-## 硬件配置速查指引
-
-| 创作场景 | 推荐配置 | 适用模型推荐 |
-| --- | --- | --- |
-| 🟢 **轻量极速朗读与旁白** | 任何 CPU / 4GB+ 内存 | **Kokoro-82M** (Q8 仅 189 MB，毫秒级合成，纯 CPU 也能飞快运行) |
-| 🟡 **高音质克隆与声音设计** | 4GB ~ 6GB 显存 / Apple Silicon 8GB+ | **VoxCPM2** (2B, 48kHz)、**IndexTTS 2.0/2.5**、**Qwen3-TTS** |
-| 🔴 **整首歌生成与伴奏演奏** | 12GB+ 显存 / Apple Silicon 16GB+ | **ACE-Step 1.5 Turbo** (Q8 6GB / BF16 10GB)、**ACE-Step 1.5 XL Turbo**、**YuE2 3B** |
+- **语音、声音设计与克隆** — 克隆参考音色、用文字设计声音、调整情绪与演绎，并在音轨上剪辑各个版本。
+- **故事配音** — 导入文本或字幕文件，为每句台词分配角色并逐句生成。
+- **音乐生成** — 写下风格和带段落标记的歌词，用 ACE-Step 1.5 生成歌曲或纯音乐，或用 YuE2 生成带人声歌曲；播放页按人声同步歌词。
+- **编曲** — 按小节和拍写声部，或导入 MIDI、交给 Agent 写谱，用 General MIDI 音色库渲染，导出 MIDI 和分轨。详见[编曲](docs/score_zh.md)。
+- **可选 AI 服务** — 让 DeepSeek、通义千问、Kimi、OpenAI、Anthropic、Ollama 或任意兼容接口写谱、写歌词；密钥只保存在本机。详见[AI 服务](docs/ai_zh.md)。
 
 ---
 
 ## 支持模型
 
-| 模型 | 参数量 | 模型文件大小（按精度） | 核心能力 |
-| --- | --- | --- | --- |
-| IndexTTS 2.0 | — | Q8 · 3.63 GB<br>F16 · 4.65 GB<br>ORIG · 8.08 GB | 中英音色克隆、情绪控制、参考演绎 |
-| IndexTTS 2.5 | — | Q8 · 3.50 GB<br>F16 · 4.55 GB<br>ORIG · 7.89 GB | 多语言音色克隆、情绪控制、发音调整 |
-| VoxCPM2 | 2B | Q8 · 2.96 GB<br>BF16 · 4.77 GB<br>ORIG · 4.96 GB | 文字设计音色、音色克隆、参考原文辅助的精细克隆 |
-| OmniVoice | 0.6B | Q8 · 1.35 GB<br>BF16 · 1.64 GB<br>F16 · 1.64 GB | 属性设计音色、音色克隆、非语言声音标签 |
-| Qwen3-TTS Base | 0.6B | Q8 · 1.99 GB<br>BF16 · 2.52 GB | 参考音色克隆、可选原文辅助、多语言生成 |
-| Qwen3-TTS Base | 1.7B | Q8 · 2.70 GB<br>BF16 · 4.20 GB<br>ORIG · 4.54 GB | 参考音色克隆、可选原文辅助、多语言生成 |
-| Qwen3-TTS CustomVoice | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 9 种内置音色、文字控制风格与情绪 |
-| Qwen3-TTS VoiceDesign | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 自然语言描述设计音色，无需参考音频 |
-| Breeze TTS 2 | 约 3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | 中英自然语言设计音色、音色克隆与演绎指导；建议使用显卡，需要 v0.9.1 内核 |
-| Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 种内置音色、多语言生成，不含日语 |
-| Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 种中文音色及 3 种英文音色；实验性 |
-| ACE-Step 1.5 Turbo | — | Q8 · 6.19 GB<br>BF16 · 10.09 GB | 根据风格描述和歌词生成歌曲或纯音乐，支持 50 多种演唱语言；需要 v0.9.1 内核 |
-| ACE-Step 1.5 XL Turbo | — | Q8 · 10.71 GB<br>BF16 · 15.28 GB | 更大的 ACE-Step 模型，歌曲与纯音乐质量更高；需要 v0.9.1 内核 |
-| YuE2 3B | 3B | Q4 · 2.93 GB<br>Q8 · 4.53 GB<br>BF16 · 7.53 GB | 根据歌词和风格生成整首带人声歌曲，长度由歌词决定，不支持纯音乐；需要 v0.9.1 内核 |
+| 用途 | 模型 |
+| --- | --- |
+| 音色克隆与情绪控制 | IndexTTS 2.0 / 2.5、Qwen3-TTS Base |
+| 声音设计与克隆 | VoxCPM2、OmniVoice、Qwen3-TTS VoiceDesign、Breeze TTS 2 |
+| 内置音色 | Kokoro-82M、Qwen3-TTS CustomVoice |
+| 歌曲与纯音乐 | ACE-Step 1.5 Turbo / XL Turbo、YuE2 3B |
 
-App 与 CLI 均支持以上模型，输入要求与示例见[模型选择](docs/models_zh.md)。OmniVoice 权重采用 CC-BY-NC 许可，YuE2 权重采用 CC BY-NC 4.0 许可，Breeze TTS 2 权重采用 BreezeBlue 研究与非商业许可，均仅限非商业用途。
+所有模型都在 App 内或通过 CLI 下载。文件大小、硬件要求、输入要求与示例见[模型选择](docs/models_zh.md)。OmniVoice、YuE2 和 Breeze TTS 2 的权重仅限非商业用途。
 
 ---
 
@@ -108,8 +83,6 @@ App 与 CLI 均支持以上模型，输入要求与示例见[模型选择](docs/
 Windows 安装器会在缺少时联网安装 [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。模型在应用内下载。卸载应用保留 `~/.yovoice` 中的作品和模型。
 
 macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查并后台下载；下载完成后可选择重启安装。Windows 自动更新只下载应用本体（`-update.exe`），保留已安装的内核；新版本推荐更高的内核时，可在 设置 → 推理引擎 中选择升级。
-
-![yovoice macOS 安装界面](docs/images/yovoice-macos-install.png)
 
 ---
 
