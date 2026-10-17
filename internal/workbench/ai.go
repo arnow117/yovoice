@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/url"
+	"os"
 	"slices"
 	"strings"
 	"sync"
@@ -12,6 +13,7 @@ import (
 	"time"
 	"yovoice/internal/assistant"
 	"yovoice/internal/diag"
+	"yovoice/internal/download"
 	"yovoice/internal/llm"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
@@ -289,6 +291,35 @@ func providerEnv(p schema.AIProvider, c llm.Config) []string {
 	return env
 }
 
+// proxyEnvNames 是透传给助手子进程的代理环境变量名；小写形式一并透传，匹配常见代理客户端的约定。
+var proxyEnvNames = []string{
+	"HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy", "ALL_PROXY", "all_proxy", "NO_PROXY", "no_proxy",
+}
+
+// proxyEnv 按偏好设置生成助手子进程的代理环境变量：启用时指向配置的地址（本地地址仍直连，
+// 与下载代理一致），显式关闭时全部不设，未配置时从宿主环境透传，方便依赖系统代理的用户。
+func proxyEnv(p schema.Preferences) []string {
+	if p.ProxyEnabled != nil && !*p.ProxyEnabled {
+		return nil
+	}
+	address := strings.TrimSpace(p.ProxyURL)
+	if _, err := download.ParseProxy(address); err != nil {
+		return nil
+	}
+	if address == "" {
+		var env []string
+		for _, name := range proxyEnvNames {
+			if value := os.Getenv(name); value != "" {
+				env = append(env, name+"="+value)
+			}
+		}
+		return env
+	}
+	// NO_PROXY 兜住本机服务（如 Ollama）：代理只应接管远程模型请求。
+	return []string{"HTTPS_PROXY=" + address, "HTTP_PROXY=" + address, "ALL_PROXY=" + address,
+		"NO_PROXY=localhost,127.0.0.1,::1", "no_proxy=localhost,127.0.0.1,::1"}
+}
+
 // assistantConfig 由当前服务配置组装助手子进程配置；ocho 缺失与服务未配置分别报错。
 func (w *Workbench) assistantConfig() (assistant.Config, error) {
 	executable, err := platform.OchoExecutable()
@@ -302,7 +333,7 @@ func (w *Workbench) assistantConfig() (assistant.Config, error) {
 	if c.Model == "" {
 		return assistant.Config{}, msg.Err(msg.ErrAINotConfigured, nil)
 	}
-	return assistant.Config{Executable: executable, Model: c.Model, Env: providerEnv(p, c)}, nil
+	return assistant.Config{Executable: executable, Model: c.Model, Env: append(providerEnv(p, c), proxyEnv(w.Store.Read().Preferences)...)}, nil
 }
 
 // askAssistant 把任务交给内置助手跑一轮：提交被拒后任务阶段转为 repairing，超时转换为可读错误。

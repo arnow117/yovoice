@@ -12,6 +12,7 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+	"yovoice/internal/assistant"
 	"yovoice/internal/assistant/fakeocho"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
@@ -85,8 +86,9 @@ func fakeLLM(t *testing.T) *httptest.Server {
 	return server
 }
 
-// aiWorkbench 准备一个指向假 LLM 服务的 Workbench；助手运行时指向测试二进制（假 ocho）。
-func aiWorkbench(t *testing.T, plan fakeocho.Plan) *Workbench {
+// aiWorkbench 准备一个指向假 LLM 服务的 Workbench；助手运行时指向测试二进制（假 ocho），
+// 假运行时的开关经 Options.ExtraEnv 注入子进程环境。
+func aiWorkbench(t *testing.T, plan fakeocho.Plan, extraEnv ...string) *Workbench {
 	w, err := New(t.TempDir())
 	must(t, err)
 	t.Cleanup(w.Close)
@@ -99,7 +101,8 @@ func aiWorkbench(t *testing.T, plan fakeocho.Plan) *Workbench {
 	must(t, err)
 	path := filepath.Join(t.TempDir(), "plan.json")
 	must(t, os.WriteFile(path, data, 0600))
-	t.Setenv(fakeocho.PlanEnv, path)
+	w.assistant = assistant.New(w.Store.Root, assistant.Options{Tools: assistantTools, NewServer: w.newAssistantServer,
+		ExtraEnv: append([]string{fakeocho.PlanEnv + "=" + path}, extraEnv...)})
 	return w
 }
 
@@ -283,6 +286,82 @@ func TestBuildScoreRepeats(t *testing.T) {
 	in.Tracks[0].Notes, in.Tracks[0].Repeats = many, []scoreRepeat{{From: 1, To: 1, At: at}}
 	if _, err = buildScore(in); err == nil || !strings.Contains(err.Error(), "after repeats") {
 		t.Fatal("展开超出上限应报错", err)
+	}
+}
+
+// 助手子进程继承偏好里的代理设置：未配置时透传宿主环境（含小写与 NO_PROXY），
+// 启用时三变量指向配置地址并保留本机直连，显式关闭时不设任何代理变量。
+func TestAssistantProxyEnv(t *testing.T) {
+	dump := filepath.Join(t.TempDir(), "dump.txt")
+	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{{
+		Call: "submit_score", Args: scoreArgs(false),
+	}, {
+		Result: "success",
+	}}}}, fakeocho.DumpEnv+"="+dump)
+	ask := func() {
+		t.Helper()
+		_, err := w.ComposeScore(context.Background(), ScoreBrief{Brief: "x"})
+		must(t, err)
+	}
+	dumpText := func() string {
+		t.Helper()
+		b, err := os.ReadFile(dump)
+		must(t, err)
+		return string(b)
+	}
+	for _, name := range []string{"HTTPS_PROXY", "https_proxy", "NO_PROXY"} {
+		t.Setenv(name, "http://from-host:7890")
+	}
+	ask()
+	if text := dumpText(); !strings.Contains(text, "HTTPS_PROXY=http://from-host:7890") ||
+		!strings.Contains(text, "https_proxy=http://from-host:7890") || !strings.Contains(text, "NO_PROXY=http://from-host:7890") {
+		t.Fatal("未配置时应透传宿主代理变量")
+	}
+	p := w.Store.Read().Preferences
+	enabled := true
+	p.ProxyEnabled, p.ProxyURL = &enabled, "http://127.0.0.1:7890"
+	must(t, w.SavePreferences(p))
+	ask()
+	if text := dumpText(); !strings.Contains(text, "HTTPS_PROXY=http://127.0.0.1:7890") ||
+		!strings.Contains(text, "HTTP_PROXY=http://127.0.0.1:7890") || !strings.Contains(text, "ALL_PROXY=http://127.0.0.1:7890") ||
+		!strings.Contains(text, "NO_PROXY=localhost,127.0.0.1,::1") {
+		t.Fatal("启用代理时应设置三变量并保留本机直连")
+	}
+	disabled := false
+	p.ProxyEnabled = &disabled
+	must(t, w.SavePreferences(p))
+	ask()
+	if text := dumpText(); strings.Contains(text, "PROXY=") || strings.Contains(text, "proxy=") {
+		t.Fatal("显式关闭后不应再有任何代理变量")
+	}
+}
+
+// 代理设置参与 Config.Env：变化后助手子进程重启，未变化时复用进程。
+func TestAssistantProxyChangeRestartsChild(t *testing.T) {
+	turn := func() []fakeocho.Step {
+		return []fakeocho.Step{{Call: "submit_score", Args: scoreArgs(false)}, {Result: "success"}}
+	}
+	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{turn(), turn(), turn()}})
+	pidFile := filepath.Join(w.Store.Root, "assistant", "ocho.pid")
+	compose := func() string {
+		t.Helper()
+		_, err := w.ComposeScore(context.Background(), ScoreBrief{Brief: "x"})
+		must(t, err)
+		b, err := os.ReadFile(pidFile)
+		must(t, err)
+		return strings.TrimSpace(string(b))
+	}
+	first := compose()
+	// 配置不变：复用进程。
+	if again := compose(); again != first {
+		t.Fatalf("配置未变不应重启：%s != %s", first, again)
+	}
+	enabled := true
+	p := w.Store.Read().Preferences
+	p.ProxyEnabled, p.ProxyURL = &enabled, "http://127.0.0.1:7890"
+	must(t, w.SavePreferences(p))
+	if restarted := compose(); restarted == first {
+		t.Fatal("代理变化应重启助手子进程")
 	}
 }
 

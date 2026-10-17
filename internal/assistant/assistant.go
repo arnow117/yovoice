@@ -28,6 +28,8 @@ type Options struct {
 	Tools []string
 	// NewServer 在每次启动子进程时创建进程内 MCP server，宿主把工具注册在上面。
 	NewServer func() *mcp.Server
+	// ExtraEnv 是额外传给子进程的环境变量；测试用它注入假运行时的开关。
+	ExtraEnv []string
 }
 
 // Config 是一轮对话所需的运行环境：Executable 或 Env 变化时重启进程，Model 变化用 set_model 切换。
@@ -218,24 +220,19 @@ var baseEnvNames = []string{
 	"APPDATA", "LOCALAPPDATA", "PROGRAMDATA", "PROGRAMFILES", "PROGRAMW6432",
 }
 
-func childEnv(root string, extra []string) []string {
+func childEnv(root string, options Options, extra []string) []string {
 	have := map[string]bool{}
 	for _, entry := range os.Environ() {
 		have[entry[:strings.IndexByte(entry, '=')]] = true
 	}
-	env := make([]string, 0, len(baseEnvNames)+len(extra)+1)
+	env := make([]string, 0, len(baseEnvNames)+len(options.ExtraEnv)+len(extra)+1)
 	for _, name := range baseEnvNames {
 		if have[name] {
 			env = append(env, name+"="+os.Getenv(name))
 		}
 	}
+	env = append(env, options.ExtraEnv...)
 	env = append(env, extra...)
-	// 测试注入：让假 ocho 运行时的计划与转储路径进入子进程环境。
-	for _, entry := range os.Environ() {
-		if strings.HasPrefix(entry, "YOVOICE_FAKE_OCHO_") {
-			env = append(env, entry)
-		}
-	}
 	return append(env, "OCHO_CONFIG_DIR="+filepath.Join(root, "assistant", "config"))
 }
 
@@ -261,7 +258,7 @@ func startProcess(ctx context.Context, root string, options Options, cfg Config)
 	cmd := exec.Command(cfg.Executable, "--print", "--input-format", "stream-json", "--output-format", "stream-json", "--verbose",
 		"--tools", list, "--allowedTools", list, "--model", cfg.Model, "--append-system-prompt-file", systemPromptPath(root))
 	cmd.Dir = workspace
-	cmd.Env = childEnv(root, cfg.Env)
+	cmd.Env = childEnv(root, options, cfg.Env)
 	platform.ConfigureProcess(cmd)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
