@@ -2,7 +2,7 @@
   <img src="web/public/icon/voice-workbench-app-icon-v1.png" width="96" alt="yovoice" />
 </p>
 <h1 align="center">yovoice</h1>
-<p align="center">让文字拥有你的声音，让创意谱成完整乐章。</p>
+<p align="center">把文字，变成有情绪的声音</p>
 <p align="center">
   <a href="https://yovoice.leemysw.com"><img src="https://img.shields.io/badge/website-yovoice.leemysw.com-10b981?style=flat-square" alt="官网" /></a>
   <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.2.1-blue?style=flat-square" alt="Version 0.2.1" /></a>
