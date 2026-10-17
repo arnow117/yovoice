@@ -1,15 +1,14 @@
 import Foundation
 
 /// UI locale for native menus and alerts. Mirrors Preferences.uiLocale (not TTS Draft.language).
+/// 原生文案只备中英两份：中文界面语言用中文，其余界面语言用英文；旧数据没有该字段时视为中文。
 enum HostUiLocale: String {
     case zhCN = "zh-CN"
     case en = "en"
 
     static func parse(_ raw: String?) -> HostUiLocale {
-        switch raw {
-        case "en": return .en
-        default: return .zhCN
-        }
+        guard let raw else { return .zhCN }
+        return raw.hasPrefix("zh") ? .zhCN : .en
     }
 
     static func fromNavigatorLike(_ language: String) -> HostUiLocale {
