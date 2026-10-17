@@ -66,6 +66,8 @@ Use `make check-core` for Go formatting, static analysis and tests with the race
 
 ## Project layout
 
+For processes, request flow and the data directory, see [Architecture](architecture.md).
+
 | Directory | Purpose |
 | --- | --- |
 | `cmd/` | CLI and local service entry points |

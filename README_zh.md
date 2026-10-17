@@ -119,7 +119,7 @@ make install
 make app-run
 ```
 
-环境要求见[开发指南](docs/development_zh.md)，其中也介绍了浏览器预览、测试和项目结构。
+环境要求见[开发指南](docs/development_zh.md)，其中也介绍了浏览器预览、测试和项目结构。进程与各包如何协作见[架构](docs/architecture_zh.md)。
 
 ---
 

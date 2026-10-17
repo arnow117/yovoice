@@ -120,7 +120,7 @@ make install
 make app-run
 ```
 
-See the [development guide](docs/development.md) for prerequisites. It also covers browser preview, tests, and project structure.
+See the [development guide](docs/development.md) for prerequisites. It also covers browser preview, tests, and project structure. For how the processes and packages fit together, see [Architecture](docs/architecture.md).
 
 ---
 

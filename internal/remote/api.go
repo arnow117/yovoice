@@ -36,12 +36,15 @@ type API struct {
 func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Cache-Control", "no-store")
+	if serveDocs(w, r) {
+		return
+	}
 	if len(a.Token) < 32 || subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte("Bearer "+a.Token)) != 1 {
 		w.Header().Set("WWW-Authenticate", "Bearer")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	if r.Header.Get("Origin") != "" {
+	if r.Header.Get("Origin") != "" && !sameOrigin(r) {
 		http.Error(w, "浏览器跨域调用不受支持", http.StatusForbidden)
 		return
 	}

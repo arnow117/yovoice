@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 - 界面新增繁體中文、日本語、한국어、Español、Français、Deutsch、Português (Brasil)、Русский、Italiano 和 Tiếng Việt，可在设置中随时切换，首次启动按系统语言自动选择；缺少的文案回退为英文。原生菜单与对话框在中文以外的语言中显示英文。
+- `yovoice serve` 与桌面本机接口在 `/docs/` 提供交互式 API 文档（Swagger UI），可填入令牌后直接试调用；新增架构说明文档。
 
 ## [0.2.1] - 2026-10-16
 
