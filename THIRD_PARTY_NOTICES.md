@@ -7,7 +7,7 @@
 
 - FFmpeg 8.1.2：https://ffmpeg.org/ ，LGPL-2.1-or-later。构建时从校验摘要的官方源码裁剪，只保留音频解码与 WAV 输出，作为独立可执行程序随 App/CLI 分发。许可证与构建参数位于安装包 `tools/FFmpeg-LICENSE.txt`、`tools/build.json`（macOS App 为 `Contents/Resources/tools/`）；对应源码与构建脚本随 Release 的 `yovoice-<版本>-ffmpeg-source.tar.gz` 提供。
 
-- ocho v0.1.0：闭源的 Agent 运行时，版权 leemysw，不适用 yovoice 的 Apache-2.0。免费授权随 yovoice 分发的独立可执行程序，作为子进程运行、不与 yovoice 链接；条款见安装包 `tools/ocho/LICENSE.txt`（macOS App 为 `Contents/Resources/tools/ocho/`）。
+- ocho（https://github.com/leemysw/ocho ）：Apache-2.0，源码不公开，以二进制形式的独立可执行程序随 yovoice 分发、作为子进程运行；许可随包位于 `tools/ocho/LICENSE.txt`（macOS App 为 `Contents/Resources/tools/ocho/`）。
 
 - VoxCPM2：https://github.com/OpenBMB/VoxCPM ，模型不随应用分发，使用 Apache-2.0 许可：https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE 。
 
