@@ -113,11 +113,7 @@ Path(sys.argv[1]).write_text(json.dumps(samples, separators=(',', ':')))
 PY
 cp LICENSE THIRD_PARTY_NOTICES.md "$resources/"
 
-cat > "$resources/tools/ffmpeg" <<EOF
-#!/bin/sh
-exec "$ffmpeg" "\$@"
-EOF
-chmod +x "$resources/tools/ffmpeg"
+python3 "$repo/scripts/desktop/speaker-validation-wrapper.py" "$resources/tools/ffmpeg" "$ffmpeg"
 cp scripts/desktop/speaker-validation-info.plist "$app/Contents/Info.plist"
 YOVOICE_VALIDATION_DATA_DIRECTORY="$data_root" python3 - "$app/Contents/Info.plist" <<'PY'
 import os

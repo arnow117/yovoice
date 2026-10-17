@@ -29,6 +29,22 @@ async function waitFor(browser: { evaluate: <T>(pageFunction: () => T | Promise<
   await browser.evaluate(duration => new Promise(resolve => setTimeout(resolve, duration)), durationMs);
 }
 
+async function waitForHeldListResponse(browser: Browser) {
+  return browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.waitForHeldListResponse());
+}
+
+async function releaseHeldListResponse(browser: Browser, id: string) {
+  return browser.evaluate(responseID => window.__yovoiceSyntheticSpeakerFixture.releaseHeldListResponse(responseID), id);
+}
+
+async function waitForHeldEnrollResponse(browser: Browser) {
+  return browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.waitForHeldEnrollResponse());
+}
+
+async function releaseHeldEnrollResponse(browser: Browser, id: string) {
+  return browser.evaluate(responseID => window.__yovoiceSyntheticSpeakerFixture.releaseHeldEnrollResponse(responseID), id);
+}
+
 async function openSpeakerPage(app: { open: () => Promise<void> }, screen: Screen) {
   await app.open();
   await screen.getByTestId('nav-speakers').tap();
@@ -330,7 +346,29 @@ test('Index 设置写入其实际使用的语言和情绪参数', async ({ app, 
 
   expect(request.draft.language).toBe('ja');
   expect(request.draft.mode).toBe('vector');
-  expect(request.draft.synthesisLanguage).toBe('en');
+  expect(request.draft.synthesisLanguage).toBe('auto');
+});
+
+test('Index 2.5 的日语切换到 Index 2.0 时回退为可提交的中文', async ({ app, browser, screen }) => {
+  await serveSyntheticGeneratedOutput(browser);
+  await openSpeakerPage(app, screen);
+  await enrollBoundProfile(screen);
+  await selectGenerationInputs(screen, 'Index TTS 2.5');
+  await screen.getByTestId('speaker-index-language').tap();
+  await screen.getByRole('option', /日语|Japanese/).tap();
+
+  await screen.getByTestId('speaker-generation-model').tap();
+  await screen.getByRole('option', 'IndexTTS 2.0').tap();
+  await expect(screen.getByTestId('speaker-index-language')).toContainText(/中文|Chinese/);
+
+  const previousCallCount = await generationCallCount(browser);
+  await screen.getByTestId('speaker-generate').tap();
+  const request = await latestGenerationSnapshot(browser, {
+    previousCallCount,
+    modelID: 'index-2-q8',
+  });
+
+  expect(request.draft.language).toBe('zh');
 });
 
 test('声纹生成保留 OmniVoice 和 VoxCPM 的用户模式，不自动改为克隆', async ({ app, browser, screen }) => {
@@ -678,12 +716,22 @@ test('无取消回复时在五秒窗口内有界重试，并允许用户再次�
 
 test('取消登记后服务已接受时刷新并保留真实成功', async ({ app, browser, screen }) => {
   await openSpeakerPage(app, screen);
-  await configureFixture(browser, { cancelResults: [true], enrollDelayMs: 300 });
+  await configureFixture(browser, { cancelResults: [true], holdEnrollResponses: true });
   await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
   await screen.getByTestId('speaker-profile-name').fill('Accepted registration');
+  const heldEnrollment = waitForHeldEnrollResponse(browser);
   await screen.getByTestId('speaker-enroll').tap();
+  const enrollment = await heldEnrollment;
+  expect(enrollment.profileID).toBe('00000000000000000000000000000001');
+  expect(enrollment.requestID).toMatch(/^[a-f0-9]{32}$/);
+  await expect(cancelButton(screen)).toBeVisible();
   await cancelButton(screen).tap();
+  const cancellationRequestIDs = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.cancel')
+    .map(call => call.data.requestId));
+  expect(cancellationRequestIDs).toEqual([enrollment.requestID]);
   await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
+  await releaseHeldEnrollResponse(browser, enrollment.id);
   await expect(screen.getByTestId('speaker-profile-00000000000000000000000000000001')).toBeVisible();
   await expect(screen.getByText(/已登记 Accepted registration。|Registered Accepted registration./)).toBeVisible();
 });
@@ -780,6 +828,46 @@ test('列表错误不会伪装为空库，刷新可加载外部新增档案', as
   await screen.getByRole('button', /刷新|Refresh/).first().tap();
   await expect(screen.getByTestId('speaker-profiles')).toHaveAttribute('data-state', 'ready');
   await expect(screen.getByTestId('speaker-profile-00000000000000000000000000000002')).toBeVisible();
+});
+
+test('迟到的档案读取或错误不会覆盖最新删除后的刷新结果', async ({ app, browser, screen }) => {
+  await openSpeakerPage(app, screen);
+  await enrollBoundProfile(screen);
+  const profile = screen.getByTestId('speaker-profile-00000000000000000000000000000001');
+  const refresh = screen.getByRole('button', /刷新|Refresh/).first();
+
+  await configureFixture(browser, { holdListResponses: true, listErrorCode: null });
+  const oldSnapshot = waitForHeldListResponse(browser);
+  await refresh.tap();
+  const oldSnapshotRequest = await oldSnapshot;
+  expect(oldSnapshotRequest.profileIDs).toEqual(['00000000000000000000000000000001']);
+
+  await configureFixture(browser, { holdListResponses: false });
+  await screen.getByTestId('speaker-delete-00000000000000000000000000000001').tap();
+  await screen.getByRole('button', /^(删除档案|Delete profile)$/).tap();
+  await expect(screen.getByTestId('speaker-profiles')).toHaveAttribute('data-state', 'ready');
+  await expect(profile).toHaveCount(0);
+
+  await releaseHeldListResponse(browser, oldSnapshotRequest.id);
+  await expect(screen.getByTestId('speaker-profiles')).toHaveAttribute('data-state', 'ready');
+  await expect(profile).toHaveCount(0);
+
+  await configureFixture(browser, {
+    holdListResponses: true,
+    listErrorCode: '@yovoice.error.runtimeFailed',
+  });
+  const oldError = waitForHeldListResponse(browser);
+  await refresh.tap();
+  const oldErrorRequest = await oldError;
+  expect(oldErrorRequest.errorCode).toBe('@yovoice.error.runtimeFailed');
+
+  await configureFixture(browser, { holdListResponses: false, listErrorCode: null });
+  await refresh.tap();
+  await expect(screen.getByTestId('speaker-profiles')).toHaveAttribute('data-state', 'ready');
+
+  await releaseHeldListResponse(browser, oldErrorRequest.id);
+  await expect(screen.getByTestId('speaker-profiles')).toHaveAttribute('data-state', 'ready');
+  await expect(screen.getByRole('alert')).toHaveCount(0);
 });
 
 test('没有可用 TTS 时登记仍可用，生成提示保留正文且不发起假生成', async ({ app, browser, screen }) => {

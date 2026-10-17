@@ -6,6 +6,7 @@ import { CallError, noticeMessage, parseCallError } from '../src/shared/lib/call
 import { formatCallError, formatNotice } from '../src/shared/i18n/format';
 import { createDraft, previewStale, projectKind, requiresVoice, synthesisSettings, normalizeDraft, type Character, type Draft, type ModelPackage } from '../src/shared/workbench';
 import { speakerGenerationDraft } from '../src/features/speakers/generation-draft';
+import { modelSwitchPatch } from '../src/features/create/model-switch';
 
 // 不打开页面，直接校验界面依赖的纯逻辑。
 
@@ -102,6 +103,36 @@ test('音乐和编曲作品进入声纹生成时补齐有效 TTS 默认值并保
     expect(generation.timeline).toBeUndefined();
     expect(generation.lyrics).toBeUndefined();
   }
+});
+
+test('切换模型按同族规则保留设置，并让 Index 2.0 使用可提交语言', () => {
+  const catalog: ModelPackage[] = [
+    { id: 'index-2-q8', name: 'IndexTTS 2.0', family: 'index_tts2', version: '2', precision: 'q8', remotePath: '', size: 0, sha256: 'synthetic' },
+    { id: 'index-2.5-q8', name: 'Index TTS 2.5', family: 'index_tts2', version: '2.5', precision: 'q8', remotePath: '', size: 0, sha256: 'synthetic' },
+    { id: 'qwen3-tts-base-q8', name: 'Qwen', family: 'qwen3_tts', version: 'test', precision: 'q8', remotePath: '', size: 0, sha256: 'synthetic' },
+  ];
+  const draft: Draft = {
+    ...createDraft(),
+    modelId: 'index-2.5-q8',
+    language: 'ja',
+    speaker: 'speaker',
+    synthesisLanguage: 'en',
+    voiceDescription: 'warm voice',
+    modelOptions: { index_tts2: { text_chunk_size: 512 } },
+  };
+
+  const indexTwo = { ...draft, ...modelSwitchPatch(draft, catalog, 'index-2-q8') };
+  expect(indexTwo).toMatchObject({
+    modelId: 'index-2-q8',
+    language: 'zh',
+    speaker: 'speaker',
+    synthesisLanguage: 'en',
+    voiceDescription: 'warm voice',
+  });
+  expect(indexTwo.modelOptions).toEqual(draft.modelOptions);
+
+  const qwen = modelSwitchPatch(draft, catalog, 'qwen3-tts-base-q8');
+  expect(qwen).toMatchObject({ speaker: '', synthesisLanguage: 'auto', voiceDescription: '', language: 'zh' });
 });
 
 test('错误码与底层原因在保存为提示文本后仍可翻译并保留原因', () => {

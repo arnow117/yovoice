@@ -3,11 +3,18 @@
   const profiles = [];
   const calls = [];
   const listeners = [];
+  const heldEnrollResponses = [];
+  const heldListResponses = [];
+  const heldEnrollResponseWaiters = [];
+  const heldListResponseWaiters = [];
   let nextProfileNumber = 1;
+  let nextEnrollResponseID = 1;
+  let nextListResponseID = 1;
   const controls = {
     cancelResults: [],
     enrollDelayMs: 0,
     enrollPostAcceptErrorCode: null,
+    holdEnrollResponses: false,
     generateDelayMs: 0,
     generateErrorCode: null,
     identification: null,
@@ -15,6 +22,7 @@
     identifyStatus: null,
     listDelayMs: 0,
     listErrorCode: null,
+    holdListResponses: false,
     runtime: null,
     runtimeConfigured: true,
   };
@@ -147,6 +155,7 @@
     ],
     voices: [{ id: '11111111111111111111111111111111', name: 'Bound voice', fileName: 'bound.wav', duration: 3, referenceText: 'reference' }],
     models: noTTSModels ? [] : [
+      { id: 'index-2-q8', managed: false },
       { id: 'index-2.5-q8', managed: false },
       { id: 'qwen3-tts-base-q8', managed: false },
       { id: 'omnivoice-q8', managed: false },
@@ -186,6 +195,7 @@
     }
   }
   const catalog = [
+    { id: 'index-2-q8', name: 'IndexTTS 2.0', family: 'index_tts2', version: '2', precision: 'q8', remotePath: '', size: 0, sha256: 'synthetic' },
     { id: 'index-2.5-q8', name: 'Index TTS 2.5', family: 'index_tts2', version: 'test', precision: 'q8', remotePath: '', size: 0, sha256: 'synthetic' },
     { id: 'qwen3-tts-base-q8', name: 'Qwen3-TTS 1.7B Base', family: 'qwen3_tts', variant: 'base', version: 'test', precision: 'q8', remotePath: '', size: 0, sha256: 'synthetic' },
     { id: 'omnivoice-q8', name: 'OmniVoice', family: 'omnivoice', version: 'test', precision: 'q8', remotePath: '', size: 0, sha256: 'synthetic' },
@@ -214,6 +224,34 @@
       if (Array.isArray(next.cancelResults)) controls.cancelResults = [...next.cancelResults];
     },
     controls,
+    releaseHeldEnrollResponse(id) {
+      const response = heldEnrollResponses.find(item => item.id === id);
+      if (!response || response.released || !response.release) {
+        throw new Error(`held speaker.enroll response ${id} is not available`);
+      }
+      response.released = true;
+      response.release();
+      return { id: response.id, released: response.released };
+    },
+    releaseHeldListResponse(id) {
+      const response = heldListResponses.find(item => item.id === id);
+      if (!response || response.released || !response.release) {
+        throw new Error(`held speaker.list response ${id} is not available`);
+      }
+      response.released = true;
+      response.release();
+      return { id: response.id, released: response.released };
+    },
+    waitForHeldEnrollResponse() {
+      const response = heldEnrollResponses.find(item => !item.released);
+      if (response) return Promise.resolve(response.summary);
+      return new Promise(resolve => heldEnrollResponseWaiters.push(resolve));
+    },
+    waitForHeldListResponse() {
+      const response = heldListResponses.find(item => !item.released);
+      if (response) return Promise.resolve(response.summary);
+      return new Promise(resolve => heldListResponseWaiters.push(resolve));
+    },
     profiles,
     state,
   };
@@ -229,6 +267,38 @@
   function delayedResponse(response, delayMs) {
     if (!delayMs) return response;
     return new Promise(resolve => setTimeout(() => resolve(response), delayMs));
+  }
+
+  function holdListResponse(response, summary) {
+    const held = {
+      id: `list-${nextListResponseID++}`,
+      release: null,
+      released: false,
+      summary: null,
+    };
+    held.summary = { id: held.id, ...summary };
+    heldListResponses.push(held);
+    for (const waiter of heldListResponseWaiters.splice(0)) waiter(held.summary);
+
+    return new Promise(resolve => {
+      held.release = () => resolve(response);
+    });
+  }
+
+  function holdEnrollResponse(response, summary) {
+    const held = {
+      id: `enroll-${nextEnrollResponseID++}`,
+      release: null,
+      released: false,
+      summary: null,
+    };
+    held.summary = { id: held.id, ...summary };
+    heldEnrollResponses.push(held);
+    for (const waiter of heldEnrollResponseWaiters.splice(0)) waiter(held.summary);
+
+    return new Promise(resolve => {
+      held.release = () => resolve(response);
+    });
   }
 
   function profileFor(input) {
@@ -262,15 +332,27 @@
       const response = controls.listErrorCode
         ? errorFor(controls.listErrorCode)
         : responseFor([...profiles]);
+      if (controls.holdListResponses) {
+        return holdListResponse(response, {
+          errorCode: controls.listErrorCode,
+          profileIDs: profiles.map(profile => profile.id),
+        });
+      }
       return delayedResponse(response, controls.listDelayMs);
     }
     if (method === 'speaker.enroll') {
       const profile = profileFor(data);
       profiles.push(profile);
-      if (controls.enrollPostAcceptErrorCode) {
-        return delayedResponse(errorFor(controls.enrollPostAcceptErrorCode), controls.enrollDelayMs);
+      const response = controls.enrollPostAcceptErrorCode
+        ? errorFor(controls.enrollPostAcceptErrorCode)
+        : responseFor(profile);
+      if (controls.holdEnrollResponses) {
+        return holdEnrollResponse(response, {
+          profileID: profile.id,
+          requestID: data.requestId,
+        });
       }
-      return delayedResponse(responseFor(profile), controls.enrollDelayMs);
+      return delayedResponse(response, controls.enrollDelayMs);
     }
     if (method === 'speaker.identify') {
       if (controls.identification) {

@@ -16,6 +16,7 @@ import type { Draft, Generation, ModelPackage, Track, Voice } from '../../shared
 import type { SpeakerIdentification, SpeakerProfile, SpeakerRuntime, SpeakerSource } from '../../shared/speakers';
 import { ConfirmDelete } from '../../shared/ui/app-dialog';
 import { ModelOptions } from '../create/model-options';
+import { modelSwitchPatch } from '../create/model-switch';
 import { useTemporaryAudio } from '../media/use-temporary-audio';
 import { useTemporaryRecorder } from '../media/use-temporary-recorder';
 import { Player } from '../media/player';
@@ -87,6 +88,7 @@ export function SpeakerPage({ voices, models, catalog, draft, runtimeReady, onGe
   const identifyInputRef = useRef<HTMLInputElement>(null);
   const pendingRef = useRef<PendingOperation | null>(null);
   const mountedRef = useRef(false);
+  const refreshRequestRef = useRef(0);
   const cancelPendingRef = useRef<() => Promise<void>>(async () => {});
   const [runtime, setRuntime] = useState<SpeakerRuntime | null>(null);
   const [profiles, setProfiles] = useState<SpeakerProfile[]>([]);
@@ -151,9 +153,15 @@ export function SpeakerPage({ voices, models, catalog, draft, runtimeReady, onGe
   }, []);
 
   const refresh = useCallback(async () => {
+    const request = refreshRequestRef.current + 1;
+    refreshRequestRef.current = request;
+    const canCommit = () => mountedRef.current && refreshRequestRef.current === request;
+
+    if (!canCommit()) return;
     setListError('');
     setProfileListState('loading');
     if (!isDesktop) {
+      if (!canCommit()) return;
       setRuntime({ configured: false });
       setListError(t('@yovoice.error.previewSpeakerUnavailable'));
       setProfileListState('error');
@@ -164,12 +172,12 @@ export function SpeakerPage({ voices, models, catalog, draft, runtimeReady, onGe
         call<SpeakerRuntime>('speaker.runtime'),
         call<SpeakerProfile[]>('speaker.list'),
       ]);
-      if (!mountedRef.current) return;
+      if (!canCommit()) return;
       setRuntime(nextRuntime);
       setProfiles(nextProfiles);
       setProfileListState('ready');
     } catch (error) {
-      if (!mountedRef.current) return;
+      if (!canCommit()) return;
       setListError(formatCallError(t, error));
       setProfileListState('error');
     }
@@ -488,7 +496,16 @@ export function SpeakerPage({ voices, models, catalog, draft, runtimeReady, onGe
         ? <BoundReference voice={selectedGenerationVoice} recording={recordingTarget !== null} onError={message => setNotice(formatCallError(t, message))} />
         : <p className="muted">{t('@yovoice.speakers.boundVoiceMissing')}</p>
         : <p className="muted">{t('@yovoice.speakers.chooseProfileHint')}</p>}
-      <Selector data-testid="speaker-generation-model" label={t('@yovoice.speakers.model')} value={generationDraft.modelId} options={installedModels.map(model => ({ value: model.id, label: model.name }))} onChange={modelId => setGenerationDraft(current => ({ ...current, modelId }))} />
+      <Selector
+        data-testid="speaker-generation-model"
+        label={t('@yovoice.speakers.model')}
+        value={generationDraft.modelId}
+        options={installedModels.map(model => ({ value: model.id, label: model.name }))}
+        onChange={modelId => setGenerationDraft(current => ({
+          ...current,
+          ...modelSwitchPatch(current, installedModels, modelId),
+        }))}
+      />
       <label htmlFor="speaker-generation-text">{t('@yovoice.speakers.targetText')}</label>
       <textarea id="speaker-generation-text" className="speaker-text" value={generationDraft.text} maxLength={12000} onChange={event => setGenerationDraft(current => ({ ...current, text: event.target.value }))} />
       <SpeakerGenerationSettings draft={generationDraft} model={selectedGenerationModel} voices={voices} boundVoice={selectedGenerationVoice} onChange={patch => setGenerationDraft(current => ({ ...current, ...patch }))} />

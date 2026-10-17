@@ -15,6 +15,7 @@ import { ChevronUp, ChevronRight, LoaderCircle } from 'lucide-react';
 import { ReferenceControls } from './reference-controls';
 import { VoxControls } from './vox-controls';
 import { BreezeControls } from './breeze-controls';
+import { modelSwitchPatch } from './model-switch';
 import { isVoiceModel, isReferenceModel, isVoxModel, isBreezeModel, formatTime, type Draft, type Mode, type State, type ModelPackage } from '../../shared/workbench';
 import type { Track } from '../../shared/workbench';
 import { formatActivity } from '../../shared/i18n/format';
@@ -88,7 +89,7 @@ export function Inspector({ draft, state, catalog, change, chooseVoice, chooseEm
     <VStack className="inspector-actions" gap={3}>
       <h2 className="inspector-section-title">{t('@yovoice.create.model')}</h2>
       <ModelSelector label={t('@yovoice.create.model')} models={voiceModels} state={state} value={draft.modelId} isDisabled={generating} manage={embedded || !allowModelManagement ? undefined : settings}
-        onChange={modelId => { change({ modelId, speaker: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family && !modelId.startsWith('kokoro-') ? draft.speaker : '', synthesisLanguage: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.synthesisLanguage : 'auto', voiceDescription: catalog.find(model => model.id === modelId)?.family === catalog.find(model => model.id === draft.modelId)?.family ? draft.voiceDescription : '', language: modelId.startsWith('index-2.5') || ['zh', 'en'].includes(draft.language) ? draft.language : 'zh' }); }} />
+        onChange={modelId => change(modelSwitchPatch(draft, catalog, modelId))} />
 
     </VStack>
     <HStack className="inspector-heading" hAlign="between" vAlign="center"><h2 className="inspector-section-title">{t('@yovoice.create.voiceSettings')}</h2>{!embedded ? <Button label={t('@yovoice.create.backToScript')} className="inspector-toggle" variant="secondary" onClick={close} /> : null}</HStack>

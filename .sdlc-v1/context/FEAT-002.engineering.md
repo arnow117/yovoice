@@ -4,6 +4,16 @@
 
 ## Plan
 
+### 2026-10-17 正式评审返修：刷新、模型切换与路径字面量
+
+独立正式 Review 对 validation commit `767b65c…` 提出三项有代码因果链的 P2，主接受：迟到 list 快照可覆盖删除后的刷新；声纹生成模型选择只改 modelId，普通文本的 Index 2.5 日语切 Index 2 会保留 schema 不接受的 ja；生成的 FFmpeg shell 包装器把合法路径中的 shell 字符再次解释。沿用同一 Task/实施者/全部失败历史及已用诊断 allowance，不以新阶段清零。
+
+- 刷新拥有递增请求身份，仅最新刷新可以提交 runtime/profiles/列表终态或错误，仍保留读取失败时已有列表；组件失效后不写状态。用既有 listDelayMs 先保存含目标的旧快照、删除并完成新刷新、再让旧响应到达，实际证明目标不重新显示；旧请求错误也不能覆盖新成功。
+- 复用原 Inspector 的模型切换规则（当前 inspector.tsx:91）：同家族保留适用字段、跨家族使用已有默认语义；不支持的旧 Index 语言按原页面规则回到 zh。可从现有 inline handler 提取最小具名共享函数，原创建页与声纹页共同调用，避免第二份长期重复规则；不重写原页面。保留正文、合法情绪/选项、独立草稿和绑定语义，覆盖 Index 2.5 ja→Index 2，并让实际 wire 与 Go schema 的验证对应。
+- 包装器把已经规范化的 FFmpeg 路径作为 POSIX shell 字面量输出，例如标准库 shlex.quote；参数原样传递。必要最小 writer 可供构建和检查共同调用。零模型替身真正执行生成的包装器，覆盖空格、$、单双引号、反引号/命令替换文字，确认执行正确文件、参数保持、无额外命令执行；不只检查实现字符串。
+- 同一 worker 先保存三个缺陷的确定性红证据，再最小修正；写边界为 SpeakerPage、原 Inspector/已有模型选项模块或最小共享 helper、相关现有 e2e/fixtures、必要 desktop schema 测试、build/check 与最小 FFmpeg writer、必要 CHANGELOG/usage。不改识别算法/公开 API/持久化/Swift/产品规则，不写 Plan/state或Git。完整 Web lint/typecheck/build、e2e/browser与脚本检查必须重验；增加 Go schema 测试时补 vet/完整 race，未变相关输入才可复用其余证据。
+- 完成后构建全新独立 App/sidecar，保存真实退出码与源码/完整包/最终签名/15项dist绑定；旧产物全部保留。此返修阶段不启动 App、模型、provider/TTS/Mic/GPU或下载。主核对新候选后再安排必要原生验证，随后干净提交及独立 Validate/Review；没有通过前不推进验收。用户已有功能分支提交/推送与必要修正授权继续适用。
+
 ### 2026-10-17 正式验证返修：取消测试必须有界观察终态
 
 正式 Validate 在已提交 `9c851702a7310de2927db656fe85ba882270e524` 上完整 Go race 超时。解除沙箱后原始栈只剩 `TestEnrollSpeakerCancelsBeforeCommit` 在 `speakers_test.go:240` 的 `<-accepted` 等待，登记协程已退出，结果被缓冲在未读取的 result 中。已观察到的缺陷是测试的无界等待掩盖了提交钩子之前的操作终态；操作早退的实际错误尚不明确，不据此修改生产逻辑或超时。
@@ -342,7 +352,17 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 ## Validation
 
-正式 Validate 首轮未通过，必须完成下面的 Go 返修与独立重验；下面同时保留 Build 检查、原生及正式失败证据，不提前登记 pass。
+正式独立 Validate 已在 `767b65ce18f75752a55ebb610e52ffc712950ed3` 通过并由主接受；首轮 fail/INCONCLUSIVE、Build 检查及所有原生证据保留如下。通过只覆盖声明范围，物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+
+### 正式独立 Validate 重验 — 767b65ce18f75752a55ebb610e52ffc712950ed3
+
+结果 **PASS，主已接受**。独立验证者 `/root/speaker_formal_validation` 结束时 HEAD 为本提交、工作树干净，未修改实现。原始完整 argv/env/cwd/UTC 时间和输出在 `artifacts/verification/feature-002-formal-validation-20261017/go-revalidation-767b65c/`。
+
+2026-10-17 UTC 13:00:40–13:01:12：`gofmt -l cmd internal` 输出为空、`git diff --check`、`go vet ./...` 均 exit 0；`GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local GOCACHE=/private/tmp/yovoice-formal-validation-go-cache go test -json -race ./... -count=1 -timeout=90s` exit 0、31.176 秒，229 启动、217 pass/12 skip/0 fail，15 测试包通过、3 无测试包。此前未启动的 13 项声纹 Workbench 测试全部实际通过；取消测试 0.91 秒，仍要求提交前取消、context.Canceled 和无档案落盘。主独立解析本次 JSON 日志和 HEAD/干净工作树，结果一致。原早退错误未重现，未改 2 秒夹具或补造其根因。
+
+独立比较与 `9c85170…` 的差异仅为该测试同步和两项 `.sdlc-v1` 记录，生产 Go/Web/Swift、fixture、配置、usage、依赖及资产均未变，未新增产品规则。因此复用本验证阶段首轮亲自执行的 58/58 E2E、57/57 browser、Swift 10、脚本 22、Python 4+1、recognition 85.3% 和 Web lint/typecheck/build；各命令/时刻/版本及 0 模型、0 retry/skip/flaky 证据见上一正式记录。此前 PARTIAL 的 SCN-UI-10、13–16、18、20 已由完整新 race 补齐为声明范围 COVERED，其余既有映射保持。
+
+原生再次逐文件核对仅 `.sdlc-v1` 记录与不编译进 service 的 `_test.go` 不同，其余源码、实际 App/receipt/raw native、固定模型/runner/五段样本及三个阶段 State/资产均一致；本次 `input-applicability-output.json` 保存逐项比较。SCN-UI-22 复用 `final-profileid-001/smoke/report.json` 的真实 5 次提取、确切 ID、候选完整 ID、unknown、删除和重启结果，没有再次运行模型。physicalMic/humanTTS、Windows/发行包/真实 TTS/GPU 的未验证边界不变。首轮失败及 12 个既有 skip 原因继续保留，不计为通过。
 
 ### Go 取消测试返修 Build 证据
 
@@ -387,7 +407,9 @@ physicalMic/humanTTS 为 NOT_RUN。12 个 Go skip 是既有 10 项音乐/音色�
 
 ## Review
 
-尚未评审。正式评审仅针对通过独立验证的实现版本。
+2026-10-17 独立正式评审 `/root/speaker_formal_review`，绑定 validation commit `767b65ce18f75752a55ebb610e52ffc712950ed3`，结论 **changes_requested**。三个未处理 P2：`speaker-page.tsx:169` 迟到刷新覆盖删除后的列表；`:491` 模型切换遗漏原 Inspector 已有的语言兼容规则，普通文本 ja 进入 Index 2 后被 `schema/validate.go:114–123` 拒绝；`build-speaker-validation-macos.sh:118` 的 FFmpeg 路径没有按 shell 字面量转义。主逐项核对当前源代码并接受，实际行为合同见当前 Plan。
+
+有界搜索覆盖声纹页 setProfiles、模型变更/草稿构造，以及新增 build/check/path 脚本。模型切换是已有规则重复实现后产生的实际语义漂移；其余未发现有证据支持的冗余依赖或不必要抽象。评审核对现有 Go/E2E/browser/Swift 原始记录、App/receipt/raw native 和固定资产，查看 main/restart 截图；这些证据在原声明范围有效，但未覆盖上述边界，不能掩盖 P2。返修后须做相关回归、适用 Validate/Review；物理 Mic/真实 TTS 听测等原未验证范围保持。
 
 ## Release
 

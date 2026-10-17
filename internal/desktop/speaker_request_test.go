@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"yovoice/internal/engine"
+	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 )
 
@@ -46,6 +47,34 @@ func TestSpeakerGenerateRequestAcceptsCompletedIndexTTSSettings(t *testing.T) {
 	options := request["options"].(map[string]any)
 	if request["text"] != draft.Text || options["language"] != "ja" {
 		t.Fatalf("Index TTS payload = %#v", request)
+	}
+}
+
+// IndexTTS 2.0 的语言范围比 2.5 小。页面切换时必须发送 schema 接受的语言。
+func TestSpeakerGenerateRequestRejectsJapaneseForIndexTTS2(t *testing.T) {
+	draft := schema.DefaultDraft()
+	draft.ID = strings.Repeat("d", 32)
+	draft.ModelID = "index-2-q8"
+	draft.Text = "speaker synthesis text"
+	draft.Language = "ja"
+	draft.VoiceID = nil
+	draft.ReferenceText = ""
+
+	raw, err := json.Marshal(speakerGenerateRequest{
+		RequestID: testSpeakerRequestID,
+		ProfileID: strings.Repeat("a", 32),
+		Draft:     draft,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var decoded speakerGenerateRequest
+	if err = strictJSON(raw, &decoded); err != nil {
+		t.Fatalf("speaker.generate DTO = %v", err)
+	}
+	if err = schema.Validate(decoded.Draft); err == nil || err.Error() != string(msg.ErrLanguageUnsupported) {
+		t.Fatalf("Index TTS 2 Japanese validation error = %v", err)
 	}
 }
 

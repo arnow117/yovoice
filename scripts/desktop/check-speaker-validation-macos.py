@@ -18,6 +18,7 @@ PLIST = (ROOT / "scripts/desktop/speaker-validation-info.plist").read_text()
 SMOKE = (ROOT / "scripts/desktop/smoke-speaker-validation-macos.sh").read_text()
 CAPTURE_PATH = ROOT / "scripts/desktop/capture-speaker-validation-evidence.py"
 PATHS_PATH = ROOT / "scripts/desktop/speaker-validation-paths.py"
+WRAPPER_PATH = ROOT / "scripts/desktop/speaker-validation-wrapper.py"
 
 
 def capture_module():
@@ -33,6 +34,15 @@ def paths_module():
     spec = importlib.util.spec_from_file_location("speaker_validation_paths", PATHS_PATH)
     if spec is None or spec.loader is None:
         raise RuntimeError("cannot load speaker validation paths")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def wrapper_module():
+    spec = importlib.util.spec_from_file_location("speaker_validation_wrapper", WRAPPER_PATH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load speaker validation wrapper")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -58,9 +68,53 @@ class SpeakerValidationBuildChecks(unittest.TestCase):
         )
 
     def test_external_ffmpeg_is_only_wrapped(self):
-        self.assertIn('exec "$ffmpeg" "\\$@"', BUILD)
+        self.assertIn("speaker-validation-wrapper.py", BUILD)
+        self.assertNotIn('exec "$ffmpeg" "\\$@"', BUILD)
         self.assertNotIn("codesign --force --sign - \"$ffmpeg\"", BUILD)
         self.assertNotIn("rm -rf /opt/homebrew", BUILD)
+
+    def test_external_ffmpeg_wrapper_executes_special_paths_as_literals(self):
+        with TemporaryDirectory(prefix="speaker-ffmpeg-wrapper-") as directory:
+            root = Path(directory)
+            marker = root / "unexpected-command"
+            executable = root / "ffmpeg with space $dollar 'single' \"double\" `backtick` $(touch unexpected-command)"
+            legacy_wrapper = root / "legacy-ffmpeg-wrapper"
+            wrapper = root / "ffmpeg-wrapper"
+            arguments = root / "arguments.json"
+            executable.write_text(
+                "#!/usr/bin/env python3\n"
+                "import json\n"
+                "from pathlib import Path\n"
+                "import sys\n"
+                "Path(sys.argv[1]).write_text(json.dumps(sys.argv[2:]))\n",
+            )
+            executable.chmod(0o755)
+
+            legacy_wrapper.write_text(f'#!/bin/sh\nexec "{executable}" "$@"\n')
+            legacy_wrapper.chmod(0o755)
+            legacy = subprocess.run(
+                [str(legacy_wrapper), str(arguments), "argument with spaces"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertTrue(marker.exists(), legacy.stderr)
+            self.assertFalse(arguments.exists(), legacy.stdout)
+            marker.unlink()
+
+            wrapper_module().write_wrapper(wrapper, executable)
+            subprocess.run(
+                [str(wrapper), str(arguments), "argument with spaces", "$literal", "`literal`"],
+                cwd=root,
+                check=True,
+            )
+
+            self.assertFalse(marker.exists())
+            self.assertEqual(
+                json.loads(arguments.read_text()),
+                ["argument with spaces", "$literal", "`literal`"],
+            )
 
     def test_build_normalizes_runtime_and_validation_paths_before_plist_write(self):
         self.assertIn('output=$(absolute_path "$output")', BUILD)
