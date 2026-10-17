@@ -54,6 +54,7 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 - **Music** — write a style and lyrics with section markers, then generate songs or instrumentals with ACE-Step 1.5, or vocal songs with YuE2; the playback page syncs lyrics to the vocals.
 - **Score** — write parts by bar and beat, import MIDI or let an Agent compose, render with a General MIDI sound font, and export MIDI and stems. See [Score](docs/score.md).
 - **Optional AI service** — let DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API write arrangements and lyrics; keys stay on this computer. See [AI service](docs/ai.md).
+- **12 interface languages** — English, 简体中文, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português (Brasil), Русский, Italiano and Tiếng Việt; switch anytime in Settings, no restart needed.
 
 ---
 
