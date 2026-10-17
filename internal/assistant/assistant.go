@@ -230,6 +230,12 @@ func childEnv(root string, extra []string) []string {
 		}
 	}
 	env = append(env, extra...)
+	// 测试注入：让假 ocho 运行时的计划与转储路径进入子进程环境。
+	for _, entry := range os.Environ() {
+		if strings.HasPrefix(entry, "YOVOICE_FAKE_OCHO_") {
+			env = append(env, entry)
+		}
+	}
 	return append(env, "OCHO_CONFIG_DIR="+filepath.Join(root, "assistant", "config"))
 }
 

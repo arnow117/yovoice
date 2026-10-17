@@ -114,6 +114,12 @@ export interface AITask {
   provider: string; model: string; timeout: number; startedAt: string; finishedAt?: string; result?: unknown; errorCode?: string; errorParams?: Record<string, unknown>;
 }
 export const aiTimeoutDefault = 600;
+/** AI 写作请求参数，与 Go 的 workbench.ScoreBrief 一致；followUp/draft 供“继续修改”使用。 */
+export interface ScoreBrief { projectId: string; brief: string; seconds?: number; locale: UiLocale; followUp?: string; draft?: Score }
+/** AI 写作结果，与 Go 的 workbench.Lyrics 一致。 */
+export interface LyricsResult { title: string; style: string; lyrics: string; language: string }
+/** 与 Go 的 workbench.LyricsBrief 一致。 */
+export interface LyricsBrief { projectId: string; brief: string; instrumental?: boolean; language?: string; locale: UiLocale; followUp?: string; draft?: LyricsResult }
 export interface AIProvider { id: string; preset: string; name: string; format: string; baseURL: string; modelsPath: string; model: string; models?: string[]; keyMask?: string; lastTest?: AITest }
 
 /** 标题为空或仍是任一界面语言的“未命名作品”时视为尚未命名，AI 写作可以顺带起名。 */

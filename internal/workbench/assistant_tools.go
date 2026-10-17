@@ -110,20 +110,23 @@ type submitScoreInput struct {
 	TimeSignature []int                 `json:"timeSignature" jsonschema:"拍号 [分子,分母]，如 [4,4]"`
 	Key           string                `json:"key,omitempty" jsonschema:"调性，如 D minor"`
 	Sections      []schema.ScoreSection `json:"sections,omitempty" jsonschema:"段落，可带自己的 tempo 做渐慢"`
-	Tracks        []struct {
-		ID       string             `json:"id" jsonschema:"声部唯一 ID"`
-		Name     string             `json:"name" jsonschema:"声部名称，用界面语言书写"`
-		Role     string             `json:"role,omitempty" jsonschema:"melody/piano/strings/bass/drums/pad/arp/other"`
-		Program  int                `json:"program" jsonschema:"General MIDI 音色号 0-127"`
-		Drums    bool               `json:"drums,omitempty" jsonschema:"鼓组时为 true"`
-		Level    float64            `json:"level,omitempty" jsonschema:"电平 dBFS，一般省略"`
-		Pan      float64            `json:"pan,omitempty" jsonschema:"-1 到 1"`
-		Reverb   float64            `json:"reverb,omitempty" jsonschema:"0 到 1"`
-		Humanize *schema.Humanize   `json:"humanize,omitempty" jsonschema:"力度与时间微调"`
-		Dynamics []schema.ScoreRamp `json:"dynamics,omitempty" jsonschema:"音量渐变"`
-		Notes    []any              `json:"notes" jsonschema:"音符数组，每项为 [小节,拍,MIDI音高,拍数,力度] 五个数字或同字段对象；小节与拍从 1 开始，拍可为小数"`
-		Repeats  []scoreRepeat      `json:"repeats,omitempty" jsonschema:"把 from..to 小节的音符复制到各 at 起点"`
-	} `json:"tracks"`
+	Tracks        []submitScoreTrack    `json:"tracks"`
+}
+
+// submitScoreTrack 是提交乐谱里的一个声部。
+type submitScoreTrack struct {
+	ID       string             `json:"id" jsonschema:"声部唯一 ID"`
+	Name     string             `json:"name" jsonschema:"声部名称，用界面语言书写"`
+	Role     string             `json:"role,omitempty" jsonschema:"melody/piano/strings/bass/drums/pad/arp/other"`
+	Program  int                `json:"program" jsonschema:"General MIDI 音色号 0-127"`
+	Drums    bool               `json:"drums,omitempty" jsonschema:"鼓组时为 true"`
+	Level    float64            `json:"level,omitempty" jsonschema:"电平 dBFS，一般省略"`
+	Pan      float64            `json:"pan,omitempty" jsonschema:"-1 到 1"`
+	Reverb   float64            `json:"reverb,omitempty" jsonschema:"0 到 1"`
+	Humanize *schema.Humanize   `json:"humanize,omitempty" jsonschema:"力度与时间微调"`
+	Dynamics []schema.ScoreRamp `json:"dynamics,omitempty" jsonschema:"音量渐变"`
+	Notes    []any              `json:"notes" jsonschema:"音符数组，每项为 [小节,拍,MIDI音高,拍数,力度] 五个数字或同字段对象；小节与拍从 1 开始，拍可为小数"`
+	Repeats  []scoreRepeat      `json:"repeats,omitempty" jsonschema:"把 from..to 小节的音符复制到各 at 起点"`
 }
 
 // submitScoreTool 校验并保存提交的乐谱，写进当前任务的结果。

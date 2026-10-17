@@ -10,9 +10,11 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"yovoice/internal/assistant"
 	"yovoice/internal/diag"
 	"yovoice/internal/llm"
 	"yovoice/internal/msg"
+	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 )
 
@@ -237,7 +239,7 @@ func (w *Workbench) TestAIProvider(ctx context.Context, id string) (schema.AITes
 	}
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
-	_, e = llm.Complete(ctx, w.client, c, llm.Request{System: "Reply with OK.", Messages: []llm.Message{{Role: "user", Content: "ping"}}, MaxTokens: 256})
+	e = llm.Ping(ctx, w.client, c)
 	if errors.Is(e, context.Canceled) {
 		return schema.AITest{}, e
 	}
@@ -261,45 +263,83 @@ func aiTimeout(p schema.Preferences) time.Duration {
 	return time.Duration(seconds) * time.Second
 }
 
-// complete 用当前服务完成一次 AI 请求，每次请求按设置单独计时；任务级的取消由 startAI 管理。
-func (w *Workbench) complete(ctx context.Context, request llm.Request) (llm.Result, error) {
-	p, c, e := w.aiConfig("")
-	if e != nil {
-		return llm.Result{}, e
+// providerEnv 把服务配置翻译成 ocho 的模型服务环境变量；密钥只经环境变量传给子进程。
+func providerEnv(p schema.AIProvider, c llm.Config) []string {
+	var env []string
+	set := func(name, value string) { env = append(env, name+"="+value) }
+	switch p.Format {
+	case llm.FormatAnthropic:
+		set("ANTHROPIC_BASE_URL", c.BaseURL)
+		if c.Key != "" {
+			set("ANTHROPIC_API_KEY", c.Key)
+		}
+	case llm.FormatResponses:
+		set("OCHO_API_PROVIDER", "responses")
+		set("OPENAI_BASE_URL", c.BaseURL)
+		if c.Key != "" {
+			set("OPENAI_API_KEY", c.Key)
+		}
+	default:
+		set("OCHO_API_PROVIDER", "openai")
+		set("OPENAI_BASE_URL", c.BaseURL)
+		if c.Key != "" {
+			set("OPENAI_API_KEY", c.Key)
+		}
+	}
+	return env
+}
+
+// assistantConfig 由当前服务配置组装助手子进程配置；ocho 缺失与服务未配置分别报错。
+func (w *Workbench) assistantConfig() (assistant.Config, error) {
+	executable, err := platform.OchoExecutable()
+	if err != nil {
+		return assistant.Config{}, msg.Err(msg.ErrAssistantMissing, nil)
+	}
+	p, c, err := w.aiConfig("")
+	if err != nil {
+		return assistant.Config{}, err
 	}
 	if c.Model == "" {
-		return llm.Result{}, msg.Err(msg.ErrAINotConfigured, nil)
+		return assistant.Config{}, msg.Err(msg.ErrAINotConfigured, nil)
 	}
+	return assistant.Config{Executable: executable, Model: c.Model, Env: providerEnv(p, c)}, nil
+}
+
+// askAssistant 把任务交给内置助手跑一轮：提交被拒后任务阶段转为 repairing，超时转换为可读错误。
+func (w *Workbench) askAssistant(ctx context.Context, draft *aiDraft, message string) error {
+	cfg, err := w.assistantConfig()
+	if err != nil {
+		return err
+	}
+	w.ai.draft.Store(draft)
+	defer w.ai.draft.Store(nil)
 	timeout := aiTimeout(w.Store.Read().Preferences)
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	host := ""
-	if u, e := url.Parse(c.BaseURL); e == nil {
-		host = u.Host
-	}
-	fields := []any{"provider_id", p.ID, "preset", p.Preset, "format", c.Format, "host", host, "model", c.Model, "turns", len(request.Messages), "max_tokens", request.MaxTokens, "timeout_s", int(timeout.Seconds())}
+	fields := []any{"task_id", draft.taskID, "kind", draft.kind, "model", cfg.Model, "timeout_s", int(timeout.Seconds())}
 	diag.Log(w.Store.Root, "ai.request", fields...)
 	started := time.Now()
-	result, e := llm.Complete(ctx, w.client, c, request)
-	if e != nil && errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		e = msg.Err(msg.ErrAITimeout, msg.Params{"seconds": int(timeout.Seconds())})
+	_, err = w.assistant.Ask(ctx, cfg, message, func(e assistant.Event) {
+		if e.Kind == assistant.EventToolResult && e.ToolError {
+			diag.Log(w.Store.Root, "ai.tool_rejected", "task_id", draft.taskID, "tool", e.Tool)
+			if strings.HasPrefix(e.Tool, "submit_") {
+				w.setAIStage("repairing")
+			}
+		}
+	})
+	if errors.Is(err, context.DeadlineExceeded) {
+		err = msg.Err(msg.ErrAITimeout, msg.Params{"seconds": int(timeout.Seconds())})
 	}
-	diag.Log(w.Store.Root, "ai.response", append(fields, "elapsed_ms", time.Since(started).Milliseconds(), "chars", len(result.Text), "truncated", result.Truncated, "error", diag.Error(e))...)
-	return result, e
-}
-
-// logAIOutput 记录无法使用的模型输出的开头和结尾，便于排查格式问题。
-func (w *Workbench) logAIOutput(kind, issue, text string) {
-	head, tail := text, ""
-	if r := []rune(text); len(r) > 600 {
-		head, tail = string(r[:400]), string(r[len(r)-200:])
-	}
-	diag.Log(w.Store.Root, "ai.output_invalid", "kind", kind, "issue", issue, "chars", len(text), "head", head, "tail", tail)
+	diag.Log(w.Store.Root, "ai.response", append(fields, "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))...)
+	return err
 }
 
 // startAI 在后台运行一次 AI 写作任务并立即返回任务；同一时间只运行一个，CancelAI 可中止。
-// 结果或错误写回状态里的 AITask，界面据此提示并取用结果。
-func (w *Workbench) startAI(kind, projectID, brief string, work func(context.Context) (any, error)) (schema.AITask, error) {
+// 结果或错误写回状态里的 AITask，界面据此提示并取用结果。ocho 缺失时直接报 assistantMissing。
+func (w *Workbench) startAI(kind, projectID, brief string, work func(context.Context, schema.AITask) (any, error)) (schema.AITask, error) {
+	if _, e := platform.OchoExecutable(); e != nil {
+		return schema.AITask{}, msg.Err(msg.ErrAssistantMissing, nil)
+	}
 	p, c, e := w.aiConfig("")
 	if e != nil {
 		return schema.AITask{}, e
@@ -324,7 +364,7 @@ func (w *Workbench) startAI(kind, projectID, brief string, work func(context.Con
 	go func() {
 		defer close(done)
 		defer cancel()
-		result, err := work(ctx)
+		result, err := work(ctx, task)
 		var raw json.RawMessage
 		if err == nil {
 			if raw, err = json.Marshal(result); err != nil {
