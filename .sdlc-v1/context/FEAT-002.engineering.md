@@ -4,6 +4,16 @@
 
 ## Plan
 
+### 2026-10-17 正式验证返修：取消测试必须有界观察终态
+
+正式 Validate 在已提交 `9c851702a7310de2927db656fe85ba882270e524` 上完整 Go race 超时。解除沙箱后原始栈只剩 `TestEnrollSpeakerCancelsBeforeCommit` 在 `speakers_test.go:240` 的 `<-accepted` 等待，登记协程已退出，结果被缓冲在未读取的 result 中。已观察到的缺陷是测试的无界等待掩盖了提交钩子之前的操作终态；操作早退的实际错误尚不明确，不据此修改生产逻辑或超时。
+
+同一 TASK/实施者继续，所有失败历史与已用诊断 allowance 保留。先在该测试中同时观察提交钩子、提前操作结果与有限期限；失败路径也必须释放自己的提交钩子，取消后读取结果同样有界。保留原“提交接受点前取消、不落盘”的断言，不跳过测试、不扩全局 90 秒期限。优先复用现有局部测试同步方式，不增加通用测试框架。
+
+写边界仅 `internal/workbench/speakers_test.go` 的该测试及必要局部同步。实际提前结果若明确为夹具 2 秒预算触发 DeadlineExceeded，可只为该非超时语义测试设置有限且足够的夹具预算（最多 10 秒），保留原错误与因果依据；不能修改生产默认/校验或其他真正超时用例。其他错误或两次无新定位/验收进展立即返回主，不盲猜扩大修改。完成定向 race、必要格式/vet与完整 race，记录实际结果。
+
+这次不启动 App、真实模型或新诊断实验，不重建已验过的生产包。若修改确实只有测试和 `.sdlc-v1/**`，当前原生、Web、Swift 等相关实现/配置/资产未变，主可按逐文件及语义核对复用独立成功证据，Go 必须验证修改后的提交。用户对本轮功能分支及验收记录 commit/push 的授权继续适用。返修后由主决定 Task done、干净提交和再次独立 Validate；未通过前不进入 Review。
+
 ### 2026-10-17 Goal 验收：候选档案 ID 契约修正
 
 用户要求建立 Goal 并完成验收，不明确的预期及时提出。沿用同一 FEAT-002/TASK-001、实施者、失败历史与已用诊断 allowance。输出目录冲突已通过父目录记录、尚不存在的 `smoke/` 子目录由脚本独占创建解决；源码 `41d8d2f5…a4535` 的新 App 已完成 27 秒真实文件旅程，原始证据见下方 Validation，不重复该次运行。
@@ -332,7 +342,36 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 ## Validation
 
-正式 Validate 待执行；须绑定干净的 implementation commit，由独立阶段 Agent 按本 Plan 运行。下面先记录已实际完成的 Build 检查与原生证据，不提前登记正式 pass。
+正式 Validate 首轮未通过，必须完成下面的 Go 返修与独立重验；下面同时保留 Build 检查、原生及正式失败证据，不提前登记 pass。
+
+### Go 取消测试返修 Build 证据
+
+唯一业务路径修改为 `internal/workbench/speakers_test.go` 的 `TestEnrollSpeakerCancelsBeforeCommit`：3 秒内同时观察提交钩子、提前错误与期限，失败/取消释放一次性钩子，取消后 1 秒内读取操作终态，保留 context.Canceled 与无落盘断言。初次 1 秒观察先于夹具终态而失败；改为有依据且仍有限的 3 秒后通过，未改夹具 2 秒配置。原正式失败中的提前错误未再次出现，不补造其具体根因。
+
+`artifacts/verification/feature-002-go-cancel-wait-20261017/check-summary.json` 及原始日志保存全部命令/退出/耗时：定向 race 首次 exit 1、修正后 exit 0（2.580s），Go vet exit 0，完整 race exit 0、217 pass/12 既有 skip，15 测试包通过/3 无测试包，gofmt/diff-check exit 0。主已审查实际 diff；生产 Go/Web/Swift/配置/资产均未改变，原生与独立 Web/Swift 等证据按相同相关输入可复用，但 Go 必须在测试修正后的干净提交上独立重验。这一 Build 通过不是正式 Validate pass。
+
+### 正式独立 Validate — 9c851702a7310de2927db656fe85ba882270e524
+
+结果 **INCONCLUSIVE / 未通过**；独立阶段 `/root/speaker_formal_validation` 只读、结束时业务工作树干净。原始完整 argv/env/cwd、UTC 起止时间、退出码及输出均保存在 `artifacts/verification/feature-002-formal-validation-20261017/` 的 `*.command.json` / 对应日志。本轮没有真实 App/模型/麦克风/TTS/provider/下载。
+
+| 实际检查（2026-10-17 UTC） | 结果与证据 |
+|---|---|
+| `GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local GOCACHE=/private/tmp/yovoice-formal-validation-go-cache go test -json -race ./... -count=1 -timeout=90s`，12:42:06–12:43:45 | exit 1；181 pass、12 skip、1 未完成，workbench 超时；13 个后续声纹测试未启动。`go-race-local.log` 保存完整超时栈 |
+| 同环境 `go vet ./...`，12:40:28–12:40:44 | exit 0；`go-vet.log` |
+| `go test -coverprofile=artifacts/verification/feature-002-formal-validation-20261017/recognition.cover ./internal/recognition`，12:41:24–12:41:26 | exit 0，原生摘要 85.3%；`go tool cover -func=…` exit 0、总计 85.6%，两个原始口径分别保留 |
+| `make check-recognition`，12:40:28 | exit 0，runner 4、eval 1；已有 venv Python，无安装 |
+| `swift test --package-path desktop/macos`，12:42:10–12:42:40 | exit 0，XCTest 10/10；隔离 module caches；额外 Swift Testing 零测试不计覆盖 |
+| `python3 -B scripts/desktop/check-speaker-validation-macos.py`，12:41:22–12:41:38 | exit 0，22/22 |
+| `web/` 下 `./node_modules/.bin/eslint .`、`./node_modules/.bin/tsc -b`、`./node_modules/.bin/vite build`，12:40:28–12:40:53 | 全部 exit 0 |
+| `E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --workers 1 --retries 0 --strict-cache --output e2e-results/formal-validation-20261017`，12:42:15–12:45:53 | exit 0，58/58，skip/flaky/interrupted=0、每项 1 attempt、modelTokens/maxModelCalls=0；run `01a149e2-676b-7295-b801-054228b182a2`，report/JUnit 归档于证据目录 `web-e2e/` |
+| `./node_modules/.bin/playwright test --workers=1 --retries=0 --output <repo>/artifacts/verification/feature-002-formal-validation-20261017/playwright-results-local`，12:42:34–12:44:51 | exit 0，57/57；原配置复用自有 Vite 4173，结束后已回收自有 PID |
+| `codesign --verify --deep --strict --verbose=2 artifacts/speaker-validation-macos/worker-20261017-runtime-dto-profileid/yovoice.app`，12:44 | exit 0；未启动 App |
+
+先前沙箱 Go loopback bind / Vite listen EPERM 与 Swift sandbox_apply 拒绝均保留，解除已证实的限制后才执行上表对应检查；解除后的 Go 超时单独归 INCONCLUSIVE。tester-army 首次因本阶段将 output 指到项目根外而 exit 2、0 用例，保留原件，不计为通过；只修正调用输出目录后执行已提交测试。环境为 darwin arm64、Go 1.26.3、Node 25.9.0、Swift 6.3.3、recognition Python 3.12.13，e2e 0.19.0/Web engine 0.14.0/Playwright 1.63.0；更完整环境和每条命令见原始 JSON。
+
+22 场景继续引用既有断言映射：01–09、11–12、17、19、21 在声明的确定性范围 COVERED；10、13–16、18、20 为 PARTIAL，因为 Go 超时使相关后续 Workbench 测试未启动，不能用 Web 通过替代；22 为经独立核对的真实原生复用。独立比较 382 文件仅 `.sdlc-v1` 三个事实/状态文件不同，所有业务文件与原生候选相同；App/receipt/raw native、固定资产、15 项 dist 与五段包内样本解码 hash 一致，三个阶段完整 State/Voices 一致，亲看 main/restart 截图可见。原始核对输出为 `native-applicability-output.json`。
+
+physicalMic/humanTTS 为 NOT_RUN。12 个 Go skip 是既有 10 项音乐/音色库分流及 2 项本平台 GPU 不适用；没有冒充通过。Web 保留 fake Blob/synthetic media 请求失败和测试注入 runtimeFailed 消息的 i18n warning，不能作为真实音频播放/音质证据。完整 Go race 必须通过后才可登记 pass、进入正式 Review。
 
 ### 最终工作树候选与原生核对（2026-10-17）
 

@@ -215,6 +215,8 @@ func TestSpeakerRequestsDoNotStartFromCancelledParent(t *testing.T) {
 }
 
 func TestEnrollSpeakerCancelsBeforeCommit(t *testing.T) {
+	const commitWait = 3 * time.Second
+
 	if runtime.GOOS == "windows" {
 		t.Skip("the controlled recognition runtime fixture uses POSIX shell scripts")
 	}
@@ -226,22 +228,45 @@ func TestEnrollSpeakerCancelsBeforeCommit(t *testing.T) {
 	input := configureSpeakerRuntime(t, workbench)
 	accepted := make(chan struct{})
 	release := make(chan struct{})
+	var releaseOnce sync.Once
+	releaseCommit := func() {
+		releaseOnce.Do(func() {
+			close(release)
+		})
+	}
+	t.Cleanup(releaseCommit)
 	workbench.beforeSpeakerCommit = func() {
 		close(accepted)
 		<-release
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	t.Cleanup(cancel)
 	result := make(chan error, 1)
 	go func() {
 		_, enrollErr := workbench.EnrollSpeaker(ctx, SpeakerSource{FilePath: input}, "A", "")
 		result <- enrollErr
 	}()
-	<-accepted
-	cancel()
-	close(release)
-	if enrollErr := <-result; !errors.Is(enrollErr, context.Canceled) {
-		t.Fatalf("pre-accept cancellation = %v", enrollErr)
+
+	select {
+	case <-accepted:
+		cancel()
+		releaseCommit()
+	case enrollErr := <-result:
+		releaseCommit()
+		t.Fatalf("enrollment returned before commit acceptance: %v", enrollErr)
+	case <-time.After(commitWait):
+		cancel()
+		releaseCommit()
+		t.Fatalf("enrollment did not reach commit acceptance within %s", commitWait)
+	}
+
+	select {
+	case enrollErr := <-result:
+		if !errors.Is(enrollErr, context.Canceled) {
+			t.Fatalf("pre-accept cancellation = %v", enrollErr)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("cancelled enrollment did not return within 1s")
 	}
 	profiles, err := workbench.ListSpeakers()
 	if err != nil || len(profiles) != 0 {
