@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent, useState, type ReactNode } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { StackItem } from '@astryxdesign/core/Stack';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
@@ -97,11 +98,11 @@ export function AIComposer({ kind, projectId, state, placeholder, submitLabel, e
       </VStack>
     </HStack> : <VStack className="ai-composer-body" gap={2}>
       <TextArea className="ai-composer-input" label={t(`@yovoice.ai.brief.${kind}`)} isLabelHidden value={brief} rows={2} maxLength={2000} placeholder={placeholder} hasSpellCheck={false} onChange={value => setBrief(value.slice(0, 2000))} />
-      {hasResult ? <HStack className="ai-composer-followup" gap={2} vAlign="center">
-        <TextInput className="ai-composer-followup-input grow" label={t('@yovoice.ai.followUp')} isLabelHidden size="sm" value={followUp}
+      {hasResult ? <HStack className="ai-composer-followup" width="100%" gap={2} vAlign="center">
+        <StackItem size="fill"><TextInput width="100%" label={t('@yovoice.ai.followUp')} isLabelHidden size="sm" value={followUp}
           placeholder={t(`@yovoice.ai.followUpPlaceholder.${kind}`)} isDisabled={elsewhere || runtimeMissing}
           onChange={value => setFollowUp(value.slice(0, 2000))}
-          onEnter={() => { const text = followUp.trim(); if (text && !starting) void run(text); }} />
+          onEnter={() => { const text = followUp.trim(); if (text && !starting) void run(text); }} /></StackItem>
         <Button size="sm" variant="secondary" icon={<Send />} label={t('@yovoice.ai.followUpSubmit')} isLoading={starting}
           isDisabled={!followUp.trim() || elsewhere || runtimeMissing} onClick={() => void run(followUp.trim())} />
       </HStack> : null}
