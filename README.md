@@ -52,10 +52,11 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 - **Voice and expression** — use a reference voice, match a reference performance, adjust emotions, or describe the delivery in words.
 - **A complete audio workflow** — import or record reference audio, trim clips, preview speech, and export your work.
 - **Voice design and cloning** — VoxCPM2 offers text-guided voice design, controllable cloning, and transcript-assisted cloning with automatic multilingual handling, and 48 kHz output.
-- **Music generation** — describe a style, write lyrics with section markers, and generate full songs or instrumentals with ACE-Step 1.5; every take is kept as a version to compare.
+- **Story dubbing and speech** — import text or subtitle files, split them into lines, assign characters, generate line by line, and edit the result on a timeline.
+- **Music generation** — describe a style, write lyrics with section markers, and generate full songs or instrumentals with ACE-Step 1.5 Turbo / XL Turbo, or vocal songs with YuE2 3B; every take is kept as a version to compare, and the playback page shows lyrics synced to the vocals.
 - **Score** — write each part by bar and beat, import MIDI or let an Agent write the score, then render it with a General MIDI sound font and a role-based mix; results are exactly repeatable and export to MIDI and stems. See [Score](docs/score.md).
 - **Optional AI service** — connect DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API to let AI write arrangements and lyrics; keys stay on this computer. See [AI service](docs/ai.md).
-- **Local models** — run IndexTTS 2.0 / 2.5, VoxCPM2, OmniVoice, Qwen3-TTS, Breeze TTS 2 and Kokoro through audio.cpp, with resumable, verified model downloads.
+- **Local models** — run IndexTTS 2.0 / 2.5, VoxCPM2, OmniVoice, Qwen3-TTS, Breeze TTS 2, Kokoro, ACE-Step 1.5 and YuE2 through audio.cpp, with resumable, verified model downloads.
 - **Hardware acceleration** — Metal on Apple Silicon; CPU, NVIDIA CUDA, and experimental Vulkan on Windows.
 - **Agent Skill & MCP** — ask your AI agent to set up local speech generation and create voiceovers from text and reference audio.
 
@@ -67,7 +68,7 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 | --- | --- | --- |
 | 🟢 **Lightweight & Blazing Fast** | Any CPU / 4 GB+ RAM | **Kokoro-82M** (only 189 MB Q8, millisecond latency, runs great on CPU) |
 | 🟡 **High-Fidelity Voice Cloning** | 4 GB – 6 GB VRAM / 8 GB+ Apple Silicon | **VoxCPM2** (2B, 48 kHz), **IndexTTS 2.0/2.5**, **Qwen3-TTS** |
-| 🔴 **Full Song & Music Generation** | 12 GB+ VRAM / 16 GB+ Apple Silicon | **ACE-Step 1.5 Turbo** (BF16, 10 GB), **YuE2 3B** |
+| 🔴 **Full Song & Music Generation** | 12 GB+ VRAM / 16 GB+ Apple Silicon | **ACE-Step 1.5 Turbo** (Q8 6 GB / BF16 10 GB), **ACE-Step 1.5 XL Turbo**, **YuE2 3B** |
 
 ---
 
@@ -86,9 +87,11 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 | Breeze TTS 2 | ~3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | Chinese and English voice design, cloning and voice direction; GPU recommended, requires the v0.9.1 engine |
 | Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 built-in voices, multilingual speech excluding Japanese |
 | Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 Chinese and 3 English voices; experimental |
-| ACE-Step 1.5 Turbo | — | BF16 · 10.09 GB | Songs and instrumentals from a style prompt and lyrics, 50+ vocal languages; requires engine v0.9.1 |
+| ACE-Step 1.5 Turbo | — | Q8 · 6.19 GB<br>BF16 · 10.09 GB | Songs and instrumentals from a style prompt and lyrics, 50+ vocal languages; requires engine v0.9.1 |
+| ACE-Step 1.5 XL Turbo | — | Q8 · 10.71 GB<br>BF16 · 15.28 GB | Larger ACE-Step model for higher-quality songs and instrumentals; requires engine v0.9.1 |
+| YuE2 3B | 3B | Q4 · 2.93 GB<br>Q8 · 4.53 GB<br>BF16 · 7.53 GB | Full vocal songs from lyrics and style, length follows the lyrics; no instrumentals; requires engine v0.9.1 |
 
-All models are available in the App and CLI. See [model selection](docs/models.md) for input requirements and examples. OmniVoice (CC-BY-NC) and Breeze TTS 2 (BreezeBlue Research and Non-Commercial License) weights are restricted to non-commercial use.
+All models are available in the App and CLI. See [model selection](docs/models.md) for input requirements and examples. OmniVoice (CC-BY-NC), YuE2 (CC BY-NC 4.0) and Breeze TTS 2 (BreezeBlue Research and Non-Commercial License) weights are restricted to non-commercial use.
 
 ---
 
@@ -147,6 +150,14 @@ See the [development guide](docs/development.md) for prerequisites. It also cove
 
 ---
 
+## Community
+
+Scan the QR code with WeChat to join the yovoice user group. If the code has expired, open an [issue](../../issues) and we will post a new one.
+
+<p align="center"><img src="docs/images/Group%20chat_%E3%80%90YOVOICE%E3%80%91%E4%BA%A4%E6%B5%81%E7%BE%A4.png" width="240" alt="yovoice WeChat group QR code" /></p>
+
+---
+
 ## Contributing
 
 Bug reports, feature suggestions, and pull requests are welcome. Include your platform, model, and steps to reproduce when reporting a problem. Run `make check` before submitting code changes.
@@ -161,6 +172,8 @@ Bug reports, feature suggestions, and pull requests are welcome. Include your pl
 - [OmniVoice](https://github.com/k2-fsa/OmniVoice) — voice design and cloning models.
 - [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) — voice cloning, built-in voices, and text-guided voice design.
 - [ACE-Step](https://github.com/ace-step/ACE-Step-1.5) — music generation from style prompts and lyrics.
+- [YuE](https://github.com/multimodal-art-projection/YuE) — full vocal song generation from lyrics.
+- [Breeze TTS 2](https://huggingface.co/BreezeBlue/Breeze-TTS-2) — Chinese and English voice design and cloning.
 - [go-meltysynth](https://github.com/sinshu/go-meltysynth), [MuseScore General](https://musescore.org/en/handbook/3/soundfonts-and-sfz-files#gm_soundfonts), [GeneralUser GS](https://www.schristiancollins.com/generaluser) and SGM-V2.01 by David Shan — the SoundFont synthesizer and sound fonts behind score rendering.
 - Kokoro — lightweight speech synthesis with built-in voices: [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) and [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh).
 

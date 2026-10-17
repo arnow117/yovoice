@@ -51,10 +51,11 @@ yovoice 是一款适用于 macOS 和 Windows 的开源、本地优先（Local-fi
 - **音色与表达** — 跟随参考音色、模仿参考演绎、调整情绪，或用文字描述想要的表达方式。
 - **完整音频流程** — 导入或录制参考音频、裁剪片段、试听语音、导出作品。
 - **声音设计与克隆** — VoxCPM2 支持文字设计音色、带风格指导的克隆及参考原文辅助的精细克隆，自动多语言、48 kHz 输出。
-- **音乐生成** — 描述风格、写下带段落标记的歌词，用 ACE-Step 1.5 生成整首歌曲或纯音乐，每次生成都保留为可对比的版本。
+- **故事配音与语音生成** — 导入文本或字幕文件，拆分台词、分配角色、逐句生成，并在音轨上剪辑。
+- **音乐生成** — 描述风格、写下带段落标记的歌词，用 ACE-Step 1.5 Turbo / XL Turbo 生成整首歌曲或纯音乐，或用 YuE2 3B 生成带人声的歌曲；每次生成都保留为可对比的版本，播放页按人声同步显示歌词。
 - **编曲** — 按小节和拍写下每个声部，或导入 MIDI、交给 Agent 写谱，用 General MIDI 音色库渲染并按角色对齐电平混音；结果可精确复现，可导出 MIDI 和分轨。详见[编曲](docs/score_zh.md)。
 - **可选 AI 服务** — 接入 DeepSeek、通义千问、Kimi、OpenAI、Anthropic、Ollama 或任意兼容接口，让 AI 写谱、写歌词；密钥只保存在本机。详见[AI 服务](docs/ai_zh.md)。
-- **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 / 2.5、VoxCPM2、OmniVoice、Qwen3-TTS、Breeze TTS 2 和 Kokoro，支持模型下载续传与自动校验。
+- **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 / 2.5、VoxCPM2、OmniVoice、Qwen3-TTS、Breeze TTS 2、Kokoro、ACE-Step 1.5 和 YuE2，支持模型下载续传与自动校验。
 - **硬件加速** — Apple Silicon 支持 Metal；Windows 支持 CPU、NVIDIA CUDA 和实验性 Vulkan。
 - **Agent Skill & MCP** — 让 AI Agent 准备本地语音生成环境，根据文稿和参考音频完成配音。
 
@@ -66,7 +67,7 @@ yovoice 是一款适用于 macOS 和 Windows 的开源、本地优先（Local-fi
 | --- | --- | --- |
 | 🟢 **轻量极速朗读与旁白** | 任何 CPU / 4GB+ 内存 | **Kokoro-82M** (Q8 仅 189 MB，毫秒级合成，纯 CPU 也能飞快运行) |
 | 🟡 **高音质克隆与声音设计** | 4GB ~ 6GB 显存 / Apple Silicon 8GB+ | **VoxCPM2** (2B, 48kHz)、**IndexTTS 2.0/2.5**、**Qwen3-TTS** |
-| 🔴 **整首歌生成与伴奏演奏** | 12GB+ 显存 / Apple Silicon 16GB+ | **ACE-Step 1.5 Turbo** (BF16, 10GB)、**YuE2 3B** |
+| 🔴 **整首歌生成与伴奏演奏** | 12GB+ 显存 / Apple Silicon 16GB+ | **ACE-Step 1.5 Turbo** (Q8 6GB / BF16 10GB)、**ACE-Step 1.5 XL Turbo**、**YuE2 3B** |
 
 ---
 
@@ -85,9 +86,11 @@ yovoice 是一款适用于 macOS 和 Windows 的开源、本地优先（Local-fi
 | Breeze TTS 2 | 约 3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | 中英自然语言设计音色、音色克隆与演绎指导；建议使用显卡，需要 v0.9.1 内核 |
 | Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 种内置音色、多语言生成，不含日语 |
 | Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 种中文音色及 3 种英文音色；实验性 |
-| ACE-Step 1.5 Turbo | — | BF16 · 10.09 GB | 根据风格描述和歌词生成歌曲或纯音乐，支持 50 多种演唱语言；需要 v0.9.1 内核 |
+| ACE-Step 1.5 Turbo | — | Q8 · 6.19 GB<br>BF16 · 10.09 GB | 根据风格描述和歌词生成歌曲或纯音乐，支持 50 多种演唱语言；需要 v0.9.1 内核 |
+| ACE-Step 1.5 XL Turbo | — | Q8 · 10.71 GB<br>BF16 · 15.28 GB | 更大的 ACE-Step 模型，歌曲与纯音乐质量更高；需要 v0.9.1 内核 |
+| YuE2 3B | 3B | Q4 · 2.93 GB<br>Q8 · 4.53 GB<br>BF16 · 7.53 GB | 根据歌词和风格生成整首带人声歌曲，长度由歌词决定，不支持纯音乐；需要 v0.9.1 内核 |
 
-App 与 CLI 均支持以上模型，输入要求与示例见[模型选择](docs/models_zh.md)。OmniVoice 权重采用 CC-BY-NC 许可，Breeze TTS 2 权重采用 BreezeBlue 研究与非商业许可，均仅限非商业用途。
+App 与 CLI 均支持以上模型，输入要求与示例见[模型选择](docs/models_zh.md)。OmniVoice 权重采用 CC-BY-NC 许可，YuE2 权重采用 CC BY-NC 4.0 许可，Breeze TTS 2 权重采用 BreezeBlue 研究与非商业许可，均仅限非商业用途。
 
 ---
 
@@ -146,6 +149,14 @@ make app-run
 
 ---
 
+## 交流群
+
+使用微信扫码加入 yovoice 用户交流群。二维码过期时，欢迎提交 [Issue](../../issues)，我们会及时更新。
+
+<p align="center"><img src="docs/images/Group%20chat_%E3%80%90YOVOICE%E3%80%91%E4%BA%A4%E6%B5%81%E7%BE%A4.png" width="240" alt="yovoice 微信交流群二维码" /></p>
+
+---
+
 ## 参与贡献
 
 欢迎提交问题、功能建议和 Pull Request。报告问题时，请附上操作系统、模型及复现步骤；提交代码前运行 `make check`。
@@ -160,6 +171,8 @@ make app-run
 - [OmniVoice](https://github.com/k2-fsa/OmniVoice) — 声音设计与音色克隆模型。
 - [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) — 支持音色克隆、内置音色与文字设计声音。
 - [ACE-Step](https://github.com/ace-step/ACE-Step-1.5) — 根据风格描述与歌词生成音乐。
+- [YuE](https://github.com/multimodal-art-projection/YuE) — 根据歌词生成整首带人声歌曲。
+- [Breeze TTS 2](https://huggingface.co/BreezeBlue/Breeze-TTS-2) — 中英文声音设计与音色克隆。
 - [go-meltysynth](https://github.com/sinshu/go-meltysynth)、[MuseScore General](https://musescore.org/en/handbook/3/soundfonts-and-sfz-files#gm_soundfonts)、[GeneralUser GS](https://www.schristiancollins.com/generaluser) 与 David Shan 的 SGM-V2.01 — 编曲渲染使用的 SoundFont 合成器与音色库。
 - Kokoro — 使用内置音色的轻量语音合成模型：[Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) 与 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh)。
 
