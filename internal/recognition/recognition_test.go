@@ -260,6 +260,113 @@ func TestLoadConfigRequiresAbsoluteInputsAndChecksLimits(t *testing.T) {
 	}
 }
 
+func TestLoadConfigReportsRedactedConfigurationFailures(t *testing.T) {
+	directory := t.TempDir()
+	for _, name := range []string{"python", "model", "runner"} {
+		if err := os.WriteFile(filepath.Join(directory, name), []byte(name), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	valid := map[string]string{
+		"YOVOICE_SPEAKER_PYTHON":    filepath.Join(directory, "python"),
+		"YOVOICE_SPEAKER_MODEL":     filepath.Join(directory, "model"),
+		"YOVOICE_SPEAKER_RUNNER":    filepath.Join(directory, "runner"),
+		"YOVOICE_SPEAKER_THRESHOLD": "0.6",
+		"YOVOICE_SPEAKER_MARGIN":    "0.05",
+		"YOVOICE_SPEAKER_TIMEOUT":   "2s",
+	}
+
+	defaults := make(map[string]string, len(valid))
+	for key, value := range valid {
+		defaults[key] = value
+	}
+	delete(defaults, "YOVOICE_SPEAKER_THRESHOLD")
+	delete(defaults, "YOVOICE_SPEAKER_MARGIN")
+	delete(defaults, "YOVOICE_SPEAKER_TIMEOUT")
+	config, err := LoadConfig(func(key string) string { return defaults[key] })
+	if err != nil || config.Threshold != .6 || config.Margin != .05 || config.Timeout != 120*time.Second {
+		t.Fatalf("default configuration = %+v, %v", config, err)
+	}
+
+	cases := []struct {
+		name   string
+		update func(map[string]string)
+		field  string
+		reason string
+	}{
+		{
+			name: "missing Python",
+			update: func(env map[string]string) {
+				env["YOVOICE_SPEAKER_PYTHON"] = ""
+			},
+			field:  "YOVOICE_SPEAKER_PYTHON",
+			reason: "missing",
+		},
+		{
+			name: "relative model",
+			update: func(env map[string]string) {
+				env["YOVOICE_SPEAKER_MODEL"] = "relative/model.onnx"
+			},
+			field:  "YOVOICE_SPEAKER_MODEL",
+			reason: "not_absolute",
+		},
+		{
+			name: "missing runner file",
+			update: func(env map[string]string) {
+				env["YOVOICE_SPEAKER_RUNNER"] = filepath.Join(directory, "missing-runner.py")
+			},
+			field:  "YOVOICE_SPEAKER_RUNNER",
+			reason: "stat_not_exist",
+		},
+		{
+			name: "invalid threshold",
+			update: func(env map[string]string) {
+				env["YOVOICE_SPEAKER_THRESHOLD"] = "not-a-number"
+			},
+			field:  "YOVOICE_SPEAKER_THRESHOLD",
+			reason: "invalid_number",
+		},
+		{
+			name: "out of range margin",
+			update: func(env map[string]string) {
+				env["YOVOICE_SPEAKER_MARGIN"] = "0"
+			},
+			field:  "YOVOICE_SPEAKER_MARGIN",
+			reason: "out_of_range",
+		},
+		{
+			name: "invalid timeout",
+			update: func(env map[string]string) {
+				env["YOVOICE_SPEAKER_TIMEOUT"] = "not-a-duration"
+			},
+			field:  "YOVOICE_SPEAKER_TIMEOUT",
+			reason: "invalid_duration",
+		},
+	}
+
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			env := make(map[string]string, len(valid))
+			for key, value := range valid {
+				env[key] = value
+			}
+			test.update(env)
+
+			_, err := LoadConfig(func(key string) string { return env[key] })
+			if Code(err) != "runtime_not_configured" {
+				t.Fatalf("code = %q, error = %v", Code(err), err)
+			}
+			field, reason, ok := ConfigFailure(err)
+			if !ok || field != test.field || reason != test.reason {
+				t.Fatalf("configuration failure = (%q, %q, %t)", field, reason, ok)
+			}
+			if strings.Contains(err.Error(), directory) {
+				t.Fatalf("public error leaked a private path: %v", err)
+			}
+		})
+	}
+}
+
 func TestExtractValidatesRunnerProtocolAndFiles(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("the runner protocol fixture uses a POSIX shell; Windows is not exercised here")
@@ -345,7 +452,7 @@ func TestExtractRejectsBadResponseAndTimeout(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	config := Config{Python: python, Model: model, Runner: runner, ModelSHA256: modelHash, RunnerSHA256: runnerHash, Timeout: 30 * time.Millisecond}
+	config := Config{Python: python, Model: model, Runner: runner, ModelSHA256: modelHash, RunnerSHA256: runnerHash, Timeout: time.Second}
 
 	script := filepath.Join(directory, "runner-bad.sh")
 	if err = os.WriteFile(script, []byte("cat >/dev/null\nprintf '%s\\n' '{\"protocolVersion\":2}'\n"), 0700); err != nil {
@@ -398,6 +505,7 @@ func TestExtractRejectsBadResponseAndTimeout(t *testing.T) {
 	if err = os.WriteFile(script, []byte("cat >/dev/null\nsleep 1\n"), 0700); err != nil {
 		t.Fatal(err)
 	}
+	config.Timeout = 30 * time.Millisecond
 	if _, err = Extract(context.Background(), config, audio); !errors.Is(err, context.DeadlineExceeded) {
 		t.Fatalf("timeout = %v", err)
 	}

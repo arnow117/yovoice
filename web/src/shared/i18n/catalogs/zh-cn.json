@@ -1328,6 +1328,234 @@
   "@yovoice.error.speakerInvalid": {
     "defaultMessage": "请选择有效的内置音色。"
   },
+  "@yovoice.nav.speakers": {
+    "defaultMessage": "声纹档案"
+  },
+  "@yovoice.speakers.title": {
+    "defaultMessage": "声纹档案"
+  },
+  "@yovoice.speakers.description": {
+    "defaultMessage": "登记或识别临时音频输入。此处操作不会将音频加入参考声音库。"
+  },
+  "@yovoice.speakers.refresh": {
+    "defaultMessage": "刷新"
+  },
+  "@yovoice.speakers.runtimeUnavailable": {
+    "defaultMessage": "声纹识别不可用。请配置本地运行环境，重启 yovoice 后重试。"
+  },
+  "@yovoice.speakers.runtimeReady": {
+    "defaultMessage": "识别已准备：阈值 {threshold}，差值 {margin}，超时 {timeout} 秒。"
+  },
+  "@yovoice.speakers.enrollTitle": {
+    "defaultMessage": "登记档案"
+  },
+  "@yovoice.speakers.identifyTitle": {
+    "defaultMessage": "识别音频"
+  },
+  "@yovoice.speakers.chooseFile": {
+    "defaultMessage": "选择文件"
+  },
+  "@yovoice.speakers.record": {
+    "defaultMessage": "录音"
+  },
+  "@yovoice.speakers.stopRecord": {
+    "defaultMessage": "停止录音"
+  },
+  "@yovoice.speakers.recordingStatus": {
+    "defaultMessage": "正在录音：{seconds} / {limit} 秒；到 {limit} 秒会自动停止。"
+  },
+  "@yovoice.speakers.recordingAutoStopped": {
+    "defaultMessage": "录音已在 60 秒后自动停止。你可以重新录音或选择文件。"
+  },
+  "@yovoice.speakers.existingVoice": {
+    "defaultMessage": "已有参考声音"
+  },
+  "@yovoice.speakers.noInput": {
+    "defaultMessage": "选择临时输入"
+  },
+  "@yovoice.speakers.temporaryInput": {
+    "defaultMessage": "临时输入"
+  },
+  "@yovoice.speakers.voiceInput": {
+    "defaultMessage": "已有参考声音"
+  },
+  "@yovoice.speakers.previewInput": {
+    "defaultMessage": "试听 {target} 输入"
+  },
+  "@yovoice.speakers.clearInput": {
+    "defaultMessage": "清除输入"
+  },
+  "@yovoice.speakers.recordedInput": {
+    "defaultMessage": "临时录音"
+  },
+  "@yovoice.speakers.name": {
+    "defaultMessage": "档案标签（可选）"
+  },
+  "@yovoice.speakers.bindVoice": {
+    "defaultMessage": "绑定已有参考声音（可选）"
+  },
+  "@yovoice.speakers.noVoice": {
+    "defaultMessage": "不绑定"
+  },
+  "@yovoice.speakers.enroll": {
+    "defaultMessage": "登记档案"
+  },
+  "@yovoice.speakers.identify": {
+    "defaultMessage": "识别"
+  },
+  "@yovoice.speakers.cancel": {
+    "defaultMessage": "取消操作"
+  },
+  "@yovoice.speakers.cancelRequested": {
+    "defaultMessage": "已请求取消，正在等待操作结果。"
+  },
+  "@yovoice.speakers.cancelUnconfirmed": {
+    "defaultMessage": "无法确认是否取消。请先刷新档案列表，再决定是否重试。"
+  },
+  "@yovoice.speakers.inputRequired": {
+    "defaultMessage": "请先选择文件、录音或已有参考声音。"
+  },
+  "@yovoice.speakers.enrolled": {
+    "defaultMessage": "已登记 {name}。"
+  },
+  "@yovoice.speakers.profiles": {
+    "defaultMessage": "已保存档案"
+  },
+  "@yovoice.speakers.profileCreatedAt": {
+    "defaultMessage": "登记时间：{date}"
+  },
+  "@yovoice.speakers.profileVersion": {
+    "defaultMessage": "识别版本：{version}"
+  },
+  "@yovoice.speakers.emptyProfiles": {
+    "defaultMessage": "还没有声纹档案。登记临时音频输入即可创建档案。"
+  },
+  "@yovoice.speakers.bound": {
+    "defaultMessage": "绑定声音：{id}"
+  },
+  "@yovoice.speakers.unbound": {
+    "defaultMessage": "未绑定参考声音"
+  },
+  "@yovoice.speakers.deleteProfile": {
+    "defaultMessage": "删除声纹档案 {name}"
+  },
+  "@yovoice.speakers.deleteTitle": {
+    "defaultMessage": "删除声纹档案？"
+  },
+  "@yovoice.speakers.deleteBody": {
+    "defaultMessage": "确定删除 {name}？删除后不能恢复。"
+  },
+  "@yovoice.speakers.deleteConfirm": {
+    "defaultMessage": "删除档案"
+  },
+  "@yovoice.speakers.result.matched": {
+    "defaultMessage": "匹配成功"
+  },
+  "@yovoice.speakers.result.unknown": {
+    "defaultMessage": "未知"
+  },
+  "@yovoice.speakers.result.ambiguous": {
+    "defaultMessage": "结果不明确"
+  },
+  "@yovoice.speakers.resultReason": {
+    "defaultMessage": "结果原因：{reason}"
+  },
+  "@yovoice.speakers.matchedProfile": {
+    "defaultMessage": "匹配档案：{name} · {id}"
+  },
+  "@yovoice.speakers.score": {
+    "defaultMessage": "原始分数：{score}"
+  },
+  "@yovoice.speakers.parameters": {
+    "defaultMessage": "阈值 {threshold}，差值 {margin}，特征版本 {version}"
+  },
+  "@yovoice.speakers.noCandidates": {
+    "defaultMessage": "没有候选档案"
+  },
+  "@yovoice.speakers.generateTitle": {
+    "defaultMessage": "使用已绑定档案生成"
+  },
+  "@yovoice.speakers.chooseProfile": {
+    "defaultMessage": "选择已绑定档案"
+  },
+  "@yovoice.speakers.chooseProfileHint": {
+    "defaultMessage": "识别结果不会在此自动选择档案，请显式选择一个已绑定档案。"
+  },
+  "@yovoice.speakers.boundVoiceReadOnly": {
+    "defaultMessage": "绑定的参考声音：{name}。此表单中只读。"
+  },
+  "@yovoice.speakers.boundReferenceText": {
+    "defaultMessage": "已保存参考原文："
+  },
+  "@yovoice.speakers.boundReferenceTextEmpty": {
+    "defaultMessage": "没有已保存的参考原文"
+  },
+  "@yovoice.speakers.boundVoiceMissing": {
+    "defaultMessage": "所选档案没有可用的绑定参考声音。"
+  },
+  "@yovoice.speakers.model": {
+    "defaultMessage": "已安装且支持克隆的模型"
+  },
+  "@yovoice.speakers.targetText": {
+    "defaultMessage": "目标正文"
+  },
+  "@yovoice.speakers.generationSettings": {
+    "defaultMessage": "生成设置"
+  },
+  "@yovoice.speakers.generate": {
+    "defaultMessage": "生成"
+  },
+  "@yovoice.speakers.generated": {
+    "defaultMessage": "已使用所选绑定档案开始生成。"
+  },
+  "@yovoice.speakers.generatedOutput": {
+    "defaultMessage": "生成输出"
+  },
+  "@yovoice.speakers.profileRequired": {
+    "defaultMessage": "请先选择一个已绑定档案再生成。"
+  },
+  "@yovoice.speakers.generationUnavailable": {
+    "defaultMessage": "生成需要已安装且支持克隆的模型，以及可用的 TTS 运行环境；识别仍可使用。"
+  },
+  "@yovoice.error.speakerRequestInvalid": {
+    "defaultMessage": "声纹档案请求无效，请检查选中的输入后重试。"
+  },
+  "@yovoice.error.speakerRuntime": {
+    "defaultMessage": "声纹识别尚未准备好。请检查本地识别配置，重启应用后重试。"
+  },
+  "@yovoice.error.speakerAudio": {
+    "defaultMessage": "这段音频不能用于声纹识别。请选择 1 到 60 秒的有效单人录音。"
+  },
+  "@yovoice.error.speakerInputTooLarge": {
+    "defaultMessage": "所选音频超过 20 MiB，请选择更小的文件。"
+  },
+  "@yovoice.error.speakerBusy": {
+    "defaultMessage": "另一个声纹操作仍在进行。请等待它完成，或取消该操作。"
+  },
+  "@yovoice.error.speakerCancelled": {
+    "defaultMessage": "声纹操作已取消。"
+  },
+  "@yovoice.error.speakerTimeout": {
+    "defaultMessage": "声纹识别已超时。请检查本地运行环境后重试。"
+  },
+  "@yovoice.error.speakerProfile": {
+    "defaultMessage": "该声纹档案已不可用。请刷新档案列表后选择其他档案。"
+  },
+  "@yovoice.error.speakerVoice": {
+    "defaultMessage": "绑定的参考声音不可用。请选择绑定了可用参考声音的档案。"
+  },
+  "@yovoice.error.speakerClone": {
+    "defaultMessage": "所选档案或模型不能用于声音克隆。"
+  },
+  "@yovoice.error.speakerStorage": {
+    "defaultMessage": "无法保存或读取声纹档案。请刷新后重试。"
+  },
+  "@yovoice.error.speakerFeature": {
+    "defaultMessage": "该声纹档案使用了不兼容的识别版本。请在当前配置下重新登记。"
+  },
+  "@yovoice.error.previewSpeakerUnavailable": {
+    "defaultMessage": "声纹识别需要本地桌面服务，不能在浏览器预览中运行。"
+  },
   "@yovoice.reference.speaker.Vivian": {
     "defaultMessage": "明亮年轻女声 · 中文"
   },

@@ -6,6 +6,8 @@ web/dist/
 artifacts/
 test-results/
 playwright-report/
+web/e2e-results/
+web/.e2e/
 .DS_Store
 .idea/
 

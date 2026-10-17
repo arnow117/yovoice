@@ -12,6 +12,7 @@ import (
 
 	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
+	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/recognition"
 	"yovoice/internal/schema"
@@ -28,6 +29,9 @@ var speakerConverter = audio.Converter
 func (w *Workbench) speakerConfigSnapshot() (recognition.Config, error) {
 	w.speakerConfigOnce.Do(func() {
 		w.speakerConfig, w.speakerConfigErr = recognition.LoadConfig(os.Getenv)
+		if field, reason, rejected := recognition.ConfigFailure(w.speakerConfigErr); rejected {
+			diag.Log(w.Store.Root, "speaker.config_rejected", "field", field, "reason", reason)
+		}
 	})
 	return w.speakerConfig, w.speakerConfigErr
 }
@@ -46,6 +50,36 @@ func (w *Workbench) ListSpeakers() ([]recognition.PublicProfile, error) {
 		result = append(result, profile.Public())
 	}
 	return result, nil
+}
+
+// SpeakerRuntime 只公开页面显示所需的识别配置版本；运行路径和执行参数始终留在本机服务进程。
+type SpeakerRuntime struct {
+	Configured     bool     `json:"configured"`
+	Threshold      *float64 `json:"threshold,omitempty"`
+	Margin         *float64 `json:"margin,omitempty"`
+	TimeoutSeconds *float64 `json:"timeoutSeconds,omitempty"`
+	ModelSHA256    string   `json:"modelSha256,omitempty"`
+	FeatureVersion string   `json:"featureVersion,omitempty"`
+	Dimension      int      `json:"dimension,omitempty"`
+}
+
+func (w *Workbench) SpeakerRuntime() SpeakerRuntime {
+	config, err := w.speakerConfigSnapshot()
+	if err != nil {
+		return SpeakerRuntime{Configured: false}
+	}
+	threshold := config.Threshold
+	margin := config.Margin
+	timeoutSeconds := config.Timeout.Seconds()
+	return SpeakerRuntime{
+		Configured:     true,
+		Threshold:      &threshold,
+		Margin:         &margin,
+		TimeoutSeconds: &timeoutSeconds,
+		ModelSHA256:    config.ModelSHA256,
+		FeatureVersion: config.FeatureVersion,
+		Dimension:      recognition.Dimension,
+	}
 }
 
 // DeleteSpeaker 是幂等删除；声纹从私有文件被完全重写，不通过 state 备份恢复。
@@ -141,12 +175,17 @@ func compatibleSpeakerProfiles(existing []recognition.Profile, next recognition.
 }
 
 func (w *Workbench) EnrollSpeakerFrom(ctx context.Context, reader io.Reader, name, bindVoiceID string) (recognition.PublicProfile, error) {
+	return w.EnrollSpeakerFromNamed(ctx, reader, name, false, bindVoiceID)
+}
+
+// EnrollSpeakerFromNamed 保留桌面端对“省略名称”和“显式空名称”的区别。
+func (w *Workbench) EnrollSpeakerFromNamed(ctx context.Context, reader io.Reader, name string, nameProvided bool, bindVoiceID string) (recognition.PublicProfile, error) {
 	path, err := w.receive(reader)
 	if err != nil {
 		return recognition.PublicProfile{}, err
 	}
 	defer os.Remove(path)
-	return w.EnrollSpeaker(ctx, SpeakerSource{FilePath: path}, name, bindVoiceID)
+	return w.EnrollSpeakerNamed(ctx, SpeakerSource{FilePath: path}, name, nameProvided, bindVoiceID)
 }
 
 func (w *Workbench) IdentifySpeaker(ctx context.Context, source SpeakerSource) (recognition.Identification, error) {

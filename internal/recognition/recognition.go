@@ -31,11 +31,29 @@ const (
 )
 
 // Error 用于把内部失败映射为稳定且不会泄露路径的调用方错误码。
-type Error struct{ Code string }
+type Error struct {
+	Code   string
+	field  string
+	reason string
+}
 
 func (e *Error) Error() string { return e.Code }
 
 func fail(code string) error { return &Error{Code: code} }
+
+func configFailure(field, reason string) error {
+	return &Error{Code: "runtime_not_configured", field: field, reason: reason}
+}
+
+// ConfigFailure 返回本地配置拒绝的受限分类，供服务进程写脱敏诊断日志。
+// 它从不返回原始环境变量值、路径或底层系统错误。
+func ConfigFailure(err error) (field, reason string, ok bool) {
+	var target *Error
+	if !errors.As(err, &target) || target.Code != "runtime_not_configured" || target.field == "" || target.reason == "" {
+		return "", "", false
+	}
+	return target.field, target.reason, true
+}
 
 func Code(err error) string {
 	if err == nil {
@@ -78,12 +96,24 @@ func LoadConfig(getenv func(string) string) (Config, error) {
 		{"YOVOICE_SPEAKER_RUNNER", &config.Runner},
 	} {
 		value := strings.TrimSpace(getenv(field.name))
-		if value == "" || !filepath.IsAbs(value) {
-			return Config{}, fail("runtime_not_configured")
+		if value == "" {
+			return Config{}, configFailure(field.name, "missing")
+		}
+		if !filepath.IsAbs(value) {
+			return Config{}, configFailure(field.name, "not_absolute")
 		}
 		info, err := os.Stat(value)
-		if err != nil || !info.Mode().IsRegular() {
-			return Config{}, fail("runtime_not_configured")
+		if err != nil {
+			reason := "stat_failed"
+			if os.IsNotExist(err) {
+				reason = "stat_not_exist"
+			} else if os.IsPermission(err) {
+				reason = "stat_permission"
+			}
+			return Config{}, configFailure(field.name, reason)
+		}
+		if !info.Mode().IsRegular() {
+			return Config{}, configFailure(field.name, "not_regular")
 		}
 		*field.out = filepath.Clean(value)
 	}
@@ -96,15 +126,18 @@ func LoadConfig(getenv func(string) string) (Config, error) {
 	}
 	if raw := strings.TrimSpace(getenv("YOVOICE_SPEAKER_TIMEOUT")); raw != "" {
 		config.Timeout, err = time.ParseDuration(raw)
-		if err != nil || config.Timeout <= 0 || config.Timeout > 10*time.Minute {
-			return Config{}, fail("runtime_not_configured")
+		if err != nil {
+			return Config{}, configFailure("YOVOICE_SPEAKER_TIMEOUT", "invalid_duration")
+		}
+		if config.Timeout <= 0 || config.Timeout > 10*time.Minute {
+			return Config{}, configFailure("YOVOICE_SPEAKER_TIMEOUT", "out_of_range")
 		}
 	}
 	if config.ModelSHA256, err = fileSHA256(config.Model); err != nil {
-		return Config{}, fail("runtime_not_configured")
+		return Config{}, configFailure("YOVOICE_SPEAKER_MODEL", "hash_failed")
 	}
 	if config.RunnerSHA256, err = fileSHA256(config.Runner); err != nil {
-		return Config{}, fail("runtime_not_configured")
+		return Config{}, configFailure("YOVOICE_SPEAKER_RUNNER", "hash_failed")
 	}
 	versionInput := strings.Join([]string{config.ModelSHA256, config.RunnerSHA256, RuntimeVersion, "pcm16-mono16k-v1", "l2-cosine-v1", strconv.Itoa(Dimension)}, "\n")
 	sum := sha256.Sum256([]byte(versionInput))
@@ -118,8 +151,11 @@ func floatEnv(getenv func(string) string, name string, fallback, min, max float6
 		return fallback, nil
 	}
 	value, err := strconv.ParseFloat(raw, 64)
-	if err != nil || math.IsNaN(value) || math.IsInf(value, 0) || value > max || (inclusiveMin && value < min) || (!inclusiveMin && value <= min) {
-		return 0, fail("runtime_not_configured")
+	if err != nil || math.IsNaN(value) || math.IsInf(value, 0) {
+		return 0, configFailure(name, "invalid_number")
+	}
+	if value > max || (inclusiveMin && value < min) || (!inclusiveMin && value <= min) {
+		return 0, configFailure(name, "out_of_range")
 	}
 	return value, nil
 }

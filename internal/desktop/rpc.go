@@ -19,6 +19,9 @@ import (
 func Call(ctx context.Context, w *workbench.Workbench, method string, data json.RawMessage) (result any, callErr error) {
 	started := time.Now()
 	defer func() {
+		if isSpeakerMethod(method) && callErr != nil {
+			callErr = speakerCallError(callErr)
+		}
 		elapsed := time.Since(started)
 		if callErr != nil {
 			diag.Log(w.Store.Root, "rpc.failed", "method", method, "elapsed_ms", elapsed.Milliseconds(), "error", diag.Error(callErr))
@@ -38,6 +41,9 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	}
 	if len(data) == 0 || string(data) == "null" {
 		return nil, msg.Err(msg.ErrRequestInvalid, nil)
+	}
+	if isSpeakerMethod(method) {
+		return callSpeaker(ctx, w, method, data)
 	}
 	if e := json.Unmarshal(data, &p); e != nil {
 		return nil, e

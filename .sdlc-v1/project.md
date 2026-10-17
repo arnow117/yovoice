@@ -1,5 +1,14 @@
 # Project Context: yovoice 声纹识别二次开发
 
+## 当前开发范围（2026-10-17）
+
+REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹页面；依赖已交付的 FEAT-001。
+有效产品与工程上下文为 `.sdlc-v1/context/REQ-002.product.md` 和 `.sdlc-v1/context/FEAT-002.engineering.md`。
+范围包含桌面私有 RPC、临时录音与文件、档案管理、显式绑定生成及独立本地验证包；不改原 CLI/v1、State 或私有档案格式。
+本轮工作树检查与新包真实文件登记、识别、删除和重启旅程已由主 Agent 核对；正式验收仍以 FEAT-002 的 Validation/Review 及 state 为准，旧 Feature 结果不代表新页面通过。
+新的 Web runner 与本地 Mac 验证命令已实际执行，入口和证据边界见下表。
+用户已授权本轮功能分支 commit/push、最终实模复验与独立正式验证/评审；主线合并或二进制发行仍不在本次范围内。
+
 ## 项目定位与采集边界
 
 - 当前上游是本地 TTS 创作工具：文字、字幕和参考音频输入，WAV、角色与作品输出；支持 macOS / Windows App、独立 CLI、HTTP API / MCP。
@@ -61,6 +70,9 @@
 | 推理 / 下载修改 | `go test -race ./...` | 根 AGENTS 明确要求；含请求映射、取消、并发、下载、状态恢复测试 |
 | Web 完整检查 | `make check-web` 或 `pnpm --dir web run check` | 依次 lint、TypeScript/Vite build、Playwright；UI 修改三个检查均需执行 |
 | Web 分项 | `pnpm --dir web run lint`；`pnpm --dir web run build`；`pnpm --dir web test` | build 内含 `tsc -b`；独立 typecheck script 为 `none` |
+| 声纹 Web 旅程 | 在 `web/` 执行 `E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --workers 1 --retries 0 --strict-cache` | tester-army CLI 与 Web engine；只读缓存、确定性业务断言、中文 1280×840 / 英文 390×600，两目标 58 项；合成桥接不执行模型 |
+| 声纹验证脚本 | `python3 -B scripts/desktop/check-speaker-validation-macos.py` | 22 项隔离替身检查，覆盖配置、有限退出、可见性与构建凭据；不启动真实 App/模型 |
+| 声纹本地 App | `scripts/desktop/build-speaker-validation-macos.sh`；`scripts/desktop/smoke-speaker-validation-macos.sh` | 当前全局操作入口为 `docs/usage.md`；完整签名后生成同级 receipt，smoke 启动前核对源码与包指纹；使用独立资料目录、固定本地 CPU 模型及五段样本，真实运行需要既定授权 |
 | Swift 单元检查 | `swift test --package-path desktop/macos` | 版本 / 更新解析与窗口位置；需要 macOS / Xcode CLT |
 | 原生脚本检查 | `python3 scripts/desktop/check-macos-run.py`；`python3 scripts/desktop/check-macos-update.py`；`python3 scripts/desktop/check-signing.py` | 隔离替身验证日志、更新回滚和签名调用顺序；不代表真实安装 / 公证通过 |
 | App 构建 | `make app-build` | 本机平台构建；macOS 含 Web build、Swift、Go、内核下载校验、FFmpeg 与 Kokoro 库；不运行测试 |
@@ -79,12 +91,14 @@
 | correctness | `cmd/**/*_test.go`、`internal/**/*_test.go`；临时目录和 testkit | Go/TS 契约、竞态与确定性流程；`RunFakeEngine` 返回一秒静音 WAV，不能证明实模合成质量 |
 | Playwright 补充回归 | `web/playwright.config.ts`、`web/browser-tests/*.spec.ts`；`@playwright/test` 1.63.0 | 启动 Vite 4173、viewport 1440×920；具体 Chromium 版本运行时记录；默认浏览器项目，无跨浏览器矩阵 |
 | 浏览器测试身份 / 数据 | localStorage fixture、预览后端、部分 `chrome.webview` 消息替身 | 无远程登录身份；验证编辑、导入、保存、时间线与错误显示；预览不执行模型安装或推理 |
-| SDLC `e2e:Web` | `none`：未发现 tester-army CLI / Web engine 依赖、配置或已提交测试 | Playwright 不能代替该模式；Plan/Build 需补目标、业务断言、provider / 凭据来源、预算、缓存和报告；onboard 不引入框架 |
+| SDLC `e2e:Web` | `web/e2e.config.ts`、`web/e2e/*.e2e.ts`、合成桥接与固定 fixture；固定依赖见 `web/package.json`/lockfile | 两个 Chromium 目标，无 provider 调用、0 重试、只读/strict 缓存；报告默认在忽略的 `web/e2e-results/`，每轮归档后引用，不能用合成结果替代原生识别 |
 | native desktop | Swift tests、macOS smoke/service、Windows Checks | 桌面宿主不是移动 App；`e2e:App` 的移动 Maestro Flow 不适用。WebView 旅程仍适用 `e2e:Web`，原生功能另跑目标平台检查 |
 | macOS smoke | `/tmp/voice-workbench-smoke.*` 下 `smoke-result.json`、`smoke-error.txt`、`state.json`、`smoke.png` | 覆盖桥接、WAV 导入/解码、草稿保存、退出；不执行真实 IndexTTS 或识别模型 |
 | 真实转换 | `internal/audio/convert_test.go`、打包 FFmpeg | 多格式/长音频/损坏输入/取消；检查是否收集且未 Skip，不能只看整体 exit 0 |
 | 声纹 `eval-bench` | `scripts/recognition/eval-manifest.json` 与复跑脚本；本地 ONNX/五段示例录音不提交 | 固定 CPU 一线程、2 登记/2 独立已知查询/1 未知查询；保存原始分数、正确档案 ID、拒绝计数与耗时。样本规模不支持人群准确率、防伪、多说话人或噪声结论 |
 | TTS 真实回归 | 模型目录及 CLI/App generate 入口存在；听测资产为 `none` | 固定文本、参考音频、seed 和参数，在目标硬件生成 WAV 并听测可懂度/音色/截断；假引擎与预览均不能替代 |
+
+本机全局 pnpm 启动链曾在 Playwright webServer 阶段超时。已实际验证的本地回退为在 `web/` 使用 `./node_modules/.bin/eslint .`、`./node_modules/.bin/tsc -b`、`./node_modules/.bin/vite build`，并先以任务自有 Vite 提供 `127.0.0.1:4173`，再运行同一 Playwright 配置。保留原启动失败记录，不修改断言或用旧报告代替；测试结束只回收自有 Vite。具体命令/退出结果见 FEAT-002 Validation。
 
 - 本地服务身份来自 `WORKBENCH_TOKEN`，运行目录/资源来自 `WORKBENCH_DATA`、`WORKBENCH_WEB`、`WORKBENCH_ENGINE`；远程 API 读取 `YOVOICE_API_TOKEN`（至少 32 字符），可配置 TLS。只记录来源，不记录凭据值。
 - `web/test-results/`、`playwright-report/`、`artifacts/`、Swift `.build/` 已忽略；Playwright 未显式配置 trace/video/screenshot 或 JUnit，缺少稳定的成功证据归档策略。

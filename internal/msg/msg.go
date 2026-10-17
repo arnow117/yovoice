@@ -22,6 +22,18 @@ const (
 	ErrVoiceDescriptionRequired Code = "@yovoice.error.voiceDescriptionRequired"
 	ErrOmniAttributes           Code = "@yovoice.error.omniAttributes"
 	ErrSpeakerInvalid           Code = "@yovoice.error.speakerInvalid"
+	ErrSpeakerRequestInvalid    Code = "@yovoice.error.speakerRequestInvalid"
+	ErrSpeakerRuntime           Code = "@yovoice.error.speakerRuntime"
+	ErrSpeakerAudio             Code = "@yovoice.error.speakerAudio"
+	ErrSpeakerInputTooLarge     Code = "@yovoice.error.speakerInputTooLarge"
+	ErrSpeakerBusy              Code = "@yovoice.error.speakerBusy"
+	ErrSpeakerCancelled         Code = "@yovoice.error.speakerCancelled"
+	ErrSpeakerTimeout           Code = "@yovoice.error.speakerTimeout"
+	ErrSpeakerProfile           Code = "@yovoice.error.speakerProfile"
+	ErrSpeakerVoice             Code = "@yovoice.error.speakerVoice"
+	ErrSpeakerClone             Code = "@yovoice.error.speakerClone"
+	ErrSpeakerStorage           Code = "@yovoice.error.speakerStorage"
+	ErrSpeakerFeature           Code = "@yovoice.error.speakerFeature"
 )
 
 const (
@@ -173,7 +185,10 @@ func All() []Code {
 		ErrVoiceInUse, ErrVoiceReferenced, ErrCharacterInvalid,
 		ErrModelImportRequired,
 		ErrOmniReferenceRequired, ErrBreezeReferenceRequired,
-		ErrVoiceDescriptionRequired, ErrOmniAttributes, ErrSpeakerInvalid,
+		ErrVoiceDescriptionRequired, ErrOmniAttributes, ErrSpeakerInvalid, ErrSpeakerRequestInvalid,
+		ErrSpeakerRuntime, ErrSpeakerAudio, ErrSpeakerInputTooLarge, ErrSpeakerBusy,
+		ErrSpeakerCancelled, ErrSpeakerTimeout, ErrSpeakerProfile, ErrSpeakerVoice,
+		ErrSpeakerClone, ErrSpeakerStorage, ErrSpeakerFeature,
 		ActivityDownload, ActivityDownloading, ActivityVerifying, ActivityImport,
 		ActivityRuntimeDownload, ActivityRuntimeExtract, ActivityEngineStart,
 		ActivityGenerate, ActivitySynthesizing, ActivitySavingAudio, ActivityRendering,

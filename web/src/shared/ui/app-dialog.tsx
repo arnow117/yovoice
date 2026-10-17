@@ -26,13 +26,13 @@ export function AppDialog({ title, subtitle, width = 400, busy = false, error, c
   </Dialog>;
 }
 
-export function ConfirmDelete({ title, description, confirmLabel, busy, error, onClose, onConfirm }: {
-  title: string; description: string; confirmLabel: string; busy: boolean; error?: string;
+export function ConfirmDelete({ title, description, confirmLabel, confirmTestId, busy, error, onClose, onConfirm }: {
+  title: string; description: string; confirmLabel: string; confirmTestId?: string; busy: boolean; error?: string;
   onClose: () => void; onConfirm: () => void;
 }) {
   const t = useTranslator();
   return <AppDialog title={title} busy={busy} error={error} onClose={onClose} actions={<>
     <Button label={t('@yovoice.action.cancel')} isDisabled={busy} onClick={onClose} />
-    <Button label={confirmLabel} variant="destructive" isLoading={busy} onClick={onConfirm} />
+    <Button data-testid={confirmTestId} label={confirmLabel} variant="destructive" isLoading={busy} onClick={onConfirm} />
   </>}><p className="helper">{description}</p></AppDialog>;
 }

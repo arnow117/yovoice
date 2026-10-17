@@ -77,3 +77,43 @@ func TestHTTPBoundaryAndEvents(t *testing.T) {
 		t.Fatal(audio.StatusCode, len(b))
 	}
 }
+
+func TestSpeakerOperationRegistryOnlyCancelsItsOwnLiveRequest(t *testing.T) {
+	var registry speakerOperationRegistry
+	requestA := strings.Repeat("a", 32)
+	requestB := strings.Repeat("b", 32)
+	ctxA, cancelA := context.WithCancel(context.Background())
+	defer cancelA()
+	entryA := registry.register(requestA, cancelA)
+	if entryA == nil {
+		t.Fatal("first request was not registered")
+	}
+	if duplicate := registry.register(requestA, func() {}); duplicate != nil {
+		t.Fatal("duplicate request replaced the original cancellation handle")
+	}
+	if concurrent := registry.register(requestB, func() {}); concurrent != nil {
+		t.Fatal("different requestId bypassed the single expensive speaker operation limit")
+	}
+	if !registry.cancel(requestA) {
+		t.Fatal("registered request was not cancelled")
+	}
+	<-ctxA.Done()
+	registry.finish(requestA, entryA)
+	if registry.cancel(requestA) {
+		t.Fatal("finished request retained a cancellation tombstone")
+	}
+
+	// A finished request releases the single slot. Its late finish must never
+	// delete the successor's cancellation handle.
+	ctxB, cancelB := context.WithCancel(context.Background())
+	defer cancelB()
+	entryB := registry.register(requestB, cancelB)
+	if entryB == nil {
+		t.Fatal("successor request was not registered")
+	}
+	registry.finish(requestA, entryA)
+	if !registry.cancel(requestB) {
+		t.Fatal("late completion of A affected B registration")
+	}
+	<-ctxB.Done()
+}

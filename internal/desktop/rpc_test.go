@@ -87,3 +87,54 @@ func TestScoreFilesRoundTrip(t *testing.T) {
 }
 
 func strconvQuote(s string) string { b, _ := json.Marshal(s); return string(b) }
+
+func TestSpeakerCallsValidatePublicInputAndSanitizeErrors(t *testing.T) {
+	w, err := workbench.New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+
+	runtime, err := Call(context.Background(), w, "speaker.runtime", json.RawMessage(`{}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if configured, ok := runtime.(workbench.SpeakerRuntime); !ok || configured.Configured {
+		t.Fatalf("runtime = %#v", runtime)
+	}
+
+	invalid := []json.RawMessage{
+		json.RawMessage(`{"requestId":"11111111111111111111111111111111","source":{"path":"/private/input.wav"}}`),
+		json.RawMessage(`{"requestId":"11111111111111111111111111111111","source":{"base64":"YQ==","voiceId":"11111111111111111111111111111111"}}`),
+		json.RawMessage(`{"requestId":"11111111111111111111111111111111","source":{"base64":"YQ=="},"name":"   "}`),
+	}
+	for _, request := range invalid {
+		_, callErr := Call(context.Background(), w, "speaker.enroll", request)
+		var typed *msg.CallError
+		if !errors.As(callErr, &typed) || typed.Code != msg.ErrSpeakerRequestInvalid {
+			t.Fatalf("request %s error = %#v", request, callErr)
+		}
+		if strings.Contains(callErr.Error(), "/private") {
+			t.Fatalf("speaker error exposed a private path: %v", callErr)
+		}
+	}
+
+	tooLarge := make([]byte, (20<<20)*4/3+8)
+	for index := range tooLarge {
+		tooLarge[index] = 'A'
+	}
+	request := json.RawMessage(`{"requestId":"11111111111111111111111111111111","source":{"base64":"` + string(tooLarge) + `"}}`)
+	_, callErr := Call(context.Background(), w, "speaker.identify", request)
+	var typed *msg.CallError
+	if !errors.As(callErr, &typed) || typed.Code != msg.ErrSpeakerInputTooLarge {
+		t.Fatalf("oversized source error = %#v", callErr)
+	}
+}
+
+func TestSpeakerCallErrorKeepsRecoverableModelRequirements(t *testing.T) {
+	for _, code := range []msg.Code{msg.ErrModelRequired, msg.ErrModelUnsupported} {
+		err := speakerCallError(msg.Err(code, nil))
+		var callErr *msg.CallError
+		if !errors.As(err, &callErr) || callErr.Code != code {
+			t.Fatalf("%s mapped to %#v", code, err)
+		}
+	}
+}

@@ -1328,6 +1328,234 @@
   "@yovoice.error.speakerInvalid": {
     "defaultMessage": "Choose a supported built-in voice."
   },
+  "@yovoice.nav.speakers": {
+    "defaultMessage": "Speaker profiles"
+  },
+  "@yovoice.speakers.title": {
+    "defaultMessage": "Speaker profiles"
+  },
+  "@yovoice.speakers.description": {
+    "defaultMessage": "Register or identify a temporary audio input. These actions do not add it to your reference voice library."
+  },
+  "@yovoice.speakers.refresh": {
+    "defaultMessage": "Refresh"
+  },
+  "@yovoice.speakers.runtimeUnavailable": {
+    "defaultMessage": "Speaker recognition is unavailable. Configure the local runtime, restart yovoice, then try again."
+  },
+  "@yovoice.speakers.runtimeReady": {
+    "defaultMessage": "Recognition is ready: threshold {threshold}, margin {margin}, timeout {timeout}s."
+  },
+  "@yovoice.speakers.enrollTitle": {
+    "defaultMessage": "Register a profile"
+  },
+  "@yovoice.speakers.identifyTitle": {
+    "defaultMessage": "Identify audio"
+  },
+  "@yovoice.speakers.chooseFile": {
+    "defaultMessage": "Choose file"
+  },
+  "@yovoice.speakers.record": {
+    "defaultMessage": "Record"
+  },
+  "@yovoice.speakers.stopRecord": {
+    "defaultMessage": "Stop recording"
+  },
+  "@yovoice.speakers.recordingStatus": {
+    "defaultMessage": "Recording {seconds}s of {limit}s. Recording stops automatically at {limit}s."
+  },
+  "@yovoice.speakers.recordingAutoStopped": {
+    "defaultMessage": "Recording stopped automatically after 60 seconds. You can record again or choose a file."
+  },
+  "@yovoice.speakers.existingVoice": {
+    "defaultMessage": "Existing reference voice"
+  },
+  "@yovoice.speakers.noInput": {
+    "defaultMessage": "Choose temporary input"
+  },
+  "@yovoice.speakers.temporaryInput": {
+    "defaultMessage": "Temporary input"
+  },
+  "@yovoice.speakers.voiceInput": {
+    "defaultMessage": "Existing reference voice"
+  },
+  "@yovoice.speakers.previewInput": {
+    "defaultMessage": "Preview {target} input"
+  },
+  "@yovoice.speakers.clearInput": {
+    "defaultMessage": "Clear input"
+  },
+  "@yovoice.speakers.recordedInput": {
+    "defaultMessage": "Recorded temporary audio"
+  },
+  "@yovoice.speakers.name": {
+    "defaultMessage": "Profile label (optional)"
+  },
+  "@yovoice.speakers.bindVoice": {
+    "defaultMessage": "Bind an existing reference voice (optional)"
+  },
+  "@yovoice.speakers.noVoice": {
+    "defaultMessage": "No binding"
+  },
+  "@yovoice.speakers.enroll": {
+    "defaultMessage": "Register profile"
+  },
+  "@yovoice.speakers.identify": {
+    "defaultMessage": "Identify"
+  },
+  "@yovoice.speakers.cancel": {
+    "defaultMessage": "Cancel operation"
+  },
+  "@yovoice.speakers.cancelRequested": {
+    "defaultMessage": "Cancellation was requested. Waiting for the operation result."
+  },
+  "@yovoice.speakers.cancelUnconfirmed": {
+    "defaultMessage": "Cancellation could not be confirmed. Refresh the profile list before trying again."
+  },
+  "@yovoice.speakers.inputRequired": {
+    "defaultMessage": "Choose a file, recording, or existing reference voice first."
+  },
+  "@yovoice.speakers.enrolled": {
+    "defaultMessage": "Registered {name}."
+  },
+  "@yovoice.speakers.profiles": {
+    "defaultMessage": "Saved profiles"
+  },
+  "@yovoice.speakers.profileCreatedAt": {
+    "defaultMessage": "Registered {date}"
+  },
+  "@yovoice.speakers.profileVersion": {
+    "defaultMessage": "Recognition version {version}"
+  },
+  "@yovoice.speakers.emptyProfiles": {
+    "defaultMessage": "No speaker profiles yet. Register a temporary audio input to create one."
+  },
+  "@yovoice.speakers.bound": {
+    "defaultMessage": "Bound voice: {id}"
+  },
+  "@yovoice.speakers.unbound": {
+    "defaultMessage": "No reference voice bound"
+  },
+  "@yovoice.speakers.deleteProfile": {
+    "defaultMessage": "Delete speaker profile {name}"
+  },
+  "@yovoice.speakers.deleteTitle": {
+    "defaultMessage": "Delete speaker profile?"
+  },
+  "@yovoice.speakers.deleteBody": {
+    "defaultMessage": "Delete {name}? This profile cannot be restored."
+  },
+  "@yovoice.speakers.deleteConfirm": {
+    "defaultMessage": "Delete profile"
+  },
+  "@yovoice.speakers.result.matched": {
+    "defaultMessage": "Matched"
+  },
+  "@yovoice.speakers.result.unknown": {
+    "defaultMessage": "Unknown"
+  },
+  "@yovoice.speakers.result.ambiguous": {
+    "defaultMessage": "Ambiguous"
+  },
+  "@yovoice.speakers.resultReason": {
+    "defaultMessage": "Result reason: {reason}"
+  },
+  "@yovoice.speakers.matchedProfile": {
+    "defaultMessage": "Matched profile: {name} · {id}"
+  },
+  "@yovoice.speakers.score": {
+    "defaultMessage": "Raw score: {score}"
+  },
+  "@yovoice.speakers.parameters": {
+    "defaultMessage": "Threshold {threshold}, margin {margin}, feature {version}"
+  },
+  "@yovoice.speakers.noCandidates": {
+    "defaultMessage": "No candidate profiles"
+  },
+  "@yovoice.speakers.generateTitle": {
+    "defaultMessage": "Generate with a bound profile"
+  },
+  "@yovoice.speakers.chooseProfile": {
+    "defaultMessage": "Choose a bound profile"
+  },
+  "@yovoice.speakers.chooseProfileHint": {
+    "defaultMessage": "Identification never chooses a profile here. Choose a bound profile explicitly."
+  },
+  "@yovoice.speakers.boundVoiceReadOnly": {
+    "defaultMessage": "Bound reference voice: {name}. It is read-only in this form."
+  },
+  "@yovoice.speakers.boundReferenceText": {
+    "defaultMessage": "Saved reference text:"
+  },
+  "@yovoice.speakers.boundReferenceTextEmpty": {
+    "defaultMessage": "No saved reference text"
+  },
+  "@yovoice.speakers.boundVoiceMissing": {
+    "defaultMessage": "The selected profile has no available bound reference voice."
+  },
+  "@yovoice.speakers.model": {
+    "defaultMessage": "Clone-capable installed model"
+  },
+  "@yovoice.speakers.targetText": {
+    "defaultMessage": "Target text"
+  },
+  "@yovoice.speakers.generationSettings": {
+    "defaultMessage": "Generation settings"
+  },
+  "@yovoice.speakers.generate": {
+    "defaultMessage": "Generate"
+  },
+  "@yovoice.speakers.generated": {
+    "defaultMessage": "Generation started with the selected bound profile."
+  },
+  "@yovoice.speakers.generatedOutput": {
+    "defaultMessage": "Generated output"
+  },
+  "@yovoice.speakers.profileRequired": {
+    "defaultMessage": "Choose a bound profile before generating."
+  },
+  "@yovoice.speakers.generationUnavailable": {
+    "defaultMessage": "Generation needs an installed clone-capable model and a ready TTS runtime. Recognition can still be used."
+  },
+  "@yovoice.error.speakerRequestInvalid": {
+    "defaultMessage": "The speaker profile request is invalid. Check the selected input and try again."
+  },
+  "@yovoice.error.speakerRuntime": {
+    "defaultMessage": "Speaker recognition is not ready. Check the local recognition setup, restart the app, then try again."
+  },
+  "@yovoice.error.speakerAudio": {
+    "defaultMessage": "This audio cannot be used for speaker recognition. Choose a valid single-speaker recording from 1 to 60 seconds."
+  },
+  "@yovoice.error.speakerInputTooLarge": {
+    "defaultMessage": "The selected audio is larger than 20 MiB. Choose a smaller file."
+  },
+  "@yovoice.error.speakerBusy": {
+    "defaultMessage": "Another speaker operation is still running. Wait for it to finish or cancel that operation."
+  },
+  "@yovoice.error.speakerCancelled": {
+    "defaultMessage": "The speaker operation was cancelled."
+  },
+  "@yovoice.error.speakerTimeout": {
+    "defaultMessage": "Speaker recognition timed out. Check the local runtime and try again."
+  },
+  "@yovoice.error.speakerProfile": {
+    "defaultMessage": "That speaker profile is no longer available. Refresh the profile list and choose another one."
+  },
+  "@yovoice.error.speakerVoice": {
+    "defaultMessage": "The bound reference voice is unavailable. Choose a profile with an available reference voice."
+  },
+  "@yovoice.error.speakerClone": {
+    "defaultMessage": "The selected profile or model cannot be used for voice cloning."
+  },
+  "@yovoice.error.speakerStorage": {
+    "defaultMessage": "The speaker profile could not be saved or read. Refresh and try again."
+  },
+  "@yovoice.error.speakerFeature": {
+    "defaultMessage": "This speaker profile was created with an incompatible recognition version. Register it again with the current setup."
+  },
+  "@yovoice.error.previewSpeakerUnavailable": {
+    "defaultMessage": "Speaker recognition needs the local desktop service and cannot run in the browser preview."
+  },
   "@yovoice.reference.speaker.Vivian": {
     "defaultMessage": "Bright young female · Chinese"
   },

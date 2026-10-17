@@ -46,6 +46,7 @@ export function subscribePreview(listener: (state: State) => void) { listeners.a
 
 export async function previewCall<T>(method: string, data: unknown): Promise<T> {
   const state = preview();
+  if (method.startsWith('speaker.')) throw new CallError('@yovoice.error.previewSpeakerUnavailable');
   if (method === 'state.get') return { state, catalog, engine: { version: '', minimum: '' }, desktop: false } as T;
   if (method === 'character.save') {
     const character = structuredClone(data as Character);

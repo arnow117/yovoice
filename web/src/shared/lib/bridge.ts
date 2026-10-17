@@ -28,10 +28,13 @@ export function subscribeDesktopUpdate(listener: (update: unknown) => void) { up
 export function desktopCall<T>(method: string, data: unknown): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const id = crypto.randomUUID();
+    const isSpeakerOperation = method === 'speaker.enroll' || method === 'speaker.identify' || method === 'speaker.generate';
+    const timeout = isSpeakerOperation ? 660_000 : 120_000;
     const timer = setTimeout(() => {
-      pending.delete(id); reportDesktop('timeout', method, 'no reply within 120s');
-      reject(new CallError('@yovoice.error.unknown', { detail: 'desktop timeout' }));
-    }, 120000);
+      pending.delete(id);
+      reportDesktop('timeout', method, `no reply within ${timeout / 1000}s`);
+      reject(new CallError(isSpeakerOperation ? '@yovoice.error.speakerTimeout' : '@yovoice.error.unknown', isSpeakerOperation ? {} : { detail: 'desktop timeout' }));
+    }, timeout);
     pending.set(id, { resolve: value => resolve(value as T), reject, timer }); native!.postMessage({ id, method, data });
   });
 }

@@ -74,6 +74,8 @@ jobs:
         if: ${{ !inputs.release }}
       - run: python3 scripts/desktop/check-signing.py
         if: ${{ !inputs.release && runner.os == 'macOS' }}
+      - run: python3 scripts/desktop/check-speaker-validation-macos.py
+        if: ${{ !inputs.release && runner.os == 'macOS' }}
       - name: Verify macOS updater
         if: ${{ !inputs.release && runner.os == 'macOS' }}
         run: |
@@ -81,6 +83,11 @@ jobs:
           python3 scripts/desktop/check-macos-update.py
       - run: pnpm --dir web test
         if: ${{ !inputs.release && runner.os == 'Windows' }}
+      - name: Verify deterministic speaker page UI
+        if: ${{ !inputs.release && runner.os == 'macOS' }}
+        env:
+          E2E_TELEMETRY_DISABLED: "1"
+        run: pnpm --dir web exec e2e run --config e2e.config.ts --workers 1 --retries 0 --strict-cache
       - name: Cache audio.cpp runtime
         uses: actions/cache@v4
         with:

@@ -33,6 +33,40 @@
         "commit": "c1050c4346e67d277a9ffab355418aa1ecf42733",
         "result": "pass"
       }
+    },
+    "FEAT-002": {
+      "branch": "codex/speaker-validation-ui",
+      "created_at": "2026-10-12T08:53:41Z",
+      "engineering_context_ref": ".sdlc-v1/context/FEAT-002.engineering.md",
+      "id": "FEAT-002",
+      "release": {
+        "at": null,
+        "commit": null,
+        "status": "pending"
+      },
+      "requirement_id": "REQ-002",
+      "review": {
+        "at": null,
+        "by": null,
+        "decision": "pending"
+      },
+      "status": "in_progress",
+      "tasks": {
+        "TASK-001": {
+          "depends_on": [],
+          "id": "TASK-001",
+          "status": "done",
+          "title": "实现原 Mac App 声纹页面、定向取消和本地验证构建",
+          "updated_at": "2026-10-17T12:35:58Z"
+        }
+      },
+      "updated_at": "2026-10-17T12:35:58Z",
+      "validation": {
+        "at": null,
+        "command": null,
+        "commit": null,
+        "result": "pending"
+      }
     }
   },
   "requirements": {
@@ -48,6 +82,36 @@
       "status": "released",
       "title": "非实时声纹识别与参考音色绑定原型",
       "updated_at": "2026-10-10T11:41:37Z"
+    },
+    "REQ-002": {
+      "created_at": "2026-10-12T08:26:04Z",
+      "depends_on": [
+        "REQ-001"
+      ],
+      "description": "在原 yovoice Mac App 中交互式完成单人声纹登记、识别、档案管理与显式绑定档案生成，并验证真实桌面链路及依赖缺失恢复。",
+      "domain": "voice",
+      "feature_id": "FEAT-002",
+      "id": "REQ-002",
+      "priority": "P1",
+      "product_context_ref": ".sdlc-v1/context/REQ-002.product.md",
+      "status": "in_delivery",
+      "title": "Mac App 声纹交互验证页面",
+      "updated_at": "2026-10-17T12:35:58Z"
+    },
+    "REQ-003": {
+      "created_at": "2026-10-13T12:35:50Z",
+      "depends_on": [
+        "REQ-002"
+      ],
+      "description": "在现有声音选择和声音库中显式按录音查找绑定音色，并为明确故事角色或当前演绎确认应用参考声音。",
+      "domain": "voice",
+      "feature_id": null,
+      "id": "REQ-003",
+      "priority": "P1",
+      "product_context_ref": ".sdlc-v1/context/REQ-003.product.md",
+      "status": "captured",
+      "title": "声纹辅助音色查找与故事角色应用",
+      "updated_at": "2026-10-13T12:35:50Z"
     }
   },
   "state_format": "sdlc-lightweight-state-v1",

@@ -2,6 +2,7 @@ package desktop
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,8 @@ import (
 	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
 )
+
+const testSpeakerRequestID = "0123456789abcdef0123456789abcdef"
 
 func newServer(t *testing.T) (*Server, *httptest.Server, func(method string, data any) (map[string]any, error)) {
 	t.Helper()
@@ -137,5 +140,120 @@ func TestShutdownWaitsForCalls(t *testing.T) {
 	case <-finished:
 	case <-time.After(5 * time.Second):
 		t.Fatal("在途调用结束后应完成关闭")
+	}
+}
+
+func TestSpeakerCancelOverHTTPCancelsOnlyInflightRequestAndCleansUp(t *testing.T) {
+	handler, _, call := newServer(t)
+	started := make(chan struct{})
+	handler.callOverride = func(ctx context.Context, method string, data json.RawMessage) (any, error) {
+		if method != "speaker.identify" {
+			return Call(ctx, handler.Workbench, method, data)
+		}
+		close(started)
+		<-ctx.Done()
+		return nil, ctx.Err()
+	}
+
+	identifyFinished := make(chan error, 1)
+	go func() {
+		_, err := call("speaker.identify", map[string]any{"requestId": testSpeakerRequestID})
+		identifyFinished <- err
+	}()
+	select {
+	case <-started:
+	case <-time.After(5 * time.Second):
+		t.Fatal("speaker identify request did not enter the HTTP operation registry")
+	}
+
+	reply, err := call("speaker.cancel", map[string]string{"requestId": testSpeakerRequestID})
+	must(t, err)
+	result, ok := reply["result"].(map[string]any)
+	if !ok || result["cancelRequested"] != true {
+		t.Fatalf("speaker cancel reply = %#v", reply)
+	}
+	select {
+	case err := <-identifyFinished:
+		if err == nil {
+			t.Fatal("cancelled speaker identify unexpectedly succeeded")
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("speaker cancellation did not release the HTTP request")
+	}
+	if handler.speakerOperations.cancel(testSpeakerRequestID) {
+		t.Fatal("completed request retained an HTTP cancellation handle")
+	}
+}
+
+func TestSpeakerHTTPCompletedResponseReleasesCancellationHandle(t *testing.T) {
+	handler, _, call := newServer(t)
+	handler.callOverride = func(ctx context.Context, method string, data json.RawMessage) (any, error) {
+		if method == "speaker.enroll" {
+			return map[string]any{"id": "profile-created"}, nil
+		}
+		return Call(ctx, handler.Workbench, method, data)
+	}
+
+	_, err := call("speaker.enroll", map[string]any{"requestId": testSpeakerRequestID})
+	must(t, err)
+	reply, err := call("speaker.cancel", map[string]string{"requestId": testSpeakerRequestID})
+	must(t, err)
+	result, ok := reply["result"].(map[string]any)
+	if !ok || result["cancelRequested"] != false {
+		t.Fatalf("late cancellation changed an accepted HTTP response: %#v", reply)
+	}
+}
+
+func TestShutdownCancelsInflightSpeakerHTTPCall(t *testing.T) {
+	handler, server, call := newServer(t)
+	started := make(chan struct{})
+	handler.callOverride = func(ctx context.Context, method string, data json.RawMessage) (any, error) {
+		if method != "speaker.identify" {
+			return Call(ctx, handler.Workbench, method, data)
+		}
+		close(started)
+		<-ctx.Done()
+		return nil, ctx.Err()
+	}
+
+	identifyFinished := make(chan error, 1)
+	go func() {
+		_, err := call("speaker.identify", map[string]any{"requestId": testSpeakerRequestID})
+		identifyFinished <- err
+	}()
+	select {
+	case <-started:
+	case <-time.After(5 * time.Second):
+		t.Fatal("speaker identify request did not start")
+	}
+
+	shutdownFinished := make(chan error, 1)
+	go func() {
+		r, err := http.NewRequest("POST", server.URL+"/shutdown", nil)
+		if err != nil {
+			shutdownFinished <- err
+			return
+		}
+		r.AddCookie(&http.Cookie{Name: "vw-" + handler.Secret[:12], Value: handler.Secret})
+		res, err := server.Client().Do(r)
+		if err == nil {
+			res.Body.Close()
+		}
+		shutdownFinished <- err
+	}()
+
+	select {
+	case err := <-identifyFinished:
+		if err == nil {
+			t.Fatal("shutdown did not cancel the inflight speaker request")
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("shutdown did not release the speaker request")
+	}
+	select {
+	case err := <-shutdownFinished:
+		must(t, err)
+	case <-time.After(5 * time.Second):
+		t.Fatal("shutdown did not complete after the speaker request ended")
 	}
 }

@@ -20,10 +20,13 @@ type Server struct {
 	// LocalAPI 为空时不提供本机接口设置。
 	LocalAPI *LocalAPI
 	// calls 允许 RPC 并发执行；关闭时独占，等待在途调用结束后再释放资源。
-	calls   sync.RWMutex
-	once    sync.Once
-	closing context.Context
-	stop    context.CancelFunc
+	calls             sync.RWMutex
+	once              sync.Once
+	closing           context.Context
+	stop              context.CancelFunc
+	speakerOperations speakerOperationRegistry
+	// callOverride 仅供桌面 HTTP 边界测试阻塞受控调用。正常宿主不会设置它。
+	callOverride func(context.Context, string, json.RawMessage) (any, error)
 }
 
 // lifetime 在关闭时取消，用于中止转码等耗时调用，避免拖住退出。
@@ -34,6 +37,9 @@ func (s *Server) lifetime() context.Context {
 
 // call 先处理本机接口设置，其余方法交给 Call。
 func (s *Server) call(ctx context.Context, method string, data json.RawMessage) (any, error) {
+	if s.callOverride != nil {
+		return s.callOverride(ctx, method, data)
+	}
 	if !strings.HasPrefix(method, "localApi.") {
 		return Call(ctx, s.Workbench, method, data)
 	}
@@ -76,9 +82,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// 宿主断开或服务关闭时取消调用。
 		ctx, cancel := context.WithCancel(r.Context())
 		release := context.AfterFunc(s.lifetime(), cancel)
+		ctx = context.WithValue(ctx, speakerCancelContextKey{}, s.speakerOperations.cancel)
+		requestID, isExpensiveSpeakerCall := speakerRequestID(message.Method, message.Data)
+		var speakerOperation *speakerOperation
+		if isExpensiveSpeakerCall {
+			speakerOperation = s.speakerOperations.register(requestID, cancel)
+		}
 		s.calls.RLock()
-		result, err := s.call(ctx, message.Method, message.Data)
+		var result any
+		var err error
+		if isExpensiveSpeakerCall && speakerOperation == nil {
+			err = msg.Err(msg.ErrSpeakerBusy, nil)
+		} else {
+			result, err = s.call(ctx, message.Method, message.Data)
+		}
 		s.calls.RUnlock()
+		if speakerOperation != nil {
+			s.speakerOperations.finish(requestID, speakerOperation)
+		}
 		release()
 		cancel()
 		reply := map[string]any{"id": message.ID, "result": result}

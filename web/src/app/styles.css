@@ -725,3 +725,23 @@
     .ai-composer[data-status="running"]::after { animation: none; opacity: .5; width: 100%; }
   }
 }
+
+/* 声纹页使用原工作台的行式信息层级，窄窗口改为单列滚动而不是压缩关键操作。 */
+.speakers-page { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--spacing-5) var(--spacing-10) var(--spacing-10); }
+.speakers-heading { justify-content: space-between; }
+.speakers-heading > :first-child { min-width: 0; flex: 1; }
+.speaker-runtime,.speaker-notice,.speaker-result { border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); padding: var(--spacing-3); background: var(--app-surface); }
+.speaker-workspace,.speaker-profiles,.speaker-generation { border-top: var(--border-width) solid var(--app-line); padding-top: var(--spacing-5); }
+.speaker-generated-output { border-top: var(--border-width) solid var(--app-line); padding-top: var(--spacing-4); }
+.speaker-input-panel,.speaker-form { min-width: 0; padding: var(--spacing-4); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); }
+.speaker-input-summary { min-width: 0; padding: var(--spacing-2); border-radius: var(--radius-element); background: var(--app-surface); }
+.speaker-recording-status { color: var(--app-muted); font-variant-numeric: tabular-nums; }
+.speaker-input-summary strong,.speaker-profile-meta { min-width: 0; overflow-wrap: anywhere; }
+.speaker-input-summary audio { max-width: 100%; min-width: 0; }
+.speaker-input-summary audio[aria-disabled="true"] { pointer-events: none; opacity: 0.6; }
+.speaker-profile-row { min-height: var(--spacing-12); padding-block: var(--spacing-2); border-bottom: var(--border-width) solid var(--app-line); }
+.speaker-profile-row:last-child { border-bottom: 0; }
+.speaker-profile-meta { flex: 1; }
+.speaker-text { width: 100%; min-height: calc(var(--spacing-10) * 5); padding: var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); color: var(--app-ink); background: var(--app-white); font: inherit; line-height: 1.6; resize: vertical; }
+.speaker-text:focus-visible { outline: var(--focus-outline-width) solid var(--focus-outline-color); outline-offset: var(--focus-outline-offset); }
+@media (max-width: 600px) { .speakers-page { padding: var(--spacing-5); } .speaker-input-summary audio { width: 100%; } }

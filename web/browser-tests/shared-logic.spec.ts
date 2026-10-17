@@ -4,7 +4,8 @@ import { SubtitleParser } from '../src/features/create/subtitle-parser';
 import { Timeline } from '../src/features/media/timeline';
 import { CallError, noticeMessage, parseCallError } from '../src/shared/lib/call-error';
 import { formatCallError, formatNotice } from '../src/shared/i18n/format';
-import { createDraft, previewStale, projectKind, requiresVoice, synthesisSettings, normalizeDraft, type Character, type Draft } from '../src/shared/workbench';
+import { createDraft, previewStale, projectKind, requiresVoice, synthesisSettings, normalizeDraft, type Character, type Draft, type ModelPackage } from '../src/shared/workbench';
+import { speakerGenerationDraft } from '../src/features/speakers/generation-draft';
 
 // 不打开页面，直接校验界面依赖的纯逻辑。
 
@@ -63,6 +64,44 @@ test('作品类型兼容旧字幕，合成参数快照不含作品字段且与�
   for (const key of ['id', 'title', 'text', 'timeline', 'subtitles', 'kind']) expect(settings).not.toHaveProperty(key);
   settings.emotions[0] = 1;
   expect(draft.emotions[0]).toBe(0);
+});
+
+test('音乐和编曲作品进入声纹生成时补齐有效 TTS 默认值并保留作品正文', () => {
+  const models: ModelPackage[] = [{
+    id: 'index-2.5-q8',
+    name: 'Index TTS 2.5',
+    family: 'index_tts2',
+    version: 'test',
+    precision: 'q8',
+    remotePath: '',
+    size: 0,
+    sha256: 'synthetic',
+  }];
+  for (const kind of ['music', 'score'] as const) {
+    const source: Draft = {
+      ...createDraft(),
+      id: `${kind}-source`,
+      kind,
+      modelId: kind === 'music' ? 'ace-step-1.5-turbo-bf16' : 'musescore-general-sf2',
+      text: `${kind} source text`,
+      lyrics: `${kind} lyrics`,
+      timeline: { tracks: [] },
+    };
+    const generation = speakerGenerationDraft(source, models);
+
+    expect(generation.kind).toBe('text');
+    expect(generation.id).not.toBe(source.id);
+    expect(generation.text).toBe(source.text);
+    expect(generation.modelId).toBe('index-2.5-q8');
+    expect(generation.language).toBeTruthy();
+    expect(generation.mode).toBeTruthy();
+    expect(generation.speed).toBeGreaterThan(0);
+    expect(generation.emotions).toHaveLength(8);
+    expect(generation.temperature).toBeGreaterThan(0);
+    expect(generation.synthesisLanguage).toBe('auto');
+    expect(generation.timeline).toBeUndefined();
+    expect(generation.lyrics).toBeUndefined();
+  }
 });
 
 test('错误码与底层原因在保存为提示文本后仍可翻译并保留原因', () => {

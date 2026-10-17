@@ -18,9 +18,15 @@
 
 - English: Added opt-in local speaker-profile CLI and HTTP workflows backed by an externally configured WeSpeaker/Sherpa-ONNX runtime. Profiles remain private to the local data directory and can optionally select an existing TTS voice.
 - 简体中文：新增可选的本地声纹档案 CLI 与 HTTP 流程，使用外部配置的 WeSpeaker/Sherpa-ONNX 运行时；档案只保存在本地数据目录，可选绑定已有 TTS 音色。
+- English: Added the macOS App Speaker profiles page for explicit temporary-audio registration, identification, profile management, and bound-profile generation, plus a separate local validation bundle for the original App host.
+- 简体中文：新增 macOS App 的声纹档案页面，支持临时音频的显式登记、识别、档案管理和绑定档案生成；同时提供独立的原 App 本地验证包。
 
 ### Fixed
 
+- English: The macOS speaker-validation bundle now includes a versioned sidecar receipt binding its source candidate to the final App tree, packaged host, service, and web resources; smoke rejects a missing, stale, or modified bundle before it starts the host.
+- 简体中文：macOS 声纹验证包现在配套带版本的同级构建凭据，将源码候选与最终 App 树、打包的宿主、服务和 Web 资源绑定；凭据缺失、过期或包被修改时，冒烟会在启动宿主前拒绝运行。
+- English: The macOS speaker-validation smoke now passes normalized local runtime paths to the App host and records only a redacted configuration field/reason category when local recognition setup is rejected.
+- 简体中文：macOS 声纹验证冒烟现在会把规范化后的本地运行路径传给 App 宿主；本地识别配置被拒绝时仅记录脱敏后的字段与原因分类。
 - English: Speaker-profile CLI generation now imports an independent IndexTTS emotion reference, reports native generation failures as `runtime_failed`, and distinguishes caller cancellation from a generation timeout.
 - 简体中文：声纹档案 CLI 生成现在会导入独立的 IndexTTS 情绪参考音频；原生生成失败返回 `runtime_failed`，并能区分调用方取消和生成超时。
 - 修复删除最后一个作品时的保存与残留问题，切换历史版本或新建作品失败时显示更具体的错误信息。

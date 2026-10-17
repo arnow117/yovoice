@@ -15,7 +15,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     private var closing = false
     private var shutdownComplete = false
     private var updater: AppUpdater?
-    private let root = ProcessInfo.processInfo.environment["WORKBENCH_DATA"].map { URL(fileURLWithPath: $0, isDirectory: true) } ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".yovoice", isDirectory: true)
+    private let hostConfiguration = HostConfiguration(
+        environment: ProcessInfo.processInfo.environment,
+        bundleInfo: Bundle.main.infoDictionary ?? [:],
+        homeDirectory: FileManager.default.homeDirectoryForCurrentUser,
+    )
+    private var root: URL { hostConfiguration.root }
     private var cookieName: String { "vw-" + token.prefix(12) }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -141,7 +146,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         let resources = Bundle.main.resourceURL!
         let executable = resources.appendingPathComponent("service/yovoice-service")
         guard FileManager.default.isExecutableFile(atPath: executable.path) else { throw failure(HostL10n.t("err.serviceMissing")) }
-        if ProcessInfo.processInfo.environment["WORKBENCH_DATA"] == nil {
+        if hostConfiguration.shouldPrepareData {
             let migration = Process()
             migration.executableURL = executable
             migration.arguments = ["--prepare-data"]
@@ -158,6 +163,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         environment["WORKBENCH_WEB"] = resources.appendingPathComponent("web").path
         environment["WORKBENCH_TOKEN"] = token
         environment["WORKBENCH_ENGINE"] = resources.appendingPathComponent("engine/audiocpp_server").path
+        for (name, value) in hostConfiguration.speakerEnvironment {
+            environment[name] = value
+        }
         service.environment = environment
         service.standardInput = input
         let output = Pipe()
@@ -430,8 +438,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("\(cookieName)=\(token)", forHTTPHeaderField: "Cookie")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        // AI 写作在服务端后台运行，调用立即返回，所有请求统一 120 秒上限。
-        request.timeoutInterval = 120
+        let method = body["method"] as? String ?? ""
+        request.timeoutInterval = HostConfiguration.requestTimeout(for: method)
         let (data, response) = try await URLSession.shared.data(for: request)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw failure(HostL10n.t("err.serviceRequest")) }
         if data.isEmpty { return [:] }

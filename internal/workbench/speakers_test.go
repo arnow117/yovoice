@@ -1,6 +1,7 @@
 package workbench
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/binary"
@@ -33,6 +34,98 @@ func TestApplySpeakerBindingUsesBoundVoiceWithoutChangingCallerEmotion(t *testin
 	if draft.VoiceID == nil || *draft.VoiceID != voice.ID || draft.ReferenceText != voice.ReferenceText || draft.VoxMode != "continuation" || draft.EmotionText != "保持调用方的情绪" {
 		t.Fatalf("%+v", draft)
 	}
+}
+
+func TestSpeakerRuntimeLogsConfigurationRejectionOnceWithoutPrivateValues(t *testing.T) {
+	workbench, err := New(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer workbench.Close()
+
+	const privateValue = "relative/private-speaker-runtime"
+	t.Setenv("YOVOICE_SPEAKER_PYTHON", privateValue)
+	t.Setenv("YOVOICE_SPEAKER_MODEL", "")
+	t.Setenv("YOVOICE_SPEAKER_RUNNER", "")
+
+	if runtime := workbench.SpeakerRuntime(); runtime.Configured {
+		t.Fatalf("runtime = %+v", runtime)
+	}
+	if runtime := workbench.SpeakerRuntime(); runtime.Configured {
+		t.Fatalf("runtime = %+v", runtime)
+	}
+	_, err = workbench.speakerConfigSnapshot()
+	if recognition.Code(err) != "runtime_not_configured" {
+		t.Fatalf("runtime error = %v", err)
+	}
+	if field, reason, ok := recognition.ConfigFailure(err); !ok || field != "YOVOICE_SPEAKER_PYTHON" || reason != "not_absolute" {
+		t.Fatalf("configuration failure = (%q, %q, %t)", field, reason, ok)
+	}
+
+	content, err := os.ReadFile(filepath.Join(workbench.Store.Root, "logs", "service.log"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry := string(content)
+	if strings.Count(entry, "speaker.config_rejected") != 1 {
+		t.Fatalf("speaker configuration rejection should log once: %s", entry)
+	}
+	if !strings.Contains(entry, `"field":"YOVOICE_SPEAKER_PYTHON"`) || !strings.Contains(entry, `"reason":"not_absolute"`) {
+		t.Fatalf("configuration rejection log = %s", entry)
+	}
+	if strings.Contains(entry, privateValue) || strings.Contains(entry, workbench.Store.Root) {
+		t.Fatalf("configuration rejection log leaked private values: %s", entry)
+	}
+}
+
+func TestSpeakerRuntimeSerializesConfiguredValuesWithoutLosingZeroOrPrecision(t *testing.T) {
+	t.Run("configured values retain zero threshold and subsecond timeout", func(t *testing.T) {
+		workbench, err := New(t.TempDir())
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer workbench.Close()
+
+		configureSpeakerRuntime(t, workbench)
+		t.Setenv("YOVOICE_SPEAKER_THRESHOLD", "0")
+		t.Setenv("YOVOICE_SPEAKER_TIMEOUT", "500ms")
+
+		encoded, err := json.Marshal(workbench.SpeakerRuntime())
+		if err != nil {
+			t.Fatal(err)
+		}
+		var actual map[string]any
+		if err := json.Unmarshal(encoded, &actual); err != nil {
+			t.Fatal(err)
+		}
+
+		if threshold, ok := actual["threshold"].(float64); !ok || threshold != 0 {
+			t.Fatalf("threshold = %#v, want numeric zero", actual["threshold"])
+		}
+		if timeout, ok := actual["timeoutSeconds"].(float64); !ok || timeout != 0.5 {
+			t.Fatalf("timeoutSeconds = %#v, want 0.5", actual["timeoutSeconds"])
+		}
+	})
+
+	t.Run("unconfigured runtime omits configuration metadata", func(t *testing.T) {
+		workbench, err := New(t.TempDir())
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer workbench.Close()
+
+		t.Setenv("YOVOICE_SPEAKER_PYTHON", "")
+		t.Setenv("YOVOICE_SPEAKER_MODEL", "")
+		t.Setenv("YOVOICE_SPEAKER_RUNNER", "")
+
+		encoded, err := json.Marshal(workbench.SpeakerRuntime())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(encoded) != `{"configured":false}` {
+			t.Fatalf("unconfigured runtime = %s", encoded)
+		}
+	})
 }
 
 func TestSpeakerOperationKeepsItsOwnCancelAfterHandoff(t *testing.T) {
@@ -279,6 +372,114 @@ func TestSpeakerEnrollIdentifyDeleteAndRestartJourney(t *testing.T) {
 	matched, err = workbench.IdentifySpeaker(ctx, SpeakerSource{FilePath: input})
 	if err != nil || matched.Status != "matched" || matched.ProfileID != second.ID {
 		t.Fatalf("post-delete identify = %+v %v", matched, err)
+	}
+}
+
+func TestSpeakerReaderUploadsAreRemovedAfterCancellationOrClose(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("the controlled recognition runtime fixture uses POSIX shell scripts")
+	}
+
+	tests := []struct {
+		name   string
+		invoke func(*Workbench, context.Context, *bytes.Reader) error
+		stop   func(*Workbench)
+	}{
+		{
+			name: "enrollment cancellation",
+			invoke: func(workbench *Workbench, ctx context.Context, input *bytes.Reader) error {
+				_, err := workbench.EnrollSpeakerFrom(ctx, input, "Cancelled enrollment", "")
+				return err
+			},
+			stop: (*Workbench).Cancel,
+		},
+		{
+			name: "identification close",
+			invoke: func(workbench *Workbench, ctx context.Context, input *bytes.Reader) error {
+				_, err := workbench.IdentifySpeakerFrom(ctx, input)
+				return err
+			},
+			stop: (*Workbench).Close,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			workbench, err := New(t.TempDir())
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(workbench.Close)
+
+			inputPath := configureSpeakerRuntime(t, workbench)
+			input, err := os.ReadFile(inputPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			stateBefore := workbench.Store.Read()
+
+			runtimeRoot := filepath.Dir(inputPath)
+			block := filepath.Join(runtimeRoot, "block-runner")
+			started := filepath.Join(runtimeRoot, "runner-started")
+			if err = os.WriteFile(block, []byte("block"), 0600); err != nil {
+				t.Fatal(err)
+			}
+
+			result := make(chan error, 1)
+			go func() {
+				result <- test.invoke(workbench, context.Background(), bytes.NewReader(input))
+			}()
+			waitForSpeakerRunner(t, started)
+
+			test.stop(workbench)
+			select {
+			case operationErr := <-result:
+				if !errors.Is(operationErr, context.Canceled) {
+					t.Fatalf("reader operation error = %v", operationErr)
+				}
+			case <-time.After(2 * time.Second):
+				t.Fatal("reader operation did not finish after cancellation")
+			}
+
+			profiles, listErr := workbench.ListSpeakers()
+			if listErr != nil {
+				t.Fatal(listErr)
+			}
+			if len(profiles) != 0 {
+				t.Fatalf("cancelled reader operation persisted profiles: %+v", profiles)
+			}
+			if stateAfter := workbench.Store.Read(); !reflect.DeepEqual(stateBefore, stateAfter) {
+				t.Fatalf("reader operation changed state: before=%+v after=%+v", stateBefore, stateAfter)
+			}
+			assertSpeakerTemporaryFilesRemoved(t, workbench)
+		})
+	}
+}
+
+func waitForSpeakerRunner(t *testing.T, started string) {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	for {
+		if _, err := os.Stat(started); err == nil {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("speaker operation did not reach the controlled runner")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+func assertSpeakerTemporaryFilesRemoved(t *testing.T, workbench *Workbench) {
+	t.Helper()
+	for _, pattern := range []string{"upload-*", "recognition-*"} {
+		leftovers, err := filepath.Glob(filepath.Join(workbench.Store.Root, "downloads", pattern))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(leftovers) != 0 {
+			t.Fatalf("reader operation left temporary files for %s: %v", pattern, leftovers)
+		}
 	}
 }
 

@@ -11,34 +11,63 @@ import { encodeWav, toBase64 } from '../../shared/lib/sound';
 import { formatCallError } from '../../shared/i18n/format';
 import { Player } from './player';
 import { formatTime, type Track, type Voice } from '../../shared/workbench';
+import { useTemporaryAudio } from './use-temporary-audio';
+import { decodeTemporaryRecording, useTemporaryRecorder } from './use-temporary-recorder';
 
 export function VoicePicker({ voices, onClose, onSelect, adding = false }: { adding?: boolean; voices: Voice[]; onClose: () => void; onSelect: (v: Voice) => void }) {
   const t = useTranslator();
   const nameId = useId();
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const input = useRef<HTMLInputElement>(null); const recorder = useRef<MediaRecorder | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const input = useRef<HTMLInputElement>(null);
   const [error, setError] = useState(''); const [showRecording, setShowRecording] = useState(false);
   const [preview, setPreview] = useState<Track | null>(null);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Voice | null>(null);
   const [recorded, setRecorded] = useState<Blob | null>(null);
-  const [recordingURL, setRecordingURL] = useState('');
+  const recordingURL = useTemporaryAudio(recorded);
   const [waveform, setWaveform] = useState<number[]>([]);
-  useEffect(() => { if (!recorded) { setRecordingURL(''); return; } const url = URL.createObjectURL(recorded); setRecordingURL(url); return () => URL.revokeObjectURL(url); }, [recorded]);
+  const [busy, setBusy] = useState(false);
+  const [name, setName] = useState(() => t('@yovoice.voice.defaultName'));
+  const [crop, setCrop] = useState<Voice | null>(null);
+  const [range, setRange] = useState<[number, number]>([0, 10]);
+  const temporaryRecorder = useTemporaryRecorder({
+    onComplete: async ({ blob, isCurrent }) => {
+      setBusy(true);
+      try {
+        const buffer = await decodeTemporaryRecording(blob);
+        if (!isCurrent()) return;
+        if (buffer.duration < 1) throw new CallError('@yovoice.error.recordTooShort');
+        const data = buffer.getChannelData(0);
+        const length = Math.min(data.length, Math.floor(buffer.sampleRate * 60));
+        setWaveform(Array.from({ length: 96 }, (_, index) => {
+          let peak = 0;
+          for (let i = Math.floor(index * length / 96); i < Math.floor((index + 1) * length / 96); i++) peak = Math.max(peak, Math.abs(data[i]));
+          return peak;
+        }));
+        setRecorded(encodeWav(buffer, 0, Math.min(60, buffer.duration)));
+      } catch (error) {
+        if (isCurrent()) setError(formatCallError(t, error));
+      } finally {
+        if (isCurrent()) setBusy(false);
+      }
+    },
+    onError: error => {
+      const recorderError = error as Error;
+      if (recorderError.name === 'NotAllowedError') setError(t(isMac ? '@yovoice.error.micDeniedMac' : '@yovoice.error.micDeniedBrowser'));
+      else if (recorderError.name === 'NotFoundError') setError(t('@yovoice.error.micNotFound'));
+      else setError(t('@yovoice.error.micFailed', { detail: recorderError.message }));
+    },
+  });
   const choose = (voice: Voice) => { if (adding) onSelect(voice); else { setSelected(voice); setCrop(null); } };
   function cancelRecording() {
-    clearTimeout(timer.current);
-    if (recorder.current) { recorder.current.onstop = null; if (recorder.current.state === 'recording') recorder.current.stop(); recorder.current.stream.getTracks().forEach(t => t.stop()); }
-    setStream(null); setRecording(false); setRecorded(null);
+    temporaryRecorder.discard();
+    setRecorded(null);
+    setWaveform([]);
+    setBusy(false);
   }
 
   function audition(voice: Voice) {
     setPreview({ ...voice, kind: 'voices', subtitle: '', playRequest: Date.now() });
   }
-  const [recording, setRecording] = useState(false); const [busy, setBusy] = useState(false);
-  const [name, setName] = useState(() => t('@yovoice.voice.defaultName')); const [crop, setCrop] = useState<Voice | null>(null); const [range, setRange] = useState<[number, number]>([0, 10]);
-  useEffect(() => () => { clearTimeout(timer.current); if (recorder.current?.state === 'recording') { recorder.current.onstop = null; recorder.current.stop(); } recorder.current?.stream.getTracks().forEach(t => t.stop()); }, []);
   async function importing(file?: File) {
     setBusy(true); setError('');
     try { const voice = file ? await importVoiceFile(file) : null; if (voice) choose(voice); }
@@ -46,41 +75,16 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
   }
   async function record() {
     setError('');
-    if (recording) { recorder.current?.stop(); return; }
-    setPreview(null); setBusy(true);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      let instance: MediaRecorder;
-      try { instance = new MediaRecorder(stream); } catch (e) { stream.getTracks().forEach(t => t.stop()); throw e; }
-      recorder.current = instance; const chunks: Blob[] = [];
-      instance.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
-      instance.onstop = async () => {
-        setStream(null); clearTimeout(timer.current); stream.getTracks().forEach(t => t.stop()); setRecording(false); setBusy(true);
-        const context = new AudioContext();
-        try {
-          const buffer = await context.decodeAudioData(await new Blob(chunks).arrayBuffer());
-          if (buffer.duration < 1) throw new CallError('@yovoice.error.recordTooShort');
-          const data = buffer.getChannelData(0);
-          const length = Math.min(data.length, Math.floor(buffer.sampleRate * 60));
-          setWaveform(Array.from({ length: 96 }, (_, index) => {
-            let peak = 0;
-            for (let i = Math.floor(index * length / 96); i < Math.floor((index + 1) * length / 96); i++) peak = Math.max(peak, Math.abs(data[i]));
-            return peak;
-          }));
-          setRecorded(encodeWav(buffer, 0, Math.min(60, buffer.duration)));
-        } catch (e) { setError(formatCallError(t, e)); } finally { await context.close(); setBusy(false); }
-      };
-      setRecorded(null); setPreview(null); instance.start(); setStream(stream); setRecording(true); timer.current = setTimeout(() => { if (instance.state === 'recording') instance.stop(); }, 60000);
-    } catch (e) {
-      const err = e as Error;
-      if (err.name === 'NotAllowedError') {
-        setError(t(isMac ? '@yovoice.error.micDeniedMac' : '@yovoice.error.micDeniedBrowser'));
-      } else if (err.name === 'NotFoundError') {
-        setError(t('@yovoice.error.micNotFound'));
-      } else {
-        setError(t('@yovoice.error.micFailed', { detail: err.message }));
-      }
-    } finally { setBusy(false); }
+    if (temporaryRecorder.active) {
+      temporaryRecorder.stop();
+      return;
+    }
+    setRecorded(null);
+    setWaveform([]);
+    setPreview(null);
+    setBusy(true);
+    await temporaryRecorder.start();
+    setBusy(false);
   }
   async function trim() {
     if (!crop) return; setBusy(true); let url = ''; const context = new AudioContext();
@@ -93,12 +97,12 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
   }
   return <AppDialog title={t(adding ? '@yovoice.voice.addTitle' : '@yovoice.voice.pickTitle')}
     width={adding ? 400 : 560} busy={busy} error={error} onClose={() => { cancelRecording(); onClose(); }} closeLabel={t(adding ? '@yovoice.voice.closeAdd' : '@yovoice.voice.closePick')}
-    actions={!adding && !showRecording ? <Button label={t('@yovoice.voice.confirmSelection')} variant="primary" isDisabled={!selected || busy || recording} onClick={() => { if (selected) onSelect(selected); }} /> : undefined}>
-      {!showRecording ? <HStack gap={2} wrap="wrap"><Button label={t('@yovoice.voice.import')} size="sm" icon={<Upload size={16} />} isLoading={busy} isDisabled={recording} onClick={() => input.current?.click()} /><Button label={t('@yovoice.voice.record')} size="sm" variant="secondary" icon={<Mic size={16} />} isDisabled={busy || recording} aria-expanded={showRecording} onClick={() => { setShowRecording(value => !value); setCrop(null); setPreview(null); }} /></HStack> : null}
+    actions={!adding && !showRecording ? <Button label={t('@yovoice.voice.confirmSelection')} variant="primary" isDisabled={!selected || busy || temporaryRecorder.active} onClick={() => { if (selected) onSelect(selected); }} /> : undefined}>
+      {!showRecording ? <HStack gap={2} wrap="wrap"><Button label={t('@yovoice.voice.import')} size="sm" icon={<Upload size={16} />} isLoading={busy} isDisabled={temporaryRecorder.active} onClick={() => input.current?.click()} /><Button label={t('@yovoice.voice.record')} size="sm" variant="secondary" icon={<Mic size={16} />} isDisabled={busy || temporaryRecorder.active} aria-expanded={showRecording} onClick={() => { setShowRecording(value => !value); setCrop(null); setPreview(null); }} /></HStack> : null}
       <input type="file" hidden ref={input} accept="audio/*,.aac,.m4a,.mp3,.wav,.flac,.ogg,.opus,.aiff,.aif,.wma,.webm" onChange={e => { const file = e.target.files?.[0]; if (file) void importing(file); e.target.value = ''; }} />
       {showRecording ? <VStack className="recording-form" gap={4}>
         <HStack className="recording-name" gap={3} vAlign="center"><label htmlFor={nameId}>{t('@yovoice.voice.recordName')}</label><TextInput id={nameId} label={t('@yovoice.voice.recordName')} isLabelHidden value={name} onChange={setName} /></HStack>
-        {stream ? <RecordingMeter stream={stream} /> : null}
+        {temporaryRecorder.stream ? <RecordingMeter stream={temporaryRecorder.stream} /> : null}
         {recorded ? <>
           <RecordingPlayback url={recordingURL} levels={waveform} onError={() => setError(t('@yovoice.error.audioPlayFailed'))} />
           <HStack gap={2} hAlign="end"><Button label={t('@yovoice.voice.rerecord')} isDisabled={busy} onClick={() => void record()} /><Button label={t('@yovoice.voice.saveRecording')} variant="primary" isDisabled={!name.trim()} isLoading={busy} onClick={async () => {
@@ -107,14 +111,14 @@ export function VoicePicker({ voices, onClose, onSelect, adding = false }: { add
             catch (error) { setError(formatCallError(t, error)); }
             finally { setBusy(false); }
           }} /></HStack>
-        </> : <Button label={recording ? t('@yovoice.voice.stopRecord') : t('@yovoice.voice.startRecord')} icon={recording ? <Square size={17} /> : <Mic size={17} />} variant="primary" isDisabled={busy} onClick={() => void record()} />}
+        </> : <Button label={temporaryRecorder.recording ? t('@yovoice.voice.stopRecord') : t('@yovoice.voice.startRecord')} icon={temporaryRecorder.recording ? <Square size={17} /> : <Mic size={17} />} variant="primary" isDisabled={busy} onClick={() => void record()} />}
       </VStack> : null}
       {!adding && !showRecording && voices.length ? <TextInput label={t('@yovoice.library.searchVoices')} isLabelHidden placeholder={t('@yovoice.library.searchVoices')} startIcon={<Search />} value={query} onChange={value => { setQuery(value); setPreview(null); }} hasClear /> : null}
       {!adding && !showRecording ? <VStack className="voice-list" data-editing={!!crop} gap={0}>{voices.length ? voices.filter(v => v.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).map(voice => <HStack key={voice.id} className="voice-row" data-selected={selected?.id === voice.id} gap={3} vAlign="center">
-        <HStack className="voice-choice-mark" gap={0}>{selected?.id === voice.id ? <Check size={18} /> : <AudioLines className="muted" size={18} strokeWidth={1.5} />}</HStack><Button label={voice.name} variant="ghost" className="grow text-left" isDisabled={busy || recording} aria-pressed={selected?.id === voice.id} onClick={() => setSelected(voice)} /><small>{formatTime(voice.duration)}</small>
-        <Player inline={{ label: t('@yovoice.voice.audition', { name: voice.name }), select: () => audition(voice) }} track={preview?.id === voice.id ? preview : null} suspended={recording || busy}
+        <HStack className="voice-choice-mark" gap={0}>{selected?.id === voice.id ? <Check size={18} /> : <AudioLines className="muted" size={18} strokeWidth={1.5} />}</HStack><Button label={voice.name} variant="ghost" className="grow text-left" isDisabled={busy || temporaryRecorder.recording} aria-pressed={selected?.id === voice.id} onClick={() => setSelected(voice)} /><small>{formatTime(voice.duration)}</small>
+        <Player inline={{ label: t('@yovoice.voice.audition', { name: voice.name }), select: () => audition(voice) }} track={preview?.id === voice.id ? preview : null} suspended={temporaryRecorder.recording || busy}
           onError={message => { setPreview(null); setError(formatCallError(t, new Error(message))); }} />
-        <Button label={t('@yovoice.voice.crop')} size="sm" variant="secondary" isDisabled={recording || busy} onClick={() => { setPreview(null); setCrop(voice); setShowRecording(false); setRange([0, voice.duration]); }} />
+        <Button label={t('@yovoice.voice.crop')} size="sm" variant="secondary" isDisabled={temporaryRecorder.recording || busy} onClick={() => { setPreview(null); setCrop(voice); setShowRecording(false); setRange([0, voice.duration]); }} />
       </HStack>) : null}</VStack> : null}
       {crop ? <VStack gap={3}><h3>{t('@yovoice.voice.cropTitle', { name: crop.name })}</h3><Slider label={t('@yovoice.voice.cropRange')} value={range} min={0} max={crop.duration} step={0.1} onChange={(value: [number, number]) => setRange(value)} formatValue={formatTime} valueDisplay="text" /><Button label={t('@yovoice.voice.saveCrop')} variant="primary" isLoading={busy} onClick={() => void trim()} /></VStack> : null}
   </AppDialog>;
