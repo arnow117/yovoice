@@ -165,8 +165,8 @@ func TestComposeScoreSubmitsAndRepairs(t *testing.T) {
 	task, err := w.StartScore(ScoreBrief{ProjectID: "p1", Brief: "温暖的钢琴小品", Seconds: 10, Locale: schema.UiLocaleZhCN})
 	must(t, err)
 	done := waitAI(t, w)
-	if done.Status != "completed" || done.Stage != "repairing" {
-		t.Fatalf("任务应完成且阶段为 repairing：%+v", done)
+	if done.Status != "completed" {
+		t.Fatalf("任务应完成：%+v", done)
 	}
 	var score ComposedScore
 	must(t, json.Unmarshal(done.Result, &score))
@@ -243,7 +243,7 @@ func TestAITaskCompletesInBackground(t *testing.T) {
 	}}})
 	task, err := w.StartLyrics(LyricsBrief{ProjectID: "p1", Brief: "夏天"})
 	must(t, err)
-	if task.Status != "running" || task.ProjectID != "p1" || task.Model != "llama3" || task.Timeout != schema.AITimeoutDefault || task.Stage != "writing" {
+	if task.Status != "running" || task.ProjectID != "p1" || task.Model != "llama3" || task.Timeout != schema.AITimeoutDefault || task.Stage != "thinking" {
 		t.Fatalf("应返回运行中的任务：%+v", task)
 	}
 	done := waitAI(t, w)
@@ -286,6 +286,43 @@ func TestBuildScoreRepeats(t *testing.T) {
 	in.Tracks[0].Notes, in.Tracks[0].Repeats = many, []scoreRepeat{{From: 1, To: 1, At: at}}
 	if _, err = buildScore(in); err == nil || !strings.Contains(err.Error(), "after repeats") {
 		t.Fatal("展开超出上限应报错", err)
+	}
+}
+
+// 阶段随工具调用推进：构思 → 写入并校验 → 按校验修正 → 再次写入并校验后完成。
+func TestAIStageProgression(t *testing.T) {
+	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
+		{Call: "submit_score", Args: scoreArgs(true)},
+		{SleepMS: 150},
+		{Call: "submit_score", Args: scoreArgs(false)},
+		{SleepMS: 150},
+		{Result: "success"},
+	}}})
+	_, err := w.StartScore(ScoreBrief{ProjectID: "p1", Brief: "温暖的钢琴小品", Locale: schema.UiLocaleZhCN})
+	must(t, err)
+	changes, stop := w.Store.Subscribe()
+	defer stop()
+	var stages []string
+	deadline := time.After(30 * time.Second)
+	for {
+		task := w.Store.Read().AITask
+		if task != nil && task.Status != "running" {
+			if task.Stage != "writing" {
+				t.Fatalf("最后一次提交后阶段应为 writing：%+v", task)
+			}
+			break
+		}
+		if task != nil && (len(stages) == 0 || stages[len(stages)-1] != task.Stage) {
+			stages = append(stages, task.Stage)
+		}
+		select {
+		case <-changes:
+		case <-deadline:
+			t.Fatal("AI 任务没有结束")
+		}
+	}
+	if strings.Join(stages, ",") != "thinking,writing,repairing,writing" {
+		t.Fatalf("阶段推进不对：%v", stages)
 	}
 }
 

@@ -50,7 +50,7 @@ export function ScoreEditor({ draft, state, change, locale, onError, configureAI
   const applyScore = (result: unknown) => change(composedScorePatch(draft.title, result));
   const composer = <AIComposer kind="score" projectId={draft.id} state={state} overwrite={notes > 0} configure={configureAI} apply={applyScore}
     placeholder={t('@yovoice.ai.scorePlaceholder')} submitLabel={t('@yovoice.ai.scoreSubmit')}
-    start={brief => call('ai.score', { projectId: draft.id, brief, seconds, locale })}
+    start={(brief, followUp) => call('ai.score', { projectId: draft.id, brief, seconds, locale, ...(followUp ? { followUp, draft: score } : {}) })}
     extra={<Selector label={t('@yovoice.ai.scoreSeconds')} isLabelHidden size="sm" width="calc(var(--spacing-10) * 2.5)" value={String(seconds)} options={lengths.map(value => ({ value: String(value), label: t('@yovoice.ai.scoreLength', { time: formatTime(value) }) }))} onChange={value => setSeconds(Number(value))} />} />;
   const summary = [score.key, `${score.tempo} BPM`, score.timeSignature.join('/'), t('@yovoice.score.barCount', { count: scoreBars(score) }), formatTime(scoreDuration(score))].filter(Boolean).join(' · ');
   return <VStack className="score-editor" gap={5}>

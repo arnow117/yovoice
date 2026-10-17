@@ -39,7 +39,8 @@ const (
 )
 
 // AITask 是后台运行的 AI 写作任务：关闭对话框后仍在进行，结束后结果留在状态里等界面取用。
-// 只在内存中有效，重启后清除。Status 为 running、completed、failed 或 cancelled。
+// 只在内存中有效，重启后清除。Status 为 running、completed、failed 或 cancelled；
+// Stage 随工具调用推进：thinking（构思）、writing（写入并校验）、repairing（按校验修正）。
 type AITask struct {
 	ID          string          `json:"id"`
 	Kind        string          `json:"kind"`

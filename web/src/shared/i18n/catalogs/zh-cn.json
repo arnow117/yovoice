@@ -2325,7 +2325,7 @@
     "defaultMessage": "AI 服务"
   },
   "@yovoice.ai.intro": {
-    "defaultMessage": "接入大模型后，可在编曲中让 AI 写谱、在音乐生成中让 AI 写歌词。请求从本机直接发往你选择的服务。"
+    "defaultMessage": "接入大模型后，内置 AI 助手可在编曲中写谱、在音乐生成中写词，并支持在结果上继续修改。"
   },
   "@yovoice.ai.addProvider": {
     "defaultMessage": "添加服务"
@@ -2525,9 +2525,6 @@
   "@yovoice.ai.openProject": {
     "defaultMessage": "打开作品"
   },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "在后台写作，可以继续编辑或去别的页面，写好后会提示你。"
-  },
   "@yovoice.ai.busyElsewhere": {
     "defaultMessage": "另一个 AI 任务正在进行，结束后才能开始。"
   },
@@ -2552,11 +2549,29 @@
   "@yovoice.ai.setup.lyrics": {
     "defaultMessage": "接入大模型后，可以用一句话让 AI 写出风格和歌词。"
   },
+  "@yovoice.ai.stage.thinking": {
+    "defaultMessage": "{model} 正在构思"
+  },
   "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} 正在写"
+    "defaultMessage": "{model} 正在写入并校验"
   },
   "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} 正在修正格式"
+    "defaultMessage": "{model} 正在按校验修正"
+  },
+  "@yovoice.ai.followUp": {
+    "defaultMessage": "继续修改"
+  },
+  "@yovoice.ai.followUpSubmit": {
+    "defaultMessage": "发送"
+  },
+  "@yovoice.ai.followUpPlaceholder.score": {
+    "defaultMessage": "还想怎么改？例如：节奏再轻快一些"
+  },
+  "@yovoice.ai.followUpPlaceholder.lyrics": {
+    "defaultMessage": "还想怎么改？例如：副歌再简单一些"
+  },
+  "@yovoice.ai.assistantMissing": {
+    "defaultMessage": "当前安装包未包含 AI 助手运行时"
   },
   "@yovoice.ai.task.running.score": {
     "defaultMessage": "AI 正在写谱"
@@ -2576,17 +2591,11 @@
   "@yovoice.ai.task.failed.lyrics": {
     "defaultMessage": "AI 写歌词没有成功"
   },
-  "@yovoice.ai.task.replace.score": {
-    "defaultMessage": "应用后会替换当前编曲。"
-  },
-  "@yovoice.ai.task.replace.lyrics": {
-    "defaultMessage": "应用后会替换当前的风格和歌词。"
-  },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "AI 服务在 {seconds} 秒内没有写完。可以在“设置 › 常规”里延长 AI 请求超时，或换一个更快的模型。"
   },
   "@yovoice.error.assistantMissing": {
-    "defaultMessage": "内置创作助手缺失。请重新安装应用，或通过 YOVOICE_OCHO_PATH 指定 ocho 运行时。"
+    "defaultMessage": "当前安装包未包含 AI 助手运行时，AI 写谱与写词暂不可用。"
   },
   "@yovoice.music.lyricsMode": {
     "defaultMessage": "歌词模式"

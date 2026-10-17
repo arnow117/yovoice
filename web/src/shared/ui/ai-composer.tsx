@@ -2,8 +2,9 @@ import { useEffect, useEffectEvent, useState, type ReactNode } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TextArea } from '@astryxdesign/core/TextArea';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowUpRight, Check, CircleAlert, LoaderCircle, PenLine, Settings2 } from 'lucide-react';
+import { ArrowUpRight, Check, CircleAlert, LoaderCircle, PenLine, Send, Settings2 } from 'lucide-react';
 import { call, isDesktop } from '../lib/client';
 import { formatCallError } from '../i18n/format';
 import { Selector } from '../selector';
@@ -26,21 +27,26 @@ function useElapsed(task?: AITask) {
 
 const dismiss = (task: AITask) => call('ai.dismiss', { id: task.id });
 
-// AI 写作栏：一句话描述 → 后台写作 → 写好后应用。任务在后台运行，可离开页面继续编辑；
-// 内容为空时写好直接填入，已有内容时先问是否替换；失败时显示原因、用时，可重试或打开日志。
+// AI 写作栏：一句话描述 → 后台写作 → 写好后应用，可在结果上继续修改。
+// 任务在后台运行，可离开页面继续编辑；内容为空时写好直接填入，已有内容时先问是否替换；
+// 失败时显示原因、用时，可重试或打开日志。
 export function AIComposer({ kind, projectId, state, placeholder, submitLabel, extra, overwrite, start, apply, configure }: {
   kind: AITaskKind; projectId: string; state: State; placeholder: string; submitLabel: string; extra?: ReactNode;
-  overwrite: boolean; start: (brief: string) => Promise<unknown>; apply: (result: unknown) => void; configure: () => void;
+  overwrite: boolean; start: (brief: string, followUp?: string) => Promise<unknown>; apply: (result: unknown) => void; configure: () => void;
 }) {
   const t = useTranslator();
   const current = state.aiTask;
   const task = current && current.kind === kind && current.projectId === projectId ? current : undefined;
   const elsewhere = current?.status === 'running' && !task;
   const [brief, setBrief] = useState(task?.brief ?? '');
+  const [followUp, setFollowUp] = useState('');
+  // hasResult 标记本作品已应用过一轮结果，入口处随之出现“继续修改”输入。
+  const [hasResult, setHasResult] = useState(false);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState('');
   const elapsed = useElapsed(task);
   const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
+  const runtimeMissing = !!state.assistantMissing;
   // 与常见 AI 应用一致：写作栏直接在已配置的服务和模型之间切换，按服务分组；选项值为“服务 ID + 模型”。
   const ready = (state.aiProviders ?? []).filter(p => p.model || p.models?.length);
   const choice = (id: string, model: string) => `${id}\n${model}`;
@@ -49,13 +55,17 @@ export function AIComposer({ kind, projectId, state, placeholder, submitLabel, e
   // 结束后的收尾：取消直接清掉；内容为空时写好直接应用。
   const settle = useEffectEvent(() => {
     if (task?.status === 'cancelled') void dismiss(task);
-    else if (task?.status === 'completed' && !overwrite) { apply(task.result); void dismiss(task); }
+    else if (task?.status === 'completed' && !overwrite) { apply(task.result); setHasResult(true); void dismiss(task); }
   });
   useEffect(() => settle(), [task?.status, task?.id]);
   useEffect(() => { if (task?.brief) setBrief(task.brief); }, [task?.brief]);
-  async function run() {
+  async function run(followUpText?: string) {
     setStarting(true); setError('');
-    try { if (task && task.status !== 'running') await dismiss(task); await start(brief.trim()); }
+    try {
+      if (followUpText) setFollowUp('');
+      if (task && task.status !== 'running') await dismiss(task);
+      await start(brief.trim(), followUpText);
+    }
     catch (e) { setError(formatCallError(t, e)); }
     finally { setStarting(false); }
   }
@@ -65,18 +75,19 @@ export function AIComposer({ kind, projectId, state, placeholder, submitLabel, e
     <small className="grow">{t(`@yovoice.ai.setup.${kind}`)}</small>
     <Button size="sm" variant="secondary" icon={<Settings2 />} label={t('@yovoice.ai.configure')} onClick={configure} />
   </HStack>;
+  const stage = task?.stage === 'thinking' || task?.stage === 'repairing' ? task.stage : 'writing';
   return <VStack className="ai-composer" data-status={status ?? 'idle'} gap={0} aria-busy={status === 'running'}>
     {status === 'running' && task ? <VStack className="ai-composer-body" gap={2} role="status">
       <HStack gap={2} vAlign="center">
         <LoaderCircle className="generation-spinner" size={16} aria-hidden />
-        <b className="grow">{t(`@yovoice.ai.stage.${task.stage === 'repairing' ? 'repairing' : 'writing'}`, { model: task.model })}</b>
+        <b className="grow">{t(`@yovoice.ai.stage.${stage}`, { model: task.model })}</b>
         <small className="ai-composer-time">{formatTime(elapsed)} / {formatTime(task.timeout)}</small>
       </HStack>
       <p className="ai-composer-brief">{task.brief}</p>
       <progress className="ai-composer-progress" value={Math.min(elapsed, task.timeout)} max={task.timeout} aria-label={t('@yovoice.create.elapsed')} />
     </VStack> : status === 'completed' && task ? <HStack className="ai-composer-body" gap={3} vAlign="center" role="status">
       <Check className="ai-composer-mark" size={16} aria-hidden />
-      <VStack className="grow" gap={0}><b>{t(`@yovoice.ai.task.done.${kind}`)}</b><small>{t(`@yovoice.ai.task.replace.${kind}`)}</small></VStack>
+      <b className="grow">{t(`@yovoice.ai.task.done.${kind}`)}</b>
     </HStack> : status === 'failed' && task ? <HStack className="ai-composer-body" gap={3} vAlign="start" role="alert">
       <CircleAlert className="ai-composer-mark" size={16} aria-hidden />
       <VStack className="grow" gap={1}>
@@ -84,26 +95,37 @@ export function AIComposer({ kind, projectId, state, placeholder, submitLabel, e
         <p>{formatCallError(t, task)}</p>
         <small>{t('@yovoice.ai.failedMeta', { time: formatTime(elapsed), model: task.model })}</small>
       </VStack>
-    </HStack> : <TextArea className="ai-composer-input" label={t(`@yovoice.ai.brief.${kind}`)} isLabelHidden value={brief} rows={2} maxLength={2000} placeholder={placeholder} hasSpellCheck={false} onChange={value => setBrief(value.slice(0, 2000))} />}
+    </HStack> : <VStack className="ai-composer-body" gap={2}>
+      <TextArea className="ai-composer-input" label={t(`@yovoice.ai.brief.${kind}`)} isLabelHidden value={brief} rows={2} maxLength={2000} placeholder={placeholder} hasSpellCheck={false} onChange={value => setBrief(value.slice(0, 2000))} />
+      {hasResult ? <HStack className="ai-composer-followup" gap={2} vAlign="center">
+        <TextInput className="ai-composer-followup-input grow" label={t('@yovoice.ai.followUp')} isLabelHidden size="sm" value={followUp}
+          placeholder={t(`@yovoice.ai.followUpPlaceholder.${kind}`)} isDisabled={elsewhere || runtimeMissing}
+          onChange={value => setFollowUp(value.slice(0, 2000))}
+          onEnter={() => { const text = followUp.trim(); if (text && !starting) void run(text); }} />
+        <Button size="sm" variant="secondary" icon={<Send />} label={t('@yovoice.ai.followUpSubmit')} isLoading={starting}
+          isDisabled={!followUp.trim() || elsewhere || runtimeMissing} onClick={() => void run(followUp.trim())} />
+      </HStack> : null}
+    </VStack>}
     <HStack className="ai-composer-footer" gap={2} vAlign="center" wrap="wrap">
       {status === 'running' ? <>
-        <small className="grow">{t('@yovoice.ai.backgroundHint')}</small>
+        <HStack className="grow" gap={0} />
         <Button size="sm" label={t('@yovoice.action.cancel')} onClick={() => void call('ai.cancel')} />
       </> : status === 'completed' && task ? <>
         <HStack className="grow" gap={0} />
         <Button size="sm" variant="ghost" label={t('@yovoice.ai.discard')} onClick={() => void dismiss(task)} />
-        <Button size="sm" variant="primary" icon={<Check />} label={t('@yovoice.ai.apply')} onClick={() => { apply(task.result); void dismiss(task); }} />
+        <Button size="sm" variant="primary" icon={<Check />} label={t('@yovoice.ai.apply')} onClick={() => { apply(task.result); setHasResult(true); void dismiss(task); }} />
       </> : status === 'failed' && task ? <>
         <HStack className="grow" gap={0} />
         {isDesktop ? <Button size="sm" variant="ghost" icon={<ArrowUpRight />} label={t('@yovoice.ai.openLogs')} onClick={() => void call('logs.open').catch(e => setError(formatCallError(t, e)))} /> : null}
         <Button size="sm" variant="ghost" label={t('@yovoice.action.closeNotice')} onClick={() => void dismiss(task)} />
         <Button size="sm" variant="primary" label={t('@yovoice.ai.retry')} isLoading={starting} onClick={() => void run()} />
       </> : <>
-        {elsewhere ? <small className="grow ai-composer-via">{t('@yovoice.ai.busyElsewhere')}</small>
+        {runtimeMissing ? <small className="grow ai-composer-via" role="alert"><CircleAlert className="ai-composer-mark" size={14} aria-hidden /> {t('@yovoice.ai.assistantMissing')}</small>
+          : elsewhere ? <small className="grow ai-composer-via">{t('@yovoice.ai.busyElsewhere')}</small>
           : <HStack className="grow ai-composer-via" gap={0}><Selector label={t('@yovoice.ai.model')} isLabelHidden size="sm" variant="ghost" className="ai-composer-model" value={provider?.model ? choice(provider.id, provider.model) : undefined} options={modelOptions} hasSearch={modelOptions.reduce((n, s) => n + s.options.length, 0) > 12} searchPlaceholder={t('@yovoice.ai.searchModels')}
             renderValue={option => <HStack gap={2} vAlign="center"><PenLine size={14} aria-hidden />{provider?.name} · {option.label}</HStack>} onChange={pick} /></HStack>}
         {extra}
-        <Button size="sm" variant="primary" label={submitLabel} isLoading={starting} isDisabled={!brief.trim() || elsewhere} onClick={() => void run()} />
+        <Button size="sm" variant="primary" label={submitLabel} isLoading={starting} isDisabled={!brief.trim() || elsewhere || runtimeMissing} onClick={() => void run()} />
       </>}
     </HStack>
     {error ? <small className="ai-composer-error" role="alert">{error}</small> : null}

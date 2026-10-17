@@ -9,6 +9,7 @@ import (
 	"yovoice/internal/catalog"
 	"yovoice/internal/diag"
 	"yovoice/internal/msg"
+	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 	"yovoice/internal/score"
 	"yovoice/internal/workbench"
@@ -45,7 +46,9 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	}
 	switch method {
 	case "state.get":
-		return map[string]any{"state": w.Store.Read(), "catalog": catalog.Models, "engine": map[string]string{"version": catalog.EngineVersion, "minimum": catalog.EngineMinimum}, "desktop": true}, nil
+		// assistant 报告随包的 AI 助手运行时是否存在：缺失时界面禁用 AI 写作并说明原因。
+		_, ochoErr := platform.OchoExecutable()
+		return map[string]any{"state": w.Store.Read(), "catalog": catalog.Models, "engine": map[string]string{"version": catalog.EngineVersion, "minimum": catalog.EngineMinimum}, "desktop": true, "assistant": map[string]bool{"available": ochoErr == nil}}, nil
 	case "draft.save", "generation.start":
 		d := schema.DefaultDraft()
 		if e := json.Unmarshal(data, &d); e != nil {

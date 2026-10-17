@@ -336,7 +336,8 @@ func (w *Workbench) assistantConfig() (assistant.Config, error) {
 	return assistant.Config{Executable: executable, Model: c.Model, Env: append(providerEnv(p, c), proxyEnv(w.Store.Read().Preferences)...)}, nil
 }
 
-// askAssistant 把任务交给内置助手跑一轮：提交被拒后任务阶段转为 repairing，超时转换为可读错误。
+// askAssistant 把任务交给内置助手跑一轮：任务阶段随工具调用推进（构思 → 写入并校验 → 按校验修正），
+// 超时转换为可读错误。
 func (w *Workbench) askAssistant(ctx context.Context, draft *aiDraft, message string) error {
 	cfg, err := w.assistantConfig()
 	if err != nil {
@@ -351,6 +352,9 @@ func (w *Workbench) askAssistant(ctx context.Context, draft *aiDraft, message st
 	diag.Log(w.Store.Root, "ai.request", fields...)
 	started := time.Now()
 	_, err = w.assistant.Ask(ctx, cfg, message, func(e assistant.Event) {
+		if e.Kind == assistant.EventToolStart && strings.HasPrefix(e.Tool, "submit_") {
+			w.setAIStage("writing")
+		}
 		if e.Kind == assistant.EventToolResult && e.ToolError {
 			diag.Log(w.Store.Root, "ai.tool_rejected", "task_id", draft.taskID, "tool", e.Tool)
 			if strings.HasPrefix(e.Tool, "submit_") {
@@ -383,7 +387,7 @@ func (w *Workbench) startAI(kind, projectID, brief string, work func(context.Con
 	if w.ai.cancel != nil {
 		return schema.AITask{}, msg.Err(msg.ErrBusy, nil)
 	}
-	task := schema.AITask{ID: schema.NewID(), Kind: kind, ProjectID: projectID, Brief: brief, Status: "running", Stage: "writing", Provider: p.Name, Model: c.Model,
+	task := schema.AITask{ID: schema.NewID(), Kind: kind, ProjectID: projectID, Brief: brief, Status: "running", Stage: "thinking", Provider: p.Name, Model: c.Model,
 		Timeout: int(aiTimeout(w.Store.Read().Preferences).Seconds()), StartedAt: time.Now().UTC()}
 	if e = w.Store.Update(func(s *schema.State) { s.AITask = &task }, false); e != nil {
 		return schema.AITask{}, e

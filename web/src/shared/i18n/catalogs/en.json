@@ -2325,7 +2325,7 @@
     "defaultMessage": "AI services"
   },
   "@yovoice.ai.intro": {
-    "defaultMessage": "Connect a large language model to let AI write arrangements in Score and lyrics in Music. Requests go straight from this computer to the service you choose."
+    "defaultMessage": "Connect a large language model and the built-in AI assistant writes arrangements in Score and lyrics in Music, with follow-up edits on the results."
   },
   "@yovoice.ai.addProvider": {
     "defaultMessage": "Add service"
@@ -2525,9 +2525,6 @@
   "@yovoice.ai.openProject": {
     "defaultMessage": "Open project"
   },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "Writing in the background. Keep editing or move on; you'll be told when it's done."
-  },
   "@yovoice.ai.busyElsewhere": {
     "defaultMessage": "Another AI task is running. Start this one after it finishes."
   },
@@ -2552,11 +2549,29 @@
   "@yovoice.ai.setup.lyrics": {
     "defaultMessage": "Connect a language model to let AI write the style and lyrics from one sentence."
   },
+  "@yovoice.ai.stage.thinking": {
+    "defaultMessage": "{model} is thinking"
+  },
   "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} is writing"
+    "defaultMessage": "{model} is writing & checking"
   },
   "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} is fixing the format"
+    "defaultMessage": "{model} is revising"
+  },
+  "@yovoice.ai.followUp": {
+    "defaultMessage": "Keep revising"
+  },
+  "@yovoice.ai.followUpSubmit": {
+    "defaultMessage": "Send"
+  },
+  "@yovoice.ai.followUpPlaceholder.score": {
+    "defaultMessage": "What should change? e.g. a slightly brighter tempo"
+  },
+  "@yovoice.ai.followUpPlaceholder.lyrics": {
+    "defaultMessage": "What should change? e.g. a simpler chorus"
+  },
+  "@yovoice.ai.assistantMissing": {
+    "defaultMessage": "This build does not include the AI assistant runtime"
   },
   "@yovoice.ai.task.running.score": {
     "defaultMessage": "AI is composing"
@@ -2576,17 +2591,11 @@
   "@yovoice.ai.task.failed.lyrics": {
     "defaultMessage": "AI couldn't write the lyrics"
   },
-  "@yovoice.ai.task.replace.score": {
-    "defaultMessage": "Applying replaces the current arrangement."
-  },
-  "@yovoice.ai.task.replace.lyrics": {
-    "defaultMessage": "Applying replaces the current style and lyrics."
-  },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "The AI service didn't finish within {seconds} seconds. Increase the AI request timeout in Settings › General, or pick a faster model."
   },
   "@yovoice.error.assistantMissing": {
-    "defaultMessage": "The built-in assistant runtime is missing. Reinstall the app, or point YOVOICE_OCHO_PATH to the ocho executable."
+    "defaultMessage": "This build does not include the AI assistant runtime, so AI composing and lyric writing are unavailable."
   },
   "@yovoice.music.lyricsMode": {
     "defaultMessage": "Lyrics mode"

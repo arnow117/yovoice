@@ -47,7 +47,9 @@ export function subscribePreview(listener: (state: State) => void) { listeners.a
 
 export async function previewCall<T>(method: string, data: unknown): Promise<T> {
   const state = preview();
-  if (method === 'state.get') return { state, catalog, engine: { version: '', minimum: '' }, desktop: false } as T;
+  // 预览默认带上助手运行时；测试可用 yovoice-preview-no-ocho 模拟安装包缺失的情形。
+  const assistant = { available: !localStorage.getItem('yovoice-preview-no-ocho') };
+  if (method === 'state.get') return { state, catalog, engine: { version: '', minimum: '' }, desktop: false, assistant } as T;
   if (method === 'character.save') {
     const character = structuredClone(data as Character);
     if (!character.name.trim() || character.name.length > 120 || character.demoText.length > 2000) throw new CallError('@yovoice.error.characterInvalid');
@@ -232,18 +234,33 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     }, 300);
     return { url: '' } as T;
   }
-  // 预览模拟 AI 后台任务的生命周期：开始后短暂运行，再以“仅桌面可用”结束，便于检查界面闭环。
+  // 预览模拟 AI 后台任务的生命周期：阶段依次推进，随后按测试开关以示例结果完成或以
+  // “仅桌面可用”结束，便于检查界面闭环；followUp 与草稿随任务写回状态供测试断言。
   if (method === 'ai.score' || method === 'ai.lyrics') {
-    const input = data as { projectId: string; brief: string };
+    const input = data as { projectId: string; brief: string; followUp?: string; draft?: unknown };
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
+    if (!assistant.available) throw new CallError('@yovoice.error.assistantMissing');
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
     if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
-    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    const task: AITask & { followUp?: string; hasDraft?: boolean } = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'thinking', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    task.followUp = input.followUp;
+    task.hasDraft = !!input.draft;
     state.aiTask = task; publish();
+    const stage = (at: number, value: AITask['stage']) => setTimeout(() => {
+      if (state.aiTask?.id === task.id && state.aiTask.status === 'running') { state.aiTask = { ...state.aiTask, stage: value }; publish(); }
+    }, at);
+    void stage(500, 'writing');
+    void stage(1300, 'repairing');
     setTimeout(() => {
       if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;
-      state.aiTask = { ...state.aiTask, status: 'failed', finishedAt: new Date().toISOString(), errorCode: '@yovoice.error.previewDesktopOnly' }; publish();
-    }, 1500);
+      if (!localStorage.getItem('yovoice-preview-ai-success')) {
+        state.aiTask = { ...state.aiTask, status: 'failed', finishedAt: new Date().toISOString(), errorCode: '@yovoice.error.previewDesktopOnly' }; publish(); return;
+      }
+      const result = task.kind === 'score'
+        ? { title: '示例小步舞曲', tempo: 100, timeSignature: [4, 4], sections: [{ name: 'A', start: 1, end: 4 }], tracks: [{ id: 'p', name: '钢琴', role: 'piano', program: 0, notes: [{ bar: 1, beat: 1, pitch: 60, length: 1, velocity: 80 }, { bar: 1, beat: 3, pitch: 64, length: 1, velocity: 76 }, { bar: 2, beat: 1, pitch: 67, length: 2, velocity: 78 }] }] }
+        : { title: '夏夜兜风', style: 'city pop, warm synths', lyrics: '[verse]\n晚风吹过海岸线\n[chorus]\n夏夜一路向前', language: 'zh' };
+      state.aiTask = { ...state.aiTask, status: 'completed', finishedAt: new Date().toISOString(), stage: 'writing', result }; publish();
+    }, 2200);
     return task as T;
   }
   if (method === 'ai.cancel') {

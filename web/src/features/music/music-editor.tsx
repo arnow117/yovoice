@@ -71,7 +71,8 @@ export function MusicEditor({ draft, state, change, locale, configureAI }: {
   return <VStack className="music-editor" gap={5}>
     <AIComposer kind="lyrics" projectId={draft.id} state={state} overwrite={!empty} configure={configureAI} apply={applyLyrics}
       placeholder={t(draft.instrumental ? '@yovoice.ai.lyricsPlaceholderInstrumental' : '@yovoice.ai.lyricsPlaceholder')} submitLabel={t('@yovoice.ai.lyricsSubmit')}
-      start={brief => call('ai.lyrics', { projectId: draft.id, brief, instrumental: !!draft.instrumental, language: draft.synthesisLanguage ?? '', locale })} />
+      start={(brief, followUp) => call('ai.lyrics', { projectId: draft.id, brief, instrumental: !!draft.instrumental, language: draft.synthesisLanguage ?? '', locale,
+        ...(followUp ? { followUp, draft: { title: draft.title, style: draft.text, lyrics: draft.lyrics ?? '', language: draft.synthesisLanguage ?? '' } } : {}) })} />
     <VStack className="music-block" gap={3}>
       <HStack className="music-style-header" hAlign="between" vAlign="center" gap={2}>
         <h2>{t('@yovoice.music.style')}</h2>
