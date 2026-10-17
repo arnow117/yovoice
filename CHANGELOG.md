@@ -4,9 +4,17 @@
 
 ## [Unreleased]
 
-- AI 写谱与写词改由内置 Agent 运行时（ocho）完成：先读取任务上下文，再通过提交工具交付结果，校验不通过时按具体错误自行修正，写作质量与成功率更高。
-- AI 写作新增“继续修改”基础（后端类型与协议已就绪，界面将在下个版本提供）。
-- 对外 MCP 与内置助手共用同一份工具定义，助手只开放写谱写词相关的最小工具集，不提供文件、命令或网络能力。
+### English
+
+- AI composing and lyric writing now run through the built-in AI assistant: it reads the task, submits results through validation and corrects them itself when checks fail, and it only exposes the minimal score and lyrics tools.
+- Results can be revised: after applying a score or lyrics, describe what to change and the assistant continues on the current content.
+- The assistant follows the configured AI service and the proxy in preferences.
+
+### 简体中文
+
+- AI 写谱与写词改由内置 AI 助手完成：结果先经校验再交付，不通过时按具体错误自行修正；助手只开放写谱写词所需的最小工具集。
+- 支持在结果上继续修改：应用写好的乐谱或歌词后，写下修改意见即可让助手在当前内容上继续调整。
+- 助手沿用已配置的 AI 服务与偏好设置里的代理。
 
 ## [0.2.1] - 2026-10-16
 

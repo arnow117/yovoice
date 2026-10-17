@@ -52,7 +52,7 @@ yovoice 是一款适用于 macOS 和 Windows 的开源、本地优先（Local-fi
 - **故事配音** — 导入文本或字幕文件，为每句台词分配角色并逐句生成。
 - **音乐生成** — 写下风格和带段落标记的歌词，用 ACE-Step 1.5 生成歌曲或纯音乐，或用 YuE2 生成带人声歌曲；播放页按人声同步歌词。
 - **编曲** — 按小节和拍写声部，或导入 MIDI、交给 Agent 写谱，用 General MIDI 音色库渲染，导出 MIDI 和分轨。详见[编曲](docs/score_zh.md)。
-- **可选 AI 服务** — 让 DeepSeek、通义千问、Kimi、OpenAI、Anthropic、Ollama 或任意兼容接口写谱、写歌词；密钥只保存在本机。详见[AI 服务](docs/ai_zh.md)。
+- **可选 AI 服务** — 内置 AI 助手通过 DeepSeek、通义千问、Kimi、OpenAI、Anthropic、Ollama 或任意兼容接口写谱、写歌词，并支持在结果上继续修改；密钥只保存在本机。详见[AI 服务](docs/ai_zh.md)。
 
 ---
 

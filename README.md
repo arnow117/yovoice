@@ -53,7 +53,7 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 - **Story dubbing** — import text or subtitle files, assign a character to each line, and generate line by line.
 - **Music** — write a style and lyrics with section markers, then generate songs or instrumentals with ACE-Step 1.5, or vocal songs with YuE2; the playback page syncs lyrics to the vocals.
 - **Score** — write parts by bar and beat, import MIDI or let an Agent compose, render with a General MIDI sound font, and export MIDI and stems. See [Score](docs/score.md).
-- **Optional AI service** — let DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API write arrangements and lyrics; keys stay on this computer. See [AI service](docs/ai.md).
+- **Optional AI service** — the built-in AI assistant writes arrangements and lyrics through DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API, and keeps revising the results on request; keys stay on this computer. See [AI service](docs/ai.md).
 
 ---
 
