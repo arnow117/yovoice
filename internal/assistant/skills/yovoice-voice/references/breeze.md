@@ -1,8 +1,3 @@
----
-name: yovoice-voice-breeze
-description: Voice design, cloning and advanced parameters for Breeze TTS models (modelId starts with breeze-tts-). Use when a text or story work uses a breeze-tts-* model and the user wants to describe a voice or delivery, or change guidance and sampling.
----
-
 # Breeze TTS 2 (breeze-tts-2-q8 / -q4 / -bf16)
 
 Apply with `update_work` {"id","settings":{...}}; only given fields change.

@@ -1,8 +1,3 @@
----
-name: yovoice-voice-indextts
-description: Voice settings and advanced parameters for IndexTTS models (modelId starts with index-). Use when a text or story work uses an index-* model and the user wants to change its emotion, speed, sampling or chunking.
----
-
 # IndexTTS (index-2.5-*, index-2-*)
 
 Always clones a reference voice: the work (or story speaker) needs `voiceId` (from `list_voices`). Everything below goes in `update_work` {"id","settings":{...}}; only given fields change.

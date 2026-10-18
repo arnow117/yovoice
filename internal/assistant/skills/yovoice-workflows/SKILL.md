@@ -15,7 +15,7 @@ Work types: `text` 语音 (narration / voice-over), `story` 故事配音 (multi-
 
 ## Voice settings and characters (声音设置与角色)
 
-Everything in the right-hand inspector is editable with `update_work` {"id","settings":{...}} (only given fields change; out-of-range values are rejected with the reason). Which fields exist and their ranges differ per model: read the skill for the work's model only when the user asks for such a change — yovoice-voice-indextts, -omnivoice, -qwen3-tts, -voxcpm2, -breeze or -kokoro, picked by the prefix of the work's `modelId` (`get_work`). Do not load them otherwise.
+Everything in the right-hand inspector is editable with `update_work` {"id","settings":{...}}. Fields and ranges differ per model: load the yovoice-voice skill only when the user asks for such a change.
 - Save a voice as a reusable character: `save_character` {"name","fromWork":<work id>} copies the work's current voice settings; add "settings" to tweak. No need to create a work for this, and it does not switch the page.
 - Use one: `list_characters`, then `update_work` {"id","characterId"}; for a story speaker `update_work` {"id","speakerSettings":[{"speaker","characterId"}]}.
 - Changing one speaker's parameters only: `speakerSettings` [{"speaker","settings":{...}}].

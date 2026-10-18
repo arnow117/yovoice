@@ -1,8 +1,3 @@
----
-name: yovoice-voice-qwen3-tts
-description: Voice settings and advanced parameters for Qwen3-TTS models (modelId starts with qwen3-tts-). Use when a text or story work uses a qwen3-tts-* model and the user wants to pick a built-in speaker, design a voice, or change language or sampling.
----
-
 # Qwen3-TTS (qwen3-tts-base-*, -customvoice-*, -voicedesign-*)
 
 Apply with `update_work` {"id","settings":{...}}; only given fields change. The model name tells the variant:

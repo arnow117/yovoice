@@ -44,7 +44,7 @@ type voiceSettingsInput struct {
 	LengthPenalty     *float64                  `json:"lengthPenalty,omitempty" jsonschema:"长度惩罚 -2 到 2"`
 	GuidanceScale     *float64                  `json:"guidanceScale,omitempty" jsonschema:"VoxCPM2 的引导强度 0.5-5"`
 	InferenceSteps    *int                      `json:"inferenceSteps,omitempty" jsonschema:"VoxCPM2 的推理步数 0-50"`
-	ModelOptions      map[string]map[string]any `json:"modelOptions,omitempty" jsonschema:"各模型家族的高级参数，形如 {\"omnivoice\":{\"num_inference_steps\":32}}；每个模型能用哪些字段、键与取值范围见对应的 yovoice-voice-* skill（按作品 modelId 前缀选一个读），只改给出的键"`
+	ModelOptions      map[string]map[string]any `json:"modelOptions,omitempty" jsonschema:"各模型家族的高级参数，形如 {\"omnivoice\":{\"num_inference_steps\":32}}；每个模型能用哪些字段、键与取值范围见 yovoice-voice skill 里该模型的参考文档，只改给出的键"`
 }
 
 // applyVoiceSettings 把补丁写进合成设置，返回改动了哪些项；校验交给保存时的统一规则。
@@ -390,7 +390,7 @@ func voiceSettingsError(d schema.Draft) error {
 		if slices.Contains(incompleteSettings, code) {
 			continue
 		}
-		return fmt.Errorf("声音设置不合法（%s）：请对照取值范围修改后重试，各模型的可用字段与范围见对应的 yovoice-voice-* skill", strings.TrimPrefix(string(code), "@yovoice."))
+		return fmt.Errorf("声音设置不合法（%s）：请对照取值范围修改后重试，各模型的可用字段与范围见 yovoice-voice skill 里该模型的参考文档", strings.TrimPrefix(string(code), "@yovoice."))
 	}
 	return nil
 }

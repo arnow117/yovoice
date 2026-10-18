@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"yovoice/internal/assistant"
 	"yovoice/internal/catalog"
 	"yovoice/internal/diag"
 	"yovoice/internal/msg"
@@ -24,7 +25,20 @@ func (w *Workbench) registerAgentTools(server *mcp.Server) {
 	mcp.AddTool(server, &mcp.Tool{Name: "get_recent_errors", Description: "读取最近的警告与错误日志（事件名、错误码与少量字段，已脱敏）。排查生成失败、下载失败、引擎问题时调用；错误码含义见 yovoice-product skill。"}, w.recentErrorsTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "remember_preference", Description: "记住一条用户明确表达的长期偏好（常用音色、风格、语言、语速、称呼等），以后每次对话都会带上。只记用户亲口说的偏好，一条一件事，不记一次性的要求。"}, w.rememberTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "forget_preference", Description: "删除一条已记住的偏好（id 见 <ui_context> 里的 preferences）。用户说不再需要或偏好变了时调用。"}, w.forgetTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "read_skill_reference", Description: "读取 Skill 附带的参考文档（Skill 正文里写明何时读、读哪一篇），只读需要的那一篇。"}, w.skillReferenceTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "propose_action", Description: "提议一个需要用户确认的操作，界面显示确认卡片，用户点确认后才执行。action：delete_work（target=作品 ID）、delete_generation（target=生成记录 ID）、delete_character（target=声音库角色 ID）、install_model（target=模型 ID）、install_engine（安装或更新推理引擎）、cleanup_storage（清理无用的临时文件与孤立生成）、set_backend（value=计算设备，如 metal、cpu、cuda、vulkan）、set_download_source（value=huggingface、mirror 或 modelscope）。调用后告诉用户去卡片上确认，不要声称已经完成。"}, w.proposeTool)
+}
+
+// skillReferenceTool 转交 Skill 的参考文档：助手进程只开放 Skill 工具，不能直接读文件。
+func (w *Workbench) skillReferenceTool(ctx context.Context, req *mcp.CallToolRequest, in struct {
+	Skill string `json:"skill" jsonschema:"Skill 名称，如 yovoice-voice"`
+	Name  string `json:"name" jsonschema:"参考文档名，如 omnivoice"`
+}) (*mcp.CallToolResult, any, error) {
+	body, err := assistant.SkillReference(in.Skill, in.Name)
+	if err != nil {
+		return nil, nil, err
+	}
+	return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: body}}}, nil, nil
 }
 
 func (w *Workbench) appStatusTool(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, any, error) {

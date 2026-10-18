@@ -1,8 +1,3 @@
----
-name: yovoice-voice-voxcpm2
-description: Voice design, cloning and advanced parameters for VoxCPM2 models (modelId starts with voxcpm2-). Use when a text or story work uses a voxcpm2-* model and the user wants to design a voice, continue a reference, or tune guidance, steps and chunking.
----
-
 # VoxCPM2 (voxcpm2-q8 / -bf16 / -orig)
 
 Apply with `update_work` {"id","settings":{...}}; only given fields change.

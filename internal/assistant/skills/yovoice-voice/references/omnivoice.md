@@ -1,8 +1,3 @@
----
-name: yovoice-voice-omnivoice
-description: Voice design, cloning and advanced parameters for OmniVoice models (modelId starts with omnivoice-). Use when a text or story work uses an omnivoice-* model and the user wants to design a voice or change speed, language or sampling.
----
-
 # OmniVoice (omnivoice-q8 / -bf16 / -f16)
 
 Apply with `update_work` {"id","settings":{...}}; only given fields change.

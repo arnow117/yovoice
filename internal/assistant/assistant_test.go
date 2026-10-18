@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -343,9 +342,9 @@ func TestReapOrphan(t *testing.T) {
 	}
 }
 
-// 每个语音模型的参数说明各占一个 Skill，只在需要时才加载；高级参数的键必须与目录里的定义一致，
-// 目录新增或改名参数后这里会提醒同步 Skill。
-func TestVoiceSkillsCoverCatalogOptions(t *testing.T) {
+// 各语音模型的参数说明是 yovoice-voice 的参考文档，只在需要时读取；高级参数的键必须与目录里的定义一致，
+// 目录新增或改名参数后这里会提醒同步文档。参考文档随 Skill 写入工作区，读取不能越出 references 目录。
+func TestVoiceReferencesCoverCatalogOptions(t *testing.T) {
 	raw, err := os.ReadFile("../catalog/generation_options.json")
 	if err != nil {
 		t.Fatal(err)
@@ -356,23 +355,48 @@ func TestVoiceSkillsCoverCatalogOptions(t *testing.T) {
 	if err = json.Unmarshal(raw, &options); err != nil {
 		t.Fatal(err)
 	}
-	families := map[string]string{"index_tts2": "yovoice-voice-indextts", "omnivoice": "yovoice-voice-omnivoice", "qwen3_tts": "yovoice-voice-qwen3-tts", "voxcpm2": "yovoice-voice-voxcpm2", "breeze_tts": "yovoice-voice-breeze", "kokoro_tts": "yovoice-voice-kokoro"}
-	for family, skill := range families {
-		body, err := skillFS.ReadFile("skills/" + skill + "/SKILL.md")
+	skill, err := skillFS.ReadFile("skills/yovoice-voice/SKILL.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	families := map[string]string{"index_tts2": "indextts", "omnivoice": "omnivoice", "qwen3_tts": "qwen3-tts", "voxcpm2": "voxcpm2", "breeze_tts": "breeze", "kokoro_tts": "kokoro"}
+	if got := SkillReferences("yovoice-voice"); len(got) != len(families) {
+		t.Fatalf("参考文档数量不对：%v", got)
+	}
+	for family, name := range families {
+		text, err := SkillReference("yovoice-voice", name)
 		if err != nil {
-			t.Fatalf("缺少 %s：%v", skill, err)
+			t.Fatal(err)
 		}
-		text := string(body)
-		if !strings.HasPrefix(text, "---\nname: "+skill+"\n") || !slices.Contains(skillNames, skill) {
-			t.Fatalf("%s 的名称或登记不对", skill)
+		if !strings.Contains(string(skill), "`"+name+"`") {
+			t.Errorf("SKILL.md 没有列出参考文档 %s", name)
 		}
 		if len(options[family]) == 0 {
 			t.Fatalf("目录里没有 %s 的高级参数", family)
 		}
 		for _, option := range options[family] {
 			if !strings.Contains(text, "`"+option.Key+"`") {
-				t.Errorf("%s 没有说明高级参数 %s", skill, option.Key)
+				t.Errorf("%s 没有说明高级参数 %s", name, option.Key)
 			}
 		}
+	}
+	for _, bad := range [][2]string{{"yovoice-voice", "../SKILL"}, {"yovoice-voice", "nope"}, {"other", "kokoro"}, {"yovoice-voice", ""}} {
+		if _, err := SkillReference(bad[0], bad[1]); err == nil {
+			t.Errorf("%v 应被拒绝", bad)
+		}
+	}
+	root := t.TempDir()
+	stale := filepath.Join(root, "assistant", "workspace", ".agents", "skills", "yovoice-voice-kokoro")
+	if err = os.MkdirAll(stale, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err = writeAssets(root); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "assistant", "workspace", ".agents", "skills", "yovoice-voice", "references", "omnivoice.md")); err != nil {
+		t.Fatal("参考文档应随 Skill 写入工作区", err)
+	}
+	if _, err = os.Stat(stale); !os.IsNotExist(err) {
+		t.Fatal("已移除的旧 Skill 应从工作区删掉")
 	}
 }

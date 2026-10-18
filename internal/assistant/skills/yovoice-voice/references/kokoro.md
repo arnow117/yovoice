@@ -1,8 +1,3 @@
----
-name: yovoice-voice-kokoro
-description: Voice selection and parameters for Kokoro TTS models (modelId starts with kokoro-). Use when a text or story work uses a kokoro-* model and the user wants to change the speaker voice, language or chunking.
----
-
 # Kokoro (kokoro-82m-q8 / -bf16, kokoro-1.1-zh-q8)
 
 A small fixed-voice model: no cloning, no description, no emotion. Apply with `update_work` {"id","settings":{...}}.
