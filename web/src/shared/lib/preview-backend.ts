@@ -217,7 +217,12 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
         const clear = <T extends SynthesisSettings>(s: T): T => ({ ...s, voiceId: s.voiceId === id ? null : s.voiceId, emotionVoiceId: s.emotionVoiceId === id ? null : s.emotionVoiceId });
         state.drafts = state.drafts.map(d => ({ ...clear(d), performance: d.performance && { ...d.performance, settings: clear(d.performance.settings) } }));
         state.history = state.history.map(g => ({ ...g, settings: { ...g.settings, voiceId: g.settings.voiceId === id ? null : g.settings.voiceId, emotionVoiceId: g.settings.emotionVoiceId === id ? null : g.settings.emotionVoiceId } }));
-      } else state.history = state.history.filter(v => v.id !== id);
+      } else {
+        // 与服务端一致：同时清掉时间轴的已采纳标记和由它保存出的声音的来源。
+        state.history = state.history.filter(v => v.id !== id);
+        state.drafts = state.drafts.map(d => d.timeline?.acceptedGenerations?.includes(id) ? { ...d, timeline: { ...d.timeline, acceptedGenerations: d.timeline.acceptedGenerations.filter(g => g !== id) } } : d);
+        state.voices = state.voices.map(v => v.sourceGenerationId === id ? { ...v, sourceGenerationId: undefined } : v);
+      }
       if (item && ![...state.voices, ...state.history].some(v => v.fileName === item.fileName)) await blobDelete(item.fileName);
     }
     publish(); return true as T;

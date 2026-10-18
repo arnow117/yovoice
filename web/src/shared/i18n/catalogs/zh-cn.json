@@ -1544,12 +1544,6 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "删除片段"
   },
-  "@yovoice.timeline.position": {
-    "defaultMessage": "起点（秒）"
-  },
-  "@yovoice.timeline.moveTo": {
-    "defaultMessage": "移动到音轨"
-  },
   "@yovoice.timeline.hint": {
     "defaultMessage": "选择片段，在播放头处分割；拖动片段可调整位置或音轨。"
   },
@@ -1598,20 +1592,11 @@
   "@yovoice.project.empty": {
     "defaultMessage": "还没有作品"
   },
-  "@yovoice.project.all": {
-    "defaultMessage": "全部类型"
-  },
   "@yovoice.project.copy": {
     "defaultMessage": "复制作品"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "重命名作品"
-  },
-  "@yovoice.project.open": {
-    "defaultMessage": "打开作品"
-  },
-  "@yovoice.project.unknownDate": {
-    "defaultMessage": "尚无修改时间"
   },
   "@yovoice.library.voicesTab": {
     "defaultMessage": "角色"
@@ -1729,9 +1714,6 @@
   },
   "@yovoice.timeline.importDuration": {
     "defaultMessage": "音频时长需在 0.01 秒至 1 小时之间。"
-  },
-  "@yovoice.timeline.exportFormat": {
-    "defaultMessage": "WAV · 24 kHz · 单声道 · 最长 1 小时"
   },
   "@yovoice.character.new": {
     "defaultMessage": "新建角色"
@@ -3403,12 +3385,6 @@
   },
   "@yovoice.assistant.copied": {
     "defaultMessage": "已复制"
-  },
-  "@yovoice.assistant.contextOn": {
-    "defaultMessage": "附带当前页面与作品上下文，点击不再附带"
-  },
-  "@yovoice.assistant.contextOff": {
-    "defaultMessage": "不附带上下文，点击恢复"
   },
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "当前 AI 服务（ChatGPT 订阅）不能用于助手，请在设置里换用接口类服务。"

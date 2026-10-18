@@ -1544,12 +1544,6 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "クリップを削除"
   },
-  "@yovoice.timeline.position": {
-    "defaultMessage": "開始（秒）"
-  },
-  "@yovoice.timeline.moveTo": {
-    "defaultMessage": "トラックへ移動"
-  },
   "@yovoice.timeline.hint": {
     "defaultMessage": "クリップを選択すると再生ヘッドの位置で分割できます。ドラッグで時間やトラックを移動できます。"
   },
@@ -1598,20 +1592,11 @@
   "@yovoice.project.empty": {
     "defaultMessage": "作品はまだありません"
   },
-  "@yovoice.project.all": {
-    "defaultMessage": "すべての種類"
-  },
   "@yovoice.project.copy": {
     "defaultMessage": "作品を複製"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "作品の名前を変更"
-  },
-  "@yovoice.project.open": {
-    "defaultMessage": "作品を開く"
-  },
-  "@yovoice.project.unknownDate": {
-    "defaultMessage": "更新日時なし"
   },
   "@yovoice.library.voicesTab": {
     "defaultMessage": "キャラクター"
@@ -1729,9 +1714,6 @@
   },
   "@yovoice.timeline.importDuration": {
     "defaultMessage": "音声の長さは 0.01 秒から 1 時間の間にしてください。"
-  },
-  "@yovoice.timeline.exportFormat": {
-    "defaultMessage": "WAV · 24 kHz · モノラル · 最長 1 時間"
   },
   "@yovoice.character.new": {
     "defaultMessage": "新しいキャラクター"
@@ -3406,12 +3388,6 @@
   },
   "@yovoice.assistant.copied": {
     "defaultMessage": "コピーしました"
-  },
-  "@yovoice.assistant.contextOn": {
-    "defaultMessage": "現在のページと作品の情報を添付中。クリックで添付をやめる"
-  },
-  "@yovoice.assistant.contextOff": {
-    "defaultMessage": "情報を添付していません。クリックで再開"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "言葉に声を、ひらめきを歌に。"

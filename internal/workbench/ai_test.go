@@ -188,25 +188,6 @@ func TestAIModelsAndTest(t *testing.T) {
 	}
 }
 
-// scoreArgs 组装 update_work 乐谱补丁的工具参数。
-func scoreArgs(bad bool) json.RawMessage {
-	beat := 1.0
-	if bad {
-		beat = 99 // 超出每小节拍数，校验应拒绝。
-	}
-	data, _ := json.Marshal(map[string]any{
-		"tempo": 100, "timeSignature": []int{4, 4}, "key": "C 大调",
-		"sections": []any{map[string]any{"name": "主歌", "start": 1, "end": 2}},
-		"tracks": []any{
-			map[string]any{"id": "p", "name": "钢琴", "role": "piano", "program": 0,
-				"notes": []any{[]any{1, 1, 60, 1, 80}, []any{2, beat, 64, 0.5, 70}}},
-			map[string]any{"id": "d", "name": "鼓", "role": "drums", "program": 0, "drums": true,
-				"notes": []any{map[string]any{"bar": 1, "beat": 1, "pitch": 36, "length": 0.25, "velocity": 100}}},
-		},
-	})
-	return data
-}
-
 // 循环段落只写一遍，由 repeats 展开；展开后超出音符上限要报错。
 func TestBuildScoreRepeats(t *testing.T) {
 	in := scoreInput{}

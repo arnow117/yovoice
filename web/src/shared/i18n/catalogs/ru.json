@@ -1544,12 +1544,6 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "Удалить фрагмент"
   },
-  "@yovoice.timeline.position": {
-    "defaultMessage": "Начало (секунды)"
-  },
-  "@yovoice.timeline.moveTo": {
-    "defaultMessage": "Переместить на дорожку"
-  },
   "@yovoice.timeline.hint": {
     "defaultMessage": "Выберите фрагмент, чтобы разрезать его по курсору. Перетаскивайте фрагменты по времени или между дорожками."
   },
@@ -1598,20 +1592,11 @@
   "@yovoice.project.empty": {
     "defaultMessage": "Проектов пока нет"
   },
-  "@yovoice.project.all": {
-    "defaultMessage": "Все типы"
-  },
   "@yovoice.project.copy": {
     "defaultMessage": "Дублировать проект"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "Переименовать проект"
-  },
-  "@yovoice.project.open": {
-    "defaultMessage": "Открыть проект"
-  },
-  "@yovoice.project.unknownDate": {
-    "defaultMessage": "Дата изменения неизвестна"
   },
   "@yovoice.library.voicesTab": {
     "defaultMessage": "Персонажи"
@@ -1729,9 +1714,6 @@
   },
   "@yovoice.timeline.importDuration": {
     "defaultMessage": "Длительность аудио должна быть от 0,01 секунды до 1 часа."
-  },
-  "@yovoice.timeline.exportFormat": {
-    "defaultMessage": "WAV · 24 кГц · моно · до 1 часа"
   },
   "@yovoice.character.new": {
     "defaultMessage": "Новый персонаж"
@@ -3406,12 +3388,6 @@
   },
   "@yovoice.assistant.copied": {
     "defaultMessage": "Скопировано"
-  },
-  "@yovoice.assistant.contextOn": {
-    "defaultMessage": "Прикладываются текущая страница и работа. Нажмите, чтобы не прикладывать контекст."
-  },
-  "@yovoice.assistant.contextOff": {
-    "defaultMessage": "Контекст не прикладывается. Нажмите, чтобы приложить текущую страницу и работу."
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Дайте словам голос. Превратите идеи в песни."

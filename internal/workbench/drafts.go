@@ -118,6 +118,18 @@ func (w *Workbench) DeleteDraft(id string) error {
 		s.Drafts = slices.DeleteFunc(s.Drafts, func(d schema.Draft) bool { return d.ID == id })
 		if len(deleteIDs) > 0 {
 			s.History = slices.DeleteFunc(s.History, func(g schema.Generation) bool { return deleteIDs[g.ID] })
+			for i := range s.Voices {
+				if deleteIDs[s.Voices[i].SourceGenerationID] {
+					s.Voices[i].SourceGenerationID = ""
+				}
+			}
+		}
+		// 作品专属的待取结果（出谱、已结束的 AI 写作）随作品一起丢弃，不再留给其他作品。
+		if s.Melody != nil && s.Melody.ProjectID == id {
+			s.Melody = nil
+		}
+		if s.AITask != nil && s.AITask.ProjectID == id && s.AITask.Status != "running" {
+			s.AITask = nil
 		}
 	}, true)
 	if err != nil {

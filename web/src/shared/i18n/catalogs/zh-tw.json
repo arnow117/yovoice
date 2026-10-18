@@ -1544,12 +1544,6 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "刪除片段"
   },
-  "@yovoice.timeline.position": {
-    "defaultMessage": "起點（秒）"
-  },
-  "@yovoice.timeline.moveTo": {
-    "defaultMessage": "移動到音軌"
-  },
   "@yovoice.timeline.hint": {
     "defaultMessage": "選取片段，在播放頭處分割；拖曳片段可調整位置或音軌。"
   },
@@ -1598,20 +1592,11 @@
   "@yovoice.project.empty": {
     "defaultMessage": "還沒有作品"
   },
-  "@yovoice.project.all": {
-    "defaultMessage": "全部類型"
-  },
   "@yovoice.project.copy": {
     "defaultMessage": "複製作品"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "重新命名作品"
-  },
-  "@yovoice.project.open": {
-    "defaultMessage": "開啟作品"
-  },
-  "@yovoice.project.unknownDate": {
-    "defaultMessage": "尚無修改時間"
   },
   "@yovoice.library.voicesTab": {
     "defaultMessage": "角色"
@@ -1729,9 +1714,6 @@
   },
   "@yovoice.timeline.importDuration": {
     "defaultMessage": "音訊時長需在 0.01 秒至 1 小時之間。"
-  },
-  "@yovoice.timeline.exportFormat": {
-    "defaultMessage": "WAV · 24 kHz · 單聲道 · 最長 1 小時"
   },
   "@yovoice.character.new": {
     "defaultMessage": "新增角色"
@@ -3406,12 +3388,6 @@
   },
   "@yovoice.assistant.copied": {
     "defaultMessage": "已複製"
-  },
-  "@yovoice.assistant.contextOn": {
-    "defaultMessage": "附帶目前頁面與作品脈絡，點擊後不再附帶"
-  },
-  "@yovoice.assistant.contextOff": {
-    "defaultMessage": "不附帶脈絡，點擊恢復"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "讓文字發聲，把靈感譜成歌"

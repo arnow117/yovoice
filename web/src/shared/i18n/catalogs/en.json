@@ -1544,12 +1544,6 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "Delete clip"
   },
-  "@yovoice.timeline.position": {
-    "defaultMessage": "Start (seconds)"
-  },
-  "@yovoice.timeline.moveTo": {
-    "defaultMessage": "Move to track"
-  },
   "@yovoice.timeline.hint": {
     "defaultMessage": "Select a clip to split at the playhead. Drag clips to move in time or between tracks."
   },
@@ -1598,20 +1592,11 @@
   "@yovoice.project.empty": {
     "defaultMessage": "No projects yet"
   },
-  "@yovoice.project.all": {
-    "defaultMessage": "All types"
-  },
   "@yovoice.project.copy": {
     "defaultMessage": "Duplicate project"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "Rename project"
-  },
-  "@yovoice.project.open": {
-    "defaultMessage": "Open project"
-  },
-  "@yovoice.project.unknownDate": {
-    "defaultMessage": "No modification date"
   },
   "@yovoice.library.voicesTab": {
     "defaultMessage": "Characters"
@@ -1729,9 +1714,6 @@
   },
   "@yovoice.timeline.importDuration": {
     "defaultMessage": "Audio must be between 0.01 seconds and 1 hour."
-  },
-  "@yovoice.timeline.exportFormat": {
-    "defaultMessage": "WAV · 24 kHz · Mono · Up to 1 hour"
   },
   "@yovoice.character.new": {
     "defaultMessage": "New character"
@@ -3403,12 +3385,6 @@
   },
   "@yovoice.assistant.copied": {
     "defaultMessage": "Copied"
-  },
-  "@yovoice.assistant.contextOn": {
-    "defaultMessage": "Includes current page and work. Click to stop attaching context."
-  },
-  "@yovoice.assistant.contextOff": {
-    "defaultMessage": "No context attached. Click to attach current page and work."
   },
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "The current AI service (ChatGPT subscription) can't be used by the assistant. Switch to an API-based service in Settings."

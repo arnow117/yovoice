@@ -154,7 +154,6 @@
   .book-chapter + .book-chapter, .book-role + .book-role { border-top: var(--border-width) solid var(--app-line); }
   .book-role-text { min-width: 0; }
   .book-role-sample { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .book-role .compact-player, .book-role .player-avatar { flex-shrink: 0; }
   .subtitle-speaker-trigger { padding: 0; flex-shrink: 0; margin-top: calc((var(--app-editor-font) * 1.9 - var(--spacing-8)) / 2); }
   .subtitle-speaker-trigger .subtitle-avatar { width: var(--spacing-6); height: var(--spacing-6); }
   .subtitle-editor > * { flex-shrink: 0; }
@@ -269,8 +268,6 @@
   .settings-page h1,.library-page h1 { font-size: var(--font-size-2xl); }
   .library-heading { min-height: var(--spacing-10); }
   .library-controls { min-height: var(--spacing-10); justify-content: center; }
-  .history-group-heading { padding-block: var(--spacing-3); border-bottom: var(--border-width) solid var(--app-line); }
-  .history-group + .history-group { margin-top: var(--spacing-4); }
   .history-meta { color: var(--app-muted); font-size: var(--app-small-font); font-variant-numeric: tabular-nums; }
   .history-meta b { color: var(--app-ink); font-weight: var(--font-weight-bold); }
   .audio-actions-menu { min-width: calc(var(--spacing-10) * 5); }
@@ -352,7 +349,6 @@
   .recording-meter { color: var(--color-text-red); }
   .recording-meter svg { width: 100%; height: calc(var(--spacing-8) * 2); stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
   .recording-meter time { font-size: var(--font-size-2xl); font-variant-numeric: tabular-nums; }
-  .inspector-heading { flex-shrink: 0; }
   .inspector-section-title { font-size: var(--app-ui-font); font-weight: var(--font-weight-medium); }
   .inspector h3,.inspector .astryx-field-label { font-size: var(--app-small-font); color: var(--app-muted); font-weight: var(--font-weight-normal); line-height: 1.5; }
   .inspector .astryx-slider > span { font-size: var(--app-small-font); font-variant-numeric: tabular-nums; }
@@ -386,10 +382,6 @@
   .settings-page > [role="tabpanel"] > * { flex-shrink: 0; }
   .settings-page header { display: flex; align-items: center; height: var(--spacing-10); padding-block: 0; }
   .compute-device { max-width: calc(var(--spacing-10) * 6); }
-  .engine-help > summary { padding-block: 0; }
-  .engine-help[open] > summary { margin-bottom: var(--spacing-3); }
-  .settings-help { color: var(--app-muted); font-size: var(--app-small-font); }
-  .settings-help summary { justify-content: start; gap: var(--spacing-3); }
   .time { font-variant-numeric: tabular-nums; }
   /* 正文与检查器按创作区实际宽度排布（侧栏可拖宽），宽度不足时检查器自动收起；展开时保持与宽屏一致的面板宽度浮出，正文不被全屏覆盖。 */
   .studio { container: studio / inline-size; }
@@ -443,9 +435,6 @@
   .score-summary { color: var(--app-muted); font-family: var(--font-family-code); font-variant-numeric: tabular-nums; }
   .score-empty { padding: var(--spacing-8) var(--spacing-4); border-radius: var(--radius-container); background: var(--app-surface); color: var(--app-muted); text-align: center; line-height: 1.8; }
   .score-sections { border-radius: var(--radius-container); background: var(--app-surface); }
-  .score-section-row { padding: var(--spacing-2) var(--spacing-3); }
-  .score-section-row + .score-section-row { border-top: var(--border-width) solid var(--app-line); }
-  .score-section-time { color: var(--app-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
   /* 设置页：每组一张白卡片，行高、内边距和字号统一；标题与说明左对齐，控件右对齐。 */
   .settings-panel { width: 100%; padding-block: 0 var(--spacing-8); }
   .settings-intro { color: var(--app-muted); }

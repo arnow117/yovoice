@@ -1544,12 +1544,6 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "Supprimer l’extrait"
   },
-  "@yovoice.timeline.position": {
-    "defaultMessage": "Début (secondes)"
-  },
-  "@yovoice.timeline.moveTo": {
-    "defaultMessage": "Déplacer vers la piste"
-  },
   "@yovoice.timeline.hint": {
     "defaultMessage": "Sélectionnez un extrait pour le scinder à la tête de lecture. Faites glisser les extraits pour les déplacer dans le temps ou entre les pistes."
   },
@@ -1598,20 +1592,11 @@
   "@yovoice.project.empty": {
     "defaultMessage": "Aucun projet pour l’instant"
   },
-  "@yovoice.project.all": {
-    "defaultMessage": "Tous les types"
-  },
   "@yovoice.project.copy": {
     "defaultMessage": "Dupliquer le projet"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "Renommer le projet"
-  },
-  "@yovoice.project.open": {
-    "defaultMessage": "Ouvrir le projet"
-  },
-  "@yovoice.project.unknownDate": {
-    "defaultMessage": "Aucune date de modification"
   },
   "@yovoice.library.voicesTab": {
     "defaultMessage": "Personnages"
@@ -1729,9 +1714,6 @@
   },
   "@yovoice.timeline.importDuration": {
     "defaultMessage": "L’audio doit durer entre 0,01 seconde et 1 heure."
-  },
-  "@yovoice.timeline.exportFormat": {
-    "defaultMessage": "WAV · 24 kHz · mono · 1 heure max."
   },
   "@yovoice.character.new": {
     "defaultMessage": "Nouveau personnage"
@@ -3406,12 +3388,6 @@
   },
   "@yovoice.assistant.copied": {
     "defaultMessage": "Copié"
-  },
-  "@yovoice.assistant.contextOn": {
-    "defaultMessage": "Joint la page et l’œuvre actuelles. Cliquez pour ne plus joindre le contexte."
-  },
-  "@yovoice.assistant.contextOff": {
-    "defaultMessage": "Aucun contexte joint. Cliquez pour joindre la page et l’œuvre actuelles."
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Donnez une voix à vos mots. Faites de vos idées des chansons."

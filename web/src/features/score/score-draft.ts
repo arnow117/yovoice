@@ -29,9 +29,6 @@ export function scoreSeconds(score: Score, bar: number, beat = 1) {
 export const scoreDuration = (score: Score) => scoreSeconds(score, scoreBars(score) + 1);
 export const noteCount = (score: Score) => score.tracks.reduce((sum, t) => sum + t.notes.length, 0);
 
-const names = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
-export const pitchName = (pitch: number) => `${names[pitch % 12]}${Math.floor(pitch / 12) - 1}`;
-
 
 // 示例乐谱里的曲名、声部和段落名，按预置内容语言选择。
 const exampleNames: Record<SeedLocale, Record<'title' | 'pad' | 'piano' | 'violin' | 'viola' | 'cello' | 'arp' | 'drums' | 'key' | 'intro' | 'build' | 'outro', string>> = {

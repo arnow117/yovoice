@@ -1544,12 +1544,6 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "Elimina clip"
   },
-  "@yovoice.timeline.position": {
-    "defaultMessage": "Inizio (secondi)"
-  },
-  "@yovoice.timeline.moveTo": {
-    "defaultMessage": "Sposta nella traccia"
-  },
   "@yovoice.timeline.hint": {
     "defaultMessage": "Seleziona una clip da dividere sulla testina. Trascina le clip per spostarle nel tempo o tra le tracce."
   },
@@ -1598,20 +1592,11 @@
   "@yovoice.project.empty": {
     "defaultMessage": "Ancora nessun progetto"
   },
-  "@yovoice.project.all": {
-    "defaultMessage": "Tutti i tipi"
-  },
   "@yovoice.project.copy": {
     "defaultMessage": "Duplica progetto"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "Rinomina progetto"
-  },
-  "@yovoice.project.open": {
-    "defaultMessage": "Apri progetto"
-  },
-  "@yovoice.project.unknownDate": {
-    "defaultMessage": "Nessuna data di modifica"
   },
   "@yovoice.library.voicesTab": {
     "defaultMessage": "Personaggi"
@@ -1729,9 +1714,6 @@
   },
   "@yovoice.timeline.importDuration": {
     "defaultMessage": "L’audio deve durare tra 0,01 secondi e 1 ora."
-  },
-  "@yovoice.timeline.exportFormat": {
-    "defaultMessage": "WAV · 24 kHz · Mono · Fino a 1 ora"
   },
   "@yovoice.character.new": {
     "defaultMessage": "Nuovo personaggio"
@@ -3406,12 +3388,6 @@
   },
   "@yovoice.assistant.copied": {
     "defaultMessage": "Copiato"
-  },
-  "@yovoice.assistant.contextOn": {
-    "defaultMessage": "Include pagina e opera attuali. Fai clic per non allegare più il contesto."
-  },
-  "@yovoice.assistant.contextOff": {
-    "defaultMessage": "Nessun contesto allegato. Fai clic per allegare pagina e opera attuali."
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Dai voce alle tue parole. Trasforma le idee in canzoni."

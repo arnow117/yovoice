@@ -1544,12 +1544,6 @@
   "@yovoice.timeline.removeClip": {
     "defaultMessage": "Xóa đoạn"
   },
-  "@yovoice.timeline.position": {
-    "defaultMessage": "Bắt đầu (giây)"
-  },
-  "@yovoice.timeline.moveTo": {
-    "defaultMessage": "Chuyển sang rãnh"
-  },
   "@yovoice.timeline.hint": {
     "defaultMessage": "Chọn một đoạn để tách tại đầu phát. Kéo đoạn để di chuyển theo thời gian hoặc giữa các rãnh."
   },
@@ -1598,20 +1592,11 @@
   "@yovoice.project.empty": {
     "defaultMessage": "Chưa có dự án nào"
   },
-  "@yovoice.project.all": {
-    "defaultMessage": "Tất cả loại"
-  },
   "@yovoice.project.copy": {
     "defaultMessage": "Nhân bản dự án"
   },
   "@yovoice.project.rename": {
     "defaultMessage": "Đổi tên dự án"
-  },
-  "@yovoice.project.open": {
-    "defaultMessage": "Mở dự án"
-  },
-  "@yovoice.project.unknownDate": {
-    "defaultMessage": "Không có ngày sửa đổi"
   },
   "@yovoice.library.voicesTab": {
     "defaultMessage": "Nhân vật"
@@ -1729,9 +1714,6 @@
   },
   "@yovoice.timeline.importDuration": {
     "defaultMessage": "Âm thanh phải dài từ 0,01 giây đến 1 giờ."
-  },
-  "@yovoice.timeline.exportFormat": {
-    "defaultMessage": "WAV · 24 kHz · Mono · Tối đa 1 giờ"
   },
   "@yovoice.character.new": {
     "defaultMessage": "Nhân vật mới"
@@ -3406,12 +3388,6 @@
   },
   "@yovoice.assistant.copied": {
     "defaultMessage": "Đã sao chép"
-  },
-  "@yovoice.assistant.contextOn": {
-    "defaultMessage": "Đang đính kèm trang và tác phẩm hiện tại. Nhấn để thôi đính kèm ngữ cảnh."
-  },
-  "@yovoice.assistant.contextOff": {
-    "defaultMessage": "Không đính kèm ngữ cảnh. Nhấn để đính kèm trang và tác phẩm hiện tại."
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Cho lời nói của bạn một giọng nói. Biến ý tưởng thành bài hát."

@@ -26,11 +26,6 @@ export function isUiLocale(raw: unknown): raw is UiLocale {
 }
 
 /** Boundary parse for preferences.uiLocale (JSON / RPC). */
-export function parseUiLocale(raw: unknown): UiLocale {
-  if (isUiLocale(raw)) return raw;
-  throw new Error(`unsupported uiLocale: ${String(raw)}`);
-}
-
 /** 首次启动按系统语言选择：繁体（台港澳或 Hant）用繁體中文，其余中文用简体，葡语统一用巴西葡语，没有对应语言时用英文。 */
 export function resolveInitialUiLocale(navigatorLanguage: string): UiLocale {
   const tag = navigatorLanguage.trim().toLowerCase().replaceAll('_', '-');
