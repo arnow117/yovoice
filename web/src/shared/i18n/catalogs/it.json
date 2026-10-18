@@ -3176,6 +3176,90 @@
   "@yovoice.music.tagHint.rap": {
     "defaultMessage": "Rap dal ritmo veloce"
   },
+  "@yovoice.book.import": {
+    "defaultMessage": "Importa libro"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "File del libro"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "Importa libro"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "Titolo"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "Tutti i capitoli · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "{count} selezionati · {chars} caratteri"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "Parte {n}"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "Avanti: assegna i ruoli"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "Indietro"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "Ruoli e voci"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "{chapters} capitoli · {roles} personaggi · {lines} battute"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "Narrazione e dialoghi sono separati dalle virgolette, e chi parla è riconosciuto da frasi come «disse Alice». Puoi correggere ogni battuta nel progetto."
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "Assegna con l'IA"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model} sta assegnando i ruoli {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "L'output dell'IA non era utilizzabile per {count} passaggi; lì resta il risultato automatico."
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "Ascolta {name}"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "Voce di {name}"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "{count} battute"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "Dialogo senza interlocutore"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "Maschile"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "Femminile"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "Crea {count} progetti"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "Il file è troppo grande. I manoscritti di testo arrivano a 16 MB e gli EPUB a 32 MB."
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "Impossibile leggere questo EPUB. Verifica che non sia protetto da DRM o danneggiato."
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "Importa un libro in formato TXT, Markdown o EPUB."
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "L'IA sta assegnando i ruoli"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "L'IA ha assegnato i ruoli"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "Assegnazione con IA non riuscita"
+  },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Scrittura dello spartito della melodia"
   },

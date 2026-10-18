@@ -3176,6 +3176,90 @@
   "@yovoice.music.tagHint.rap": {
     "defaultMessage": "Fast rhythmic rap delivery"
   },
+  "@yovoice.book.import": {
+    "defaultMessage": "Import book"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "Book file"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "Import book"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "Title"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "All chapters · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "{count} selected · {chars} characters"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "Part {n}"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "Next: cast roles"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "Back"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "Cast roles and voices"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "{chapters} chapters · {roles} roles · {lines} lines"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "Narration and dialogue are split by quotes, and speakers found from phrases like “Alice said”. You can fix any line in the project afterwards."
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "Cast with AI"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model} is casting {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "AI output for {count} passages was unusable; those keep the automatic result."
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "Listen to {name}"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "Voice for {name}"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "{count} lines"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "Unattributed dialogue"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "Male"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "Female"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "Create {count} projects"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "The file is too large. Text manuscripts can be up to 16 MB and EPUB files up to 32 MB."
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "This EPUB file can't be read. Make sure it isn't DRM-protected or damaged."
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "Import a book as TXT, Markdown or EPUB."
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "AI is casting roles"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "AI finished casting"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "AI casting failed"
+  },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Writing the melody score"
   },

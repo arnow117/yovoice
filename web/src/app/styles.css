@@ -148,6 +148,13 @@
   .subtitle-add-cue, .subtitle-add-cue:hover { background: transparent; }
   .subtitle-add-cue:focus-visible { outline: none; text-decoration: underline; text-underline-offset: var(--spacing-1); }
   .subtitle-cue { padding-block: 0; }
+  /* 导入小说：章节与角色列表在对话框内滚动，示例台词单行省略。 */
+  .book-chapters, .book-roles { max-height: calc(var(--spacing-12) * 7); overflow-y: auto; border-block: var(--border-width) solid var(--app-line); }
+  .book-chapter, .book-role { padding-block: var(--spacing-2); padding-inline-end: var(--spacing-2); }
+  .book-chapter + .book-chapter, .book-role + .book-role { border-top: var(--border-width) solid var(--app-line); }
+  .book-role-text { min-width: 0; }
+  .book-role-sample { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .book-role .compact-player, .book-role .player-avatar { flex-shrink: 0; }
   .subtitle-speaker-trigger { padding: 0; flex-shrink: 0; margin-top: calc((var(--app-editor-font) * 1.9 - var(--spacing-8)) / 2); }
   .subtitle-speaker-trigger .subtitle-avatar { width: var(--spacing-6); height: var(--spacing-6); }
   .subtitle-editor > * { flex-shrink: 0; }

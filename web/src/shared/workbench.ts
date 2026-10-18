@@ -121,9 +121,9 @@ export interface MelodyChanges { tempo?: boolean; key?: boolean; vocal?: number[
 // 可选的大模型服务，与 Go 的 schema.AIProvider 一致；密钥不在状态中，只有掩码。
 export interface AITest { ok: boolean; code?: string; params?: Record<string, unknown>; at: string }
 // 后台 AI 写作任务，与 Go 的 schema.AITask 一致；只在本次会话有效。
-export type AITaskKind = 'score' | 'lyrics' | 'melody';
+export type AITaskKind = 'score' | 'lyrics' | 'cast' | 'melody';
 export interface AITask {
-  id: string; kind: AITaskKind; projectId: string; brief: string; status: 'running' | 'completed' | 'failed' | 'cancelled'; stage: 'writing' | 'repairing';
+  id: string; kind: AITaskKind; projectId: string; brief: string; status: 'running' | 'completed' | 'failed' | 'cancelled'; stage: 'writing' | 'repairing'; done?: number; total?: number;
   provider: string; model: string; timeout: number; startedAt: string; finishedAt?: string; result?: unknown; errorCode?: string; errorParams?: Record<string, unknown>;
 }
 export const aiTimeoutDefault = 600;

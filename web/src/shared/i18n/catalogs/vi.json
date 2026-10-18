@@ -3176,6 +3176,90 @@
   "@yovoice.music.tagHint.rap": {
     "defaultMessage": "Rap nhịp nhanh"
   },
+  "@yovoice.book.import": {
+    "defaultMessage": "Nhập sách"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "Tệp sách"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "Nhập sách"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "Tên sách"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "Tất cả chương · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "Đã chọn {count} · {chars} ký tự"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "Phần {n}"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "Tiếp: phân vai"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "Quay lại"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "Phân vai và giọng"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "{chapters} chương · {roles} nhân vật · {lines} câu"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "Lời kể và lời thoại được tách theo dấu ngoặc kép, người nói được nhận ra qua cụm như “Alice nói”. Bạn có thể sửa từng câu trong dự án sau đó."
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "Phân vai bằng AI"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model} đang phân vai {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "Kết quả AI không dùng được ở {count} đoạn; các đoạn đó giữ kết quả tự động."
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "Nghe thử {name}"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "Giọng cho {name}"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "{count} câu"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "Lời thoại chưa rõ người nói"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "Nam"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "Nữ"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "Tạo {count} dự án"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "Tệp quá lớn. Bản thảo văn bản tối đa 16 MB, EPUB tối đa 32 MB."
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "Không đọc được tệp EPUB này. Hãy kiểm tra tệp không có DRM và không bị hỏng."
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "Hãy nhập sách ở định dạng TXT, Markdown hoặc EPUB."
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "AI đang phân vai"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "AI đã phân vai xong"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "AI phân vai thất bại"
+  },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "Đang viết bản nhạc giai điệu"
   },

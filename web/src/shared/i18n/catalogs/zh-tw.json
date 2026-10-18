@@ -3176,6 +3176,90 @@
   "@yovoice.music.tagHint.rap": {
     "defaultMessage": "快節奏饒舌念白"
   },
+  "@yovoice.book.import": {
+    "defaultMessage": "匯入小說"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "小說檔案"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "匯入小說"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "書名"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "全部章節 · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "已選 {count} 章 · {chars} 字"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "第 {n} 部分"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "下一步：分角色"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "上一步"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "分角色與選角"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "{chapters} 章 · {roles} 個角色 · {lines} 句"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "已依引號和「某某說」自動拆分旁白與對白、辨識說話人；產生後可在作品裡逐句調整。"
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "AI 分角色"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model} 正在分角色 {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "有 {count} 段 AI 輸出無法使用，這些段保留了自動辨識的結果。"
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "試聽 {name}"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "{name} 的聲音"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "{count} 句"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "未辨識的對白"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "男聲"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "女聲"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "建立 {count} 個作品"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "檔案太大。文字書稿最多 16 MB，EPUB 最多 32 MB。"
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "無法讀取這個 EPUB 檔案，請確認它沒有加密（DRM）且未損壞。"
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "請匯入 TXT、Markdown 或 EPUB 格式的小說。"
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "AI 正在分角色"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "AI 分好了角色"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "AI 分角色失敗"
+  },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "正在寫旋律譜"
   },

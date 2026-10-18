@@ -246,12 +246,12 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     if (state.melody?.id === (data as { id: string }).id) { delete state.melody; publish(); }
     return true as T;
   }
-  if (method === 'ai.score' || method === 'ai.lyrics' || method === 'ai.melody') {
-    const input = data as { projectId: string; brief: string };
+  if (method === 'ai.score' || method === 'ai.lyrics' || method === 'ai.cast' || method === 'ai.melody') {
+    const input = method === 'ai.cast' ? { projectId: '', brief: (data as { title: string }).title } : data as { projectId: string; brief: string };
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
     if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
-    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : method === 'ai.melody' ? 'melody' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : method === 'ai.cast' ? 'cast' : method === 'ai.melody' ? 'melody' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
     state.aiTask = task; publish();
     setTimeout(() => {
       if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;

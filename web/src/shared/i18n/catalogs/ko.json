@@ -3176,6 +3176,90 @@
   "@yovoice.music.tagHint.rap": {
     "defaultMessage": "빠르고 리드미컬한 랩"
   },
+  "@yovoice.book.import": {
+    "defaultMessage": "소설 가져오기"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "소설 파일"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "소설 가져오기"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "제목"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "전체 장 · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "{count}개 장 선택 · {chars}자"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "{n}부"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "다음: 배역 나누기"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "이전"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "배역과 목소리"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "{chapters}개 장 · 배역 {roles}명 · {lines}줄"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "따옴표와 “누가 말했다” 같은 표현으로 서술과 대사를 나누고 화자를 찾았습니다. 만든 뒤 작품에서 줄마다 고칠 수 있습니다."
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "AI로 배역 나누기"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model}이(가) 배역을 나누는 중 {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "AI 출력 {count}개 구간을 사용할 수 없어 자동 인식 결과를 유지했습니다."
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "{name} 미리 듣기"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "{name}의 목소리"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "{count}줄"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "화자를 알 수 없는 대사"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "남성"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "여성"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "작품 {count}개 만들기"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "파일이 너무 큽니다. 텍스트 원고는 16MB, EPUB은 32MB까지 가능합니다."
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "이 EPUB 파일을 읽을 수 없습니다. DRM 보호나 손상이 없는지 확인하세요."
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "TXT, Markdown 또는 EPUB 형식의 소설을 가져오세요."
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "AI가 배역을 나누는 중"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "AI가 배역을 나눴습니다"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "AI 배역 나누기 실패"
+  },
   "@yovoice.activity.planMelody": {
     "defaultMessage": "멜로디 악보 작성 중"
   },
