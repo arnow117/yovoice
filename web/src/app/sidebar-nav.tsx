@@ -3,7 +3,7 @@ import { ResizeHandle, type ResizableProps } from '@astryxdesign/core/Resizable'
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { AudioLines, ChevronRight, FileMusic, Mic, Music, Pencil, Settings2, Trash2 } from 'lucide-react';
+import { AudioLines, ChevronRight, Mic, Music, Pencil, Settings2, Trash2 } from 'lucide-react';
 import { projectKind, type Draft, type State } from '../shared/workbench';
 import { overflowTitle } from '../shared/ui/overflow-title';
 import { UpdateSidebarCard } from '../features/update/update-notice';
@@ -26,7 +26,12 @@ export function SidebarNav(props: {
   return <VStack as="nav" className="sidebar" aria-label={t('@yovoice.nav.main')} gap={6} data-testid="sidebar">
     {newDraft}
     <VStack className="sidebar-destinations" gap={2}>
-      {(['text', 'story', 'music', 'score'] as const).map(kind => <Button key={kind} data-testid={`nav-${kind}`} label={t(`@yovoice.project.${kind}`)} variant="ghost" icon={kind === 'text' ? <Mic /> : kind === 'story' ? <Pencil /> : kind === 'music' ? <Music /> : <FileMusic />} className={`nav-item ${page === kind || (projectActive && projectKind(draft) === kind) ? 'selected' : ''}`} aria-current={page === kind || (projectActive && projectKind(draft) === kind) ? 'page' : undefined} onClick={() => setPage(kind)} />)}
+      {(['text', 'story', 'music'] as const).map(kind => {
+        // 编曲生成并入音乐生成：两类作品都高亮「音乐生成」。
+        const group = (k: string) => k === 'score' ? 'music' : k;
+        const selected = group(page) === kind || (projectActive && group(projectKind(draft)) === kind);
+        return <Button key={kind} data-testid={`nav-${kind}`} label={t(`@yovoice.project.${kind}`)} variant="ghost" icon={kind === 'text' ? <Mic /> : kind === 'story' ? <Pencil /> : <Music />} className={`nav-item ${selected ? 'selected' : ''}`} aria-current={selected ? 'page' : undefined} onClick={() => setPage(kind)} />;
+      })}
       <Button data-testid="nav-characters" label={t('@yovoice.nav.characters')} variant="ghost" icon={<AudioLines />} className={`nav-item ${page === 'characters' || page === 'voices' ? 'selected' : ''}`} aria-current={page === 'characters' || page === 'voices' ? 'page' : undefined} onClick={() => setPage('characters')} />
     </VStack>
     <details className="recent-projects" open={recentOpen}>

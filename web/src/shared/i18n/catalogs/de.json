@@ -2217,7 +2217,7 @@
     "defaultMessage": "Spuren werden gerendert ({done}/{total})"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "Partitur"
+    "defaultMessage": "Partiturgenerierung"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "Neue Partitur"

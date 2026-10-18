@@ -10,7 +10,7 @@ test('新建编曲作品：示例乐谱、音块总览、声部调整与持久�
   test.setTimeout(60_000);
   await page.goto('/');
   await page.getByTestId('nav-new').click();
-  await page.getByRole('menuitem', { name: '编曲', exact: true }).click();
+  await page.getByRole('menuitem', { name: '编曲生成', exact: true }).click();
   await expect(page.getByText('按小节和拍写下每个声部的音符')).toBeVisible();
   await expect(page.getByRole('button', { name: '渲染配乐', exact: true })).toBeDisabled();
   await page.getByRole('button', { name: '填入示例', exact: true }).click();
@@ -120,8 +120,13 @@ test('新建编曲作品：示例乐谱、音块总览、声部调整与持久�
   await expect(page.getByRole('tab', { name: '编曲音色库', exact: true, selected: true })).toBeVisible();
   await expect(page.locator('[data-model-id="musescore-general-sf2"]')).toContainText('General MIDI 音色库');
   await expect(page.locator('[data-model-id$="-sf2"]')).toHaveCount(3);
-  await page.getByTestId('nav-score').click();
+  // 编曲生成并入音乐生成：侧栏只保留「音乐生成」，编曲标签页也高亮它。
+  await expect(page.getByTestId('nav-score')).toHaveCount(0);
+  await page.getByTestId('nav-music').click();
+  await page.getByRole('tab', { name: '编曲生成', exact: true }).click();
   await expect(page.locator('.project-library-row:visible')).toHaveCount(1);
+  await expect(page.getByRole('tab', { name: '编曲生成', exact: true, selected: true })).toBeVisible();
+  await expect(page.getByTestId('nav-music')).toHaveAttribute('aria-current', 'page');
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '语音生成', exact: true }).click();
   await page.getByRole('combobox', { name: '模型' }).click();
@@ -165,14 +170,15 @@ test('缺少乐谱的旧编曲作品可以正常打开，不再白屏', async ({
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
   await page.getByTestId('nav-new').click();
-  await page.getByRole('menuitem', { name: '编曲', exact: true }).click();
+  await page.getByRole('menuitem', { name: '编曲生成', exact: true }).click();
   await expect(page.locator('.saved')).toContainText('已保存');
   const state = await page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!));
   for (const draft of state.drafts) if (draft.kind === 'score') { delete draft.score; draft.title = '旧编曲'; }
   await seedState(page, state);
   await page.reload();
   await expect(page.getByLabel('作品名称')).toHaveValue('旧编曲');
-  await page.getByTestId('nav-score').click();
+  await page.getByTestId('nav-music').click();
+  await page.getByRole('tab', { name: '编曲生成', exact: true }).click();
   await expect(page.locator('.project-library-row').filter({ hasText: '旧编曲' })).toBeVisible();
   expect(errors).toEqual([]);
 });

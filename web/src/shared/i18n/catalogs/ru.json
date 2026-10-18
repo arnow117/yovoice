@@ -2217,7 +2217,7 @@
     "defaultMessage": "Рендеринг дорожек ({done}/{total})"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "Партитура"
+    "defaultMessage": "Генерация партитур"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "Новая партитура"

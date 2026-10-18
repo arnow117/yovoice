@@ -2217,7 +2217,7 @@
     "defaultMessage": "트랙 렌더링 중 ({done}/{total})"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "악보"
+    "defaultMessage": "악보 생성"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "새 악보"

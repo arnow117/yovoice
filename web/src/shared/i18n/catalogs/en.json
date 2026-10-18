@@ -2217,7 +2217,7 @@
     "defaultMessage": "Rendering tracks ({done}/{total})"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "Score"
+    "defaultMessage": "Score generation"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "New score"

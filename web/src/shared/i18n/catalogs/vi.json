@@ -2217,7 +2217,7 @@
     "defaultMessage": "Đang kết xuất các rãnh ({done}/{total})"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "Bản nhạc"
+    "defaultMessage": "Tạo bản nhạc"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "Bản nhạc mới"

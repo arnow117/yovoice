@@ -2217,7 +2217,7 @@
     "defaultMessage": "Rendering delle tracce ({done}/{total})"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "Partitura"
+    "defaultMessage": "Generazione di partiture"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "Nuova partitura"

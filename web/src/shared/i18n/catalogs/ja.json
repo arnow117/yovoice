@@ -2217,7 +2217,7 @@
     "defaultMessage": "トラックをレンダリング中（{done}/{total}）"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "スコア"
+    "defaultMessage": "スコア生成"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "新しいスコア"

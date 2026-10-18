@@ -2217,7 +2217,7 @@
     "defaultMessage": "Renderizando pistas ({done}/{total})"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "Partitura"
+    "defaultMessage": "Generación de partituras"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "Nueva partitura"

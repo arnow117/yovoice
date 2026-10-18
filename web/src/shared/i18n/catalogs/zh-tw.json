@@ -2217,7 +2217,7 @@
     "defaultMessage": "正在渲染聲部（{done}/{total}）"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "編曲"
+    "defaultMessage": "編曲生成"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "新增編曲"

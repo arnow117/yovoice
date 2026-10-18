@@ -125,7 +125,7 @@ test('编辑器 AI 写作入口：提交即进助手对话，面板自动打开'
   await page.keyboard.press('ControlOrMeta+j');
   await page.getByTestId('assistant-panel').getByRole('button', { name: '关闭', exact: true }).click();
   await page.getByTestId('nav-new').click();
-  await page.getByRole('menuitem', { name: '编曲', exact: true }).click();
+  await page.getByRole('menuitem', { name: '编曲生成', exact: true }).click();
   const composer = page.locator('.ai-composer');
   await expect(composer).toContainText('Ollama · qwen3');
   await composer.getByRole('textbox', { name: '描述想要的配乐' }).fill('温暖舒缓的钢琴');

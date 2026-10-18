@@ -64,8 +64,8 @@ export function NewProject({ locale, modelId, create, onError, button, kind }: {
   </>;
 }
 
-export function Projects({ drafts, kind, open, create, copy, save, remove, history, onError }: { onError: (error: string) => void;
-  drafts: Draft[]; kind: 'text' | 'story' | 'music' | 'score'; open: (draft: Draft) => void; create: ReactNode;
+export function Projects({ drafts, kind, title, controls, open, create, copy, save, remove, history, onError }: { onError: (error: string) => void;
+  drafts: Draft[]; kind: 'text' | 'story' | 'music' | 'score'; title?: string; controls?: ReactNode; open: (draft: Draft) => void; create: ReactNode;
   history: (draft: Draft) => void; copy: (draft: Draft) => void; save: (draft: Draft) => Promise<void>; remove: (draft: Draft) => void;
 }) {
   const t = useTranslator();
@@ -92,7 +92,7 @@ export function Projects({ drafts, kind, open, create, copy, save, remove, histo
     finally { setBusy(false); }
   }
   return <>
-    <LibraryPage title={t(`@yovoice.project.${kind}`)} layout="tickets" actions={create}
+    <LibraryPage title={title ?? t(`@yovoice.project.${kind}`)} controls={controls} layout="tickets" actions={create}
       query={query} onQueryChange={setQuery} searchLabel={t('@yovoice.project.search')} hasItems={drafts.some(d => projectKind(d) === kind)} hasResults={filtered.length > 0}
       noResults={t('@yovoice.library.noSearchResults')}
       empty={<LibraryEmpty art={kind === 'text' ? <TapeCover seed={`empty-${kind}`} title={t(`@yovoice.project.${kind}`)} /> : <RecordCover seed={`empty-${kind}`} title={t(`@yovoice.project.${kind}`)} />} title={t('@yovoice.project.empty')} action={create} />}>

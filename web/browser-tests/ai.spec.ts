@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 test('AI 服务：未配置时引导到设置，左侧选服务、右侧直接编辑，切换和删除', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('nav-new').click();
-  await page.getByRole('menuitem', { name: '编曲', exact: true }).click();
+  await page.getByRole('menuitem', { name: '编曲生成', exact: true }).click();
   const notConfigured = page.locator('.ai-composer');
   await expect(notConfigured).toContainText('接入大模型后，可以用一句话让 AI 写出完整编曲');
   await notConfigured.getByRole('button', { name: '设置 AI', exact: true }).click();
@@ -65,7 +65,7 @@ test('安装包缺少 AI 助手运行时：写作入口与助手面板禁用并�
   await page.getByRole('textbox', { name: '当前模型' }).fill('qwen3');
   await page.getByRole('button', { name: '添加服务', exact: true }).click();
   await page.getByTestId('nav-new').click();
-  await page.getByRole('menuitem', { name: '编曲', exact: true }).click();
+  await page.getByRole('menuitem', { name: '编曲生成', exact: true }).click();
   const composer = page.locator('.ai-composer');
   await expect(composer).toContainText('当前安装包未包含 AI 助手运行时');
   await composer.getByRole('textbox', { name: '描述想要的配乐' }).fill('温暖的钢琴小品');

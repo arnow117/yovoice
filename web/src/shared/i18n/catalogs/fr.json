@@ -2217,7 +2217,7 @@
     "defaultMessage": "Rendu des pistes ({done}/{total})"
   },
   "@yovoice.project.score": {
-    "defaultMessage": "Partition"
+    "defaultMessage": "Génération de partitions"
   },
   "@yovoice.project.new.score": {
     "defaultMessage": "Nouvelle partition"
