@@ -188,6 +188,17 @@ test('音乐历史版本：工具栏进入历史页，播放页、复用和删�
   await expect(playing).toBeVisible();
   await expect(playing.getByRole('list', { name: '歌词' }).getByRole('listitem')).toHaveText(['• • •', '第二版的第一句', '第二版的第二句']);
   await expect(playing.getByText('歌词时间按歌曲时长估算')).toBeVisible();
+  // 对比试听：顶栏切换到同一作品的其他版本，歌词随版本变化；切回上一版可以点按钮或按 B。
+  await playing.getByRole('button', { name: '版本 2', exact: true }).click();
+  await expect(page.getByRole('menuitem')).toHaveCount(3);
+  await page.getByRole('menuitem', { name: /版本 3/ }).click();
+  await expect(playing.getByRole('list', { name: '歌词' }).getByRole('listitem')).toHaveText(['• • •', '第三版的歌词']);
+  await expect(playing.getByRole('button', { name: '版本 3', exact: true })).toBeVisible();
+  await playing.getByRole('button', { name: '切回版本 2', exact: true }).click();
+  await expect(playing.getByRole('list', { name: '歌词' }).getByRole('listitem')).toHaveText(['• • •', '第二版的第一句', '第二版的第二句']);
+  await page.keyboard.press('b');
+  await expect(playing.getByRole('button', { name: '切回版本 2', exact: true })).toBeVisible();
+  await expect(playing.getByRole('list', { name: '歌词' }).getByRole('listitem')).toHaveText(['• • •', '第三版的歌词']);
   await playing.getByRole('button', { name: '关闭播放页', exact: true }).click();
   await expect(playing).toHaveCount(0);
   await expect(rows).toHaveCount(3);

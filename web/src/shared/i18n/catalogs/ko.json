@@ -3775,5 +3775,14 @@
   },
   "@yovoice.melody.useScore": {
     "defaultMessage": "악보 사용"
+  },
+  "@yovoice.music.compareVersions": {
+    "defaultMessage": "버전을 바꿔 비교 감상"
+  },
+  "@yovoice.music.switchBack": {
+    "defaultMessage": "버전 {n}(으)로"
+  },
+  "@yovoice.music.switchBackHint": {
+    "defaultMessage": "재생 위치를 유지한 채 전환 (B 키로도 가능)"
   }
 }

@@ -3775,5 +3775,14 @@
   },
   "@yovoice.melody.useScore": {
     "defaultMessage": "改為按譜"
+  },
+  "@yovoice.music.compareVersions": {
+    "defaultMessage": "切換版本對比試聽"
+  },
+  "@yovoice.music.switchBack": {
+    "defaultMessage": "切回版本 {n}"
+  },
+  "@yovoice.music.switchBackHint": {
+    "defaultMessage": "保持播放位置切換，也可以按 B"
   }
 }

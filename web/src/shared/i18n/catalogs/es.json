@@ -3775,5 +3775,14 @@
   },
   "@yovoice.melody.useScore": {
     "defaultMessage": "Usar partitura"
+  },
+  "@yovoice.music.compareVersions": {
+    "defaultMessage": "Cambiar de versión para comparar"
+  },
+  "@yovoice.music.switchBack": {
+    "defaultMessage": "Volver a la versión {n}"
+  },
+  "@yovoice.music.switchBackHint": {
+    "defaultMessage": "Mantiene la posición de reproducción; pulsa B para cambiar"
   }
 }

@@ -3775,5 +3775,14 @@
   },
   "@yovoice.melody.useScore": {
     "defaultMessage": "Использовать партитуру"
+  },
+  "@yovoice.music.compareVersions": {
+    "defaultMessage": "Сменить версию для сравнения"
+  },
+  "@yovoice.music.switchBack": {
+    "defaultMessage": "Вернуться к версии {n}"
+  },
+  "@yovoice.music.switchBackHint": {
+    "defaultMessage": "Позиция воспроизведения сохраняется; переключение клавишей B"
   }
 }

@@ -3775,5 +3775,14 @@
   },
   "@yovoice.melody.useScore": {
     "defaultMessage": "譜面を使う"
+  },
+  "@yovoice.music.compareVersions": {
+    "defaultMessage": "バージョンを切り替えて聴き比べ"
+  },
+  "@yovoice.music.switchBack": {
+    "defaultMessage": "バージョン {n} に戻す"
+  },
+  "@yovoice.music.switchBackHint": {
+    "defaultMessage": "再生位置を保ったまま切り替え（B キーでも可）"
   }
 }

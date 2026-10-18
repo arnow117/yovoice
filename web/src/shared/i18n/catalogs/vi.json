@@ -3775,5 +3775,14 @@
   },
   "@yovoice.melody.useScore": {
     "defaultMessage": "Dùng bản nhạc"
+  },
+  "@yovoice.music.compareVersions": {
+    "defaultMessage": "Đổi phiên bản để nghe so sánh"
+  },
+  "@yovoice.music.switchBack": {
+    "defaultMessage": "Quay lại phiên bản {n}"
+  },
+  "@yovoice.music.switchBackHint": {
+    "defaultMessage": "Giữ nguyên vị trí phát; nhấn B để chuyển"
   }
 }
