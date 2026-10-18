@@ -11,9 +11,6 @@
   "@yovoice.error.proxyURL": {
     "defaultMessage": "Geben Sie eine HTTP-, HTTPS- oder SOCKS5-Proxy-URL mit gültigem Port ein, ohne Pfad und Zugangsdaten."
   },
-  "@yovoice.action.apply": {
-    "defaultMessage": "Übernehmen"
-  },
   "@yovoice.action.cancel": {
     "defaultMessage": "Abbrechen"
   },
@@ -85,9 +82,6 @@
   },
   "@yovoice.app.charCount": {
     "defaultMessage": "{count} Zeichen"
-  },
-  "@yovoice.app.collapseAudition": {
-    "defaultMessage": "Vorschau {name} ausblenden"
   },
   "@yovoice.app.collapseSidebar": {
     "defaultMessage": "Seitenleiste einklappen"
@@ -170,9 +164,6 @@
   "@yovoice.create.advanced": {
     "defaultMessage": "Erweiterte Einstellungen"
   },
-  "@yovoice.create.backToScript": {
-    "defaultMessage": "Zurück zum Skript"
-  },
   "@yovoice.create.cancelGenerate": {
     "defaultMessage": "Generierung abbrechen"
   },
@@ -238,9 +229,6 @@
   },
   "@yovoice.create.modelInstalled": {
     "defaultMessage": "Installiert"
-  },
-  "@yovoice.create.modelMissing": {
-    "defaultMessage": "Nicht heruntergeladen"
   },
   "@yovoice.create.moreEmotionPresets": {
     "defaultMessage": "Weitere Emotionsvorlagen"
@@ -557,9 +545,6 @@
   "@yovoice.error.nameLength": {
     "defaultMessage": "Der Name muss 1–120 Zeichen lang sein."
   },
-  "@yovoice.error.needRuntime": {
-    "defaultMessage": "Installieren Sie vor dem Generieren ein Modell und die Runtime."
-  },
   "@yovoice.error.paramsOutOfRange": {
     "defaultMessage": "Generierungsparameter außerhalb des gültigen Bereichs."
   },
@@ -656,18 +641,6 @@
   "@yovoice.library.emptyVoicesTitle": {
     "defaultMessage": "Noch kein Referenzaudio"
   },
-  "@yovoice.library.historyCount": {
-    "defaultMessage": "{count} Generierungen"
-  },
-  "@yovoice.library.historyTitle": {
-    "defaultMessage": "Versionsverlauf"
-  },
-  "@yovoice.library.startCreating": {
-    "defaultMessage": "Loslegen"
-  },
-  "@yovoice.library.voiceCount": {
-    "defaultMessage": "{count} Stimmen"
-  },
   "@yovoice.library.voicesTitle": {
     "defaultMessage": "Klangbibliothek"
   },
@@ -710,20 +683,11 @@
   "@yovoice.media.saveName": {
     "defaultMessage": "Namen speichern"
   },
-  "@yovoice.nav.create": {
-    "defaultMessage": "Erstellen"
-  },
   "@yovoice.nav.deleteProject": {
     "defaultMessage": "Projekt löschen: {title}"
   },
-  "@yovoice.nav.history": {
-    "defaultMessage": "Alle generierten Audios"
-  },
   "@yovoice.nav.main": {
     "defaultMessage": "Hauptnavigation"
-  },
-  "@yovoice.nav.newProject": {
-    "defaultMessage": "Neues Projekt"
   },
   "@yovoice.nav.recent": {
     "defaultMessage": "Zuletzt verwendet"
@@ -734,20 +698,11 @@
   "@yovoice.nav.settings": {
     "defaultMessage": "Einstellungen"
   },
-  "@yovoice.nav.voices": {
-    "defaultMessage": "Charaktere"
-  },
   "@yovoice.player.audition": {
     "defaultMessage": "{name} anhören"
   },
-  "@yovoice.player.emptyHint": {
-    "defaultMessage": "Generieren oder wählen Sie Audio für die Vorschau"
-  },
   "@yovoice.player.mute": {
     "defaultMessage": "Stummschalten"
-  },
-  "@yovoice.player.noAudio": {
-    "defaultMessage": "Noch kein Audio"
   },
   "@yovoice.player.stop": {
     "defaultMessage": "Stopp"
@@ -838,9 +793,6 @@
   },
   "@yovoice.settings.downloadSource": {
     "defaultMessage": "Downloadquelle"
-  },
-  "@yovoice.settings.importDirectory": {
-    "defaultMessage": "Ordner wählen"
   },
   "@yovoice.settings.inUse": {
     "defaultMessage": "In Verwendung"
@@ -965,9 +917,6 @@
   "@yovoice.voice.defaultName": {
     "defaultMessage": "Meine Stimme"
   },
-  "@yovoice.voice.hint": {
-    "defaultMessage": "1–60 Sekunden klare Sprache, ohne Hintergrundmusik."
-  },
   "@yovoice.voice.import": {
     "defaultMessage": "Referenzaudio importieren"
   },
@@ -980,35 +929,20 @@
   "@yovoice.voice.recordName": {
     "defaultMessage": "Name der Aufnahme"
   },
-  "@yovoice.voice.recording": {
-    "defaultMessage": "Aufnahme läuft… bis zu 60 Sekunden"
-  },
   "@yovoice.voice.saveCrop": {
     "defaultMessage": "Als neue Stimme speichern"
   },
   "@yovoice.voice.startRecord": {
     "defaultMessage": "Aufnahme starten"
   },
-  "@yovoice.voice.stopSave": {
-    "defaultMessage": "Stoppen und speichern"
-  },
   "@yovoice.vox.clone": {
     "defaultMessage": "Stimme klonen"
-  },
-  "@yovoice.vox.cloneHelp": {
-    "defaultMessage": "Referenzstimme klonen; Vortragsstil anpassbar"
   },
   "@yovoice.vox.continuation": {
     "defaultMessage": "Feines Klonen"
   },
-  "@yovoice.vox.continuationHelp": {
-    "defaultMessage": "Referenzaudio + Transkript für detailgetreue Darbietung"
-  },
   "@yovoice.vox.design": {
     "defaultMessage": "Stimmdesign"
-  },
-  "@yovoice.vox.designHelp": {
-    "defaultMessage": "Stimme per Text entwerfen – kein Referenzaudio nötig"
   },
   "@yovoice.vox.generationMode": {
     "defaultMessage": "Generierungsmodus"
@@ -1460,9 +1394,6 @@
   "@yovoice.character.deleteConfirm": {
     "defaultMessage": "Diesen Charakter aus der Bibliothek löschen. Bestehende Projekte behalten ihre gespeicherten Einstellungen."
   },
-  "@yovoice.character.missingModel": {
-    "defaultMessage": "Modell nicht installiert. Sie können die Einstellungen speichern und nach der Installation eine Demo generieren."
-  },
   "@yovoice.character.missingVoice": {
     "defaultMessage": "Referenzstimme fehlt. Bitte wählen Sie eine andere."
   },
@@ -1471,9 +1402,6 @@
   },
   "@yovoice.character.listen": {
     "defaultMessage": "Demo abspielen"
-  },
-  "@yovoice.character.sourceDesign": {
-    "defaultMessage": "Integrierter Sprecher / Stimmbeschreibung"
   },
   "@yovoice.voice.save": {
     "defaultMessage": "Als Referenzaudio speichern"
@@ -1486,12 +1414,6 @@
   },
   "@yovoice.voice.transcript": {
     "defaultMessage": "Referenztranskript"
-  },
-  "@yovoice.voice.transcriptHelp": {
-    "defaultMessage": "Geben Sie ein, was tatsächlich im Audio gesagt wird; prüfen Sie Aussprachehinweise und Sondertext."
-  },
-  "@yovoice.voice.limit": {
-    "defaultMessage": "Der gesamte Clip muss 1–60 Sekunden lang und höchstens 20 MB groß sein. Das Audio wird hier nicht gekürzt."
   },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Generiertes Audio"
@@ -1511,35 +1433,14 @@
   "@yovoice.character.clearReferences": {
     "defaultMessage": "Stimmreferenzen entfernen"
   },
-  "@yovoice.character.help": {
-    "defaultMessage": "Speichern Sie diese Stimmeinstellungen für andere Projekte. Das Vorschauskript ersetzt nicht Ihren Projekttext."
-  },
-  "@yovoice.character.parameters": {
-    "defaultMessage": "Stimmeinstellungen"
-  },
-  "@yovoice.character.emptyDemo": {
-    "defaultMessage": "Fügen Sie ein Vorschauskript hinzu, um eine Vorschau zu generieren, oder speichern Sie den Charakter jetzt."
-  },
-  "@yovoice.character.libraryHelp": {
-    "defaultMessage": "Speichern Sie Stimmeinstellungen und Vorschauen zur Wiederverwendung beim Erstellen."
-  },
   "@yovoice.character.search": {
     "defaultMessage": "Charaktere suchen"
   },
   "@yovoice.character.noResults": {
     "defaultMessage": "Keine passenden Charaktere. Versuchen Sie eine andere Suche."
   },
-  "@yovoice.character.createFirst": {
-    "defaultMessage": "Ersten Charakter speichern"
-  },
   "@yovoice.character.nameLimit": {
     "defaultMessage": "Charakternamen dürfen höchstens 120 Zeichen lang sein."
-  },
-  "@yovoice.character.applied": {
-    "defaultMessage": "Charaktereinstellungen übernommen. Der Projekttext bleibt unverändert."
-  },
-  "@yovoice.character.saved": {
-    "defaultMessage": "Charakter gespeichert. Sie finden ihn in Ihrer Charakterbibliothek."
   },
   "@yovoice.library.nameRequired": {
     "defaultMessage": "Geben Sie zum Speichern einen Namen ein."
@@ -1552,9 +1453,6 @@
   },
   "@yovoice.voice.durationLimit": {
     "defaultMessage": "Dieses Audio muss zwischen 1 und 60 Sekunden lang sein. Wählen Sie einen anderen Clip aus dem Verlauf."
-  },
-  "@yovoice.voice.saveSuccess": {
-    "defaultMessage": "Stimme gespeichert. Sie finden sie in Ihrer Stimmbibliothek."
   },
   "@yovoice.library.searchVoices": {
     "defaultMessage": "Referenzaudio suchen"
@@ -1583,9 +1481,6 @@
   "@yovoice.subtitle.speaker": {
     "defaultMessage": "Sprecher {n}"
   },
-  "@yovoice.subtitle.help": {
-    "defaultMessage": "Generiert einzelne Clips in Dialogreihenfolge mit der Stimme des jeweiligen Sprechers. Clips kürzen, entfernen oder neu generieren und beim Export zusammenführen. Das ursprüngliche Untertitel-Timing wird nicht automatisch übernommen."
-  },
   "@yovoice.subtitle.currentSettings": {
     "defaultMessage": "Standardstimme"
   },
@@ -1613,20 +1508,11 @@
   "@yovoice.subtitle.addCue": {
     "defaultMessage": "Zeile hinzufügen"
   },
-  "@yovoice.subtitle.speakerHelp": {
-    "defaultMessage": "Einstellungen gelten für alle Zeilen dieses Sprechers"
-  },
   "@yovoice.subtitle.customSettings": {
     "defaultMessage": "Eigene Stimme"
   },
   "@yovoice.subtitle.settings": {
     "defaultMessage": "Sprechereinstellungen"
-  },
-  "@yovoice.subtitle.speakers": {
-    "defaultMessage": "Sprecher · {count}"
-  },
-  "@yovoice.subtitle.instructions": {
-    "defaultMessage": "Über Untertitelstimmen"
   },
   "@yovoice.subtitle.cues": {
     "defaultMessage": "Untertitel · {count} Einträge"
@@ -1636,12 +1522,6 @@
   },
   "@yovoice.subtitle.hideTimes": {
     "defaultMessage": "Zeiten ausblenden"
-  },
-  "@yovoice.subtitle.defaultVoice": {
-    "defaultMessage": "Standardstimme"
-  },
-  "@yovoice.subtitle.defaultVoiceHelp": {
-    "defaultMessage": "Für Sprecher ohne Charakter"
   },
   "@yovoice.timeline.invalid": {
     "defaultMessage": "Ungültige Zeitleiste. Prüfen Sie die Clipbereiche. Maximal 32 Spuren, 2000 Clips und 24 Stunden."
@@ -1697,9 +1577,6 @@
   "@yovoice.timeline.fromHistory": {
     "defaultMessage": "Aus Versionen hinzufügen"
   },
-  "@yovoice.nav.projects": {
-    "defaultMessage": "Projekte"
-  },
   "@yovoice.nav.library": {
     "defaultMessage": "Klangbibliothek"
   },
@@ -1742,9 +1619,6 @@
   "@yovoice.library.referencesTab": {
     "defaultMessage": "Referenzaudio"
   },
-  "@yovoice.library.use": {
-    "defaultMessage": "Charakter verwenden"
-  },
   "@yovoice.library.target": {
     "defaultMessage": "Ziel wählen"
   },
@@ -1763,9 +1637,6 @@
   "@yovoice.library.apply": {
     "defaultMessage": "Charakter anwenden"
   },
-  "@yovoice.library.noTarget": {
-    "defaultMessage": "Wählen Sie ein Projekt und einen Charakter. Andere Charaktere bleiben unverändert."
-  },
   "@yovoice.library.newVoice": {
     "defaultMessage": "Unbenannter Charakter"
   },
@@ -1778,26 +1649,11 @@
   "@yovoice.library.unsaved": {
     "defaultMessage": "Änderungen am Charakter speichern?"
   },
-  "@yovoice.library.unsavedBody": {
-    "defaultMessage": "Speichern Sie den Charakter vor dem Verlassen oder verwerfen Sie Ihre Änderungen."
-  },
   "@yovoice.library.discard": {
     "defaultMessage": "Änderungen verwerfen"
   },
   "@yovoice.library.continue": {
     "defaultMessage": "Weiter bearbeiten"
-  },
-  "@yovoice.library.clearSearch": {
-    "defaultMessage": "Filter zurücksetzen"
-  },
-  "@yovoice.history.source": {
-    "defaultMessage": "Quellprojekt öffnen"
-  },
-  "@yovoice.history.sourceMissing": {
-    "defaultMessage": "Quellprojekt gelöscht"
-  },
-  "@yovoice.history.stale": {
-    "defaultMessage": "Text oder Einstellungen geändert; Audio ist nicht aktuell"
   },
   "@yovoice.app.saveFailed": {
     "defaultMessage": "Speichern fehlgeschlagen. Erneut versuchen"
@@ -2090,15 +1946,6 @@
   "@yovoice.music.collapseElements": {
     "defaultMessage": "Elemente einklappen"
   },
-  "@yovoice.music.selectedTags": {
-    "defaultMessage": "{count} ausgewählt"
-  },
-  "@yovoice.music.clearTags": {
-    "defaultMessage": "Leeren"
-  },
-  "@yovoice.music.elements": {
-    "defaultMessage": "Elemente"
-  },
   "@yovoice.music.addTag": {
     "defaultMessage": "Stil-Tag hinzufügen"
   },
@@ -2137,9 +1984,6 @@
   },
   "@yovoice.music.generate": {
     "defaultMessage": "Song generieren"
-  },
-  "@yovoice.music.modelSize": {
-    "defaultMessage": "Nicht installiert · {size}"
   },
   "@yovoice.music.duration": {
     "defaultMessage": "Dauer"
@@ -2231,9 +2075,6 @@
   "@yovoice.score.bars": {
     "defaultMessage": "Takte {start}–{end}"
   },
-  "@yovoice.score.copyPromptHint": {
-    "defaultMessage": "Lassen Sie einen KI-Agenten das Partitur-JSON schreiben und importieren Sie es hier oder rendern Sie es mit der CLI."
-  },
   "@yovoice.score.downloadSoundFont": {
     "defaultMessage": "Herunterladen"
   },
@@ -2275,9 +2116,6 @@
   },
   "@yovoice.score.meter": {
     "defaultMessage": "Taktart"
-  },
-  "@yovoice.score.noteCount": {
-    "defaultMessage": "{count} Noten"
   },
   "@yovoice.score.playTrack": {
     "defaultMessage": "{name} abspielen"
@@ -2345,9 +2183,6 @@
   "@yovoice.ai.intro": {
     "defaultMessage": "Verbinde ein Sprachmodell, und der integrierte KI-Assistent schreibt Arrangements in Partitur und Songtexte in Musik – mit weiteren Änderungen am Ergebnis."
   },
-  "@yovoice.ai.addProvider": {
-    "defaultMessage": "Dienst hinzufügen"
-  },
   "@yovoice.ai.customProvider": {
     "defaultMessage": "Eigener Dienst"
   },
@@ -2399,9 +2234,6 @@
   "@yovoice.ai.inUse": {
     "defaultMessage": "In Verwendung"
   },
-  "@yovoice.ai.deleteNamed": {
-    "defaultMessage": "{name} löschen"
-  },
   "@yovoice.ai.deleteTitle": {
     "defaultMessage": "Diesen KI-Dienst löschen?"
   },
@@ -2452,12 +2284,6 @@
   },
   "@yovoice.error.aiResultInvalid": {
     "defaultMessage": "Das KI-Ergebnis ist nicht verwendbar: {detail}. Versuchen Sie es erneut oder formulieren Sie anders."
-  },
-  "@yovoice.music.allTags": {
-    "defaultMessage": "Alle Tags"
-  },
-  "@yovoice.music.fewerTags": {
-    "defaultMessage": "Weniger Tags"
   },
   "@yovoice.settings.tabSoundfonts": {
     "defaultMessage": "SoundFonts für Partituren"
@@ -2577,7 +2403,7 @@
     "defaultMessage": "{model} korrigiert das Format"
   },
   "@yovoice.error.aiTimeout": {
-    "defaultMessage": "Der KI-Dienst ist nicht innerhalb von {seconds} Sekunden fertig geworden. Erhöhen Sie das KI-Zeitlimit unter Einstellungen › Allgemein oder wählen Sie ein schnelleres Modell."
+    "defaultMessage": "Der KI-Dienst ist nicht innerhalb von {seconds} Sekunden fertig geworden. Erhöhen Sie das KI-Zeitlimit unter Einstellungen › KI-Dienste oder wählen Sie ein schnelleres Modell."
   },
   "@yovoice.music.lyricsMode": {
     "defaultMessage": "Textmodus"

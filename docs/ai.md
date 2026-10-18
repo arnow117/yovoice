@@ -10,7 +10,8 @@ Open Settings › AI services. The left column lists added and available service
 
 | Service | Address | Key |
 | --- | --- | --- |
-| DeepSeek, Qwen (Bailian), GLM, Kimi, Doubao (Ark), MiniMax, OpenAI, Anthropic, OpenRouter, OrcaRouter | Built in | Required; **Get an API key from …** opens the provider's console |
+| Pay-as-you-go APIs: DeepSeek, Qwen (Bailian), GLM, Kimi, Doubao (Ark), MiniMax, OpenAI, Anthropic, OpenRouter, OrcaRouter | Built in | Required; **Get an API key from …** opens the provider's console |
+| Coding plans: Kimi Code, GLM Coding Plan, Bailian Token Plan, MiniMax Token Plan, Volcengine Ark Coding Plan | Built in (the plan's own address) | Required; use the plan's key, not a pay-as-you-go API key |
 | Ollama, LM Studio | Defaults to this computer (`127.0.0.1`), editable | Usually not needed |
 | ChatGPT (Codex) | The Codex CLI on this computer | None; sign in with ChatGPT through Codex |
 | Custom | Any compatible address | Optional |
@@ -21,7 +22,7 @@ OrcaRouter has free models and needs no key to copy: click **Connect OrcaRouter 
 
 A custom service chooses one of three protocols: OpenAI Chat Completions, OpenAI Responses or Anthropic Messages, plus the path of its model list (for example `/models`; leave it empty if the service has none and type the model name).
 
-Type a model name, or **Sync model list** and pick one. After **Add service** or **Save changes**, **Test** sends a short message to check the address, key and model. The first service you add is used; with several, turn on **Use for AI features** on the one you want. A saved key shows only as a mask; **Replace key** or **Clear key** changes it.
+Type a model name, or **Sync model list** and pick one. After **Add service** or **Save changes**, **Test** sends a short message to check the address, key and model. The first service you add is used and marked **In use** in the list; with several, switch service and model from the model menu at the bottom left of the compose and lyrics bars. A saved key shows only as a mask; **Replace key** or **Clear key** changes it.
 
 ## Where data goes
 

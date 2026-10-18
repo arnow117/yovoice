@@ -11,9 +11,6 @@
   "@yovoice.error.proxyURL": {
     "defaultMessage": "Nhập URL proxy HTTP, HTTPS hoặc SOCKS5 có cổng hợp lệ, không kèm đường dẫn hay thông tin đăng nhập."
   },
-  "@yovoice.action.apply": {
-    "defaultMessage": "Áp dụng"
-  },
   "@yovoice.action.cancel": {
     "defaultMessage": "Hủy"
   },
@@ -85,9 +82,6 @@
   },
   "@yovoice.app.charCount": {
     "defaultMessage": "{count} ký tự"
-  },
-  "@yovoice.app.collapseAudition": {
-    "defaultMessage": "Ẩn nghe thử {name}"
   },
   "@yovoice.app.collapseSidebar": {
     "defaultMessage": "Thu gọn thanh bên"
@@ -170,9 +164,6 @@
   "@yovoice.create.advanced": {
     "defaultMessage": "Cài đặt nâng cao"
   },
-  "@yovoice.create.backToScript": {
-    "defaultMessage": "Quay lại kịch bản"
-  },
   "@yovoice.create.cancelGenerate": {
     "defaultMessage": "Hủy tạo"
   },
@@ -238,9 +229,6 @@
   },
   "@yovoice.create.modelInstalled": {
     "defaultMessage": "Đã cài đặt"
-  },
-  "@yovoice.create.modelMissing": {
-    "defaultMessage": "Chưa tải xuống"
   },
   "@yovoice.create.moreEmotionPresets": {
     "defaultMessage": "Thêm mẫu cảm xúc"
@@ -557,9 +545,6 @@
   "@yovoice.error.nameLength": {
     "defaultMessage": "Tên phải dài 1–120 ký tự."
   },
-  "@yovoice.error.needRuntime": {
-    "defaultMessage": "Hãy cài đặt mô hình và môi trường chạy trước khi tạo."
-  },
   "@yovoice.error.paramsOutOfRange": {
     "defaultMessage": "Tham số tạo nằm ngoài phạm vi."
   },
@@ -656,18 +641,6 @@
   "@yovoice.library.emptyVoicesTitle": {
     "defaultMessage": "Chưa có âm thanh tham chiếu"
   },
-  "@yovoice.library.historyCount": {
-    "defaultMessage": "{count} lần tạo"
-  },
-  "@yovoice.library.historyTitle": {
-    "defaultMessage": "Lịch sử phiên bản"
-  },
-  "@yovoice.library.startCreating": {
-    "defaultMessage": "Bắt đầu sáng tạo"
-  },
-  "@yovoice.library.voiceCount": {
-    "defaultMessage": "{count} giọng"
-  },
   "@yovoice.library.voicesTitle": {
     "defaultMessage": "Thư viện âm thanh"
   },
@@ -710,20 +683,11 @@
   "@yovoice.media.saveName": {
     "defaultMessage": "Lưu tên"
   },
-  "@yovoice.nav.create": {
-    "defaultMessage": "Sáng tạo"
-  },
   "@yovoice.nav.deleteProject": {
     "defaultMessage": "Xóa dự án: {title}"
   },
-  "@yovoice.nav.history": {
-    "defaultMessage": "Tất cả âm thanh đã tạo"
-  },
   "@yovoice.nav.main": {
     "defaultMessage": "Điều hướng chính"
-  },
-  "@yovoice.nav.newProject": {
-    "defaultMessage": "Dự án mới"
   },
   "@yovoice.nav.recent": {
     "defaultMessage": "Gần đây"
@@ -734,20 +698,11 @@
   "@yovoice.nav.settings": {
     "defaultMessage": "Cài đặt"
   },
-  "@yovoice.nav.voices": {
-    "defaultMessage": "Nhân vật"
-  },
   "@yovoice.player.audition": {
     "defaultMessage": "Nghe thử {name}"
   },
-  "@yovoice.player.emptyHint": {
-    "defaultMessage": "Tạo hoặc chọn âm thanh để nghe thử"
-  },
   "@yovoice.player.mute": {
     "defaultMessage": "Tắt tiếng"
-  },
-  "@yovoice.player.noAudio": {
-    "defaultMessage": "Chưa có âm thanh"
   },
   "@yovoice.player.stop": {
     "defaultMessage": "Dừng"
@@ -838,9 +793,6 @@
   },
   "@yovoice.settings.downloadSource": {
     "defaultMessage": "Nguồn tải xuống"
-  },
-  "@yovoice.settings.importDirectory": {
-    "defaultMessage": "Chọn thư mục"
   },
   "@yovoice.settings.inUse": {
     "defaultMessage": "Đang dùng"
@@ -965,9 +917,6 @@
   "@yovoice.voice.defaultName": {
     "defaultMessage": "Giọng của tôi"
   },
-  "@yovoice.voice.hint": {
-    "defaultMessage": "1–60 giây giọng nói rõ ràng; tránh nhạc nền."
-  },
   "@yovoice.voice.import": {
     "defaultMessage": "Nhập âm thanh tham chiếu"
   },
@@ -980,35 +929,20 @@
   "@yovoice.voice.recordName": {
     "defaultMessage": "Tên bản ghi"
   },
-  "@yovoice.voice.recording": {
-    "defaultMessage": "Đang ghi âm… tối đa 60 giây"
-  },
   "@yovoice.voice.saveCrop": {
     "defaultMessage": "Lưu thành giọng mới"
   },
   "@yovoice.voice.startRecord": {
     "defaultMessage": "Bắt đầu ghi âm"
   },
-  "@yovoice.voice.stopSave": {
-    "defaultMessage": "Dừng và lưu"
-  },
   "@yovoice.vox.clone": {
     "defaultMessage": "Nhân bản giọng"
-  },
-  "@yovoice.vox.cloneHelp": {
-    "defaultMessage": "Nhân bản giọng tham chiếu; điều chỉnh phong cách thể hiện"
   },
   "@yovoice.vox.continuation": {
     "defaultMessage": "Nhân bản tinh"
   },
-  "@yovoice.vox.continuationHelp": {
-    "defaultMessage": "Âm thanh tham chiếu + lời thoại để giữ chi tiết thể hiện"
-  },
   "@yovoice.vox.design": {
     "defaultMessage": "Thiết kế giọng"
-  },
-  "@yovoice.vox.designHelp": {
-    "defaultMessage": "Thiết kế giọng từ văn bản — không cần âm thanh tham chiếu"
   },
   "@yovoice.vox.generationMode": {
     "defaultMessage": "Chế độ tạo"
@@ -1460,9 +1394,6 @@
   "@yovoice.character.deleteConfirm": {
     "defaultMessage": "Xóa nhân vật này khỏi thư viện. Các dự án hiện có vẫn giữ cài đặt đã lưu."
   },
-  "@yovoice.character.missingModel": {
-    "defaultMessage": "Chưa cài mô hình. Bạn có thể lưu cài đặt và tạo bản nghe thử sau khi cài đặt."
-  },
   "@yovoice.character.missingVoice": {
     "defaultMessage": "Thiếu giọng tham chiếu. Vui lòng chọn giọng khác."
   },
@@ -1471,9 +1402,6 @@
   },
   "@yovoice.character.listen": {
     "defaultMessage": "Phát bản nghe thử"
-  },
-  "@yovoice.character.sourceDesign": {
-    "defaultMessage": "Giọng có sẵn / mô tả giọng"
   },
   "@yovoice.voice.save": {
     "defaultMessage": "Lưu thành âm thanh tham chiếu"
@@ -1486,12 +1414,6 @@
   },
   "@yovoice.voice.transcript": {
     "defaultMessage": "Lời thoại tham chiếu"
-  },
-  "@yovoice.voice.transcriptHelp": {
-    "defaultMessage": "Nhập đúng nội dung được nói trong âm thanh; kiểm tra chú thích phát âm và ký tự đặc biệt."
-  },
-  "@yovoice.voice.limit": {
-    "defaultMessage": "Toàn bộ đoạn phải dài 1–60 giây và không lớn hơn 20 MB. Âm thanh không được cắt ở đây."
   },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "Âm thanh đã tạo"
@@ -1511,35 +1433,14 @@
   "@yovoice.character.clearReferences": {
     "defaultMessage": "Gỡ tham chiếu giọng"
   },
-  "@yovoice.character.help": {
-    "defaultMessage": "Lưu cài đặt giọng này để dùng cho các dự án khác. Kịch bản nghe thử không thay thế văn bản dự án của bạn."
-  },
-  "@yovoice.character.parameters": {
-    "defaultMessage": "Cài đặt giọng"
-  },
-  "@yovoice.character.emptyDemo": {
-    "defaultMessage": "Thêm kịch bản nghe thử để tạo bản nghe thử, hoặc lưu nhân vật ngay."
-  },
-  "@yovoice.character.libraryHelp": {
-    "defaultMessage": "Lưu cài đặt giọng và bản nghe thử để dùng lại khi sáng tạo."
-  },
   "@yovoice.character.search": {
     "defaultMessage": "Tìm nhân vật"
   },
   "@yovoice.character.noResults": {
     "defaultMessage": "Không có nhân vật phù hợp. Hãy thử từ khóa khác."
   },
-  "@yovoice.character.createFirst": {
-    "defaultMessage": "Lưu nhân vật đầu tiên của bạn"
-  },
   "@yovoice.character.nameLimit": {
     "defaultMessage": "Tên nhân vật không được dài quá 120 ký tự."
-  },
-  "@yovoice.character.applied": {
-    "defaultMessage": "Đã áp dụng cài đặt nhân vật. Văn bản dự án không thay đổi."
-  },
-  "@yovoice.character.saved": {
-    "defaultMessage": "Đã lưu nhân vật. Bạn có thể tìm thấy trong thư viện nhân vật."
   },
   "@yovoice.library.nameRequired": {
     "defaultMessage": "Nhập tên để lưu."
@@ -1552,9 +1453,6 @@
   },
   "@yovoice.voice.durationLimit": {
     "defaultMessage": "Âm thanh này phải dài từ 1 đến 60 giây. Hãy chọn đoạn khác trong lịch sử."
-  },
-  "@yovoice.voice.saveSuccess": {
-    "defaultMessage": "Đã lưu giọng. Bạn có thể tìm thấy trong thư viện giọng."
   },
   "@yovoice.library.searchVoices": {
     "defaultMessage": "Tìm âm thanh tham chiếu"
@@ -1583,9 +1481,6 @@
   "@yovoice.subtitle.speaker": {
     "defaultMessage": "Người nói {n}"
   },
-  "@yovoice.subtitle.help": {
-    "defaultMessage": "Tạo từng đoạn riêng theo thứ tự hội thoại bằng giọng của mỗi người nói. Cắt, xóa hoặc tạo lại các đoạn, rồi ghép khi xuất. Không tự động khớp thời gian phụ đề gốc."
-  },
   "@yovoice.subtitle.currentSettings": {
     "defaultMessage": "Giọng mặc định"
   },
@@ -1613,20 +1508,11 @@
   "@yovoice.subtitle.addCue": {
     "defaultMessage": "Thêm dòng"
   },
-  "@yovoice.subtitle.speakerHelp": {
-    "defaultMessage": "Cài đặt áp dụng cho mọi dòng của người nói này"
-  },
   "@yovoice.subtitle.customSettings": {
     "defaultMessage": "Giọng tùy chỉnh"
   },
   "@yovoice.subtitle.settings": {
     "defaultMessage": "Cài đặt người nói"
-  },
-  "@yovoice.subtitle.speakers": {
-    "defaultMessage": "Người nói · {count}"
-  },
-  "@yovoice.subtitle.instructions": {
-    "defaultMessage": "Về giọng phụ đề"
   },
   "@yovoice.subtitle.cues": {
     "defaultMessage": "Phụ đề · {count} dòng"
@@ -1636,12 +1522,6 @@
   },
   "@yovoice.subtitle.hideTimes": {
     "defaultMessage": "Ẩn thời gian"
-  },
-  "@yovoice.subtitle.defaultVoice": {
-    "defaultMessage": "Giọng mặc định"
-  },
-  "@yovoice.subtitle.defaultVoiceHelp": {
-    "defaultMessage": "Dùng cho người nói chưa có nhân vật"
   },
   "@yovoice.timeline.invalid": {
     "defaultMessage": "Dòng thời gian không hợp lệ. Kiểm tra phạm vi các đoạn. Tối đa 32 rãnh, 2000 đoạn và 24 giờ."
@@ -1697,9 +1577,6 @@
   "@yovoice.timeline.fromHistory": {
     "defaultMessage": "Thêm từ các phiên bản"
   },
-  "@yovoice.nav.projects": {
-    "defaultMessage": "Dự án"
-  },
   "@yovoice.nav.library": {
     "defaultMessage": "Thư viện âm thanh"
   },
@@ -1742,9 +1619,6 @@
   "@yovoice.library.referencesTab": {
     "defaultMessage": "Âm thanh tham chiếu"
   },
-  "@yovoice.library.use": {
-    "defaultMessage": "Dùng nhân vật"
-  },
   "@yovoice.library.target": {
     "defaultMessage": "Chọn nơi áp dụng"
   },
@@ -1763,9 +1637,6 @@
   "@yovoice.library.apply": {
     "defaultMessage": "Áp dụng nhân vật"
   },
-  "@yovoice.library.noTarget": {
-    "defaultMessage": "Chọn dự án và nhân vật. Các nhân vật khác không thay đổi."
-  },
   "@yovoice.library.newVoice": {
     "defaultMessage": "Nhân vật chưa đặt tên"
   },
@@ -1778,26 +1649,11 @@
   "@yovoice.library.unsaved": {
     "defaultMessage": "Lưu thay đổi nhân vật?"
   },
-  "@yovoice.library.unsavedBody": {
-    "defaultMessage": "Hãy lưu nhân vật trước khi rời đi, hoặc bỏ các thay đổi."
-  },
   "@yovoice.library.discard": {
     "defaultMessage": "Bỏ thay đổi"
   },
   "@yovoice.library.continue": {
     "defaultMessage": "Tiếp tục chỉnh sửa"
-  },
-  "@yovoice.library.clearSearch": {
-    "defaultMessage": "Xóa bộ lọc"
-  },
-  "@yovoice.history.source": {
-    "defaultMessage": "Mở dự án nguồn"
-  },
-  "@yovoice.history.sourceMissing": {
-    "defaultMessage": "Dự án nguồn đã bị xóa"
-  },
-  "@yovoice.history.stale": {
-    "defaultMessage": "Văn bản hoặc cài đặt đã thay đổi; âm thanh chưa được cập nhật"
   },
   "@yovoice.app.saveFailed": {
     "defaultMessage": "Lưu thất bại. Thử lại"
@@ -2090,15 +1946,6 @@
   "@yovoice.music.collapseElements": {
     "defaultMessage": "Thu gọn yếu tố"
   },
-  "@yovoice.music.selectedTags": {
-    "defaultMessage": "Đã chọn {count}"
-  },
-  "@yovoice.music.clearTags": {
-    "defaultMessage": "Xóa"
-  },
-  "@yovoice.music.elements": {
-    "defaultMessage": "Yếu tố"
-  },
   "@yovoice.music.addTag": {
     "defaultMessage": "Thêm thẻ phong cách"
   },
@@ -2137,9 +1984,6 @@
   },
   "@yovoice.music.generate": {
     "defaultMessage": "Tạo bài hát"
-  },
-  "@yovoice.music.modelSize": {
-    "defaultMessage": "Chưa cài đặt · {size}"
   },
   "@yovoice.music.duration": {
     "defaultMessage": "Thời lượng"
@@ -2231,9 +2075,6 @@
   "@yovoice.score.bars": {
     "defaultMessage": "Ô nhịp {start}–{end}"
   },
-  "@yovoice.score.copyPromptHint": {
-    "defaultMessage": "Nhờ AI Agent viết JSON bản nhạc, rồi nhập vào đây hoặc kết xuất bằng CLI."
-  },
   "@yovoice.score.downloadSoundFont": {
     "defaultMessage": "Tải xuống"
   },
@@ -2275,9 +2116,6 @@
   },
   "@yovoice.score.meter": {
     "defaultMessage": "Nhịp"
-  },
-  "@yovoice.score.noteCount": {
-    "defaultMessage": "{count} nốt"
   },
   "@yovoice.score.playTrack": {
     "defaultMessage": "Phát {name}"
@@ -2345,9 +2183,6 @@
   "@yovoice.ai.intro": {
     "defaultMessage": "Kết nối mô hình ngôn ngữ lớn để trợ lý AI tích hợp viết hòa âm trong Hòa âm và viết lời trong Âm nhạc, rồi tiếp tục chỉnh sửa kết quả."
   },
-  "@yovoice.ai.addProvider": {
-    "defaultMessage": "Thêm dịch vụ"
-  },
   "@yovoice.ai.customProvider": {
     "defaultMessage": "Dịch vụ tùy chỉnh"
   },
@@ -2399,9 +2234,6 @@
   "@yovoice.ai.inUse": {
     "defaultMessage": "Đang dùng"
   },
-  "@yovoice.ai.deleteNamed": {
-    "defaultMessage": "Xóa {name}"
-  },
   "@yovoice.ai.deleteTitle": {
     "defaultMessage": "Xóa dịch vụ AI này?"
   },
@@ -2452,12 +2284,6 @@
   },
   "@yovoice.error.aiResultInvalid": {
     "defaultMessage": "Không thể dùng kết quả AI: {detail}. Hãy thử lại hoặc diễn đạt khác."
-  },
-  "@yovoice.music.allTags": {
-    "defaultMessage": "Tất cả thẻ"
-  },
-  "@yovoice.music.fewerTags": {
-    "defaultMessage": "Ít thẻ hơn"
   },
   "@yovoice.settings.tabSoundfonts": {
     "defaultMessage": "SoundFont cho bản nhạc"
@@ -2577,7 +2403,7 @@
     "defaultMessage": "{model} đang sửa định dạng"
   },
   "@yovoice.error.aiTimeout": {
-    "defaultMessage": "Dịch vụ AI không hoàn tất trong {seconds} giây. Hãy tăng thời gian chờ yêu cầu AI trong Cài đặt › Chung, hoặc chọn mô hình nhanh hơn."
+    "defaultMessage": "Dịch vụ AI không hoàn tất trong {seconds} giây. Hãy tăng thời gian chờ yêu cầu AI trong Cài đặt › Dịch vụ AI, hoặc chọn mô hình nhanh hơn."
   },
   "@yovoice.music.lyricsMode": {
     "defaultMessage": "Chế độ lời"
