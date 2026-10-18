@@ -3623,11 +3623,59 @@
   "@yovoice.intro.start": {
     "defaultMessage": "둘러보기 시작"
   },
+  "@yovoice.guide.count": {
+    "defaultMessage": "{current} / {total}"
+  },
+  "@yovoice.guide.skip": {
+    "defaultMessage": "건너뛰기"
+  },
+  "@yovoice.guide.back": {
+    "defaultMessage": "이전"
+  },
+  "@yovoice.guide.next": {
+    "defaultMessage": "다음"
+  },
+  "@yovoice.guide.done": {
+    "defaultMessage": "시작하기"
+  },
+  "@yovoice.guide.assistantTitle": {
+    "defaultMessage": "언제든 어시스턴트에게"
+  },
+  "@yovoice.guide.new": {
+    "defaultMessage": "여기서 음성 생성, 스토리 내레이션, 음악 생성, 악보 생성 프로젝트를 만들 수 있습니다. 텍스트, 자막, .yovoice 프로젝트도 가져올 수 있습니다."
+  },
+  "@yovoice.guide.text": {
+    "defaultMessage": "텍스트를 쓰고 모델과 목소리를 고르면 음성이 생성됩니다. 생성할 때마다 버전으로 저장되어 비교하며 고를 수 있습니다."
+  },
+  "@yovoice.guide.story": {
+    "defaultMessage": "자막이나 소설 한 권을 가져와 여러 캐릭터로 한 줄씩 더빙하고, 타임라인에서 편집하고 배경 음악을 넣어 내보냅니다."
+  },
+  "@yovoice.guide.music": {
+    "defaultMessage": "스타일과 가사로 노래를 생성합니다. ‘악보 생성’ 탭에서는 MIDI를 가져오거나 AI에게 악보를 맡겨 사운드폰트로 반주를 렌더링합니다."
+  },
+  "@yovoice.guide.voices": {
+    "defaultMessage": "참조 오디오와 자주 쓰는 목소리 설정을 저장해 여러 프로젝트에서 같은 목소리를 유지합니다."
+  },
+  "@yovoice.guide.assets": {
+    "defaultMessage": "생성한 오디오, 참조 오디오, 소재, 이미지가 모두 여기에 모입니다. 미리 듣고 필터링하며 공간을 차지하는 항목을 한꺼번에 정리할 수 있습니다."
+  },
+  "@yovoice.guide.settings": {
+    "defaultMessage": "모델 다운로드와 관리, AI 서비스 설정, 인터페이스 언어 변경, 데이터 폴더 이동을 합니다. 처음이라면 여기서 모델을 하나 내려받으세요."
+  },
+  "@yovoice.guide.assistant": {
+    "defaultMessage": "⌘J(Windows에서는 Ctrl+J)를 누르거나 제목 표시줄의 어시스턴트 버튼을 눌러 원하는 작업을 말해 보세요. 예: “스토리 내레이션을 만들고 캐릭터마다 목소리를 정해 줘”. 먼저 설정에서 AI 서비스를 추가해야 합니다."
+  },
   "@yovoice.settings.intro": {
     "defaultMessage": "시작 애니메이션"
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "다시 재생"
+  },
+  "@yovoice.settings.guide": {
+    "defaultMessage": "기능 안내"
+  },
+  "@yovoice.settings.guideReplay": {
+    "defaultMessage": "다시 보기"
   },
   "@yovoice.nav.assets": {
     "defaultMessage": "자산"

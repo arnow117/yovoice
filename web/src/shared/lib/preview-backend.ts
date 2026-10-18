@@ -32,8 +32,8 @@ function load(): State {
     } catch { /* 主副本损坏时继续读取恢复备份。 */ }
   }
   state.characters ??= []; state.previews = []; delete state.aiTask; delete state.melody; state.assistantLive = undefined;
-  // 浏览器预览默认跳过首次启动的开场画面；需要查看时在状态里把 introSeen 设为 false。
-  state.preferences = { ...state.preferences, introSeen: state.preferences?.introSeen ?? true };
+  // 浏览器预览默认跳过首次启动的开场画面和功能引导；需要查看时在状态里把 introSeen / tourSeen 设为 false。
+  state.preferences = { ...state.preferences, introSeen: state.preferences?.introSeen ?? true, tourSeen: state.preferences?.tourSeen ?? true };
   if (!isUiLocale(state.preferences?.uiLocale)) {
     state = { ...state, preferences: { ...state.preferences, uiLocale: 'zh-CN' } };
   }

@@ -33,6 +33,7 @@ import { call, isDesktop, mediaUrl, saveAudio } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { dismissSplash } from '../shared/lib/splash';
 import { IntroScreen } from './intro-screen';
+import { GuideTour } from './guide-tour';
 import { formatNotice } from '../shared/i18n/format';
 import { isKokoroModel, isYuE, isVoiceModel, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
 import { AssistantPanel } from '../features/assistant/assistant-panel';
@@ -201,6 +202,24 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     if (state.preferences.introSeen || introDone) return;
     setIntroDone(true);
     void call('preferences.save', { ...state.preferences, introSeen: true }).catch(e => setError(noticeMessage(e)));
+  };
+  // 功能引导紧接开场画面出现，看完或跳过后记入偏好；设置里的「重新查看」只当场再看一次。
+  const [tourDone, setTourDone] = useState(false);
+  const [tourReplay, setTourReplay] = useState(false);
+  useEffect(() => {
+    const replay = () => setTourReplay(true);
+    window.addEventListener('workbench-show-tour', replay);
+    return () => window.removeEventListener('workbench-show-tour', replay);
+  }, []);
+  const showTour = ready && !error && !showIntro && ((!state.preferences.tourSeen && !tourDone) || tourReplay);
+  // 引导高亮侧栏入口，侧栏收起时先展开。
+  useEffect(() => { if (showTour && isCollapsed) expand(); }, [showTour, isCollapsed, expand]);
+  const finishTour = () => {
+    setTourReplay(false);
+    if (state.preferences.tourSeen || tourDone) return;
+    setTourDone(true);
+    // 开场画面刚保存的 introSeen 可能还没回到状态里，一并带上，避免被覆盖。
+    void call('preferences.save', { ...state.preferences, introSeen: state.preferences.introSeen || introDone, tourSeen: true }).catch(e => setError(noticeMessage(e)));
   };
   // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来；开场画面与启动动画同一造型，直接接续。
   useEffect(() => { if (error || showIntro) dismissSplash(true); else if (ready) dismissSplash(); }, [ready, error, showIntro]);
@@ -463,5 +482,6 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     {voicePicker ? <Suspense fallback={<p role="status">{t('@yovoice.app.loadingVoicePicker')}</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={voice => { if ((activeSpeaker || draft.performance) && voicePicker !== 'add') { changeSpeaker(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); } else selectVoice(voice); }} /></Suspense> : null}
     {pronunciation ? <PronunciationDialog pronunciation={pronunciation} setPronunciation={setPronunciation} draft={draft} change={change} editor={editor} /> : null}
     {showIntro ? <IntroScreen onStart={finishIntro} /> : null}
+    {showTour ? <GuideTour onClose={finishTour} /> : null}
   </VStack>;
 }

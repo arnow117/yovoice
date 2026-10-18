@@ -73,6 +73,9 @@ export function Settings({ state, catalog, engine, draft, run, focus }: { focus?
         <SettingsRow label={t('@yovoice.settings.intro')}>
           <Button size="sm" label={t('@yovoice.settings.introReplay')} onClick={() => window.dispatchEvent(new Event('workbench-show-intro'))} />
         </SettingsRow>
+        <SettingsRow label={t('@yovoice.settings.guide')}>
+          <Button size="sm" label={t('@yovoice.settings.guideReplay')} onClick={() => window.dispatchEvent(new Event('workbench-show-tour'))} />
+        </SettingsRow>
       </SettingsGroup>
       <StorageSettings state={state} run={run} busy={busy || modelBusy} />
       <LocalAPISettings run={run} />

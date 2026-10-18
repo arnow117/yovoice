@@ -257,6 +257,8 @@ type Preferences struct {
 	AITimeout int `json:"aiTimeout,omitempty"`
 	// IntroSeen 表示已看过首次启动的开场画面，之后启动只显示简短的加载动画。
 	IntroSeen bool `json:"introSeen,omitempty"`
+	// TourSeen 表示已看过或跳过首次进入主界面的功能引导。
+	TourSeen bool `json:"tourSeen,omitempty"`
 }
 type State struct {
 	Characters     []Character        `json:"characters"`

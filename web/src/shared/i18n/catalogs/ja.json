@@ -3623,11 +3623,59 @@
   "@yovoice.intro.start": {
     "defaultMessage": "さっそく始める"
   },
+  "@yovoice.guide.count": {
+    "defaultMessage": "{current} / {total}"
+  },
+  "@yovoice.guide.skip": {
+    "defaultMessage": "スキップ"
+  },
+  "@yovoice.guide.back": {
+    "defaultMessage": "戻る"
+  },
+  "@yovoice.guide.next": {
+    "defaultMessage": "次へ"
+  },
+  "@yovoice.guide.done": {
+    "defaultMessage": "使い始める"
+  },
+  "@yovoice.guide.assistantTitle": {
+    "defaultMessage": "いつでもアシスタントに"
+  },
+  "@yovoice.guide.new": {
+    "defaultMessage": "音声生成・物語の朗読・音楽生成・スコア生成の作品をここから作成できます。テキストや字幕、.yovoice プロジェクトの読み込みも可能です。"
+  },
+  "@yovoice.guide.text": {
+    "defaultMessage": "テキストを書いてモデルと声を選べば音声を生成できます。生成のたびにバージョンとして保存され、聞き比べて選べます。"
+  },
+  "@yovoice.guide.story": {
+    "defaultMessage": "字幕や小説を丸ごと読み込み、複数のキャラクターで一文ずつ吹き込み、タイムラインで編集・BGM 追加・書き出しができます。"
+  },
+  "@yovoice.guide.music": {
+    "defaultMessage": "スタイルと歌詞から曲を生成します。「スコア生成」タブでは MIDI を読み込んだり AI に譜面を書かせたりして、音源で伴奏をレンダリングできます。"
+  },
+  "@yovoice.guide.voices": {
+    "defaultMessage": "参照音声とよく使う声の設定を保存し、作品をまたいで同じ声を保てます。"
+  },
+  "@yovoice.guide.assets": {
+    "defaultMessage": "生成した音声、参照音声、素材、画像をここにまとめています。試聴や絞り込みをして、容量を使っているものを一括で整理できます。"
+  },
+  "@yovoice.guide.settings": {
+    "defaultMessage": "モデルのダウンロードと管理、AI サービスの設定、表示言語の切り替え、データフォルダーの移動ができます。最初はここでモデルを 1 つダウンロードしましょう。"
+  },
+  "@yovoice.guide.assistant": {
+    "defaultMessage": "⌘J（Windows は Ctrl+J）を押すか、タイトルバーのアシスタントボタンをクリックして、やりたいことを話しかけてください。例：「物語の朗読を作って、各キャラクターに声を付けて」。先に設定で AI サービスを追加してください。"
+  },
   "@yovoice.settings.intro": {
     "defaultMessage": "オープニングアニメーション"
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "もう一度再生"
+  },
+  "@yovoice.settings.guide": {
+    "defaultMessage": "機能ガイド"
+  },
+  "@yovoice.settings.guideReplay": {
+    "defaultMessage": "もう一度見る"
   },
   "@yovoice.nav.assets": {
     "defaultMessage": "アセット"

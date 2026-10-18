@@ -3623,11 +3623,59 @@
   "@yovoice.intro.start": {
     "defaultMessage": "Начать знакомство"
   },
+  "@yovoice.guide.count": {
+    "defaultMessage": "{current} / {total}"
+  },
+  "@yovoice.guide.skip": {
+    "defaultMessage": "Пропустить"
+  },
+  "@yovoice.guide.back": {
+    "defaultMessage": "Назад"
+  },
+  "@yovoice.guide.next": {
+    "defaultMessage": "Далее"
+  },
+  "@yovoice.guide.done": {
+    "defaultMessage": "Начать"
+  },
+  "@yovoice.guide.assistantTitle": {
+    "defaultMessage": "Спрашивайте ассистента в любой момент"
+  },
+  "@yovoice.guide.new": {
+    "defaultMessage": "Здесь создаются проекты синтеза речи, чтения историй, музыки или партитур, а также импортируются текст, субтитры и проекты .yovoice."
+  },
+  "@yovoice.guide.text": {
+    "defaultMessage": "Напишите текст, выберите модель и голос — и получите речь. Каждая генерация сохраняется как версия, чтобы сравнить и выбрать лучшую."
+  },
+  "@yovoice.guide.story": {
+    "defaultMessage": "Импортируйте субтитры или целый роман, озвучьте каждую реплику разными персонажами, затем смонтируйте на таймлайне, добавьте фоновую музыку и экспортируйте."
+  },
+  "@yovoice.guide.music": {
+    "defaultMessage": "Опишите стиль и напишите текст, чтобы получить песню. На вкладке «Генерация партитур» можно импортировать MIDI или попросить ИИ написать партитуру и отрендерить её банком звуков."
+  },
+  "@yovoice.guide.voices": {
+    "defaultMessage": "Храните референсные записи и любимые настройки голоса, чтобы голос не менялся от проекта к проекту."
+  },
+  "@yovoice.guide.assets": {
+    "defaultMessage": "Здесь собраны все сгенерированные аудио, референсные записи, материалы и изображения. Слушайте, фильтруйте, смотрите, что занимает место, и удаляйте пакетно."
+  },
+  "@yovoice.guide.settings": {
+    "defaultMessage": "Загрузка и управление моделями, настройка ИИ-сервисов, язык интерфейса и перенос папки данных. При первом запуске скачайте здесь модель."
+  },
+  "@yovoice.guide.assistant": {
+    "defaultMessage": "Нажмите ⌘J (Ctrl+J в Windows) или кнопку ассистента в заголовке окна и просто скажите, что нужно, например: «Создай чтение истории и подбери голос каждому персонажу». Сначала добавьте ИИ-сервис в настройках."
+  },
   "@yovoice.settings.intro": {
     "defaultMessage": "Приветственная анимация"
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Воспроизвести снова"
+  },
+  "@yovoice.settings.guide": {
+    "defaultMessage": "Обзор возможностей"
+  },
+  "@yovoice.settings.guideReplay": {
+    "defaultMessage": "Показать снова"
   },
   "@yovoice.nav.assets": {
     "defaultMessage": "Ресурсы"

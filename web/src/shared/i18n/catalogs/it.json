@@ -3623,11 +3623,59 @@
   "@yovoice.intro.start": {
     "defaultMessage": "Inizia a esplorare"
   },
+  "@yovoice.guide.count": {
+    "defaultMessage": "{current} / {total}"
+  },
+  "@yovoice.guide.skip": {
+    "defaultMessage": "Salta"
+  },
+  "@yovoice.guide.back": {
+    "defaultMessage": "Indietro"
+  },
+  "@yovoice.guide.next": {
+    "defaultMessage": "Avanti"
+  },
+  "@yovoice.guide.done": {
+    "defaultMessage": "Inizia"
+  },
+  "@yovoice.guide.assistantTitle": {
+    "defaultMessage": "Chiedi all’assistente quando vuoi"
+  },
+  "@yovoice.guide.new": {
+    "defaultMessage": "Crea qui progetti di voce, narrazione, musica o partitura, oppure importa testo, sottotitoli o un progetto .yovoice."
+  },
+  "@yovoice.guide.text": {
+    "defaultMessage": "Scrivi un testo, scegli modello e voce e genera. Ogni generazione viene salvata come versione per confrontare e scegliere."
+  },
+  "@yovoice.guide.story": {
+    "defaultMessage": "Importa sottotitoli o un intero romanzo, dai voce a ogni battuta con personaggi diversi, poi monta sulla timeline, aggiungi musica di sottofondo ed esporta."
+  },
+  "@yovoice.guide.music": {
+    "defaultMessage": "Descrivi uno stile e scrivi il testo per generare un brano. Nella scheda «Generazione di partiture» importi MIDI o fai scrivere una partitura all’IA e la renderizzi con una libreria di suoni."
+  },
+  "@yovoice.guide.voices": {
+    "defaultMessage": "Conserva audio di riferimento e impostazioni di voce preferite per mantenere la stessa voce in tutti i progetti."
+  },
+  "@yovoice.guide.assets": {
+    "defaultMessage": "Tutti gli audio generati, gli audio di riferimento, i materiali e le immagini sono qui. Ascolta, filtra, scopri cosa occupa spazio e fai pulizia in blocco."
+  },
+  "@yovoice.guide.settings": {
+    "defaultMessage": "Scarica e gestisci i modelli, configura i servizi IA, cambia la lingua dell’interfaccia e sposta la cartella dati. Al primo avvio, scarica qui un modello."
+  },
+  "@yovoice.guide.assistant": {
+    "defaultMessage": "Premi ⌘J (Ctrl+J su Windows) o il pulsante dell’assistente nella barra del titolo e di’ cosa vuoi, ad esempio: «Crea una narrazione e dai una voce a ogni personaggio». Prima configura un servizio IA nelle Impostazioni."
+  },
   "@yovoice.settings.intro": {
     "defaultMessage": "Animazione di benvenuto"
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Riproduci di nuovo"
+  },
+  "@yovoice.settings.guide": {
+    "defaultMessage": "Tour guidato"
+  },
+  "@yovoice.settings.guideReplay": {
+    "defaultMessage": "Rivedi"
   },
   "@yovoice.nav.assets": {
     "defaultMessage": "Risorse"

@@ -3623,11 +3623,59 @@
   "@yovoice.intro.start": {
     "defaultMessage": "Start exploring"
   },
+  "@yovoice.guide.count": {
+    "defaultMessage": "{current} / {total}"
+  },
+  "@yovoice.guide.skip": {
+    "defaultMessage": "Skip"
+  },
+  "@yovoice.guide.back": {
+    "defaultMessage": "Back"
+  },
+  "@yovoice.guide.next": {
+    "defaultMessage": "Next"
+  },
+  "@yovoice.guide.done": {
+    "defaultMessage": "Get started"
+  },
+  "@yovoice.guide.assistantTitle": {
+    "defaultMessage": "Ask the assistant anytime"
+  },
+  "@yovoice.guide.new": {
+    "defaultMessage": "Start a speech, story narration, music or score project here, or import text, subtitles or a .yovoice project."
+  },
+  "@yovoice.guide.text": {
+    "defaultMessage": "Write some text, pick a model and a voice, and generate speech. Every generation is kept as a version so you can compare and choose."
+  },
+  "@yovoice.guide.story": {
+    "defaultMessage": "Import subtitles or a whole novel, voice each line with different characters, then edit on the timeline, add background music and export."
+  },
+  "@yovoice.guide.music": {
+    "defaultMessage": "Describe a style and write lyrics to generate a song. Switch to the “Score generation” tab to import MIDI or let AI write a score and render it with a sound font."
+  },
+  "@yovoice.guide.voices": {
+    "defaultMessage": "Keep reference audio and favorite voice settings here so a voice stays the same across projects."
+  },
+  "@yovoice.guide.assets": {
+    "defaultMessage": "All generated audio, reference audio, timeline media and images live here. Play, filter, see what takes up space and clean up in bulk."
+  },
+  "@yovoice.guide.settings": {
+    "defaultMessage": "Download and manage models, set up AI services, change the interface language and move the data folder. On first use, download a model here."
+  },
+  "@yovoice.guide.assistant": {
+    "defaultMessage": "Press ⌘J (Ctrl+J on Windows) or click the assistant button in the title bar and just say what you want, such as “Create a story narration and give each character a voice.” Set up an AI service in Settings first."
+  },
   "@yovoice.settings.intro": {
     "defaultMessage": "Intro animation"
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Replay"
+  },
+  "@yovoice.settings.guide": {
+    "defaultMessage": "Feature tour"
+  },
+  "@yovoice.settings.guideReplay": {
+    "defaultMessage": "Show again"
   },
   "@yovoice.nav.assets": {
     "defaultMessage": "Assets"

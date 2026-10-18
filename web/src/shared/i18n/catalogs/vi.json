@@ -3623,11 +3623,59 @@
   "@yovoice.intro.start": {
     "defaultMessage": "Bắt đầu khám phá"
   },
+  "@yovoice.guide.count": {
+    "defaultMessage": "{current} / {total}"
+  },
+  "@yovoice.guide.skip": {
+    "defaultMessage": "Bỏ qua"
+  },
+  "@yovoice.guide.back": {
+    "defaultMessage": "Quay lại"
+  },
+  "@yovoice.guide.next": {
+    "defaultMessage": "Tiếp"
+  },
+  "@yovoice.guide.done": {
+    "defaultMessage": "Bắt đầu"
+  },
+  "@yovoice.guide.assistantTitle": {
+    "defaultMessage": "Hỏi trợ lý bất cứ lúc nào"
+  },
+  "@yovoice.guide.new": {
+    "defaultMessage": "Tạo dự án giọng nói, kể chuyện, nhạc hoặc bản nhạc tại đây, hoặc nhập văn bản, phụ đề hay dự án .yovoice."
+  },
+  "@yovoice.guide.text": {
+    "defaultMessage": "Viết văn bản, chọn mô hình và giọng rồi tạo giọng nói. Mỗi lần tạo được lưu thành một phiên bản để so sánh và chọn."
+  },
+  "@yovoice.guide.story": {
+    "defaultMessage": "Nhập phụ đề hoặc cả cuốn tiểu thuyết, lồng tiếng từng câu bằng nhiều nhân vật, rồi biên tập trên dòng thời gian, thêm nhạc nền và xuất."
+  },
+  "@yovoice.guide.music": {
+    "defaultMessage": "Mô tả phong cách và viết lời để tạo bài hát. Ở thẻ “Tạo bản nhạc”, bạn có thể nhập MIDI hoặc để AI viết bản nhạc rồi kết xuất bằng bộ âm sắc."
+  },
+  "@yovoice.guide.voices": {
+    "defaultMessage": "Lưu âm thanh tham chiếu và thiết lập giọng yêu thích để giữ cùng một giọng giữa các dự án."
+  },
+  "@yovoice.guide.assets": {
+    "defaultMessage": "Mọi âm thanh đã tạo, âm thanh tham chiếu, tư liệu và hình ảnh đều ở đây. Nghe thử, lọc, xem mục nào chiếm dung lượng và dọn dẹp hàng loạt."
+  },
+  "@yovoice.guide.settings": {
+    "defaultMessage": "Tải và quản lý mô hình, thiết lập dịch vụ AI, đổi ngôn ngữ giao diện và di chuyển thư mục dữ liệu. Lần đầu sử dụng, hãy tải một mô hình tại đây."
+  },
+  "@yovoice.guide.assistant": {
+    "defaultMessage": "Nhấn ⌘J (Ctrl+J trên Windows) hoặc nút trợ lý trên thanh tiêu đề rồi nói điều bạn muốn, ví dụ: “Tạo một dự án kể chuyện và chọn giọng cho từng nhân vật”. Trước tiên hãy thêm dịch vụ AI trong Cài đặt."
+  },
   "@yovoice.settings.intro": {
     "defaultMessage": "Hoạt ảnh mở đầu"
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Phát lại"
+  },
+  "@yovoice.settings.guide": {
+    "defaultMessage": "Hướng dẫn tính năng"
+  },
+  "@yovoice.settings.guideReplay": {
+    "defaultMessage": "Xem lại"
   },
   "@yovoice.nav.assets": {
     "defaultMessage": "Tài nguyên"

@@ -3623,11 +3623,59 @@
   "@yovoice.intro.start": {
     "defaultMessage": "Jetzt entdecken"
   },
+  "@yovoice.guide.count": {
+    "defaultMessage": "{current} / {total}"
+  },
+  "@yovoice.guide.skip": {
+    "defaultMessage": "Überspringen"
+  },
+  "@yovoice.guide.back": {
+    "defaultMessage": "Zurück"
+  },
+  "@yovoice.guide.next": {
+    "defaultMessage": "Weiter"
+  },
+  "@yovoice.guide.done": {
+    "defaultMessage": "Loslegen"
+  },
+  "@yovoice.guide.assistantTitle": {
+    "defaultMessage": "Frag jederzeit den Assistenten"
+  },
+  "@yovoice.guide.new": {
+    "defaultMessage": "Hier legst du Projekte für Sprache, Geschichten, Musik oder Partituren an oder importierst Text, Untertitel oder ein .yovoice-Projekt."
+  },
+  "@yovoice.guide.text": {
+    "defaultMessage": "Text schreiben, Modell und Stimme wählen, Sprache erzeugen. Jede Erzeugung wird als Version gespeichert, damit du vergleichen und auswählen kannst."
+  },
+  "@yovoice.guide.story": {
+    "defaultMessage": "Untertitel oder einen ganzen Roman importieren, jede Zeile mit verschiedenen Figuren vertonen, dann in der Zeitleiste schneiden, Hintergrundmusik hinzufügen und exportieren."
+  },
+  "@yovoice.guide.music": {
+    "defaultMessage": "Stil beschreiben und Liedtext schreiben, um einen Song zu erzeugen. Im Tab „Partiturgenerierung“ importierst du MIDI oder lässt die KI eine Partitur schreiben und mit einer Klangbibliothek rendern."
+  },
+  "@yovoice.guide.voices": {
+    "defaultMessage": "Referenzaudios und bevorzugte Stimmeinstellungen speichern, damit eine Stimme über Projekte hinweg gleich bleibt."
+  },
+  "@yovoice.guide.assets": {
+    "defaultMessage": "Alle erzeugten Audios, Referenzaudios, Medien und Bilder an einem Ort. Anhören, filtern, sehen, was Platz belegt, und gesammelt aufräumen."
+  },
+  "@yovoice.guide.settings": {
+    "defaultMessage": "Modelle herunterladen und verwalten, KI-Dienste einrichten, Sprache der Oberfläche ändern und den Datenordner verschieben. Lade beim ersten Start hier ein Modell herunter."
+  },
+  "@yovoice.guide.assistant": {
+    "defaultMessage": "Drücke ⌘J (unter Windows Strg+J) oder den Assistenten-Knopf in der Titelleiste und sag einfach, was du möchtest, etwa „Erstelle eine Geschichte und gib jeder Figur eine Stimme“. Richte vorher in den Einstellungen einen KI-Dienst ein."
+  },
   "@yovoice.settings.intro": {
     "defaultMessage": "Begrüßungsanimation"
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Erneut abspielen"
+  },
+  "@yovoice.settings.guide": {
+    "defaultMessage": "Funktionsrundgang"
+  },
+  "@yovoice.settings.guideReplay": {
+    "defaultMessage": "Erneut ansehen"
   },
   "@yovoice.nav.assets": {
     "defaultMessage": "Ressourcen"

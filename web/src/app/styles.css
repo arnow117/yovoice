@@ -932,6 +932,21 @@
     .now-playing, .now-playing[data-leaving], .now-playing-sync, .now-playing::before, .now-playing::after, .now-playing-line[data-instrumental][data-state="current"] { animation: none; }
     .now-playing-line { transition-delay: 0s; }
   }
+  /* 功能引导：整窗压暗，高亮框用超大外阴影挖出目标；卡片按目标位置由脚本定位。宽度与 guide-tour.tsx 的 cardWidth 一致。 */
+  .guide-tour { position: fixed; inset: 0; z-index: 900; }
+  .guide-spotlight { position: fixed; border-radius: var(--radius-container); box-shadow: 0 0 0 100vmax var(--color-overlay), 0 0 0 calc(var(--border-width) * 2) var(--color-accent);
+    transition: top var(--duration-medium) var(--ease-standard), left var(--duration-medium) var(--ease-standard), width var(--duration-medium) var(--ease-standard), height var(--duration-medium) var(--ease-standard); pointer-events: none; }
+  .guide-spotlight-none { top: 50%; left: 50%; width: 0; height: 0; box-shadow: 0 0 0 100vmax var(--color-overlay); }
+  .guide-card { position: fixed; width: calc(var(--spacing-4) * 20); max-width: calc(100vw - var(--spacing-4) * 2); padding: var(--spacing-5); border-radius: var(--radius-container);
+    background: var(--color-background-surface); color: var(--color-text-primary); box-shadow: var(--shadow-high);
+    transition: top var(--duration-medium) var(--ease-standard), left var(--duration-medium) var(--ease-standard); animation: guide-in var(--duration-medium) var(--ease-standard) both; }
+  .guide-card-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .guide-card h2 { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-medium); }
+  .guide-card p { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-base); line-height: 1.6; }
+  .guide-count { color: var(--color-text-secondary); font-size: var(--font-size-sm); font-variant-numeric: tabular-nums; }
+  .guide-actions { margin-top: var(--spacing-1); }
+  @keyframes guide-in { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .guide-spotlight, .guide-card { transition: none; animation: none; } }
 }
   /* 助手面板：右下角浮动卡片，可展开为右侧全高；出入场与消息出现只用轻微的位移淡入。 */
   .assistant-panel { position: fixed; right: var(--spacing-5); bottom: calc(var(--app-player) + var(--spacing-5)); z-index: 450; width: min(calc(var(--spacing-8) * 11), calc(100vw - var(--spacing-8))); height: min(calc(var(--spacing-10) * 13), calc(100dvh - var(--app-titlebar) - var(--app-player) - var(--spacing-8))); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); box-shadow: var(--shadow-med); overflow: hidden; animation: assistant-pop var(--duration-medium, 410ms) var(--ease-standard); }

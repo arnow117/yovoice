@@ -3623,11 +3623,59 @@
   "@yovoice.intro.start": {
     "defaultMessage": "開始探索"
   },
+  "@yovoice.guide.count": {
+    "defaultMessage": "{current} / {total}"
+  },
+  "@yovoice.guide.skip": {
+    "defaultMessage": "略過"
+  },
+  "@yovoice.guide.back": {
+    "defaultMessage": "上一步"
+  },
+  "@yovoice.guide.next": {
+    "defaultMessage": "下一步"
+  },
+  "@yovoice.guide.done": {
+    "defaultMessage": "開始使用"
+  },
+  "@yovoice.guide.assistantTitle": {
+    "defaultMessage": "隨時問助手"
+  },
+  "@yovoice.guide.new": {
+    "defaultMessage": "從這裡新增語音生成、故事配音、音樂生成或編曲生成作品，也可以匯入文字、字幕或 .yovoice 專案。"
+  },
+  "@yovoice.guide.text": {
+    "defaultMessage": "寫一段文字，選好模型和聲音就能生成語音。每次生成都會儲存為一個版本，方便比較挑選。"
+  },
+  "@yovoice.guide.story": {
+    "defaultMessage": "匯入字幕或整本小說，為多個角色逐句配音，再在時間軸上剪輯、加入背景音樂並匯出。"
+  },
+  "@yovoice.guide.music": {
+    "defaultMessage": "寫風格和歌詞生成歌曲；切到「編曲生成」分頁，可以匯入 MIDI 或讓 AI 寫譜，用音色庫算繪配樂。"
+  },
+  "@yovoice.guide.voices": {
+    "defaultMessage": "儲存參考音訊和常用的聲音設定，在不同作品裡保持同一個聲線。"
+  },
+  "@yovoice.guide.assets": {
+    "defaultMessage": "生成的音訊、參考音訊、素材和圖片都集中在這裡，可以試聽、篩選，看看哪些佔了空間並批次清理。"
+  },
+  "@yovoice.guide.settings": {
+    "defaultMessage": "下載和管理模型、設定 AI 服務、切換介面語言、搬移資料目錄。第一次使用，先在這裡下載一個模型。"
+  },
+  "@yovoice.guide.assistant": {
+    "defaultMessage": "按 ⌘J（Windows 上是 Ctrl+J）或點標題列的助手按鈕，直接說要做什麼，例如「新增一個故事配音，替每個角色配好聲音」。使用前需要在設定裡設定 AI 服務。"
+  },
   "@yovoice.settings.intro": {
     "defaultMessage": "開場動畫"
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "重新播放"
+  },
+  "@yovoice.settings.guide": {
+    "defaultMessage": "功能導覽"
+  },
+  "@yovoice.settings.guideReplay": {
+    "defaultMessage": "重新查看"
   },
   "@yovoice.nav.assets": {
     "defaultMessage": "資源"
