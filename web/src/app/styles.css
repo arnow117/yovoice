@@ -933,8 +933,11 @@
   .assistant-body > .astryx-chat-message-list { flex: none; padding: var(--spacing-2) calc(var(--assistant-inset) - var(--spacing-3)) var(--spacing-3); }
   .assistant-dock-bottom { flex-shrink: 0; padding: var(--assistant-gap); }
   .assistant-composer { --_chat-composer-radius: calc(var(--radius-container) - var(--assistant-gap)); }
-  /* 发送按钮比默认小一号，圆形，与左下角的模型选择同高。 */
-  .assistant-send.astryx-button { border-radius: var(--radius-full); width: var(--spacing-8); height: var(--spacing-8); min-width: 0; padding: 0; }
+  /* 底栏压低：发送按钮与左下角的模型选择同为一行小控件，输入框与底栏之间不留多余空白。 */
+  .assistant-send.astryx-button { border-radius: var(--radius-full); width: var(--spacing-6); height: var(--spacing-6); min-width: 0; padding: 0; }
+  .assistant-send.astryx-button svg { width: var(--spacing-3); height: var(--spacing-3); }
+  .assistant-composer :has(> * > .assistant-send) { min-height: var(--spacing-6); }
+  .assistant-model.astryx-selector { min-height: var(--spacing-6); padding-block: 0; padding-inline: var(--spacing-2); }
   .assistant-title-button.astryx-button { padding: 0; }
   .assistant-empty { flex: 1; justify-content: center; padding: var(--spacing-6) var(--assistant-inset); text-align: center; }
   .assistant-empty p { margin: 0; }
