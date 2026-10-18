@@ -2018,9 +2018,6 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Nhịp"
   },
-  "@yovoice.music.steps": {
-    "defaultMessage": "Các bước"
-  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Mô hình này cần công cụ suy luận {version} trở lên. Hãy cập nhật công cụ trong Cài đặt."
   },
@@ -3734,17 +3731,11 @@
   "@yovoice.music.mode": {
     "defaultMessage": "Cách tạo"
   },
-  "@yovoice.music.modeScore": {
-    "defaultMessage": "Theo bản nhạc"
-  },
   "@yovoice.music.modeFree": {
-    "defaultMessage": "Tự do"
+    "defaultMessage": "Không dùng bản nhạc"
   },
   "@yovoice.music.modeScoreHint": {
     "defaultMessage": "Hát theo bản nhạc giai điệu; nếu chưa có, YuE2 sẽ viết trước và bạn có thể tải từ phiên bản để chỉnh sửa."
-  },
-  "@yovoice.music.modeFreeHint": {
-    "defaultMessage": "Tạo trực tiếp không qua bản nhạc; kết quả không có bản nhạc để chỉnh sửa."
   },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "Chuyển giai điệu cho nhạc cụ"
@@ -3797,46 +3788,49 @@
   "@yovoice.create.precision": {
     "defaultMessage": "Độ chính xác"
   },
-  "@yovoice.music.stepWrite": {
-    "defaultMessage": "Phong cách và lời"
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Viết giai điệu trước, chỉnh sửa rồi tạo cả bài theo bản nhạc."
   },
-  "@yovoice.music.stepWriteEmpty": {
-    "defaultMessage": "Chưa điền"
+  "@yovoice.music.modeChords": {
+    "defaultMessage": "Giai điệu + hợp âm"
   },
-  "@yovoice.music.stepWriteStatus": {
-    "defaultMessage": "{tags} phong cách · {lines} dòng lời"
+  "@yovoice.music.modeMelody": {
+    "defaultMessage": "Chỉ giai điệu"
   },
-  "@yovoice.music.stepWriteInstrumental": {
-    "defaultMessage": "{tags} phong cách · không lời"
+  "@yovoice.music.modeMelodyHint": {
+    "defaultMessage": "Hát theo giai điệu, bỏ qua hợp âm, phần đệm phối tự do theo phong cách."
   },
-  "@yovoice.music.stepScoreEmpty": {
-    "defaultMessage": "Chưa có bản nhạc"
+  "@yovoice.music.styleCount": {
+    "defaultMessage": "{count} thẻ"
   },
-  "@yovoice.music.stepScoreReady": {
-    "defaultMessage": "Đã sẵn sàng để tạo"
+  "@yovoice.music.lyricLines": {
+    "defaultMessage": "{count} dòng"
   },
-  "@yovoice.music.stepScoreWorking": {
-    "defaultMessage": "Đang viết bản nhạc…"
+  "@yovoice.music.takes": {
+    "defaultMessage": "Phiên bản"
   },
-  "@yovoice.music.stepScoreFree": {
-    "defaultMessage": "Tự do, không dùng bản nhạc"
+  "@yovoice.music.takeGenerating": {
+    "defaultMessage": "Phiên bản {n} · đang tạo"
   },
-  "@yovoice.music.nextPlan": {
-    "defaultMessage": "Viết bản nhạc giai điệu"
+  "@yovoice.music.playTake": {
+    "defaultMessage": "Phát {name}"
   },
-  "@yovoice.music.nextOpenScore": {
-    "defaultMessage": "Xem bản nhạc giai điệu"
+  "@yovoice.music.pauseTake": {
+    "defaultMessage": "Tạm dừng {name}"
   },
-  "@yovoice.music.nextPlanHint": {
-    "defaultMessage": "Tiếp theo YuE2 viết giai điệu giọng hát và hợp âm từ lời; xem, sửa rồi tạo theo bản nhạc. Đã có bài hát hoặc tệp .abc? Chuyển sang bước bản nhạc để trích xuất hoặc nhập."
+  "@yovoice.music.takeScored": {
+    "defaultMessage": "Theo bản nhạc"
   },
-  "@yovoice.music.nextScoreHint": {
-    "defaultMessage": "Tác phẩm đã có bản nhạc giai điệu; khi tạo sẽ hát theo bản nhạc."
+  "@yovoice.music.takeActions": {
+    "defaultMessage": "Thao tác khác cho {name}"
   },
-  "@yovoice.music.nextFreeHint": {
-    "defaultMessage": "Chế độ tự do tạo thẳng từ phong cách và lời, không qua bản nhạc."
+  "@yovoice.music.loadTakeScore": {
+    "defaultMessage": "Tải bản nhạc của phiên bản này"
   },
-  "@yovoice.music.stepScorePending": {
-    "defaultMessage": "Bản nhạc mới đã xong, mở để xem"
+  "@yovoice.music.takesEmpty": {
+    "defaultMessage": "Chưa có phiên bản"
+  },
+  "@yovoice.music.takesEmptyHint": {
+    "defaultMessage": "Mỗi bài đã tạo sẽ xuất hiện ở đây để nghe, so sánh và dùng lại."
   }
 }

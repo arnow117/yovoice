@@ -2018,9 +2018,6 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Размер"
   },
-  "@yovoice.music.steps": {
-    "defaultMessage": "Шаги"
-  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Этой модели нужен движок инференса {version} или новее. Обновите движок в настройках."
   },
@@ -3734,17 +3731,11 @@
   "@yovoice.music.mode": {
     "defaultMessage": "Способ генерации"
   },
-  "@yovoice.music.modeScore": {
-    "defaultMessage": "По партитуре"
-  },
   "@yovoice.music.modeFree": {
-    "defaultMessage": "Свободно"
+    "defaultMessage": "Без партитуры"
   },
   "@yovoice.music.modeScoreHint": {
     "defaultMessage": "Поёт по мелодической партитуре; если её нет, YuE2 сначала пишет её, и её можно загрузить из версии и отредактировать."
-  },
-  "@yovoice.music.modeFreeHint": {
-    "defaultMessage": "Генерирует сразу, без партитуры; у результата не будет редактируемой партитуры."
   },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "Передать мелодию инструментам"
@@ -3797,46 +3788,49 @@
   "@yovoice.create.precision": {
     "defaultMessage": "Точность"
   },
-  "@yovoice.music.stepWrite": {
-    "defaultMessage": "Стиль и текст"
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Сначала мелодия: напишите, поправьте и сгенерируйте по ней всю песню."
   },
-  "@yovoice.music.stepWriteEmpty": {
-    "defaultMessage": "Ещё не заполнено"
+  "@yovoice.music.modeChords": {
+    "defaultMessage": "Мелодия + аккорды"
   },
-  "@yovoice.music.stepWriteStatus": {
-    "defaultMessage": "Стилей: {tags} · строк: {lines}"
+  "@yovoice.music.modeMelody": {
+    "defaultMessage": "Только мелодия"
   },
-  "@yovoice.music.stepWriteInstrumental": {
-    "defaultMessage": "Стилей: {tags} · инструментал"
+  "@yovoice.music.modeMelodyHint": {
+    "defaultMessage": "Поёт мелодию; аккорды игнорируются, аккомпанемент свободно аранжируется по стилю."
   },
-  "@yovoice.music.stepScoreEmpty": {
-    "defaultMessage": "Партитуры пока нет"
+  "@yovoice.music.styleCount": {
+    "defaultMessage": "Тегов: {count}"
   },
-  "@yovoice.music.stepScoreReady": {
-    "defaultMessage": "Готова к генерации"
+  "@yovoice.music.lyricLines": {
+    "defaultMessage": "Строк: {count}"
   },
-  "@yovoice.music.stepScoreWorking": {
-    "defaultMessage": "Пишется партитура…"
+  "@yovoice.music.takes": {
+    "defaultMessage": "Версии"
   },
-  "@yovoice.music.stepScoreFree": {
-    "defaultMessage": "Свободный режим, не используется"
+  "@yovoice.music.takeGenerating": {
+    "defaultMessage": "Версия {n} · генерация"
   },
-  "@yovoice.music.nextPlan": {
-    "defaultMessage": "Написать партитуру"
+  "@yovoice.music.playTake": {
+    "defaultMessage": "Воспроизвести {name}"
   },
-  "@yovoice.music.nextOpenScore": {
-    "defaultMessage": "Открыть партитуру"
+  "@yovoice.music.pauseTake": {
+    "defaultMessage": "Пауза {name}"
   },
-  "@yovoice.music.nextPlanHint": {
-    "defaultMessage": "Дальше YuE2 напишет по тексту вокальную мелодию и аккорды; проверьте, отредактируйте и сгенерируйте по ней. Есть песня или файл .abc? Перейдите к шагу партитуры, чтобы извлечь или импортировать её."
+  "@yovoice.music.takeScored": {
+    "defaultMessage": "По партитуре"
   },
-  "@yovoice.music.nextScoreHint": {
-    "defaultMessage": "У работы уже есть партитура; генерация будет по ней."
+  "@yovoice.music.takeActions": {
+    "defaultMessage": "Другие действия: {name}"
   },
-  "@yovoice.music.nextFreeHint": {
-    "defaultMessage": "Свободный режим генерирует сразу по стилю и тексту, без партитуры."
+  "@yovoice.music.loadTakeScore": {
+    "defaultMessage": "Загрузить партитуру этой версии"
   },
-  "@yovoice.music.stepScorePending": {
-    "defaultMessage": "Новая партитура готова к просмотру"
+  "@yovoice.music.takesEmpty": {
+    "defaultMessage": "Версий пока нет"
+  },
+  "@yovoice.music.takesEmptyHint": {
+    "defaultMessage": "Каждая сгенерированная песня появится здесь — слушайте, сравнивайте, используйте снова."
   }
 }

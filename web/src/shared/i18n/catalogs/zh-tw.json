@@ -2018,9 +2018,6 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "拍號"
   },
-  "@yovoice.music.steps": {
-    "defaultMessage": "創作步驟"
-  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "此模型需要 {version} 以上的推論核心，請在設定中更新核心。"
   },
@@ -3734,17 +3731,11 @@
   "@yovoice.music.mode": {
     "defaultMessage": "生成方式"
   },
-  "@yovoice.music.modeScore": {
-    "defaultMessage": "按旋律譜"
-  },
   "@yovoice.music.modeFree": {
-    "defaultMessage": "自由發揮"
+    "defaultMessage": "不用譜"
   },
   "@yovoice.music.modeScoreHint": {
     "defaultMessage": "按旋律譜演唱；沒有譜時 YuE2 先寫譜，生成後可以從這一版載入譜再修改。"
-  },
-  "@yovoice.music.modeFreeHint": {
-    "defaultMessage": "不經過旋律譜直接生成，結果沒有可編輯的譜。"
   },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "人聲旋律轉給樂器"
@@ -3797,46 +3788,49 @@
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
   },
-  "@yovoice.music.stepWrite": {
-    "defaultMessage": "風格與歌詞"
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "先寫出旋律，改好後按譜生成整首歌。"
   },
-  "@yovoice.music.stepWriteEmpty": {
-    "defaultMessage": "還沒填寫"
+  "@yovoice.music.modeChords": {
+    "defaultMessage": "旋律 + 和弦"
   },
-  "@yovoice.music.stepWriteStatus": {
-    "defaultMessage": "{tags} 個風格 · {lines} 行歌詞"
+  "@yovoice.music.modeMelody": {
+    "defaultMessage": "只用旋律"
   },
-  "@yovoice.music.stepWriteInstrumental": {
-    "defaultMessage": "{tags} 個風格 · 純音樂"
+  "@yovoice.music.modeMelodyHint": {
+    "defaultMessage": "按旋律演唱，忽略譜裡的和弦，伴奏按風格自由編配。"
   },
-  "@yovoice.music.stepScoreEmpty": {
-    "defaultMessage": "還沒有譜"
+  "@yovoice.music.styleCount": {
+    "defaultMessage": "{count} 個標籤"
   },
-  "@yovoice.music.stepScoreReady": {
-    "defaultMessage": "已寫好，可按譜生成"
+  "@yovoice.music.lyricLines": {
+    "defaultMessage": "{count} 行"
   },
-  "@yovoice.music.stepScoreWorking": {
-    "defaultMessage": "正在寫譜…"
+  "@yovoice.music.takes": {
+    "defaultMessage": "版本"
   },
-  "@yovoice.music.stepScoreFree": {
-    "defaultMessage": "自由發揮，不用譜"
+  "@yovoice.music.takeGenerating": {
+    "defaultMessage": "版本 {n} · 生成中"
   },
-  "@yovoice.music.nextPlan": {
-    "defaultMessage": "寫旋律譜"
+  "@yovoice.music.playTake": {
+    "defaultMessage": "播放{name}"
   },
-  "@yovoice.music.nextOpenScore": {
-    "defaultMessage": "查看旋律譜"
+  "@yovoice.music.pauseTake": {
+    "defaultMessage": "暫停{name}"
   },
-  "@yovoice.music.nextPlanHint": {
-    "defaultMessage": "下一步由 YuE2 按歌詞寫出人聲旋律與和弦，你看過、改過後再按譜生成。已有歌曲或 .abc 譜，可以直接到旋律譜一步擷取或匯入。"
+  "@yovoice.music.takeScored": {
+    "defaultMessage": "按譜"
   },
-  "@yovoice.music.nextScoreHint": {
-    "defaultMessage": "這個作品已經有旋律譜，生成時按譜演唱。"
+  "@yovoice.music.takeActions": {
+    "defaultMessage": "{name}的更多操作"
   },
-  "@yovoice.music.nextFreeHint": {
-    "defaultMessage": "自由發揮直接按風格和歌詞生成，不經過旋律譜。"
+  "@yovoice.music.loadTakeScore": {
+    "defaultMessage": "載入這一版的譜"
   },
-  "@yovoice.music.stepScorePending": {
-    "defaultMessage": "新譜已寫好，點開查看"
+  "@yovoice.music.takesEmpty": {
+    "defaultMessage": "還沒有版本"
+  },
+  "@yovoice.music.takesEmptyHint": {
+    "defaultMessage": "每次生成的歌都會出現在這裡，可以試聽、對比和複用。"
   }
 }

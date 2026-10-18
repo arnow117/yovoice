@@ -2018,9 +2018,6 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "拍子"
   },
-  "@yovoice.music.steps": {
-    "defaultMessage": "制作ステップ"
-  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "このモデルには推論エンジン {version} 以降が必要です。設定でエンジンを更新してください。"
   },
@@ -3734,17 +3731,11 @@
   "@yovoice.music.mode": {
     "defaultMessage": "生成方法"
   },
-  "@yovoice.music.modeScore": {
-    "defaultMessage": "譜面から"
-  },
   "@yovoice.music.modeFree": {
-    "defaultMessage": "自由生成"
+    "defaultMessage": "譜面なし"
   },
   "@yovoice.music.modeScoreHint": {
     "defaultMessage": "旋律譜に沿って歌います。譜面がなければ YuE2 が先に書き、生成後にそのバージョンから読み込んで編集できます。"
-  },
-  "@yovoice.music.modeFreeHint": {
-    "defaultMessage": "譜面を使わずに直接生成します。結果に編集できる譜面はありません。"
   },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "旋律を楽器に移す"
@@ -3797,46 +3788,49 @@
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
   },
-  "@yovoice.music.stepWrite": {
-    "defaultMessage": "スタイルと歌詞"
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "先に旋律を書き、直してから譜面どおりに曲全体を生成します。"
   },
-  "@yovoice.music.stepWriteEmpty": {
-    "defaultMessage": "未入力"
+  "@yovoice.music.modeChords": {
+    "defaultMessage": "旋律＋コード"
   },
-  "@yovoice.music.stepWriteStatus": {
-    "defaultMessage": "スタイル {tags} 個 · 歌詞 {lines} 行"
+  "@yovoice.music.modeMelody": {
+    "defaultMessage": "旋律のみ"
   },
-  "@yovoice.music.stepWriteInstrumental": {
-    "defaultMessage": "スタイル {tags} 個 · インスト"
+  "@yovoice.music.modeMelodyHint": {
+    "defaultMessage": "旋律に沿って歌い、譜面のコードは使わず、伴奏はスタイルに合わせて自由に編曲します。"
   },
-  "@yovoice.music.stepScoreEmpty": {
-    "defaultMessage": "譜面なし"
+  "@yovoice.music.styleCount": {
+    "defaultMessage": "タグ {count} 個"
   },
-  "@yovoice.music.stepScoreReady": {
-    "defaultMessage": "譜面あり、生成できます"
+  "@yovoice.music.lyricLines": {
+    "defaultMessage": "{count} 行"
   },
-  "@yovoice.music.stepScoreWorking": {
-    "defaultMessage": "譜面を作成中…"
+  "@yovoice.music.takes": {
+    "defaultMessage": "バージョン"
   },
-  "@yovoice.music.stepScoreFree": {
-    "defaultMessage": "自由生成、譜面は使いません"
+  "@yovoice.music.takeGenerating": {
+    "defaultMessage": "バージョン {n} · 生成中"
   },
-  "@yovoice.music.nextPlan": {
-    "defaultMessage": "旋律譜を書く"
+  "@yovoice.music.playTake": {
+    "defaultMessage": "{name} を再生"
   },
-  "@yovoice.music.nextOpenScore": {
-    "defaultMessage": "旋律譜を見る"
+  "@yovoice.music.pauseTake": {
+    "defaultMessage": "{name} を一時停止"
   },
-  "@yovoice.music.nextPlanHint": {
-    "defaultMessage": "次に YuE2 が歌詞からボーカルの旋律とコードを書きます。確認・編集してから譜面どおりに生成します。曲や .abc ファイルがあれば、旋律譜のステップで抽出・読み込みできます。"
+  "@yovoice.music.takeScored": {
+    "defaultMessage": "譜面"
   },
-  "@yovoice.music.nextScoreHint": {
-    "defaultMessage": "この作品には旋律譜があり、生成は譜面に沿って行われます。"
+  "@yovoice.music.takeActions": {
+    "defaultMessage": "{name} のその他の操作"
   },
-  "@yovoice.music.nextFreeHint": {
-    "defaultMessage": "自由生成ではスタイルと歌詞から直接生成し、譜面は使いません。"
+  "@yovoice.music.loadTakeScore": {
+    "defaultMessage": "このバージョンの譜面を読み込む"
   },
-  "@yovoice.music.stepScorePending": {
-    "defaultMessage": "新しい譜面ができました"
+  "@yovoice.music.takesEmpty": {
+    "defaultMessage": "まだバージョンがありません"
+  },
+  "@yovoice.music.takesEmptyHint": {
+    "defaultMessage": "生成した曲はここに並び、試聴・比較・再利用できます。"
   }
 }
