@@ -55,7 +55,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         inspectorButton.isBordered = false
         inspectorButton.toolTip = HostL10n.t("inspector.tooltip")
         inspectorButton.frame = NSRect(x: 0, y: 0, width: 32, height: 28)
-        rightAccessory.view = inspectorButton
+        // 助手按钮常驻：面板开关状态由前端统一管理。
+        let assistantButton = NSButton(image: NSImage(systemSymbolName: "sparkles", accessibilityDescription: HostL10n.t("assistant.toggle"))!, target: self, action: #selector(toggleAssistant))
+        assistantButton.isBordered = false
+        assistantButton.toolTip = HostL10n.t("assistant.tooltip")
+        assistantButton.frame = NSRect(x: 0, y: 0, width: 32, height: 28)
+        let titleButtons = NSStackView(views: [assistantButton, inspectorButton])
+        titleButtons.orientation = .horizontal
+        titleButtons.spacing = 2
+        rightAccessory.view = titleButtons
         // 只有工作区有右侧面板，由前端在进入或离开工作区时通知显示。
         self.inspectorAccessory = rightAccessory
         window.minSize = NSSize(width: 960, height: 600)
@@ -79,6 +87,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     @objc private func toggleInspector() {
         // 检查器状态由前端统一管理，标题栏仅发送切换事件。
         web?.evaluateJavaScript("window.dispatchEvent(new Event('workbench-toggle-inspector'))", completionHandler: nil)
+    }
+
+    @objc private func toggleAssistant() {
+        // 助手面板状态由前端统一管理，标题栏仅发送切换事件。
+        web?.evaluateJavaScript("window.dispatchEvent(new Event('workbench-toggle-assistant'))", completionHandler: nil)
     }
 
     private func updateInspectorAccessory(visible: Bool) {

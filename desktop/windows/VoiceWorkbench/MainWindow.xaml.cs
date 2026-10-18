@@ -150,12 +150,14 @@ public partial class MainWindow : Window
         FileMenu.Header = HostL10n.T("文件", "File");
         ExitMenu.Header = HostL10n.T("退出 yovoice", "Quit yovoice");
         ViewMenu.Header = HostL10n.T("视图", "View");
-        string sidebar = HostL10n.T("切换侧栏", "Toggle Sidebar"), inspector = HostL10n.T("切换右侧面板", "Toggle Inspector");
+        string sidebar = HostL10n.T("切换侧栏", "Toggle Sidebar"), assistant = HostL10n.T("切换创作助手", "Toggle Assistant"), inspector = HostL10n.T("切换右侧面板", "Toggle Inspector");
         ToggleSidebarMenu.Header = sidebar;
+        ToggleAssistantMenu.Header = assistant;
         ToggleInspectorMenu.Header = inspector;
         HelpMenu.Header = HostL10n.T("帮助", "Help");
         SetLabel(WindowMenuButton, "yovoice", HostL10n.T("yovoice 窗口菜单", "yovoice Window Menu"));
         SetLabel(ToggleSidebarButton, sidebar);
+        SetLabel(ToggleAssistantButton, assistant);
         SetLabel(ToggleInspectorButton, inspector);
         SetLabel(MinimizeButton, HostL10n.T("最小化", "Minimize"));
         SetLabel(CloseButton, HostL10n.T("关闭", "Close"));
@@ -333,6 +335,14 @@ public partial class MainWindow : Window
         try { await web.CoreWebView2.ExecuteScriptAsync("window.dispatchEvent(new Event('workbench-toggle-sidebar'))"); }
         catch (InvalidOperationException) { }
     }
+    private async void ToggleAssistant_Click(object sender, RoutedEventArgs e)
+    {
+        if (web?.CoreWebView2 is null || recovering || shuttingDown) return;
+        try { await web.CoreWebView2.ExecuteScriptAsync("window.dispatchEvent(new Event('workbench-toggle-assistant'))"); }
+        catch (InvalidOperationException) { }
+        catch (TaskCanceledException) { }
+    }
+
     private async void ToggleInspector_Click(object sender, RoutedEventArgs e)
     {
         if (web?.CoreWebView2 is null || recovering || shuttingDown) return;

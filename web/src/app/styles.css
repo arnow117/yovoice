@@ -826,3 +826,20 @@
     .now-playing-line { transition-delay: 0s; }
   }
 }
+  /* 助手面板：右下角浮动卡片，可展开为右侧全高；出入场与消息出现只用轻微的位移淡入。 */
+  .assistant-panel { position: fixed; right: var(--spacing-5); bottom: calc(var(--app-player) + var(--spacing-5)); z-index: 450; width: min(calc(var(--spacing-8) * 11), calc(100vw - var(--spacing-8))); height: min(calc(var(--spacing-10) * 13), calc(100dvh - var(--app-titlebar) - var(--app-player) - var(--spacing-8))); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); box-shadow: var(--shadow-med); overflow: hidden; animation: assistant-pop var(--duration-medium, 410ms) var(--ease-out, cubic-bezier(0, 0, 0, 1)); }
+  .assistant-panel.expanded { right: 0; bottom: 0; top: 0; height: auto; width: min(calc(var(--spacing-8) * 18), 44vw); border-radius: 0; border-width: 0 0 0 var(--border-width); animation: none; }
+  /* 预览模式下标题栏在页面内，展开面板从标题栏下方开始。 */
+  .workbench.preview .assistant-panel.expanded { top: var(--app-titlebar); }
+  .assistant-header { padding: var(--spacing-2) var(--spacing-3); border-bottom: var(--border-width) solid var(--app-line); background: var(--app-paper); }
+  .assistant-mark { color: var(--app-accent); }
+  .assistant-queued { flex-shrink: 0; }
+  .assistant-body { flex: 1; min-height: 0; padding: var(--spacing-2) var(--spacing-3); }
+  .assistant-body > .chat-message-list { flex: 1; min-height: 0; }
+  .assistant-chips { padding: var(--spacing-1) var(--spacing-3) var(--spacing-2); border-top: var(--border-width) solid var(--app-line); }
+  .assistant-composer { padding: var(--spacing-2) var(--spacing-3) var(--spacing-3); }
+  .assistant-notice { margin: var(--spacing-2) var(--spacing-3) var(--spacing-3); padding: var(--spacing-2) var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); color: var(--app-muted); font-size: var(--app-small-font); }
+  .assistant-reply { align-items: stretch; }
+  .assistant-empty { padding: var(--spacing-8) var(--spacing-4); color: var(--app-muted); text-align: center; }
+  @keyframes assistant-pop { from { opacity: 0; transform: translateY(var(--spacing-2)) scale(.98); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .assistant-panel { animation: none; } }

@@ -2510,27 +2510,6 @@
   "@yovoice.library.duration": {
     "defaultMessage": "时长"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "应用"
-  },
-  "@yovoice.ai.discard": {
-    "defaultMessage": "放弃"
-  },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "重试"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "查看日志"
-  },
-  "@yovoice.ai.openProject": {
-    "defaultMessage": "打开作品"
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "另一个 AI 任务正在进行，结束后才能开始。"
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "用时 {time} · {model}"
-  },
   "@yovoice.ai.lyricsPlaceholderInstrumental": {
     "defaultMessage": "用一句话描述这段纯音乐，AI 写出风格和段落，例如：深夜城市里慢慢开车的 lo-fi"
   },
@@ -2549,47 +2528,8 @@
   "@yovoice.ai.setup.lyrics": {
     "defaultMessage": "接入大模型后，可以用一句话让 AI 写出风格和歌词。"
   },
-  "@yovoice.ai.stage.thinking": {
-    "defaultMessage": "{model} 正在构思"
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} 正在写入并校验"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} 正在按校验修正"
-  },
-  "@yovoice.ai.followUp": {
-    "defaultMessage": "继续修改"
-  },
-  "@yovoice.ai.followUpSubmit": {
-    "defaultMessage": "发送"
-  },
-  "@yovoice.ai.followUpPlaceholder.score": {
-    "defaultMessage": "还想怎么改？例如：节奏再轻快一些"
-  },
-  "@yovoice.ai.followUpPlaceholder.lyrics": {
-    "defaultMessage": "还想怎么改？例如：副歌再简单一些"
-  },
   "@yovoice.ai.assistantMissing": {
     "defaultMessage": "当前安装包未包含 AI 助手运行时"
-  },
-  "@yovoice.ai.task.running.score": {
-    "defaultMessage": "AI 正在写谱"
-  },
-  "@yovoice.ai.task.running.lyrics": {
-    "defaultMessage": "AI 正在写歌词"
-  },
-  "@yovoice.ai.task.done.score": {
-    "defaultMessage": "AI 写好了新的编曲"
-  },
-  "@yovoice.ai.task.done.lyrics": {
-    "defaultMessage": "AI 写好了风格和歌词"
-  },
-  "@yovoice.ai.task.failed.score": {
-    "defaultMessage": "AI 写谱没有成功"
-  },
-  "@yovoice.ai.task.failed.lyrics": {
-    "defaultMessage": "AI 写歌词没有成功"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "AI 服务在 {seconds} 秒内没有写完。可以在“设置 › 常规”里延长 AI 请求超时，或换一个更快的模型。"
@@ -3091,5 +3031,101 @@
   },
   "@yovoice.music.syncProgress": {
     "defaultMessage": "{done} / {total} 行"
+  },
+  "@yovoice.assistant.toggle": {
+    "defaultMessage": "打开创作助手"
+  },
+  "@yovoice.assistant.title": {
+    "defaultMessage": "创作助手"
+  },
+  "@yovoice.assistant.newChat": {
+    "defaultMessage": "新对话"
+  },
+  "@yovoice.assistant.newChatDivider": {
+    "defaultMessage": "新对话"
+  },
+  "@yovoice.assistant.expand": {
+    "defaultMessage": "展开面板"
+  },
+  "@yovoice.assistant.collapse": {
+    "defaultMessage": "收起面板"
+  },
+  "@yovoice.assistant.close": {
+    "defaultMessage": "关闭"
+  },
+  "@yovoice.assistant.placeholder": {
+    "defaultMessage": "让助手帮你写台词、写歌、配乐或直接生成…"
+  },
+  "@yovoice.assistant.empty": {
+    "defaultMessage": "用一句话让助手动手：写台词、写歌、配乐、选音色或直接生成。"
+  },
+  "@yovoice.assistant.queued": {
+    "defaultMessage": "排队 {count} 条"
+  },
+  "@yovoice.assistant.hideChips": {
+    "defaultMessage": "隐藏快捷操作"
+  },
+  "@yovoice.assistant.cancelled": {
+    "defaultMessage": "已停止"
+  },
+  "@yovoice.assistant.setup": {
+    "defaultMessage": "还没有可用的 AI 服务，先在设置里添加并选择模型。"
+  },
+  "@yovoice.assistant.openWork": {
+    "defaultMessage": "打开作品"
+  },
+  "@yovoice.assistant.play": {
+    "defaultMessage": "播放"
+  },
+  "@yovoice.assistant.pause": {
+    "defaultMessage": "暂停"
+  },
+  "@yovoice.assistant.chip.piano": {
+    "defaultMessage": "写一段钢琴曲"
+  },
+  "@yovoice.assistant.chip.pianoPrompt": {
+    "defaultMessage": "新建一个编曲作品，写一段四小节的钢琴旋律"
+  },
+  "@yovoice.assistant.chip.minor": {
+    "defaultMessage": "改成小调"
+  },
+  "@yovoice.assistant.chip.minorPrompt": {
+    "defaultMessage": "把当前作品的乐谱改成小调"
+  },
+  "@yovoice.assistant.chip.song": {
+    "defaultMessage": "写一首歌"
+  },
+  "@yovoice.assistant.chip.songPrompt": {
+    "defaultMessage": "新建一个音乐作品，写一首完整的歌"
+  },
+  "@yovoice.assistant.chip.style": {
+    "defaultMessage": "换个风格"
+  },
+  "@yovoice.assistant.chip.stylePrompt": {
+    "defaultMessage": "给当前作品换一种风格"
+  },
+  "@yovoice.assistant.chip.voice": {
+    "defaultMessage": "帮我挑个音色"
+  },
+  "@yovoice.assistant.chip.voicePrompt": {
+    "defaultMessage": "看看现有的参考音色，给当前作品推荐一个合适的"
+  },
+  "@yovoice.assistant.chip.polish": {
+    "defaultMessage": "改得更亲切"
+  },
+  "@yovoice.assistant.chip.polishPrompt": {
+    "defaultMessage": "把当前作品的台词改得更亲切自然"
+  },
+  "@yovoice.assistant.chip.assign": {
+    "defaultMessage": "按角色分配音色"
+  },
+  "@yovoice.assistant.chip.assignPrompt": {
+    "defaultMessage": "看看现有的参考音色，给这个故事的角色逐个分配合适的音色"
+  },
+  "@yovoice.assistant.chip.dub": {
+    "defaultMessage": "生成配音"
+  },
+  "@yovoice.assistant.chip.dubPrompt": {
+    "defaultMessage": "对当前故事作品发起配音生成"
   }
 }

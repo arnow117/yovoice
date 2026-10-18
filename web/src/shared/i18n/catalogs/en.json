@@ -2510,27 +2510,6 @@
   "@yovoice.library.duration": {
     "defaultMessage": "length"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "Apply"
-  },
-  "@yovoice.ai.discard": {
-    "defaultMessage": "Discard"
-  },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "Try again"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "View logs"
-  },
-  "@yovoice.ai.openProject": {
-    "defaultMessage": "Open project"
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "Another AI task is running. Start this one after it finishes."
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "After {time} · {model}"
-  },
   "@yovoice.ai.lyricsPlaceholderInstrumental": {
     "defaultMessage": "Describe the instrumental in a sentence and AI writes the style and sections, e.g. lo-fi for a slow late-night drive through the city"
   },
@@ -2549,47 +2528,8 @@
   "@yovoice.ai.setup.lyrics": {
     "defaultMessage": "Connect a language model to let AI write the style and lyrics from one sentence."
   },
-  "@yovoice.ai.stage.thinking": {
-    "defaultMessage": "{model} is thinking"
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} is writing & checking"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} is revising"
-  },
-  "@yovoice.ai.followUp": {
-    "defaultMessage": "Keep revising"
-  },
-  "@yovoice.ai.followUpSubmit": {
-    "defaultMessage": "Send"
-  },
-  "@yovoice.ai.followUpPlaceholder.score": {
-    "defaultMessage": "What should change? e.g. a slightly brighter tempo"
-  },
-  "@yovoice.ai.followUpPlaceholder.lyrics": {
-    "defaultMessage": "What should change? e.g. a simpler chorus"
-  },
   "@yovoice.ai.assistantMissing": {
     "defaultMessage": "This build does not include the AI assistant runtime"
-  },
-  "@yovoice.ai.task.running.score": {
-    "defaultMessage": "AI is composing"
-  },
-  "@yovoice.ai.task.running.lyrics": {
-    "defaultMessage": "AI is writing lyrics"
-  },
-  "@yovoice.ai.task.done.score": {
-    "defaultMessage": "AI finished a new arrangement"
-  },
-  "@yovoice.ai.task.done.lyrics": {
-    "defaultMessage": "AI finished the style and lyrics"
-  },
-  "@yovoice.ai.task.failed.score": {
-    "defaultMessage": "AI couldn't compose this"
-  },
-  "@yovoice.ai.task.failed.lyrics": {
-    "defaultMessage": "AI couldn't write the lyrics"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "The AI service didn't finish within {seconds} seconds. Increase the AI request timeout in Settings › General, or pick a faster model."
@@ -3091,5 +3031,101 @@
   },
   "@yovoice.music.syncProgress": {
     "defaultMessage": "{done} / {total} lines"
+  },
+  "@yovoice.assistant.toggle": {
+    "defaultMessage": "Toggle assistant"
+  },
+  "@yovoice.assistant.title": {
+    "defaultMessage": "Assistant"
+  },
+  "@yovoice.assistant.newChat": {
+    "defaultMessage": "New chat"
+  },
+  "@yovoice.assistant.newChatDivider": {
+    "defaultMessage": "New chat"
+  },
+  "@yovoice.assistant.expand": {
+    "defaultMessage": "Expand panel"
+  },
+  "@yovoice.assistant.collapse": {
+    "defaultMessage": "Collapse panel"
+  },
+  "@yovoice.assistant.close": {
+    "defaultMessage": "Close"
+  },
+  "@yovoice.assistant.placeholder": {
+    "defaultMessage": "Ask the assistant to write, edit or generate…"
+  },
+  "@yovoice.assistant.empty": {
+    "defaultMessage": "One sentence is enough: write lines or lyrics, score a piece, pick a voice, or generate."
+  },
+  "@yovoice.assistant.queued": {
+    "defaultMessage": "{count} queued"
+  },
+  "@yovoice.assistant.hideChips": {
+    "defaultMessage": "Hide quick actions"
+  },
+  "@yovoice.assistant.cancelled": {
+    "defaultMessage": "Stopped"
+  },
+  "@yovoice.assistant.setup": {
+    "defaultMessage": "No AI service yet. Add one in settings and pick a model."
+  },
+  "@yovoice.assistant.openWork": {
+    "defaultMessage": "Open work"
+  },
+  "@yovoice.assistant.play": {
+    "defaultMessage": "Play"
+  },
+  "@yovoice.assistant.pause": {
+    "defaultMessage": "Pause"
+  },
+  "@yovoice.assistant.chip.piano": {
+    "defaultMessage": "Write a piano piece"
+  },
+  "@yovoice.assistant.chip.pianoPrompt": {
+    "defaultMessage": "Create a score work and write a four-bar piano melody"
+  },
+  "@yovoice.assistant.chip.minor": {
+    "defaultMessage": "Make it minor"
+  },
+  "@yovoice.assistant.chip.minorPrompt": {
+    "defaultMessage": "Change the current score to a minor key"
+  },
+  "@yovoice.assistant.chip.song": {
+    "defaultMessage": "Write a song"
+  },
+  "@yovoice.assistant.chip.songPrompt": {
+    "defaultMessage": "Create a music work and write a complete song"
+  },
+  "@yovoice.assistant.chip.style": {
+    "defaultMessage": "Try another style"
+  },
+  "@yovoice.assistant.chip.stylePrompt": {
+    "defaultMessage": "Rewrite the current work in another style"
+  },
+  "@yovoice.assistant.chip.voice": {
+    "defaultMessage": "Pick a voice"
+  },
+  "@yovoice.assistant.chip.voicePrompt": {
+    "defaultMessage": "List my reference voices and recommend one for this work"
+  },
+  "@yovoice.assistant.chip.polish": {
+    "defaultMessage": "Make it friendlier"
+  },
+  "@yovoice.assistant.chip.polishPrompt": {
+    "defaultMessage": "Rewrite the current narration to sound warmer"
+  },
+  "@yovoice.assistant.chip.assign": {
+    "defaultMessage": "Assign voices"
+  },
+  "@yovoice.assistant.chip.assignPrompt": {
+    "defaultMessage": "List my reference voices and assign one to each character in this story"
+  },
+  "@yovoice.assistant.chip.dub": {
+    "defaultMessage": "Generate the dub"
+  },
+  "@yovoice.assistant.chip.dubPrompt": {
+    "defaultMessage": "Start voice generation for this story"
   }
 }

@@ -6,7 +6,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack, Layout } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
-import { PanelLeft, PanelRight, Check, Disc3, Download, History, Plus, LoaderCircle, MoreHorizontal, Save } from 'lucide-react';
+import { PanelLeft, PanelRight, Check, Disc3, Download, History, Plus, LoaderCircle, MoreHorizontal, Save, Sparkles } from 'lucide-react';
 import { NewProject, Projects } from '../features/library/projects';
 import { VoiceTarget } from '../features/library/voice-target';
 import { MediaLibrary } from '../features/library/media-library';
@@ -32,6 +32,8 @@ import { call, isDesktop, mediaUrl, saveAudio } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { formatNotice } from '../shared/i18n/format';
 import { isKokoroModel, isVoiceModel, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
+import { AssistantPanel } from '../features/assistant/assistant-panel';
+import { assistantOpenEvent, quickActions } from '../features/assistant/assistant-launch';
 import { SidebarNav } from './sidebar-nav';
 import { PageBoundary } from '../shared/ui/page-boundary';
 import { Notifications } from './notifications';
@@ -81,6 +83,57 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const [playback, setPlayback] = useState({ time: 0, playing: false }); const [seekRequest, setSeekRequest] = useState<{ time: number; nonce: number }>(); const [advanced, setAdvanced] = useState(false);
   const [pronunciation, setPronunciation] = useState<Pronunciation | null>(null);
   const [showInspector, setShowInspector] = useState(false);
+  // 助手面板：开关与展开状态跨启动保留；⌘J/Ctrl+J、宿主标题栏按钮与编辑器 AI 写作栏都能打开。
+  const [assistantOpen, setAssistantOpen] = useState(() => { try { return localStorage.getItem('yovoice-assistant-open') !== 'false'; } catch { return true; } });
+  const [assistantExpanded, setAssistantExpanded] = useState(() => { try { return localStorage.getItem('yovoice-assistant-expanded') === 'true'; } catch { return false; } });
+  useEffect(() => { try { localStorage.setItem('yovoice-assistant-open', String(assistantOpen)); localStorage.setItem('yovoice-assistant-expanded', String(assistantExpanded)); } catch { /* 存储不可用时只在本次生效 */ } }, [assistantOpen, assistantExpanded]);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); setAssistantOpen(open => !open); }
+    };
+    const onToggle = () => setAssistantOpen(open => !open);
+    const onOpen = () => setAssistantOpen(true);
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('workbench-toggle-assistant', onToggle);
+    window.addEventListener(assistantOpenEvent, onOpen);
+    return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('workbench-toggle-assistant', onToggle); window.removeEventListener(assistantOpenEvent, onOpen); };
+  }, []);
+  // 编辑页的当前页面键（text/story/music/score），其余页面直接用页面名。
+  const assistantPage = page === 'create' || page === 'history' ? projectKind(draft) : page === 'voices' ? 'voices' : page;
+  const assistantContext = { page: assistantPage, workId: page === 'create' ? draft.id : '', workTitle: page === 'create' ? draft.title : '', workKind: page === 'create' ? projectKind(draft) : '', locale: state.preferences.uiLocale };
+  function sendToAssistant(message: string) {
+    setAssistantOpen(true);
+    void call('assistant.send', { text: message, context: { ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page } }).catch(e => setError(noticeMessage(e)));
+  }
+  const askAssistantPanel = { openWork: (workId: string) => { const target = state.drafts.find(item => item.id === workId); if (target) selectDraft(target); }, openSettings: () => openSettings(draft.modelId, 'ai') };
+  // 助手要求界面跳转：open_work/open_page 事件各消费一次。
+  const consumedNav = useRef<string | undefined>(undefined);
+  const applyAssistantNav = useEffectEvent((nav: NonNullable<State['assistantLive']>['nav']) => {
+    if (!nav) return;
+    if (nav.workId) askAssistantPanel.openWork(nav.workId);
+    else if (nav.page) setPage(nav.page);
+  });
+  useEffect(() => {
+    const nav = state.assistantLive?.nav;
+    if (!nav || nav.id === consumedNav.current) return;
+    consumedNav.current = nav.id;
+    applyAssistantNav(nav);
+  }, [state.assistantLive?.nav]);
+  // 助手保存了正打开的作品：本地没有未保存修改时，编辑器即时换上新内容。
+  const consumedUpdate = useRef<string | undefined>(undefined);
+  const applyAssistantUpdate = useEffectEvent((update: NonNullable<State['assistantLive']>['update']) => {
+    if (!update) return;
+    if (update.workId !== draft.id || page !== 'create' || session.saving || window.__workbenchDraft !== undefined) return;
+    const fresh = state.drafts.find(item => item.id === update.workId);
+    if (fresh) { setDraft(normalizeDraft(fresh)); setDraftPersisted(true); }
+  });
+  useEffect(() => {
+    const update = state.assistantLive?.update;
+    if (!update || update.id === consumedUpdate.current) return;
+    consumedUpdate.current = update.id;
+    applyAssistantUpdate(update);
+  }, [state.assistantLive?.update]);
+
   // 宽屏下右侧检查器的收起状态，跨作品、跨启动保留。
   const [inspectorCollapsed, setInspectorCollapsed] = useState(() => { try { return localStorage.getItem('workbench-inspector-collapsed') === '1'; } catch { return false; } });
   const toggleInspector = useCallback(() => setInspectorCollapsed(current => {
@@ -318,7 +371,9 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const collapsedAction = busy ? <Button size="sm" icon={<LoaderCircle className="generation-spinner" />} label={t('@yovoice.create.cancelGenerate')} onClick={() => run(() => call('operation.cancel'))} />
     : <Button size="sm" variant="primary" label={generateLabel} aria-keyshortcuts="Control+Enter" isDisabled={!generateReady} onClick={generate} />;
   return <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px` } as CSSProperties} gap={0}>
-    {!isDesktop ? <HStack as="header" className="browser-titlebar" gap={2} vAlign="center"><Button label={navigation.isCollapsed ? t('@yovoice.app.expandSidebar') : t('@yovoice.app.collapseSidebar')} isIconOnly variant="ghost" size="sm" icon={<PanelLeft size={17} />} aria-expanded={!navigation.isCollapsed} onClick={toggleSidebar} /><b>yovoice</b><small>{t('@yovoice.app.browserPreview')}</small>{page === 'create' ? <Button label={inspectorCollapsed ? t('@yovoice.app.expandInspector') : t('@yovoice.app.collapseInspector')} isIconOnly variant="ghost" size="sm" icon={<PanelRight size={17} />} aria-expanded={!inspectorCollapsed} onClick={toggleInspectorPanel} /> : null}</HStack> : null}
+    {!isDesktop ? <HStack as="header" className="browser-titlebar" gap={2} vAlign="center"><Button label={navigation.isCollapsed ? t('@yovoice.app.expandSidebar') : t('@yovoice.app.collapseSidebar')} isIconOnly variant="ghost" size="sm" icon={<PanelLeft size={17} />} aria-expanded={!navigation.isCollapsed} onClick={toggleSidebar} /><b>yovoice</b><small>{t('@yovoice.app.browserPreview')}</small>
+      <Button data-testid="assistant-toggle" label={t('@yovoice.assistant.toggle')} isIconOnly variant="ghost" size="sm" icon={<Sparkles size={17} />} aria-expanded={assistantOpen} aria-keyshortcuts="Control+J" onClick={() => setAssistantOpen(open => !open)} />
+      {page === 'create' ? <Button label={inspectorCollapsed ? t('@yovoice.app.expandInspector') : t('@yovoice.app.collapseInspector')} isIconOnly variant="ghost" size="sm" icon={<PanelRight size={17} />} aria-expanded={!inspectorCollapsed} onClick={toggleInspectorPanel} /> : null}</HStack> : null}
     <AppShell variant="elevated" sideNav={navigation.isCollapsed ? undefined : sidebar} mobileNav={{ breakpoint: 'none' }} height="fill"><VStack className="app-sheet" gap={0}>
       {characterEditor ? <VStack style={{ display: page === 'characters' ? 'flex' : 'none', height: '100%', minHeight: 0 }} gap={0}><PageBoundary name="character-editor"><CharacterEditor active={page === 'characters'} initial={characterEditor} state={state} catalog={catalog} settings={openSettings} apply={characterOrigin.current ? async saved => { const origin = characterOrigin.current!; await applyToTarget(saved, origin.draftId, origin.speakerId); setCharacterEditor(null); } : undefined} close={() => { setCharacterEditor(null); setPage(characterReturnPage.current); }} /></PageBoundary></VStack> : null}
       <VStack className="page-panel" style={{ display: characterActive ? 'none' : 'flex' }} gap={0}><Layout height="fill" footer={<VStack gap={0} style={{ display: page === 'create' ? 'flex' : 'none' }}><PageBoundary name="timeline" resetKey={draft.id}>{scoring ? <ScoreDock key={draft.id} draft={draft} change={change} playhead={track ? playback : undefined} seek={time => setSeekRequest({ time, nonce: performance.now() })} /> : null}{draft.timeline || projectKind(draft) === 'story' ? <TimelineEditor exportProject={async () => { await persistDraft(draft); await call('project.export', { id: draft.id, name: draft.title }); }} key={draft.id} selectedCue={selectedCue} cueSelectionRevision={cueSelection?.revision ?? 0} playbackCue={setPlayingCue} selectCue={selectCue} draft={draft} busy={busy} regenerate={async (cueId, clipId) => { await persistDraft(draft); await call('generation.cue', { draft, cueId, clipId }); }} value={draft.timeline ?? { tracks: [] }} history={state.history} change={timeline => change({ timeline })} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget} onError={onError} /> : <Player onProgress={scoring ? (time, playing) => setPlayback({ time, playing }) : undefined} seekRequest={scoring ? seekRequest : undefined} actions={playerActions} reveal={false} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget || !!nowPlaying} track={track} onError={onError} />}</PageBoundary></VStack>} content={<VStack className="content-frame" gap={0}>
@@ -328,7 +383,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
             <Studio showInspector={showInspector} inspector={inspector} inspectorCollapsed={inspectorCollapsed} collapsedAction={collapsedAction}
           title={<input className="document-title" aria-label={t('@yovoice.app.titleLabel')} maxLength={120} value={draft.title} onChange={e => change({ title: e.target.value })} />}
           writingClassName={`${draft.subtitles ? 'writing-subtitles' : ''} ${draft.timeline ? 'writing-timeline' : ''} ${scoring ? 'writing-score' : ''}`.trim()}>
-          {setupCard}{scoring ? <><ScoreEditor key={draft.id} draft={draft} state={state} configureAI={() => openSettings(draft.modelId, 'ai')} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : music ? <><MusicEditor key={draft.id} draft={draft} state={state} configureAI={() => openSettings(draft.modelId, 'ai')} change={change} locale={state.preferences.uiLocale} />{editorFooter()}</> : draft.subtitles ? <SubtitleEditor key={draft.id} history={state.history} playingCue={playingCue} failedCue={activity?.projectId === draft.id && activity.status === 'failed' ? activity.cueId : undefined} draft={draft} characters={state.characters ?? []} change={change} selectedCue={selectedCue} selectCue={selectCue} renderFooter={editorFooter} /> : <><textarea ref={editor} className="script-editor" aria-label={t('@yovoice.app.scriptLabel')} placeholder={t('@yovoice.app.scriptPlaceholder')} maxLength={12000} value={draft.text} spellCheck={false} dir={draft.language === 'ar' ? 'rtl' : 'auto'} onChange={e => change({ text: e.target.value })} />{editorFooter()}</>}
+          {setupCard}{scoring ? <><ScoreEditor key={draft.id} draft={draft} state={state} configureAI={() => openSettings(draft.modelId, 'ai')} askAI={sendToAssistant} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : music ? <><MusicEditor key={draft.id} draft={draft} state={state} configureAI={() => openSettings(draft.modelId, 'ai')} askAI={sendToAssistant} change={change} locale={state.preferences.uiLocale} />{editorFooter()}</> : draft.subtitles ? <SubtitleEditor key={draft.id} history={state.history} playingCue={playingCue} failedCue={activity?.projectId === draft.id && activity.status === 'failed' ? activity.cueId : undefined} draft={draft} characters={state.characters ?? []} change={change} selectedCue={selectedCue} selectCue={selectCue} renderFooter={editorFooter} /> : <><textarea ref={editor} className="script-editor" aria-label={t('@yovoice.app.scriptLabel')} placeholder={t('@yovoice.app.scriptPlaceholder')} maxLength={12000} value={draft.text} spellCheck={false} dir={draft.language === 'ar' ? 'rtl' : 'auto'} onChange={e => change({ text: e.target.value })} />{editorFooter()}</>}
         </Studio>
           </PageBoundary></VStack>
           {(['story', 'music', 'score'] as const).map(kind => <VStack key={kind} className="page-panel" gap={0} style={{ display: page === kind ? 'flex' : 'none' }}><PageBoundary name={`projects-${kind}`}>
@@ -353,8 +408,8 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
 
       </VStack>} /></VStack>
     </VStack></AppShell>
-    <Notifications error={error} clearError={() => setError('')} activity={activity} modelActivity={state.modelActivity} draftId={draft.id} page={page} cancel={() => run(() => call('operation.cancel'))} cancelModel={() => run(() => call('model.cancel'))}
-      aiTask={state.aiTask} aiTitle={state.drafts.find(item => item.id === state.aiTask?.projectId)?.title} openAITask={() => { const target = state.drafts.find(item => item.id === state.aiTask?.projectId); if (target) selectDraft(target); }}><UpdateNotice /></Notifications>
+    {ready && assistantOpen ? <AssistantPanel state={state} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} onClose={() => setAssistantOpen(false)} actions={askAssistantPanel} /> : null}
+    <Notifications error={error} clearError={() => setError('')} activity={activity} modelActivity={state.modelActivity} draftId={draft.id} page={page} cancel={() => run(() => call('operation.cancel'))} cancelModel={() => run(() => call('model.cancel'))}><UpdateNotice /></Notifications>
     <UpdateDialogHost />
     {ready && !draft.subtitles && !instrumental && !isKokoroModel(draft.modelId) && !isVoxModel(draft.modelId) && !isReferenceModel(draft.modelId) && !isBreezeModel(draft.modelId) && page === 'create' && !voicePicker && !pronunciation && !deleteTarget ? <SelectionAction key={draft.id} editor={editor} onEdit={annotate} /> : null}
 

@@ -7,15 +7,14 @@ import { TextArea } from '@astryxdesign/core/TextArea';
 import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Lightbulb } from 'lucide-react';
-import { call } from '../../shared/lib/client';
 import { AIComposer } from '../../shared/ui/ai-composer';
 import { isUntitled, isYuE, type Draft, type State, type UiLocale } from '../../shared/workbench';
-import { createMusicDraft, lyricSections, lyricsPatch, splitTags } from './music-draft';
+import { createMusicDraft, lyricSections, splitTags } from './music-draft';
 
 // 音乐创作区：参照 Suno、Udio 的写法，从上到下是“一句话交给 AI → 风格 → 歌词”；生成的版本在“版本记录”里查看。
 // 一句话可以直接写出风格和歌词，也可以手动填写；纯音乐与填写歌词是并列的两种模式。
-export function MusicEditor({ draft, state, change, locale, configureAI }: {
-  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale; configureAI: () => void;
+export function MusicEditor({ draft, state, change, locale, configureAI, askAI }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale; configureAI: () => void; askAI: (message: string) => void;
 }) {
   const t = useTranslator();
   // YuE2 只能生成带人声的歌曲，选中时隐藏纯音乐切换。
@@ -67,12 +66,10 @@ export function MusicEditor({ draft, state, change, locale, configureAI }: {
     requestAnimationFrame(() => { element?.focus(); element?.setSelectionRange(start + tag.length, start + tag.length); });
   };
   const empty = !draft.text.trim() && !draft.lyrics?.trim();
-  const applyLyrics = (value: unknown) => change(lyricsPatch(draft, value));
   return <VStack className="music-editor" gap={5}>
-    <AIComposer kind="lyrics" projectId={draft.id} state={state} overwrite={!empty} configure={configureAI} apply={applyLyrics}
+    <AIComposer kind="lyrics" state={state} configure={configureAI}
       placeholder={t(draft.instrumental ? '@yovoice.ai.lyricsPlaceholderInstrumental' : '@yovoice.ai.lyricsPlaceholder')} submitLabel={t('@yovoice.ai.lyricsSubmit')}
-      start={(brief, followUp) => call('ai.lyrics', { projectId: draft.id, brief, instrumental: !!draft.instrumental, language: draft.synthesisLanguage ?? '', locale,
-        ...(followUp ? { followUp, draft: { title: draft.title, style: draft.text, lyrics: draft.lyrics ?? '', language: draft.synthesisLanguage ?? '' } } : {}) })} />
+      send={brief => askAI(locale === 'en' ? `Write a song for this music work: ${brief}${draft.instrumental ? ' (instrumental: style and sections only)' : ''}` : `给当前音乐作品写词：${brief}${draft.instrumental ? '（纯音乐，只写风格与段落）' : ''}`)} />
     <VStack className="music-block" gap={3}>
       <HStack className="music-style-header" hAlign="between" vAlign="center" gap={2}>
         <h2>{t('@yovoice.music.style')}</h2>

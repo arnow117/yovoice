@@ -131,6 +131,7 @@
                     </MenuItem>
                     <MenuItem x:Name="ViewMenu" Header="视图">
                         <MenuItem x:Name="ToggleSidebarMenu" Header="切换侧栏" Click="ToggleSidebar_Click" />
+                        <MenuItem x:Name="ToggleAssistantMenu" Header="切换创作助手" Click="ToggleAssistant_Click" />
                         <MenuItem x:Name="ToggleInspectorMenu" Header="切换右侧面板" Click="ToggleInspector_Click" IsEnabled="False" />
                     </MenuItem>
                     <MenuItem x:Name="HelpMenu" Header="帮助">
@@ -139,6 +140,9 @@
                 </Menu>
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button x:Name="ToggleAssistantButton" Style="{StaticResource CaptionButton}" Width="36" Click="ToggleAssistant_Click" ToolTip="切换创作助手" AutomationProperties.Name="切换创作助手">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE945;" />
+                </Button>
                 <Button x:Name="ToggleInspectorButton" Style="{StaticResource CaptionButton}" Width="36" Visibility="Collapsed" Click="ToggleInspector_Click" ToolTip="切换右侧面板" AutomationProperties.Name="切换右侧面板">
                     <Path Data="M 2,1 L 14,1 Q 16,1 16,3 L 16,13 Q 16,15 14,15 L 2,15 Q 0,15 0,13 L 0,3 Q 0,1 2,1 M 11,1 L 11,15"
                           Stroke="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" StrokeThickness="1" Width="16" Height="16" />

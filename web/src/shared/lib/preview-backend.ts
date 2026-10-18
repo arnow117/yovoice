@@ -1,6 +1,6 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type LocalAPIStatus, aiTimeoutDefault } from '../workbench';
+import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AssistantLive, type AssistantToolCard, type AssistantToolCardState, type LocalAPIStatus } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 
@@ -26,7 +26,7 @@ function load(): State {
       state = value; break;
     } catch { /* 主副本损坏时继续读取恢复备份。 */ }
   }
-  state.characters ??= []; state.previews = []; delete state.aiTask;
+  state.characters ??= []; state.previews = []; state.assistantLive = undefined;
   if (!['zh-CN', 'en'].includes(state.preferences?.uiLocale)) {
     state = { ...state, preferences: { ...state.preferences, uiLocale: 'zh-CN' } };
   }
@@ -234,41 +234,90 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     }, 300);
     return { url: '' } as T;
   }
-  // 预览模拟 AI 后台任务的生命周期：阶段依次推进，随后按测试开关以示例结果完成或以
-  // “仅桌面可用”结束，便于检查界面闭环；followUp 与草稿随任务写回状态供测试断言。
-  if (method === 'ai.score' || method === 'ai.lyrics') {
-    const input = data as { projectId: string; brief: string; followUp?: string; draft?: unknown };
+  // 预览模拟助手对话：流式文本、工具卡片与界面事件都按真实路径写进状态，编辑器内容与页面随之变化。
+  if (method === 'assistant.send') {
+    const input = data as { text: string; context?: { page?: string; workId?: string } };
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!assistant.available) throw new CallError('@yovoice.error.assistantMissing');
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
-    if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
-    const task: AITask & { followUp?: string; hasDraft?: boolean } = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'thinking', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
-    task.followUp = input.followUp;
-    task.hasDraft = !!input.draft;
-    state.aiTask = task; publish();
-    const stage = (at: number, value: AITask['stage']) => setTimeout(() => {
-      if (state.aiTask?.id === task.id && state.aiTask.status === 'running') { state.aiTask = { ...state.aiTask, stage: value }; publish(); }
+    const chat = state.assistantChat ?? { sessionId: crypto.randomUUID().replaceAll('-', ''), messages: [] };
+    chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'user', text: input.text, createdAt: new Date().toISOString() });
+    state.assistantChat = chat;
+    const tools: AssistantToolCard[] = [];
+    const live: AssistantLive = state.assistantLive ?? {};
+    state.assistantLive = live;
+    // 模拟流式增量：分两段写入。
+    const stream = (at: number, chunk: string) => setTimeout(() => { if (live.turn) { live.turn = { ...live.turn, text: (live.turn.text ?? '') + chunk }; publish(); } }, at);
+    const card = (at: number, tool: string, summary: string, cardState: AssistantToolCardState) => setTimeout(() => {
+      if (!live.turn) return;
+      const existing = tools.findIndex(item => item.tool === tool);
+      const next = { tool, summary, state: cardState };
+      if (existing >= 0) tools[existing] = next; else tools.push(next);
+      publish();
     }, at);
-    void stage(500, 'writing');
-    void stage(1300, 'repairing');
-    setTimeout(() => {
-      if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;
-      if (!localStorage.getItem('yovoice-preview-ai-success')) {
-        state.aiTask = { ...state.aiTask, status: 'failed', finishedAt: new Date().toISOString(), errorCode: '@yovoice.error.previewDesktopOnly' }; publish(); return;
+    const timer = (at: number, run: () => void) => setTimeout(() => { if (live.turn) run(); }, at);
+    live.turn = { text: '', tools: [], model: provider.model, startedAt: new Date().toISOString() };
+    publish();
+    const wantsScore = /钢琴|旋律|编曲|配乐|score|piano/i.test(input.text);
+    const wantsSong = /写词|写歌|歌词|歌|lyric|song/i.test(input.text);
+    let draftID = '';
+    if (wantsScore || wantsSong) {
+      card(300, 'create_work', wantsScore ? '新建了《示例小步舞曲》' : '新建了《夏夜兜风》', 'running');
+      timer(700, () => {
+        draftID = crypto.randomUUID().replaceAll('-', '');
+        const draft: Draft = wantsScore
+          ? { ...createDraft(false, state.preferences.uiLocale, 'musescore-general-sf2'), id: draftID, kind: 'score', title: '示例小步舞曲', score: { tempo: 100, timeSignature: [4, 4], sections: [], tracks: [] } }
+          : { ...createDraft(false, state.preferences.uiLocale, 'ace-step-1.5-turbo-bf16'), id: draftID, kind: 'music', title: '夏夜兜风', text: 'city pop, warm synths', lyrics: '[verse]\n晚风吹过海岸线\n[chorus]\n夏夜一路向前' };
+        state.drafts = [draft, ...state.drafts];
+        live.update = { id: crypto.randomUUID().replaceAll('-', ''), workId: draftID };
+        live.nav = { id: crypto.randomUUID().replaceAll('-', ''), workId: draftID };
+        publish();
+      });
+      card(800, 'create_work', wantsScore ? '新建了《示例小步舞曲》' : '新建了《夏夜兜风》', 'done');
+      if (wantsScore) {
+        card(1100, 'update_work', '正在修改《示例小步舞曲》的乐谱…', 'running');
+        timer(1600, () => {
+          const target = state.drafts.find(d => d.id === draftID);
+          if (!target?.score) return;
+          target.score = { tempo: 100, timeSignature: [4, 4], sections: [{ name: 'A', start: 1, end: 4 }], tracks: [{ id: 'p', name: '钢琴', role: 'piano', program: 0, notes: [{ bar: 1, beat: 1, pitch: 60, length: 1, velocity: 80 }, { bar: 1, beat: 3, pitch: 64, length: 1, velocity: 76 }, { bar: 2, beat: 1, pitch: 67, length: 2, velocity: 78 }] }] };
+          live.update = { id: crypto.randomUUID().replaceAll('-', ''), workId: draftID };
+          publish();
+        });
+        card(1900, 'update_work', '修改了《示例小步舞曲》的乐谱', 'done');
       }
-      const result = task.kind === 'score'
-        ? { title: '示例小步舞曲', tempo: 100, timeSignature: [4, 4], sections: [{ name: 'A', start: 1, end: 4 }], tracks: [{ id: 'p', name: '钢琴', role: 'piano', program: 0, notes: [{ bar: 1, beat: 1, pitch: 60, length: 1, velocity: 80 }, { bar: 1, beat: 3, pitch: 64, length: 1, velocity: 76 }, { bar: 2, beat: 1, pitch: 67, length: 2, velocity: 78 }] }] }
-        : { title: '夏夜兜风', style: 'city pop, warm synths', lyrics: '[verse]\n晚风吹过海岸线\n[chorus]\n夏夜一路向前', language: 'zh' };
-      state.aiTask = { ...state.aiTask, status: 'completed', finishedAt: new Date().toISOString(), stage: 'writing', result }; publish();
-    }, 2200);
-    return task as T;
-  }
-  if (method === 'ai.cancel') {
-    if (state.aiTask?.status === 'running') { state.aiTask = { ...state.aiTask, status: 'cancelled', finishedAt: new Date().toISOString() }; publish(); }
+    } else {
+      card(300, 'list_works', `查看了作品列表（${state.drafts.length} 个）`, 'done');
+    }
+    stream(2200, wantsScore ? '写好了：' : '好的，');
+    stream(2600, wantsScore ? '四小节钢琴旋律已经写进《示例小步舞曲》，可以直接渲染试听。' : '我先看了作品列表。想让我做什么？');
+    setTimeout(() => {
+      if (!live.turn) return;
+      chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn?.text ?? '', tools: [...tools], status: 'completed', createdAt: new Date().toISOString() });
+      state.assistantChat = { ...chat };
+      live.turn = undefined;
+      live.queued = 0;
+      publish();
+    }, 3200);
     return true as T;
   }
-  if (method === 'ai.dismiss') {
-    if (state.aiTask?.id === (data as { id: string }).id && state.aiTask.status !== 'running') { delete state.aiTask; publish(); }
+  if (method === 'assistant.cancel') {
+    const live = state.assistantLive;
+    if (live?.turn) {
+      const chat = state.assistantChat;
+      chat?.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn.text ?? '', tools: live.turn.tools ?? [], status: 'cancelled', createdAt: new Date().toISOString() });
+      state.assistantChat = chat ? { ...chat } : undefined;
+      live.turn = undefined;
+      live.queued = 0;
+      publish();
+    }
+    return true as T;
+  }
+  if (method === 'assistant.reset') {
+    const chat = state.assistantChat ?? { sessionId: crypto.randomUUID().replaceAll('-', ''), messages: [] };
+    chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'divider', createdAt: new Date().toISOString() });
+    state.assistantChat = { ...chat, sessionId: crypto.randomUUID().replaceAll('-', '') };
+    if (state.assistantLive?.turn) { state.assistantLive.turn = undefined; state.assistantLive.queued = 0; }
+    publish();
     return true as T;
   }
   throw new CallError('@yovoice.error.previewDesktopOnly');
