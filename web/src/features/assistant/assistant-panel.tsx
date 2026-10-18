@@ -5,7 +5,7 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { List, ListItem } from '@astryxdesign/core/List';
 import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ChevronDown, ChevronLeft, History, Maximize2, Minimize2, SquarePen, TextQuote, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen, SquarePen, TextQuote, Trash2 } from 'lucide-react';
 import { call, mediaUrl } from '../../shared/lib/client';
 import type { AssistantBlock, AssistantContext, State, Generation } from '../../shared/workbench';
 import { messageBlocks, turnCards } from './assistant-model';
@@ -127,7 +127,8 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
     <HStack className="assistant-header" vAlign="center" gap={1}
       onPointerDown={frame.begin('move')}
       onDoubleClick={event => { if (!(event.target as HTMLElement).closest('button')) onToggleExpand(); }}>
-      <Button data-testid="assistant-history-toggle" size="sm" variant="ghost" isIconOnly icon={<History size={15} />} label={t('@yovoice.assistant.history')}
+      {/* 历史会话是从左侧滑出的抽屉，用侧栏图标与右侧的线性图标保持一致。 */}
+      <Button data-testid="assistant-history-toggle" size="sm" variant="ghost" isIconOnly icon={historyOpen ? <PanelLeftClose size={15} /> : <PanelLeftOpen size={15} />} label={t('@yovoice.assistant.history')}
         aria-expanded={historyOpen} onClick={() => { setHistoryOpen(open => !open); setDeleting(null); }} />
       <AssistantAvatar working={running} size={24} />
       <span className="assistant-title grow" title={t('@yovoice.assistant.move')}>{title}</span>
