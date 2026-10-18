@@ -239,6 +239,12 @@ export const isSoundFont = (id: string) => id.endsWith('-sf2');
 // 扒谱模型只用于从歌曲提取旋律谱。
 export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
 export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id);
+// 同名模型的不同量化归为一组，保持目录顺序。
+export function groupModels(models: ModelPackage[]) {
+  const groups = new Map<string, ModelPackage[]>();
+  for (const model of models) groups.set(model.name, [...(groups.get(model.name) ?? []), model]);
+  return [...groups.values()];
+}
 // 新作品的默认模型：沿用最近一次同类作品用过且已安装的模型，否则取第一个已安装的同类模型，都没有时用 fallback。
 export function preferredModel(state: Pick<State, 'models' | 'drafts'>, kind: 'text' | 'story' | 'music' | 'score', fallback: string) {
   const fits = kind === 'music' ? isMusicModel : kind === 'score' ? isSoundFont : isVoiceModel;

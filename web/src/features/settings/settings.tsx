@@ -35,7 +35,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
   useEffect(() => { if (focus) setTab(focus.tab); }, [focus]);
   useEffect(() => {
     if (!focus || !modelTabs.includes(tab)) return;
-    const row = Array.from(document.querySelectorAll<HTMLElement>('[data-model-id]')).find(row => row.dataset.modelId === focus.modelId);
+    const row = Array.from(document.querySelectorAll<HTMLElement>('[data-model-ids]')).find(row => row.dataset.modelIds?.split(' ').includes(focus.modelId));
     row?.scrollIntoView({ block: 'nearest' });
   }, [focus, tab]);
   const preferences = state.preferences;
@@ -105,11 +105,11 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
           <Button size="sm" label={t('@yovoice.settings.openFolder')} icon={<FolderOpen size={16} />} onClick={() => run(() => call('model.directory.open'))} />
         </SettingsRow>
       </SettingsGroup>
-      <ModelGroups key={tab} models={catalog.filter(model => modelTab(model.family) === tab)} state={state} draft={draft} run={run} />
+      <ModelGroups key={tab} models={catalog.filter(model => modelTab(model.family) === tab)} state={state} draft={draft} run={run} focus={focus?.modelId} />
       <HStack className="settings-footnote" gap={3} vAlign="center" wrap="wrap"><small>{t('@yovoice.settings.licenseBlurb')}</small><Button size="sm" label={t('@yovoice.settings.licenseButton')} variant="ghost" onClick={() => run(async () => { const response = await fetch('./model-license.txt'); if (!response.ok) throw new CallError('@yovoice.error.licenseReadFailed'); setLicense(await response.text()); })} /></HStack>
     </VStack> : tab === 'soundfonts' ? <VStack className="settings-panel" gap={6} id="soundfonts-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabSoundfonts')}>
       <small className="settings-intro">{t('@yovoice.settings.soundfontIntro')}</small>
-      <ModelGroups models={catalog.filter(model => model.family === 'soundfont')} state={state} draft={draft} run={run} />
+      <ModelGroups models={catalog.filter(model => model.family === 'soundfont')} state={state} draft={draft} run={run} focus={focus?.modelId} />
     </VStack> : tab === 'ai' ? <AISettings state={state} run={run} focus={focus} /> : tab === 'assistant' ? <AssistantSettings state={state} run={run} /> : tab === 'assets'
       ? <Suspense fallback={<p role="status">{t('@yovoice.app.loading')}</p>}><AssetsPage state={state} active={active} run={run} onError={onError} openProject={openProject} /></Suspense> : tab === 'logs' ? <LogViewer run={run} /> : <VStack className="settings-panel engine-settings" gap={6} id="engine-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabEngine')}>
       <SettingsGroup title={<>audio.cpp{runtimeVersion ? <small className="model-size">{runtimeVersion}</small> : null}</>}>

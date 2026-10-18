@@ -76,7 +76,7 @@ test('选中 YuE2：长度由歌词决定，纯音乐先写谱再交给乐器，
   await page.goto('/');
   await expect(page.getByRole('radio', { name: '纯音乐' })).toBeChecked();
   await page.getByRole('combobox', { name: '模型' }).click();
-  await page.getByRole('option', { name: /YuE2 3B · Q8/ }).click();
+  await page.getByRole('option', { name: /^YuE2 3B/ }).click();
   // YuE2 也能生成纯音乐：保留纯音乐，歌词变为可选的段落结构，生成方式固定按谱；ACE-Step 专属参数隐藏。
   await expect(page.getByRole('radio', { name: '纯音乐' })).toBeChecked();
   await expect(page.getByText('YuE2 会先写谱，再把人声旋律交给乐器演奏')).toBeVisible();
@@ -327,5 +327,22 @@ test('新建作品默认用已下载的模型，并沿用上一次同类作品�
   await expect(model).toContainText('YuE2 3B');
   // 选择器只列已下载的模型。
   await model.click();
-  await expect(page.getByRole('option')).toHaveText([/ACE-Step 1.5 Turbo · Q8/, /YuE2 3B · Q4/, '管理模型…']);
+  await expect(page.getByRole('option')).toHaveText([/^ACE-Step 1.5 Turbo\s*Q8 · 已安装/, /^YuE2 3B\s*Q4 · 已安装/, '管理模型…']);
+});
+
+test('同一模型下载了多个精度时选择器只列一项，在下方切换精度', async ({ page }) => {
+  const state = emptyState();
+  state.drafts = [{ ...createMusicDraft('zh-CN'), id: 'b'.repeat(32), modelId: 'yue2-3b-q4' }];
+  state.models = [{ id: 'ace-step-1.5-turbo-q8', path: 'ace', managed: true }, { id: 'yue2-3b-q4', path: 'yue', managed: true }, { id: 'yue2-3b-q8', path: 'yue8', managed: true }];
+  await seedState(page, state);
+  await page.goto('/');
+  const model = page.getByRole('combobox', { name: '模型' });
+  await expect(model).toContainText('YuE2 3B · Q4');
+  await model.click();
+  await expect(page.getByRole('option')).toHaveText([/^ACE-Step 1.5 Turbo/, /^YuE2 3B\s*Q8 · Q4/, '管理模型…']);
+  await page.keyboard.press('Escape');
+  const precision = page.getByRole('radiogroup', { name: '精度' });
+  await expect(precision.getByRole('radio')).toHaveText(['Q8', 'Q4']);
+  await precision.getByRole('radio', { name: 'Q8' }).click();
+  await expect(page.getByRole('radio', { name: 'Q8' })).toBeChecked();
 });

@@ -3787,5 +3787,17 @@
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "Mô hình âm nhạc"
+  },
+  "@yovoice.settings.precisionOf": {
+    "defaultMessage": "Độ chính xác của {name}"
+  },
+  "@yovoice.settings.precisionsInstalled": {
+    "defaultMessage": "Đã tải: {list}"
+  },
+  "@yovoice.settings.precisionHint": {
+    "defaultMessage": "Q4/Q8 nhẹ và nhanh hơn; BF16, F16 và ORIG gần với chất lượng gốc nhất."
+  },
+  "@yovoice.create.precision": {
+    "defaultMessage": "Độ chính xác"
   }
 }

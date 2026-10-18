@@ -3787,5 +3787,17 @@
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "Музыкальные модели"
+  },
+  "@yovoice.settings.precisionOf": {
+    "defaultMessage": "Точность {name}"
+  },
+  "@yovoice.settings.precisionsInstalled": {
+    "defaultMessage": "Загружено: {list}"
+  },
+  "@yovoice.settings.precisionHint": {
+    "defaultMessage": "Q4/Q8 меньше и быстрее; BF16, F16 и ORIG ближе всего к исходному качеству."
+  },
+  "@yovoice.create.precision": {
+    "defaultMessage": "Точность"
   }
 }

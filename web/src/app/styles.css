@@ -455,6 +455,8 @@
   .model-row .ready { color: var(--app-muted); white-space: nowrap; }
   .model-row > .model-summary > .astryx-button { min-width: calc(var(--spacing-10) * 2.5); }
   .model-list.available .settings-row-title { font-weight: var(--font-weight-normal); }
+  .model-precisions > .astryx-segmented-control { width: auto; flex: none; }
+  .model-precisions .astryx-segmented-control-item svg { width: var(--spacing-3); height: var(--spacing-3); color: var(--color-success); }
   /* AI 服务：左侧服务列表，右侧详情；两栏分别滚动。 */
   .ai-panel { flex: 1; min-height: 0; }
   .settings-page > .ai-panel > .ai-split { flex-shrink: 1; }

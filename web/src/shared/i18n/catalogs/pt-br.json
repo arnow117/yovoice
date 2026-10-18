@@ -3787,5 +3787,17 @@
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "Modelos de música"
+  },
+  "@yovoice.settings.precisionOf": {
+    "defaultMessage": "Precisão de {name}"
+  },
+  "@yovoice.settings.precisionsInstalled": {
+    "defaultMessage": "Baixado: {list}"
+  },
+  "@yovoice.settings.precisionHint": {
+    "defaultMessage": "Q4/Q8 são menores e mais rápidos; BF16, F16 e ORIG ficam mais próximos da qualidade original."
+  },
+  "@yovoice.create.precision": {
+    "defaultMessage": "Precisão"
   }
 }

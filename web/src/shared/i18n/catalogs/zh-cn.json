@@ -3787,5 +3787,17 @@
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "音乐模型"
+  },
+  "@yovoice.settings.precisionOf": {
+    "defaultMessage": "{name} 的精度"
+  },
+  "@yovoice.settings.precisionsInstalled": {
+    "defaultMessage": "已下载：{list}"
+  },
+  "@yovoice.settings.precisionHint": {
+    "defaultMessage": "Q4 / Q8 体积小、速度快；BF16、F16 和 ORIG 更接近原始效果。"
+  },
+  "@yovoice.create.precision": {
+    "defaultMessage": "精度"
   }
 }

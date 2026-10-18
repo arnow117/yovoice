@@ -3787,5 +3787,17 @@
   },
   "@yovoice.settings.tabMusicModels": {
     "defaultMessage": "음악 모델"
+  },
+  "@yovoice.settings.precisionOf": {
+    "defaultMessage": "{name} 정밀도"
+  },
+  "@yovoice.settings.precisionsInstalled": {
+    "defaultMessage": "다운로드됨: {list}"
+  },
+  "@yovoice.settings.precisionHint": {
+    "defaultMessage": "Q4/Q8은 작고 빠르며, BF16·F16·ORIG는 원래 품질에 가장 가깝습니다."
+  },
+  "@yovoice.create.precision": {
+    "defaultMessage": "정밀도"
   }
 }
