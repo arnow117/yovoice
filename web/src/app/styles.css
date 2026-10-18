@@ -479,10 +479,7 @@
 }
 
 /* 页面常驻以保留筛选与编辑位置，隐藏页面的播放器单独暂停。 */
-.page-panel { height: 100%; flex: 1; min-width: 0; min-height: 0; overflow: hidden; animation: page-in var(--duration-fast) var(--ease-standard) backwards; }
-/* 切换页面时整页淡入。 */
-@keyframes page-in { from { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .page-panel { animation: none; } }
+.page-panel { height: 100%; flex: 1; min-width: 0; min-height: 0; overflow: hidden; }
 /* 作品卡片做成票根：左边封面与摘录，右边虚线撕口后的日期存根。 */
 .ticket.library-entry { max-width: none; padding: 0; border: 0; border-radius: var(--radius-container); background: var(--app-paper); transition: background 150ms ease, box-shadow 150ms ease; }
 .ticket.library-entry:hover,.ticket.library-entry:focus-within { background: color-mix(in srgb, var(--app-paper) 70%, var(--color-background-muted)); box-shadow: var(--shadow-low); }

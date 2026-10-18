@@ -1,13 +1,13 @@
 # Project Context: yovoice 声纹识别二次开发
 
-## 当前开发范围（2026-10-17）
+## 当前开发范围（2026-10-18）
 
 REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹页面；依赖已交付的 FEAT-001。
 有效产品与工程上下文为 `.sdlc-v1/context/REQ-002.product.md` 和 `.sdlc-v1/context/FEAT-002.engineering.md`。
 范围包含桌面私有 RPC、临时录音与文件、档案管理、显式绑定生成及独立本地验证包；不改原 CLI/v1、State 或私有档案格式。
-本轮工作树检查与新包真实文件登记、识别、删除和重启旅程已由主 Agent 核对；正式验收仍以 FEAT-002 的 Validation/Review 及 state 为准，旧 Feature 结果不代表新页面通过。
+历史包的真实文件登记、识别、删除和重启旅程已有主 Agent 核对；当前返修提交 `5bec2b8` 的新包在主页面可见性检查失败，随后一次零模型取证定位到页面入场动画透明度阻塞，当前正修复并准备新包。FEAT-002 尚未通过验收，正式状态以其 Validation/Review 及 state 为准，旧包或旧 Feature 结果不代表当前页面通过。
 新的 Web runner 与本地 Mac 验证命令已实际执行，入口和证据边界见下表。
-用户已授权本轮功能分支 commit/push、最终实模复验与独立正式验证/评审；主线合并或二进制发行仍不在本次范围内。
+用户已授权本轮功能分支 commit/push、必要修正与独立正式验证/评审；此前一次性实模复验及零模型 App 定位均已执行结束，后续 App/模型运行需要新的明确预算。主线合并或二进制发行仍不在本次范围内。
 
 ## 项目定位与采集边界
 

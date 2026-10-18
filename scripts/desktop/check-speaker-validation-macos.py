@@ -19,6 +19,7 @@ SMOKE = (ROOT / "scripts/desktop/smoke-speaker-validation-macos.sh").read_text()
 CAPTURE_PATH = ROOT / "scripts/desktop/capture-speaker-validation-evidence.py"
 PATHS_PATH = ROOT / "scripts/desktop/speaker-validation-paths.py"
 WRAPPER_PATH = ROOT / "scripts/desktop/speaker-validation-wrapper.py"
+HOST_MAIN = (ROOT / "desktop/macos/Sources/VoiceWorkbenchMac/main.swift").read_text()
 
 
 def capture_module():
@@ -519,6 +520,28 @@ printf 'fixture screenshot' > "$WORKBENCH_DATA/smoke.png"
             self.assertIn("const fallback = setTimeout(() => finish(false), 500)", source)
         self.assertIn("if (!painted || visibleDialogOpen()", main)
         self.assertIn("if (!painted || renderedDialogOpen()", restart)
+
+    def test_debug_host_checks_display_before_running_smoke_script(self):
+        self.assertIn("SmokePresentationReadiness", HOST_MAIN)
+        self.assertIn("SmokeDocumentVisibilityRequest", HOST_MAIN)
+        self.assertIn("DispatchTime.now().uptimeNanoseconds", HOST_MAIN)
+        self.assertIn("10_000_000_000", HOST_MAIN)
+        self.assertIn("guard !completed", HOST_MAIN)
+        self.assertIn("let expired = clock() >= deadline", HOST_MAIN)
+        self.assertIn("remainingSmokePresentationNanoseconds(until: deadline) == 0", HOST_MAIN)
+        self.assertIn("remainingSmokePresentationNanoseconds(until: deadline) > 0", HOST_MAIN)
+        self.assertIn("window.makeKeyAndOrderFront(nil)", HOST_MAIN)
+        self.assertIn("NSApp.activate(ignoringOtherApps: true)", HOST_MAIN)
+        self.assertIn("document.visibilityState", HOST_MAIN)
+        self.assertIn("windowMiniaturized", HOST_MAIN)
+        self.assertIn("webViewAttached", HOST_MAIN)
+        self.assertIn("webViewWidth", HOST_MAIN)
+        self.assertIn("windowOcclusionVisible", HOST_MAIN)
+        self.assertIn("writeSmokePresentationFailure", HOST_MAIN)
+        self.assertLess(
+            HOST_MAIN.index("_ = try await waitForSmokePresentation(webView)"),
+            HOST_MAIN.index("String(contentsOfFile: scriptPath"),
+        )
 
     def test_restart_waits_for_delayed_react_navigation_and_visible_profile(self):
         script = """

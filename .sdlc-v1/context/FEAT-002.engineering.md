@@ -4,6 +4,20 @@
 
 ## Plan
 
+### 2026-10-18 页面可见性与原生验收显示前置检查
+
+本节 supersedes 既有空白页返修中尚未确定的显示实现与验证策略；其他产品规则、已接受的三项正式评审修正和接口保持。沿用同一 FEAT-002/TASK-001、Terra 实施者、全部失败历史与已经使用的主诊断 allowance，不清零尝试次数。2026-10-18 用户另行授权的一次零模型定位已结束，后续 App 启动与模型运行尚未授权。
+
+新因果证据见 `artifacts/verification/feature-002-goal-acceptance-20261017/opacity-diagnostic-attempt-001/primary-assessment.json` 及同目录 raw result/screenshot：两个嵌套 page-panel 的 page-in 为 pending/currentTime=0、opacity=0；同一阻挡元素持续透明 30 秒后，仅取消内层动画就使该元素 opacity 从 0 变为 1，外层仍为 0，截图仍空白。document.visibilityState=hidden、hasFocus=false，两次 RAF 等待超时。仅启动一次、35 秒、零声纹写操作，源码/App/资产/普通 State 稳定，自有进程均退出。该证据确认页面可见性对入场动画的依赖有实际影响，未证明 WebView 为何 hidden，也不能代表 Feature 验收通过。
+
+- 页面内容在动画尚未开始、暂停或绘制帧回调未到达时必须仍可显示。最小修改 `.page-panel` 的透明入场动画依赖，覆盖外层与内层；不对所有元素强制 opacity，不改其他弹层/播放器/录音的动画、导航挂载和数据生命周期。不引入依赖或新的 UI 框架。
+- 原生 DEBUG smoke 在执行任何旅程脚本前，有限检查宿主窗口与 WebView 已连接、尺寸有效、窗口可见且未最小化、document.visibilityState=visible。等待使用至多 10 秒的有限期限；无权限/不可见/脚本错误须在业务动作和模型操作前明确失败并保存脱敏的原生及页面显示事实。hasFocus 和 active/occlusion 可作为诊断事实，不以“无焦点”等同不可见。可在 DEBUG smoke 开始时沿用已有公开激活 API 做一次明确的显示请求，不增加自动重启、周期性抢焦点或生产激活行为变化；不要猜测隐藏原因已经修复。
+- 保留主流程和重启的两次 RAF、当前有限超时、祖先可见性、命中可达、业务断言与截图要求；不把绘制超时改为成功，不通过 reduced-motion、禁用所有动画、隐藏窗口或合成截图绕过原生验收。后续必须由主查看新包的真实截图和状态/档案结果。
+- 在现有测试资产中增加可观察回归：把旧页面入场动画停在首帧时，旧实现的有效祖先透明度断言实际失败；修复后暂停动画的页面仍可见，默认与窄窗口的声纹关键控件可访问。原生显示前置检查覆盖不可见/超时必须早于脚本执行、只请求一次显示、不执行业务操作，并保存失败事实；优先复用既有脚本替身与 Swift 测试边界，不另建通用框架。
+- 实施写边界为 `web/src/app/styles.css`、相关既有 browser/e2e 测试、`desktop/macos/Sources/VoiceWorkbenchMac/main.swift` 的 DEBUG smoke 区域及必要最小显示检查 helper/对应 Swift 测试、`scripts/desktop/check-speaker-validation-macos.py` 和确有必要的原生检查脚本、`CHANGELOG.md`、现有唯一 `docs/usage.md` 及其原生验收详细操作链接。不改 Go/公开 RPC、识别算法、持久化、阈值/超时、Windows 或产品范围。主独占本 Plan/state，worker 不提交推送。
+- 同一 worker 完成有界实现、确定性红绿证据、完整 Web lint/typecheck/build、全部 browser 与 tester-army e2e（零模型、零重试、strict/read-only cache）、受影响的脚本与 Swift 检查，并使用原有构建入口生成全新独立 App/sidecar。归档实际退出码和源码/完整包/最终签名/打包 dist 的绑定；旧候选与失败产物均保留。本阶段禁止启动真实 App、服务、模型、TTS/Mic/provider 或下载。
+- 本次修改不改变用户故事或参数来源；usage 沿用现有声纹故事，仅补齐原生验收的桌面可显示条件和显示前置检查失败后的恢复说明，不虚构新故事。当前实现仍 incomplete；新包可审查后再请求明确的一次原生文件旅程预算。通过真实旅程及必要回归后才可 Task done、干净提交、独立正式 Validate/Review；既有功能分支及验收记录 commit/push 授权继续适用。
+
 ### 2026-10-17 正式评审返修：刷新、模型切换与路径字面量
 
 独立正式 Review 对 validation commit `767b65c…` 提出三项有代码因果链的 P2，主接受：迟到 list 快照可覆盖删除后的刷新；声纹生成模型选择只改 modelId，普通文本的 Index 2.5 日语切 Index 2 会保留 schema 不接受的 ja；生成的 FFmpeg shell 包装器把合法路径中的 shell 字符再次解释。沿用同一 Task/实施者/全部失败历史及已用诊断 allowance，不以新阶段清零。
@@ -352,7 +366,19 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 ## Validation
 
-正式独立 Validate 已在 `767b65ce18f75752a55ebb610e52ffc712950ed3` 通过并由主接受；首轮 fail/INCONCLUSIVE、Build 检查及所有原生证据保留如下。通过只覆盖声明范围，物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+当前 Feature 验收未通过。正式独立 Validate 的历史通过仅绑定 `767b65ce18f75752a55ebb610e52ffc712950ed3`；之后评审返修提交 `5bec2b86ca7a26bec489ec0420560a3a1cf082bd` 的原生主页面可见性检查失败，不能沿用旧包通过结论。首轮 fail/INCONCLUSIVE、Build 检查及全部原生证据保留。物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+
+### 2026-10-18 空白页定位与当前 Build 边界
+
+`5bec2b86ca7a26bec489ec0420560a3a1cf082bd` 的确定性 Build 检查为 E2E 62/62（零 retry/skip/flaky）、browser 58/58、脚本 23、Go race 218 pass/12 既有 skip，Web lint/typecheck/build、vet、签名与 receipt 核对均通过；原始命令、报告及主核对在 `artifacts/verification/feature-002-review-fix-20261017/`。该目录 `red-script-check-special-path.log` 仅证明缺少 helper，不能称为旧行为红证据；实际旧 wrapper 执行命令替换与新 writer 参数保持的差异由最终绿色的差分执行用例证明。
+
+该提交新包的真实旅程 `final-review-fix-001/` 在 35 秒后因登记控件的透明祖先而失败并立即停止；配置 configured=true，零提取，未执行重启。源码 manifest `37a0c4de2c73feedee359e06bcc941b406f27b2dd3fe9a5dd77e17b3be47325f`，App `9099a18f5df11bdcf02424f30daa9af6f553adc1b8f4dd3576216e123b3dfab2`；见 `artifacts/verification/feature-002-goal-acceptance-20261017/final-review-fix-001/native-outcome.json`。
+
+随后用户另行授权的一次零模型定位 `opacity-diagnostic-attempt-001/` 已执行并结束：2026-10-18 15:00:10–15:00:45（Asia/Shanghai），driver exit 0 表示完成取证，不表示验收通过。内外 page-panel 都为 page-in pending/currentTime=0、opacity=0；只取消 depth5 内层动画后该层 opacity=1，depth11 外层仍为 0，截图仍空白。document 为 hidden、无焦点，绘制帧等待超时，诊断状态 `animation_intervention_paint_timeout`。主独立查看 raw JSON/截图，比较六组源码、App/Web、固定资产、manifest、普通 State 均稳定，登记/识别/生成/删除调用均为 0，PID 63372/63376 已退出。证据为同目录 `primary-assessment.json`、`diagnostic/result.json`、`diagnostic/diagnostic.png` 及 `wrapper.outcome.json`；首次外层 shell 解析失败发生于 driver/host 调用前，单独保留在 `dispatch-parse-failure.json`，实际 App 仅启动一次。
+
+这次取证证明动画透明度依赖的实际影响，未证明 hidden 来源、完整页面恢复或当前真实识别旅程成功。原生一次预算已耗尽；2026-10-18 当前方案进入同 Task 的有界修复/无模型回归/新包构建，尚无修复后新包原生通过或正式 Validate/Review。不得将任一旧成功包、合成页面或本次 driver exit 0 当作 SCN-UI-22 通过。
+
+后续主使用 `cua.getState()` 只读核对可用桌面会话，原生工具明确返回 Mac 已锁定、检测到物理输入后自动解锁暂停，要求用户手动解锁。已向用户提出解锁问题；当前可继续代码、无模型浏览器测试及构建，不能继续原生界面操作。该观察晚于上述诊断，只证明当前桌面条件不满足，不能反推上次 hidden 的唯一原因；新包的明确运行预算仍需单独确认。
 
 ### 正式独立 Validate 重验 — 767b65ce18f75752a55ebb610e52ffc712950ed3
 
@@ -413,4 +439,4 @@ physicalMic/humanTTS 为 NOT_RUN。12 个 Go skip 是既有 10 项音乐/音色�
 
 ## Release
 
-未发布。本次授权包含本地验证 App；不包含新 scope 的 commit/push、合并、公证或外部发行。
+未发布。用户已明确授权本轮 FEAT-002 功能分支代码、文档与验收记录 commit/push，以及必要正式验证/评审；本地 App/模型运行仍遵守各次明确预算。主线合并、公证与二进制外部发行不在本次授权范围内。

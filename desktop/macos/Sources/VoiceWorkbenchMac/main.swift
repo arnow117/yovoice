@@ -3,6 +3,103 @@ import AVFoundation
 import WebKit
 import UniformTypeIdentifiers
 
+#if DEBUG
+// 原生冒烟脚本执行前记录的最小显示状态；不包含页面正文、路径或运行时私有数据。
+struct SmokePresentationReadiness: Codable, Equatable {
+    let windowVisible: Bool
+    let windowMiniaturized: Bool
+    let webViewAttached: Bool
+    let webViewWidth: Double
+    let webViewHeight: Double
+    let documentVisibility: String
+    let applicationActive: Bool
+    let windowOcclusionVisible: Bool
+
+    var failureReason: String? {
+        if !windowVisible { return "window_not_visible" }
+        if windowMiniaturized { return "window_minimized" }
+        if !webViewAttached { return "webview_not_attached" }
+        if webViewWidth <= 0 || webViewHeight <= 0 { return "webview_zero_size" }
+        if documentVisibility != "visible" { return "document_not_visible" }
+        return nil
+    }
+}
+
+private struct SmokePresentationFailure: LocalizedError {
+    let readiness: SmokePresentationReadiness
+
+    var errorDescription: String? {
+        let reason = readiness.failureReason ?? "unknown"
+        return "smoke presentation unavailable: \(reason)"
+    }
+}
+
+private struct SmokePresentationFailureRecord: Encodable {
+    let failure: String
+    let diagnostics: SmokePresentationReadiness
+}
+
+// WebKit 在窗口不可见时可能不返回 evaluateJavaScript 回调。超时与回调竞争时，
+// 只允许先到的一方恢复 continuation，避免迟到回调把超时结果写成就绪。
+final class SmokeDocumentVisibilityRequest {
+    private let lock = NSLock()
+    private let clock: () -> UInt64
+    private var continuation: CheckedContinuation<String?, Never>?
+    private var timeoutWorkItem: DispatchWorkItem?
+    private(set) var completed = false
+
+    init(clock: @escaping () -> UInt64 = { DispatchTime.now().uptimeNanoseconds }) {
+        self.clock = clock
+    }
+
+    func wait(
+        timeoutNanoseconds: UInt64,
+        start: (@escaping (String?) -> Void) -> Void,
+    ) async -> String? {
+        let deadline = clock() + timeoutNanoseconds
+        return await withCheckedContinuation { continuation in
+            let timeout = DispatchWorkItem { [weak self] in
+                self?.finish(nil, deadline: deadline)
+            }
+
+            lock.lock()
+            self.continuation = continuation
+            timeoutWorkItem = timeout
+            lock.unlock()
+
+            DispatchQueue.main.asyncAfter(
+                deadline: .now() + .nanoseconds(Int(timeoutNanoseconds)),
+                execute: timeout,
+            )
+            start { [weak self] value in
+                self?.finish(value, deadline: deadline)
+            }
+        }
+    }
+
+    private func finish(_ value: String?, deadline: UInt64) {
+        let continuation: CheckedContinuation<String?, Never>?
+        let timeout: DispatchWorkItem?
+
+        lock.lock()
+        guard !completed else {
+            lock.unlock()
+            return
+        }
+        completed = true
+        let expired = clock() >= deadline
+        continuation = self.continuation
+        self.continuation = nil
+        timeout = timeoutWorkItem
+        timeoutWorkItem = nil
+        lock.unlock()
+
+        timeout?.cancel()
+        continuation?.resume(returning: expired ? nil : value)
+    }
+}
+#endif
+
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
     private var window: NSWindow!
@@ -266,6 +363,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         guard let scriptPath = ProcessInfo.processInfo.environment["WORKBENCH_SMOKE_SCRIPT"] else { return }
         Task {
             do {
+                _ = try await waitForSmokePresentation(webView)
                 let script = try String(contentsOfFile: scriptPath, encoding: .utf8)
                 let result = try await webView.callAsyncJavaScript(script, arguments: [:], in: nil, contentWorld: .page)
                 let data = try JSONSerialization.data(withJSONObject: result ?? [:], options: [.prettyPrinted])
@@ -274,11 +372,94 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
                 if let tiff = snapshot.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff), let png = bitmap.representation(using: .png, properties: [:]) {
                     try png.write(to: root.appendingPathComponent("smoke.png"))
                 }
+            } catch let error as SmokePresentationFailure {
+                try? writeSmokePresentationFailure(error)
+                try? error.localizedDescription.write(to: root.appendingPathComponent("smoke-error.txt"), atomically: true, encoding: .utf8)
             } catch {
                 try? error.localizedDescription.write(to: root.appendingPathComponent("smoke-error.txt"), atomically: true, encoding: .utf8)
             }
             NSApp.terminate(nil)
         }
+    }
+
+    private func waitForSmokePresentation(_ webView: WKWebView) async throws -> SmokePresentationReadiness {
+        // 仅在 DEBUG 冒烟入口主动显示一次，不改变正常启动和发行包的焦点行为。
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        let deadline = DispatchTime.now().uptimeNanoseconds + 10_000_000_000
+        var readiness = await smokePresentationReadiness(for: webView, deadline: deadline)
+        while readiness.failureReason != nil {
+            let remaining = remainingSmokePresentationNanoseconds(until: deadline)
+            guard remaining > 0 else { break }
+
+            try await Task.sleep(nanoseconds: min(100_000_000, remaining))
+            readiness = await smokePresentationReadiness(for: webView, deadline: deadline)
+        }
+
+        if readiness.failureReason == nil,
+           remainingSmokePresentationNanoseconds(until: deadline) == 0 {
+            readiness = await smokePresentationReadiness(for: webView, deadline: deadline)
+        }
+
+        guard readiness.failureReason == nil,
+              remainingSmokePresentationNanoseconds(until: deadline) > 0 else {
+            throw SmokePresentationFailure(readiness: readiness)
+        }
+        return readiness
+    }
+
+    private func remainingSmokePresentationNanoseconds(until deadline: UInt64) -> UInt64 {
+        let now = DispatchTime.now().uptimeNanoseconds
+        return deadline > now ? deadline - now : 0
+    }
+
+    private func smokePresentationReadiness(
+        for webView: WKWebView,
+        deadline: UInt64,
+    ) async -> SmokePresentationReadiness {
+        let remaining = remainingSmokePresentationNanoseconds(until: deadline)
+        let documentVisibility: String
+        if remaining > 0 {
+            documentVisibility = await smokeDocumentVisibility(
+                of: webView,
+                timeoutNanoseconds: remaining,
+            ) ?? "unavailable"
+        } else {
+            documentVisibility = "unavailable"
+        }
+        let size = webView.bounds.size
+        return SmokePresentationReadiness(
+            windowVisible: window.isVisible,
+            windowMiniaturized: window.isMiniaturized,
+            webViewAttached: webView.superview != nil && webView.window === window,
+            webViewWidth: size.width,
+            webViewHeight: size.height,
+            documentVisibility: documentVisibility,
+            applicationActive: NSApp.isActive,
+            windowOcclusionVisible: window.occlusionState.contains(.visible),
+        )
+    }
+
+    private func smokeDocumentVisibility(
+        of webView: WKWebView,
+        timeoutNanoseconds: UInt64,
+    ) async -> String? {
+        let request = SmokeDocumentVisibilityRequest()
+        return await request.wait(timeoutNanoseconds: timeoutNanoseconds) { completion in
+            webView.evaluateJavaScript("document.visibilityState") { result, _ in
+                completion(result as? String)
+            }
+        }
+    }
+
+    private func writeSmokePresentationFailure(_ error: SmokePresentationFailure) throws {
+        let record = SmokePresentationFailureRecord(
+            failure: error.localizedDescription,
+            diagnostics: error.readiness,
+        )
+        let data = try JSONEncoder().encode(record)
+        try data.write(to: root.appendingPathComponent("smoke-result.json"))
     }
     #endif
     func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {

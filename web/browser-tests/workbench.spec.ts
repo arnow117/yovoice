@@ -3,6 +3,46 @@ import { seedState } from './seed';
 import { emptyState } from '../src/shared/workbench';
 import { test, expect } from '@playwright/test';
 
+test('暂停页面入场动画时，声纹页的有效祖先仍保持可见', async ({ page }) => {
+  await page.addInitScript(() => {
+    const freezePageAnimations = () => {
+      const style = document.createElement('style');
+      style.textContent = '.page-panel { animation-play-state: paused !important; }';
+      (document.head ?? document.documentElement).append(style);
+    };
+
+    if (document.documentElement) freezePageAnimations();
+    else document.addEventListener('DOMContentLoaded', freezePageAnimations, { once: true });
+  });
+
+  for (const viewport of [{ width: 1280, height: 840 }, { width: 390, height: 600 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    await page.getByTestId('nav-speakers').click();
+
+    const panelPresentation = await page.getByTestId('speaker-enroll').evaluate(control => {
+      const panels: HTMLElement[] = [];
+      for (let ancestor = control.parentElement; ancestor; ancestor = ancestor.parentElement) {
+        if (ancestor.classList.contains('page-panel')) panels.push(ancestor);
+      }
+
+      return panels.map(panel => {
+        const style = getComputedStyle(panel);
+        return {
+          animationName: style.animationName,
+          opacity: Number(style.opacity),
+        };
+      });
+    });
+
+    expect(panelPresentation.length).toBeGreaterThanOrEqual(2);
+    expect(panelPresentation).toEqual(expect.arrayContaining([
+      expect.objectContaining({ opacity: expect.any(Number) }),
+    ]));
+    expect(panelPresentation.every(panel => panel.opacity > 0)).toBe(true);
+  }
+});
+
 
 test('四种表达方式、草稿持久化与模型协议', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));

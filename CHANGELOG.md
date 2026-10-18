@@ -23,6 +23,8 @@
 
 ### Fixed
 
+- English: Speaker-profile pages no longer rely on a transparent page-entry animation, and the macOS validation host now records a bounded display-preflight failure before it runs any smoke actions.
+- 简体中文：声纹档案页面不再依赖透明入场动画；macOS 验证宿主会在执行任何冒烟操作前记录有界的显示前置检查失败。
 - English: The macOS speaker-validation bundle now includes a versioned sidecar receipt binding its source candidate to the final App tree, packaged host, service, and web resources; smoke rejects a missing, stale, or modified bundle before it starts the host.
 - 简体中文：macOS 声纹验证包现在配套带版本的同级构建凭据，将源码候选与最终 App 树、打包的宿主、服务和 Web 资源绑定；凭据缺失、过期或包被修改时，冒烟会在启动宿主前拒绝运行。
 - English: The macOS speaker-validation smoke now passes normalized local runtime paths to the App host and records only a redacted configuration field/reason category when local recognition setup is rejected.
