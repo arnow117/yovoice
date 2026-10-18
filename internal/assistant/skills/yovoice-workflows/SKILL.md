@@ -1,6 +1,6 @@
 ---
 name: yovoice-workflows
-description: Step-by-step tool sequences for common yovoice tasks — narration, multi-role story dubbing, writing and generating a whole song, scoring an underscore. Use whenever a task spans creating or changing works and generating audio.
+description: Step-by-step tool sequences for common yovoice tasks — narration, voice settings and saved characters, multi-role story dubbing, writing and generating a whole song, scoring an underscore. Use whenever a task spans creating or changing works and generating audio.
 ---
 
 # yovoice workflows
@@ -12,6 +12,14 @@ Work types: `text` 语音 (narration / voice-over), `story` 故事配音 (multi-
 1. `get_work` on the open text work, or `create_work` {"kind":"text","title":...} for a new one.
 2. `update_work` {"id","text"} with the narration; optionally `update_work` {"id","modelId"} to pick an installed voice model from `list_models`.
 3. `generate_work` {"id"}; reply that generation started, then check `get_generation_status` {"id"} when the user asks or before claiming success.
+
+## Voice settings and characters (声音设置与角色)
+
+Everything in the right-hand inspector is editable: `update_work` {"id","settings":{...}} takes voiceMode / voxMode / voiceDescription (声音设计、语音方向) / referenceText / speaker / mode / emotion fields / speed / temperature / topP / topK / seed (-1 = random) / modelId / voiceId, and `modelOptions` {family:{key:value}} for the per-model advanced parameters (keys and ranges: `list_models` → generationOptions). Only the given fields change; out-of-range values are rejected with the reason.
+- Save a voice as a reusable character: `save_character` {"name","fromWork":<work id>} copies the work's current voice settings; add "settings" to tweak. No need to create a work for this, and it does not switch the page.
+- Use one: `list_characters`, then `update_work` {"id","characterId"}; for a story speaker `update_work` {"id","speakerSettings":[{"speaker","characterId"}]}.
+- Changing one speaker's parameters only: `speakerSettings` [{"speaker","settings":{...}}].
+- Deleting a character goes through `propose_action`.
 
 ## Multi-role story dubbing (多角色故事配音)
 

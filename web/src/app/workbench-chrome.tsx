@@ -324,6 +324,8 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const openCharacter = () => {
     editCharacter({ id: crypto.randomUUID().replaceAll('-', ''), name: activeSpeaker?.sourceName || draft.title, settings: synthesisSettings(inspectorDraft), demoText: t('@yovoice.character.example') });
   };
+  // 把一条生成结果用到的声音设置存为角色：模型、参考音色、声音设计描述和全部参数一起带上，在角色编辑器里确认后保存。
+  const characterFromGeneration = (item: Generation) => editCharacter({ id: crypto.randomUUID().replaceAll('-', ''), name: item.title, settings: structuredClone(synthesisSettings(item.settings)), demoText: item.settings.text.slice(0, 120) || t('@yovoice.character.example') });
   const createVoice = () => {
     const defaults = createDraft(false, state.preferences.uiLocale);
     editCharacter({ id: crypto.randomUUID().replaceAll('-', ''), name: t('@yovoice.library.newVoice'), settings: synthesisSettings({ ...defaults, modelId: 'omnivoice-q8', voiceMode: 'design' }), demoText: t('@yovoice.character.example') });
@@ -416,7 +418,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     {/* 历史入口始终保留：还没生成过时也能进入历史页查看其他作品的生成记录。 */}
     <Button className="player-tool" label={historyLabel} tooltip={historyLabel} size="sm" variant="ghost" icon={<History />} onClick={() => openHistory(draft)} />
     {currentVersion ? <DropdownMenu presentation="popover" placement="above" alignment="end" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.history.audioActions'), tooltip: t('@yovoice.history.audioActions') }} items={[
-      ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.voice.save'), onClick: () => setVoiceEditor(currentVersion) }] : []),
+      ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.voice.save'), onClick: () => setVoiceEditor(currentVersion) }, { label: t('@yovoice.character.saveAs'), onClick: () => characterFromGeneration(currentVersion) }] : []),
       { label: t('@yovoice.player.reveal'), onClick: () => { void call('media.reveal', { kind: 'outputs', id: currentVersion.id }).catch(e => onError(noticeMessage(e))); } },
     ]} /> : null}
   </HStack>;
@@ -465,7 +467,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
             </HStack>} state={state}
               query={destination === 'voices' ? voiceQuery : historyQuery} onQueryChange={destination === 'voices' ? setVoiceQuery : setHistoryQuery}
               track={page === destination ? previewTrack : null} audition={audition} stop={() => setPreviewTrack(null)} suspended={page !== destination || voicePicker !== null || !!voiceEditor || !!nowPlaying}
-              addVoice={() => setVoicePicker('add')} editVoice={setVoiceEditor} onError={onError}
+              addVoice={() => setVoicePicker('add')} editVoice={setVoiceEditor} saveCharacter={characterFromGeneration} onError={onError}
               reuse={reuseGeneration} exportItem={exportVersion} play={setNowPlaying} />
           </PageBoundary></VStack>)}
         </>}

@@ -244,7 +244,7 @@ test('语音生成只有历史生成：工具栏进入历史页，试听不改�
   await expect(transport.getByRole('button', { name: '导出音频', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '保存为角色', exact: true })).toHaveCount(0);
   await transport.getByRole('button', { name: '音频操作', exact: true }).click();
-  await expect(page.getByRole('menuitem')).toHaveText(['保存为参考音频', '打开音频位置']);
+  await expect(page.getByRole('menuitem')).toHaveText(['保存为参考音频', '保存为角色', '打开音频位置']);
   await page.keyboard.press('Escape');
 
   // 历史生成汇总所有语音作品的结果，不分版本；改过名的显示名称，其余显示正文。
@@ -261,6 +261,15 @@ test('语音生成只有历史生成：工具栏进入历史页，试听不改�
   await rows.first().getByRole('button', { name: `删除音频${draft.title}`, exact: true }).click();
   await page.getByRole('button', { name: '取消', exact: true }).click();
   await expect(rows).toHaveCount(3);
+  // 生成结果连同当时的参数一起存为角色：角色编辑器带着名称、模型和语速打开，保存后进入声音库。
+  await rows.nth(1).getByRole('button', { name: '音频操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '保存为角色', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: '角色名称' })).toHaveValue(draft.title);
+  await expect(page.getByRole('combobox', { name: '模型', exact: true })).toContainText('IndexTTS 2');
+  await page.getByRole('button', { name: '保存角色', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').characters?.map((c: { name: string; settings: { speed: number } }) => `${c.name}:${c.settings.speed}`))).toEqual([`${draft.title}:0.8`]);
+  await page.getByTestId('nav-text').click();
+  await openProjectHistory(page);
   await rows.first().getByRole('button', { name: `删除音频${draft.title}`, exact: true }).click();
   await page.getByRole('button', { name: '删除音频', exact: true }).click();
   await expect(rows).toHaveCount(2);

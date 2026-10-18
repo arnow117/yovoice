@@ -18,7 +18,7 @@ import (
 // 只能经 propose_action 提议，由用户在确认卡片上执行；不提供导入导出。
 var assistantTools = []string{
 	"list_works", "get_work", "create_work", "update_work", "generate_work", "get_generation_status",
-	"open_work", "open_page", "list_models", "list_voices", "status",
+	"open_work", "open_page", "list_models", "list_voices", "list_characters", "save_character", "status",
 	"get_app_status", "get_recent_errors", "remember_preference", "forget_preference", "propose_action",
 }
 
@@ -31,8 +31,10 @@ func (w *Workbench) newAssistantServer() *mcp.Server {
 	w.registerListVoicesTool(server)
 	mcp.AddTool(server, &mcp.Tool{Name: "list_works", Description: "列出作品（id、类型、标题、更新时间），可按类型过滤。类型：text（语音）、story（故事配音）、music（音乐）、score（编曲）。"}, w.listWorksTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "get_work", Description: "读取一个作品的完整可编辑内容：台词或风格、歌词、角色与音色分配、模型与参数、乐谱等。修改作品前先调用。"}, w.getWorkTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "create_work", Description: "按类型新建作品并返回 id，界面随即打开它。新作品为空内容，随后用 update_work 填写。"}, w.createWorkTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "update_work", Description: "按字段补丁修改作品：标题、台词/文本、歌词与纯音乐、演唱语言、模型与参数、故事配音的角色台词与音色分配、乐谱（与写谱同一套校验）、YuE2 旋律谱 abc。返回修改后的摘要。"}, w.updateWorkTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "create_work", Description: "按类型新建作品并返回 id，默认让界面随即打开它（open=false 则只在后台创建、不切换界面）。新作品为空内容，随后用 update_work 填写。只想建声音角色时不要新建作品，用 save_character。"}, w.createWorkTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "update_work", Description: "按字段补丁修改作品：标题、台词/文本、歌词与纯音乐、演唱语言、故事配音的角色台词、乐谱（与写谱同一套校验）、YuE2 旋律谱 abc；右侧检查器里的全部声音设置与高级参数（模型、音色、声音设计描述、情绪、语速、温度、modelOptions 等）放在 settings；characterId 套用声音库角色；故事配音的每个角色用 speakerSettings。返回修改后的摘要。"}, w.updateWorkTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "list_characters", Description: "列出声音库里的角色（id、名称、模型、参考音色、声音设计描述）。给作品或故事角色套用角色前先调用。"}, w.listCharactersTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "save_character", Description: "新建或修改声音库里的角色（声音配置：模型、参考音色、声音设计描述、全部参数）。新建可用 fromWork 以某个作品当前的声音设置为起点，再用 settings 改动；修改已有角色传 id。不会改动任何作品，也不会切换界面。删除角色走 propose_action。"}, w.saveCharacterTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "generate_work", Description: "对一个作品发起生成（语音、音乐或编曲渲染），立即返回；生成前先用 list_models 确认模型已安装。进度与结果用 get_generation_status 查询。"}, w.generateWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "get_generation_status", Description: "查询作品当前的生成进度与最近一次生成的结果（时长与是否完成）。"}, w.getGenerationStatusTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "open_work", Description: "让界面打开某个作品。"}, w.openWorkTool)
@@ -142,6 +144,7 @@ func (w *Workbench) assistantWork(id string) (schema.Draft, error) {
 type createWorkInput struct {
 	Kind  string `json:"kind" jsonschema:"作品类型：text、story、music 或 score"`
 	Title string `json:"title,omitempty" jsonschema:"作品标题，留空由用户稍后命名"`
+	Open  *bool  `json:"open,omitempty" jsonschema:"是否让界面打开新作品，默认 true；只是准备素材时传 false"`
 }
 
 func (w *Workbench) createWorkTool(ctx context.Context, req *mcp.CallToolRequest, in createWorkInput) (*mcp.CallToolResult, any, error) {
@@ -178,27 +181,32 @@ func (w *Workbench) createWorkTool(ctx context.Context, req *mcp.CallToolRequest
 	}
 	w.chatCard("create_work", fmt.Sprintf("新建了《%s》", d.Title), fmt.Sprintf("Created %q", d.Title), "done")
 	w.chatUpdate(d.ID)
-	w.chatNav(d.ID, "")
+	if in.Open == nil || *in.Open {
+		w.chatNav(d.ID, "")
+	}
 	diag.Log(w.Store.Root, "assistant.work_created", "project_id", d.ID, "kind", in.Kind)
 	return nil, map[string]any{"id": d.ID, "kind": in.Kind, "title": d.Title}, nil
 }
 
 // updateWorkInput 是作品补丁：只改给出的字段，全部经 SaveDraft 的校验落盘。
 type updateWorkInput struct {
-	ID            string             `json:"id" jsonschema:"作品 ID"`
-	Title         *string            `json:"title,omitempty" jsonschema:"标题"`
-	Text          *string            `json:"text,omitempty" jsonschema:"台词或正文（语音/故事）；音乐作品是风格描述"`
-	Lyrics        *string            `json:"lyrics,omitempty" jsonschema:"歌词，段落标记独占一行；纯音乐时只允许段落标记"`
-	Instrumental  *bool              `json:"instrumental,omitempty" jsonschema:"纯音乐（无演唱）"`
-	Language      *string            `json:"language,omitempty" jsonschema:"音乐作品的演唱语言 ISO 代码，如 zh、en"`
-	ModelID       *string            `json:"modelId,omitempty" jsonschema:"模型 ID，先用 list_models 确认已安装"`
-	VoiceID       *string            `json:"voiceId,omitempty" jsonschema:"参考音色 ID，先用 list_voices 查询；传空字符串表示清除"`
-	Speed         *float64           `json:"speed,omitempty" jsonschema:"语速 0.5-2"`
-	Seed          *int               `json:"seed,omitempty" jsonschema:"随机种子"`
-	Subtitles     *workSubtitles     `json:"subtitles,omitempty" jsonschema:"故事配音的角色与台词，整体替换"`
-	SpeakerVoices []workSpeakerVoice `json:"speakerVoices,omitempty" jsonschema:"按角色分配参考音色"`
-	Score         *scoreInput        `json:"score,omitempty" jsonschema:"完整乐谱（编曲），与写谱任务同一套校验"`
-	Abc           *string            `json:"abc,omitempty" jsonschema:"YuE2 音乐作品的旋律谱（原生 ABC 方言，见 yovoice-melody），整体替换；空字符串清除"`
+	ID              string               `json:"id" jsonschema:"作品 ID"`
+	Title           *string              `json:"title,omitempty" jsonschema:"标题"`
+	Text            *string              `json:"text,omitempty" jsonschema:"台词或正文（语音/故事）；音乐作品是风格描述"`
+	Lyrics          *string              `json:"lyrics,omitempty" jsonschema:"歌词，段落标记独占一行；纯音乐时只允许段落标记"`
+	Instrumental    *bool                `json:"instrumental,omitempty" jsonschema:"纯音乐（无演唱）"`
+	Language        *string              `json:"language,omitempty" jsonschema:"音乐作品的演唱语言 ISO 代码，如 zh、en"`
+	ModelID         *string              `json:"modelId,omitempty" jsonschema:"模型 ID，先用 list_models 确认已安装"`
+	VoiceID         *string              `json:"voiceId,omitempty" jsonschema:"参考音色 ID，先用 list_voices 查询；传空字符串表示清除"`
+	Speed           *float64             `json:"speed,omitempty" jsonschema:"语速 0.5-2"`
+	Seed            *int                 `json:"seed,omitempty" jsonschema:"随机种子"`
+	Subtitles       *workSubtitles       `json:"subtitles,omitempty" jsonschema:"故事配音的角色与台词，整体替换"`
+	SpeakerVoices   []workSpeakerVoice   `json:"speakerVoices,omitempty" jsonschema:"按角色分配参考音色"`
+	Score           *scoreInput          `json:"score,omitempty" jsonschema:"完整乐谱（编曲），与写谱任务同一套校验"`
+	Settings        *voiceSettingsInput  `json:"settings,omitempty" jsonschema:"右侧检查器的全部声音设置与高级参数，只改给出的项；与同名的顶层字段同时给出时以这里为准"`
+	CharacterID     *string              `json:"characterId,omitempty" jsonschema:"套用声音库里的角色（list_characters）：作品改用该角色的声音设置；空字符串解除关联"`
+	SpeakerSettings []workSpeakerSetting `json:"speakerSettings,omitempty" jsonschema:"故事配音：给指定角色套用声音库角色或单独改声音设置"`
+	Abc             *string              `json:"abc,omitempty" jsonschema:"YuE2 音乐作品的旋律谱（原生 ABC 方言，见 yovoice-melody），整体替换；空字符串清除"`
 }
 
 type workSubtitles struct {
@@ -290,6 +298,29 @@ func (w *Workbench) updateWorkTool(ctx context.Context, req *mcp.CallToolRequest
 		d.Seed = in.Seed
 		patch("种子")
 	}
+	if in.CharacterID != nil {
+		if kind == "music" || kind == "score" {
+			return nil, nil, fmt.Errorf("characterId 只适用于语音和故事配音作品，这个作品是 %s", kind)
+		}
+		if id := strings.TrimSpace(*in.CharacterID); id == "" {
+			d.CharacterID = ""
+		} else {
+			characters := w.Store.Read().Characters
+			index := slices.IndexFunc(characters, func(c schema.Character) bool { return c.ID == id })
+			if index < 0 {
+				return nil, nil, fmt.Errorf("没有找到角色 %s，请先用 list_characters 查看", id)
+			}
+			applyCharacterToWork(&d, characters[index])
+		}
+		patch("角色")
+	}
+	if in.Settings != nil {
+		patched, e := w.applyVoiceSettings(&d.SynthesisSettings, *in.Settings, kind)
+		if e != nil {
+			return nil, nil, e
+		}
+		changed = append(changed, patched...)
+	}
 	if in.Subtitles != nil {
 		if kind != "story" {
 			return nil, nil, fmt.Errorf("subtitles 只适用于故事配音作品，这个作品是 %s", kind)
@@ -312,6 +343,13 @@ func (w *Workbench) updateWorkTool(ctx context.Context, req *mcp.CallToolRequest
 			return nil, nil, e
 		}
 		patch("角色音色")
+	}
+	if len(in.SpeakerSettings) > 0 {
+		patched, e := w.applySpeakerSettings(&d, in.SpeakerSettings, w.Store.Read().Characters)
+		if e != nil {
+			return nil, nil, e
+		}
+		changed = append(changed, patched...)
 	}
 	if in.Score != nil {
 		if kind != "score" {
@@ -351,6 +389,11 @@ func (w *Workbench) updateWorkTool(ctx context.Context, req *mcp.CallToolRequest
 	}
 	if len(changed) == 0 {
 		return nil, nil, fmt.Errorf("没有要修改的字段")
+	}
+	if (in.Settings != nil || in.CharacterID != nil || len(in.SpeakerSettings) > 0) && (kind == "text" || kind == "story") {
+		if e := voiceSettingsError(d); e != nil {
+			return nil, nil, e
+		}
 	}
 	w.edit.Lock()
 	err = w.saveDraft(d)
