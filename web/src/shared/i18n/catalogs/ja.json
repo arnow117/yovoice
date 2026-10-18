@@ -2367,16 +2367,13 @@
     "defaultMessage": "ローカルとカスタム"
   },
   "@yovoice.error.musicLyricsRequired": {
-    "defaultMessage": "YuE2 には歌詞が必要です。インストには対応していません。"
+    "defaultMessage": "YuE2 で歌入りの曲を作るには歌詞が必要です。歌詞なしならインストに切り替えてください。"
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "歌詞とスタイルからボーカル入りの曲を丸ごと生成します。長さは歌詞によって決まります。ライセンスは CC BY-NC 4.0 で、非商用利用のみです。"
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 はセクションごとに歌うため、曲の長さは歌詞で決まります。"
-  },
-  "@yovoice.music.yueVocalOnly": {
-    "defaultMessage": "YuE2 はボーカル入りの曲のみ生成します"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "このテイクのスタイルと歌詞を再利用"
@@ -3730,5 +3727,53 @@
   },
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "選択した内容は次のメッセージと一緒に Ocho に送られます"
+  },
+  "@yovoice.music.yueInstrumentalHint": {
+    "defaultMessage": "YuE2 はまず譜面を書き、ボーカルの旋律を楽器に演奏させます。歌詞は省略でき、[Verse]・[Chorus] などのセクション記号で構成を決められます。"
+  },
+  "@yovoice.music.structurePlaceholder": {
+    "defaultMessage": "任意：[Intro]、[Verse]、[Chorus]、[Outro] などのセクション記号"
+  },
+  "@yovoice.music.mode": {
+    "defaultMessage": "生成方法"
+  },
+  "@yovoice.music.modeScore": {
+    "defaultMessage": "譜面から"
+  },
+  "@yovoice.music.modeFree": {
+    "defaultMessage": "自由生成"
+  },
+  "@yovoice.music.modeScoreHint": {
+    "defaultMessage": "下の旋律譜に沿って歌います。譜面がなければ YuE2 が先に書き、生成後にそのバージョンから読み込んで編集できます。"
+  },
+  "@yovoice.music.modeFreeHint": {
+    "defaultMessage": "譜面を使わずに直接生成します。結果に編集できる譜面はありません。"
+  },
+  "@yovoice.melody.toInstrumental": {
+    "defaultMessage": "旋律を楽器に移す"
+  },
+  "@yovoice.melody.instrumentalNotice": {
+    "defaultMessage": "譜面にまだボーカルの旋律があります。インストでは楽器が演奏し、コード・テンポ・キーは変わりません。"
+  },
+  "@yovoice.options.abc_temperature": {
+    "defaultMessage": "譜面の温度"
+  },
+  "@yovoice.options.semantic_temperature": {
+    "defaultMessage": "音声の温度"
+  },
+  "@yovoice.options.semantic_top_p": {
+    "defaultMessage": "音声 Top P"
+  },
+  "@yovoice.options.semantic_top_k": {
+    "defaultMessage": "音声 Top K"
+  },
+  "@yovoice.options.semantic_repetition_penalty": {
+    "defaultMessage": "音声の繰り返しペナルティ"
+  },
+  "@yovoice.melody.freeNotice": {
+    "defaultMessage": "自由生成中のため、この譜面は使われません。"
+  },
+  "@yovoice.melody.useScore": {
+    "defaultMessage": "譜面を使う"
   }
 }

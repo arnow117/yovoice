@@ -42,7 +42,7 @@ Recommend in this order: what the user already has installed (list_models), then
 ## Music and arrangement models
 
 - ACE-Step 1.5 Turbo / XL Turbo: songs or instrumentals from style (≤ 512 chars) + lyrics (≤ 4000 chars, [verse] [chorus] tags). Duration auto or 10–300 s. XL is higher quality and much larger.
-- YuE2 3B: vocal songs only, length follows the lyrics, non-commercial licence. Can plan an ABC melody score first (yovoice-melody skill) or cover a song via SheetSage2.
+- YuE2 3B: vocal songs (length follows the lyrics) or instrumentals (writes a score, then instruments play the vocal melody; lyrics optional), non-commercial licence. Can plan an ABC melody score first (yovoice-melody skill) or cover a song via SheetSage2.
 - SheetSage2: extracts melody and chords from a song for YuE2 covers.
 - SoundFonts (MuseScore General, GeneralUser GS, SGM-V2.01) render arrangements on the score page.
 - All music models need inference engine v0.9.1 or later.
@@ -141,7 +141,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.musicStyle` 请用 1–512 字描述风格。
 - `error.musicLyrics` 歌词最多 4000 字。
 - `error.musicParams` 时长需为 10–300 秒，速度需为 30–300 BPM。
-- `error.musicLyricsRequired` YuE2 需要填写歌词，暂不支持纯音乐。
+- `error.musicLyricsRequired` YuE2 生成带人声的歌曲需要歌词；不写歌词可以切到纯音乐。
 - `error.scoreInvalid` 乐谱格式不正确：请检查速度、拍号、声部和音符位置（最多 512 小节、32 个声部、20000 个音符、10 分钟）。
 - `error.scoreTooLong` 乐谱太长：最多 {minutes} 分钟、{bars} 小节，请删减小节或调快速度后再试。
 - `error.midiInvalid` 无法读取这个 MIDI 文件，请使用含音符的标准类型 0 或 1 MIDI。

@@ -170,10 +170,13 @@ func validateMusic(d Draft, family string) error {
 	if d.SynthesisLanguage != "" && !slices.Contains(MusicLanguages, d.SynthesisLanguage) {
 		return msg.Err(msg.ErrLanguageUnsupported, nil)
 	}
-	// YuE2 按歌词逐段生成，没有纯音乐模式，歌词长度决定歌曲长度。
+	// YuE2 按歌词逐段生成，歌词长度决定歌曲长度；纯音乐先出谱、把人声旋律交给器乐，歌词可留空。
 	if family == "yue2" {
-		if d.Instrumental || strings.TrimSpace(d.Lyrics) == "" {
+		if !d.Instrumental && strings.TrimSpace(d.Lyrics) == "" {
 			return msg.Err(msg.ErrMusicLyricsRequired, nil)
+		}
+		if _, err := d.GenerationOptions("yue2"); err != nil {
+			return err
 		}
 		if d.Seed != nil && (*d.Seed < 0 || *d.Seed > 2147483647) {
 			return msg.Err(msg.ErrParamsOutOfRange, nil)

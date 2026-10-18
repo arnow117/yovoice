@@ -2367,16 +2367,13 @@
     "defaultMessage": "本地与自定义"
   },
   "@yovoice.error.musicLyricsRequired": {
-    "defaultMessage": "YuE2 需要填写歌词，暂不支持纯音乐。"
+    "defaultMessage": "YuE2 生成带人声的歌曲需要歌词；不写歌词可以切到纯音乐。"
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "根据歌词和风格生成整首带人声的歌曲，长度由歌词决定。模型许可为 CC BY-NC 4.0，仅限非商业用途。"
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 按歌词段落生成，歌曲长度由歌词决定。"
-  },
-  "@yovoice.music.yueVocalOnly": {
-    "defaultMessage": "YuE2 只生成带人声的歌曲"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "复用这一版的风格和歌词"
@@ -3730,5 +3727,53 @@
   },
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "选中的内容会随下一条消息发给 Ocho"
+  },
+  "@yovoice.music.yueInstrumentalHint": {
+    "defaultMessage": "YuE2 会先写谱，再把人声旋律交给乐器演奏。歌词可以不填，写 [Verse]、[Chorus] 等段落标记可以安排结构。"
+  },
+  "@yovoice.music.structurePlaceholder": {
+    "defaultMessage": "可选：写段落标记，如 [Intro]、[Verse]、[Chorus]、[Outro]"
+  },
+  "@yovoice.music.mode": {
+    "defaultMessage": "生成方式"
+  },
+  "@yovoice.music.modeScore": {
+    "defaultMessage": "按旋律谱"
+  },
+  "@yovoice.music.modeFree": {
+    "defaultMessage": "自由发挥"
+  },
+  "@yovoice.music.modeScoreHint": {
+    "defaultMessage": "按下方的旋律谱演唱；没有谱时 YuE2 先写谱，生成后可以从这一版载入谱再修改。"
+  },
+  "@yovoice.music.modeFreeHint": {
+    "defaultMessage": "不经过旋律谱直接生成，结果没有可编辑的谱。"
+  },
+  "@yovoice.melody.toInstrumental": {
+    "defaultMessage": "人声旋律转给乐器"
+  },
+  "@yovoice.melody.instrumentalNotice": {
+    "defaultMessage": "谱里还有人声旋律。生成纯音乐时会交给乐器演奏，和弦、速度和调不变。"
+  },
+  "@yovoice.options.abc_temperature": {
+    "defaultMessage": "写谱温度"
+  },
+  "@yovoice.options.semantic_temperature": {
+    "defaultMessage": "演唱温度"
+  },
+  "@yovoice.options.semantic_top_p": {
+    "defaultMessage": "演唱 Top P"
+  },
+  "@yovoice.options.semantic_top_k": {
+    "defaultMessage": "演唱 Top K"
+  },
+  "@yovoice.options.semantic_repetition_penalty": {
+    "defaultMessage": "演唱重复惩罚"
+  },
+  "@yovoice.melody.freeNotice": {
+    "defaultMessage": "当前是自由发挥，生成时不使用旋律谱。"
+  },
+  "@yovoice.melody.useScore": {
+    "defaultMessage": "改为按谱"
   }
 }

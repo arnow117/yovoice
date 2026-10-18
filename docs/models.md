@@ -34,7 +34,7 @@ Use `yovoice models list --json` for model IDs, available precisions, file sizes
 | Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 Chinese and 3 English voices; experimental |
 | ACE-Step 1.5 Turbo | — | Q8 · 6.19 GB<br>BF16 · 10.09 GB | Songs and instrumentals from a style prompt and lyrics, 50+ vocal languages; requires engine v0.9.1 |
 | ACE-Step 1.5 XL Turbo | — | Q8 · 10.71 GB<br>BF16 · 15.28 GB | Larger ACE-Step model for higher-quality songs and instrumentals; requires engine v0.9.1 |
-| YuE2 3B | 3B | Q4 · 2.93 GB<br>Q8 · 4.53 GB<br>BF16 · 7.53 GB | Full vocal songs from lyrics and style, length follows the lyrics; no instrumentals; requires engine v0.9.1 |
+| YuE2 3B | 3B | Q4 · 2.93 GB<br>Q8 · 4.53 GB<br>BF16 · 7.53 GB | Full vocal songs from lyrics and style, length follows the lyrics; instrumentals via a melody score; requires engine v0.9.1 |
 | SheetSage2 | — | F32 · 2.71 GB | Transcribes a song's melody and chords into a score, used for YuE2 covers; requires engine v0.9.1 |
 
 | Use Case | Recommended Hardware | Recommended Models |
@@ -134,17 +134,19 @@ Kokoro does not support voice cloning or text-guided emotion control. Keep the C
 
 ## Music generation
 
-Music projects in the desktop app use ACE-Step 1.5 Turbo or XL Turbo for songs and instrumentals, or YuE2 3B for vocal songs. All need inference engine v0.9.1 or later.
+Music projects in the desktop app use ACE-Step 1.5 Turbo or XL Turbo for songs and instrumentals, or YuE2 3B for songs and score-based instrumentals. All need inference engine v0.9.1 or later.
 
 - **Style**: a short description plus tags such as `city pop, warm synths, chill, female vocals`, up to 512 characters.
 - **Lyrics**: mark sections with `[verse]`, `[chorus]`, `[bridge]` and so on, up to 4000 characters. Turn on Instrumental to generate music without vocals; your lyrics are kept.
 - **Duration and language**: choose Auto or 10–300 seconds, and a vocal language that matches the lyrics.
 - **Arrangement**: tempo (30–300 BPM), key and time signature are planned by the model unless you set them.
 
-YuE2 generates vocal songs only: it needs lyrics, and the song length follows the lyrics. It can also work from an editable melody score:
+YuE2 needs lyrics for a vocal song, and the song length follows the lyrics. It can also work from an editable melody score:
 
 - **Write melody score**: YuE2 first writes the vocal melody and chords for the lyrics as an ABC score, without singing yet. Review it as tracks or as ABC text, change the tempo, keep only the melody, import an `.abc` file, or ask the assistant to rewrite it (an AI provider is required). Generating then follows the score: with chords YuE2 keeps your harmony, with melody only it arranges the accompaniment freely.
 - **Extract from a song (cover)**: with SheetSage2 installed, pick a song up to 10 minutes long. Its melody is transcribed into a score, the original chords are dropped, and YuE2 re-sings it in your style with your lyrics. The original singer's voice and phrasing are not kept.
+- **Instrumental**: YuE2 writes a score first, then gives the vocal melody to instruments, keeping the chords, tempo and key. Lyrics are optional; section markers such as `[Verse]` and `[Chorus]` shape the structure. An existing score is converted the same way, and the melody score menu can convert it in place.
+- **Generation**: *From score* follows the score (or writes one first); *Free* skips the score and generates directly, with no editable score. Advanced settings expose the inference steps and the score and audio sampling parameters.
 - Every take stores the score it used; reusing a version restores it.
 
 Continuation, repainting and stem extraction are not available yet.

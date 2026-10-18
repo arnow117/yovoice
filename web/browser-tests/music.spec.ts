@@ -64,7 +64,7 @@ test('新建音乐作品：示例、风格标签、段落标记、纯音乐与�
 });
 
 
-test('选中 YuE2：隐藏时长与纯音乐，长度由歌词决定', async ({ page }, testInfo) => {
+test('选中 YuE2：长度由歌词决定，纯音乐先写谱再交给乐器，可选生成方式与高级参数', async ({ page }, testInfo) => {
   const draft = { ...createMusicDraft('zh-CN'), id: 'd'.repeat(32), modelId: 'ace-step-1.5-turbo-q8', instrumental: true };
   const state = emptyState();
   state.drafts = [draft];
@@ -77,13 +77,30 @@ test('选中 YuE2：隐藏时长与纯音乐，长度由歌词决定', async ({ 
   await expect(page.getByRole('radio', { name: '纯音乐' })).toBeChecked();
   await page.getByRole('combobox', { name: '模型' }).click();
   await page.getByRole('option', { name: /YuE2 3B · Q8/ }).click();
-  // 切到 YuE2 自动回到演唱模式，并去掉 ACE-Step 专属参数。
-  await expect(page.getByRole('radio', { name: '纯音乐' })).toHaveCount(0);
-  await expect(page.getByLabel('歌词', { exact: true })).toBeVisible();
-  await expect(page.getByText('YuE2 只生成带人声的歌曲')).toBeVisible();
+  // YuE2 也能生成纯音乐：保留纯音乐，歌词变为可选的段落结构，生成方式固定按谱；ACE-Step 专属参数隐藏。
+  await expect(page.getByRole('radio', { name: '纯音乐' })).toBeChecked();
+  await expect(page.getByText('YuE2 会先写谱，再把人声旋律交给乐器演奏')).toBeVisible();
+  await expect(page.getByLabel('歌词', { exact: true })).toHaveAttribute('placeholder', /段落标记/);
   await expect(page.getByText('歌曲长度由歌词决定')).toBeVisible();
   await expect(page.getByRole('radio', { name: '02:00' })).toHaveCount(0);
   await expect(page.getByRole('combobox', { name: '演唱语言' })).toHaveCount(0);
+  await expect(page.getByRole('radio', { name: '自由发挥' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '先写旋律谱' })).toBeEnabled();
+  await page.getByLabel('歌词', { exact: true }).fill('');
+  await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeEnabled();
+  await page.screenshot({ path: testInfo.outputPath('music-yue2-instrumental.png') });
+  // 填写歌词时可以选不经过谱自由发挥；高级设置里是 YuE2 自己的参数。
+  await page.getByRole('radio', { name: '填写歌词' }).click();
+  await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeDisabled();
+  await expect(page.getByRole('radio', { name: '按旋律谱' })).toBeChecked();
+  await page.getByRole('radio', { name: '自由发挥' }).click();
+  await expect(page.getByText('不经过旋律谱直接生成')).toBeVisible();
+  await expect(page.getByText('当前是自由发挥，生成时不使用旋律谱。')).toBeVisible();
+  await page.locator('details.advanced > summary').click();
+  await expect(page.getByLabel('演唱温度')).toHaveValue('1');
+  await expect(page.getByLabel('写谱温度')).toHaveValue('0.7');
+  await expect(page.getByLabel('时长')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').drafts?.[0]?.modelOptions?.yue2?.cot)).toBe('off');
   await page.screenshot({ path: testInfo.outputPath('music-yue2.png') });
 });
 

@@ -2367,16 +2367,13 @@
     "defaultMessage": "Cục bộ & tùy chỉnh"
   },
   "@yovoice.error.musicLyricsRequired": {
-    "defaultMessage": "YuE2 cần có lời bài hát; không hỗ trợ bản không lời."
+    "defaultMessage": "YuE2 cần lời cho bài hát có giọng hát; chuyển sang nhạc không lời nếu không muốn viết lời."
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "Tạo bài hát có lời hoàn chỉnh từ lời và phong cách; độ dài theo lời bài hát. Giấy phép CC BY-NC 4.0, chỉ dùng cho mục đích phi thương mại."
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 hát theo từng đoạn, nên lời bài hát quyết định độ dài bài."
-  },
-  "@yovoice.music.yueVocalOnly": {
-    "defaultMessage": "YuE2 chỉ tạo bài hát có lời"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "Dùng lại phong cách và lời của bản này"
@@ -3730,5 +3727,53 @@
   },
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "Phần bạn chọn sẽ được gửi cho Ocho cùng tin nhắn tiếp theo"
+  },
+  "@yovoice.music.yueInstrumentalHint": {
+    "defaultMessage": "YuE2 viết bản nhạc trước, rồi giao giai điệu giọng hát cho nhạc cụ. Lời bài hát không bắt buộc; các đánh dấu đoạn như [Verse], [Chorus] giúp sắp xếp cấu trúc."
+  },
+  "@yovoice.music.structurePlaceholder": {
+    "defaultMessage": "Tùy chọn: đánh dấu đoạn như [Intro], [Verse], [Chorus], [Outro]"
+  },
+  "@yovoice.music.mode": {
+    "defaultMessage": "Cách tạo"
+  },
+  "@yovoice.music.modeScore": {
+    "defaultMessage": "Theo bản nhạc"
+  },
+  "@yovoice.music.modeFree": {
+    "defaultMessage": "Tự do"
+  },
+  "@yovoice.music.modeScoreHint": {
+    "defaultMessage": "Hát theo bản nhạc giai điệu bên dưới; nếu chưa có, YuE2 sẽ viết trước và bạn có thể tải từ phiên bản để chỉnh sửa."
+  },
+  "@yovoice.music.modeFreeHint": {
+    "defaultMessage": "Tạo trực tiếp không qua bản nhạc; kết quả không có bản nhạc để chỉnh sửa."
+  },
+  "@yovoice.melody.toInstrumental": {
+    "defaultMessage": "Chuyển giai điệu cho nhạc cụ"
+  },
+  "@yovoice.melody.instrumentalNotice": {
+    "defaultMessage": "Bản nhạc vẫn còn giai điệu giọng hát. Khi tạo nhạc không lời, nhạc cụ sẽ chơi giai điệu này; hợp âm, nhịp độ và giọng không đổi."
+  },
+  "@yovoice.options.abc_temperature": {
+    "defaultMessage": "Nhiệt độ bản nhạc"
+  },
+  "@yovoice.options.semantic_temperature": {
+    "defaultMessage": "Nhiệt độ âm thanh"
+  },
+  "@yovoice.options.semantic_top_p": {
+    "defaultMessage": "Top P âm thanh"
+  },
+  "@yovoice.options.semantic_top_k": {
+    "defaultMessage": "Top K âm thanh"
+  },
+  "@yovoice.options.semantic_repetition_penalty": {
+    "defaultMessage": "Phạt lặp âm thanh"
+  },
+  "@yovoice.melody.freeNotice": {
+    "defaultMessage": "Đang tạo tự do nên bản nhạc này không được dùng."
+  },
+  "@yovoice.melody.useScore": {
+    "defaultMessage": "Dùng bản nhạc"
   }
 }

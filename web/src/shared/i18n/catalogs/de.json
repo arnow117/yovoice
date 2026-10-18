@@ -2367,16 +2367,13 @@
     "defaultMessage": "Lokal & benutzerdefiniert"
   },
   "@yovoice.error.musicLyricsRequired": {
-    "defaultMessage": "YuE2 benötigt einen Songtext; Instrumentalstücke werden nicht unterstützt."
+    "defaultMessage": "YuE2 braucht für einen Song mit Gesang einen Text; wechsle zu Instrumental, um ihn wegzulassen."
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "Erzeugt einen vollständigen Song mit Gesang aus Songtext und Stil; die Länge richtet sich nach dem Text. Lizenz CC BY-NC 4.0, nur nicht-kommerzielle Nutzung."
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 singt Abschnitt für Abschnitt, daher bestimmt der Songtext die Länge."
-  },
-  "@yovoice.music.yueVocalOnly": {
-    "defaultMessage": "YuE2 erzeugt nur Songs mit Gesang"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "Stil und Songtext dieser Version wiederverwenden"
@@ -3730,5 +3727,53 @@
   },
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "Ihre Auswahl wird mit der nächsten Nachricht an Ocho gesendet"
+  },
+  "@yovoice.music.yueInstrumentalHint": {
+    "defaultMessage": "YuE2 schreibt zuerst eine Partitur und gibt die Gesangsmelodie dann an Instrumente. Songtext ist optional; Abschnittsmarken wie [Verse] und [Chorus] legen die Struktur fest."
+  },
+  "@yovoice.music.structurePlaceholder": {
+    "defaultMessage": "Optional: Abschnittsmarken wie [Intro], [Verse], [Chorus], [Outro]"
+  },
+  "@yovoice.music.mode": {
+    "defaultMessage": "Erzeugung"
+  },
+  "@yovoice.music.modeScore": {
+    "defaultMessage": "Nach Partitur"
+  },
+  "@yovoice.music.modeFree": {
+    "defaultMessage": "Frei"
+  },
+  "@yovoice.music.modeScoreHint": {
+    "defaultMessage": "Singt nach der Melodiepartitur unten; ohne Partitur schreibt YuE2 sie zuerst, und du kannst sie aus der Version laden und bearbeiten."
+  },
+  "@yovoice.music.modeFreeHint": {
+    "defaultMessage": "Erzeugt direkt ohne Partitur; das Ergebnis hat keine bearbeitbare Partitur."
+  },
+  "@yovoice.melody.toInstrumental": {
+    "defaultMessage": "Melodie an Instrumente geben"
+  },
+  "@yovoice.melody.instrumentalNotice": {
+    "defaultMessage": "Die Partitur enthält noch eine Gesangsmelodie. Instrumental spielen sie Instrumente; Akkorde, Tempo und Tonart bleiben gleich."
+  },
+  "@yovoice.options.abc_temperature": {
+    "defaultMessage": "Partitur-Temperatur"
+  },
+  "@yovoice.options.semantic_temperature": {
+    "defaultMessage": "Audio-Temperatur"
+  },
+  "@yovoice.options.semantic_top_p": {
+    "defaultMessage": "Audio Top P"
+  },
+  "@yovoice.options.semantic_top_k": {
+    "defaultMessage": "Audio Top K"
+  },
+  "@yovoice.options.semantic_repetition_penalty": {
+    "defaultMessage": "Audio-Wiederholungsstrafe"
+  },
+  "@yovoice.melody.freeNotice": {
+    "defaultMessage": "Freie Erzeugung ist aktiv, diese Partitur wird nicht verwendet."
+  },
+  "@yovoice.melody.useScore": {
+    "defaultMessage": "Partitur verwenden"
   }
 }

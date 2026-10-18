@@ -10,6 +10,7 @@ import { formatActivity } from '../../shared/i18n/format';
 import { formatTime, isMusicModel, isYuE, modelEngineReady, type Draft, type ModelPackage, type State } from '../../shared/workbench';
 import { AdvancedSettings, SeedInput } from '../create/shared-controls';
 import { ModelSelector } from '../create/model-selector';
+import { ModelOptions } from '../create/model-options';
 import { applyPresetTags, durationPresets, isPresetActive, musicLanguages, splitTags, stylePresets, styleTags, tagHintKey } from './music-draft';
 
 const optionValues = (key: string) => definitions.ace_step.find(spec => spec.key === key)?.values ?? [];
@@ -37,6 +38,9 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
   const option = (key: string, fallback: string | number) => options[key] ?? fallback;
   const update = (key: string, value: string | number) => change({ modelOptions: { ...draft.modelOptions, ace_step: { ...options, [key]: value } } });
   const duration = Number(option('duration_seconds', 0));
+  const yueOptions = draft.modelOptions?.yue2 ?? {};
+  const yueMode = String(yueOptions.cot ?? 'auto');
+  const updateYue = (key: string, value: string | number) => change({ modelOptions: { ...draft.modelOptions, yue2: { ...yueOptions, [key]: value } } });
   const models = catalog.filter(model => isMusicModel(model.id));
   const model = models.find(item => item.id === draft.modelId);
   // 已装内核过旧时提前说明原因，生成按钮仍可点击并跳转到内核设置。
@@ -52,7 +56,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
   return <VStack as="aside" className="inspector music-inspector" gap={0}>
     <VStack className="generation-action" gap={3}>
       {generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" />
-        : <Button label={t(yue && draft.abc?.trim() ? '@yovoice.music.generateFromMelody' : '@yovoice.music.generate')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim() || (yue && !draft.lyrics?.trim())} onClick={generate} />}
+        : <Button label={t(yue && draft.abc?.trim() ? '@yovoice.music.generateFromMelody' : '@yovoice.music.generate')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim() || (yue && !draft.instrumental && !draft.lyrics?.trim())} onClick={generate} />}
       {generating ? <HStack className="generation-status" gap={2} vAlign="center">
         <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
         <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>
@@ -63,9 +67,20 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
       {header}
       <VStack className="inspector-actions" gap={3}>
         <h2 className="inspector-section-title">{t('@yovoice.create.model')}</h2>
-        <ModelSelector label={t('@yovoice.create.model')} models={models} state={state} value={draft.modelId} isDisabled={generating} manage={settings} onChange={modelId => change({ modelId, ...(isYuE(modelId) ? { instrumental: false } : {}) })} />
+        <ModelSelector label={t('@yovoice.create.model')} models={models} state={state} value={draft.modelId} isDisabled={generating} manage={settings} onChange={modelId => change({ modelId })} />
       </VStack>
-      {yue ? <VStack gap={2}><h3>{t('@yovoice.music.duration')}</h3><small>{t('@yovoice.music.yueLength')}</small></VStack> : <>
+      {yue ? <>
+      <VStack gap={2}><h3>{t('@yovoice.music.duration')}</h3><small>{t('@yovoice.music.yueLength')}</small></VStack>
+      {/* 生成方式：按旋律谱（有谱按谱、没谱先写谱）或不经过谱自由发挥；纯音乐必须经过谱。 */}
+      {draft.instrumental ? null : <VStack gap={2}>
+        <h3>{t('@yovoice.music.mode')}</h3>
+        <SegmentedControl label={t('@yovoice.music.mode')} size="sm" layout="fill" value={yueMode === 'off' ? 'off' : 'score'} onChange={value => updateYue('cot', value === 'off' ? 'off' : 'auto')}>
+          <SegmentedControlItem value="score" label={t('@yovoice.music.modeScore')} />
+          <SegmentedControlItem value="off" label={t('@yovoice.music.modeFree')} />
+        </SegmentedControl>
+        <small>{t(yueMode === 'off' ? '@yovoice.music.modeFreeHint' : '@yovoice.music.modeScoreHint')}</small>
+      </VStack>}
+      </> : <>
       <VStack gap={3}>
         <h3>{t('@yovoice.music.duration')}</h3>
         <SegmentedControl label={t('@yovoice.music.duration')} size="sm" layout="fill" value={String(durationPresets.includes(duration as typeof durationPresets[number]) ? duration : '')} onChange={value => update('duration_seconds', Number(value))}>
@@ -163,7 +178,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
         ) : null}
       </VStack>
       <AdvancedSettings open={advanced} onOpenChange={setAdvanced}>
-        {yue ? null : <>
+        {yue ? <ModelOptions draft={draft} family="yue2" change={change} omit={['cot']} /> : <>
         <label className="number-field">{t('@yovoice.music.duration')}<input type="number" min={0} max={300} step={1} value={duration || ''} placeholder={t('@yovoice.music.auto')} onChange={event => update('duration_seconds', event.target.value ? Number(event.target.value) : 0)} /></label>
         <label className="number-field">{t('@yovoice.music.bpm')}<input type="number" min={30} max={300} step={1} value={Number(option('bpm', 0)) || ''} placeholder={t('@yovoice.music.auto')} onChange={event => update('bpm', event.target.value ? Number(event.target.value) : 0)} /></label>
         <Selector label={t('@yovoice.music.keyscale')} value={String(option('keyscale', 'auto'))} options={optionValues('keyscale').map(value => ({ value, label: value === 'auto' ? t('@yovoice.music.auto') : value }))} onChange={value => update('keyscale', value)} />

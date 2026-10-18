@@ -203,8 +203,8 @@ func TestYuE2Request(t *testing.T) {
 	}
 	for _, patch := range []func(*schema.Draft){
 		func(d *schema.Draft) { d.Lyrics = " " },
-		func(d *schema.Draft) { d.Instrumental = true },
 		func(d *schema.Draft) { d.Text = "" },
+		func(d *schema.Draft) { d.ModelOptions = map[string]map[string]any{"yue2": {"cot": "nope"}} },
 	} {
 		invalid := d
 		patch(&invalid)
@@ -226,6 +226,38 @@ func TestYuE2Request(t *testing.T) {
 	must(t, err)
 	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "melody" {
 		t.Fatal(o)
+	}
+	// 规划模式与采样参数：off 不经过谱，melody 先去掉和弦。
+	withScore.Abc = testkit.ABC
+	withScore.ModelOptions = map[string]map[string]any{"yue2": {"cot": "off", "num_inference_steps": float64(32)}}
+	p, err = BuildRequest(withScore, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "off" || o["abc"] != nil || o["num_inference_steps"] != float64(32) {
+		t.Fatal(o)
+	}
+	withScore.ModelOptions = map[string]map[string]any{"yue2": {"cot": "melody"}}
+	p, err = BuildRequest(withScore, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "melody" || strings.Contains(o["abc"].(string), `"C"`) {
+		t.Fatal(o)
+	}
+	// 纯音乐：没谱时是出谱请求，歌词可空、用段落骨架；有谱时人声旋律移到器乐，歌词只剩段落标记，自由生成不适用。
+	instrumental := d
+	instrumental.Instrumental, instrumental.Lyrics = true, ""
+	instrumental.ModelOptions = map[string]map[string]any{"yue2": {"cot": "off"}}
+	p, err = BuildRequest(instrumental, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "full" || o["lyrics"] != planningLyrics || !strings.HasSuffix(o["style"].(string), "instrumental, no vocals") {
+		t.Fatal(o)
+	}
+	instrumental.Abc = testkit.ABC
+	p, err = BuildRequest(instrumental, "", "")
+	must(t, err)
+	opts := p["request"].(map[string]any)["options"].(map[string]any)
+	converted, e := score.ParseABC(opts["abc"].(string))
+	must(t, e)
+	if len(converted.Vocal().Notes) != 0 || len(converted.Ins().Notes) == 0 || opts["lyrics"] != converted.SectionTags() || p["request"].(map[string]any)["text"] != opts["lyrics"] {
+		t.Fatal(opts)
 	}
 	withScore.Abc = strings.Replace(testkit.ABC, "B8G8D16", "B8G8D8", 1)
 	var ce *msg.CallError

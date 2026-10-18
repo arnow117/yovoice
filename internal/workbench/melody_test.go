@@ -79,6 +79,30 @@ func TestGenerationKeepsMelody(t *testing.T) {
 	}
 }
 
+// YuE2 纯音乐：没谱时先出谱，再把人声旋律移到器乐声部生成，版本里存实际演奏的谱；歌词可以留空。
+func TestInstrumentalGeneration(t *testing.T) {
+	wb, d := yueWorkbench(t)
+	d.Instrumental, d.Lyrics = true, ""
+	must(t, wb.Generate(d))
+	<-wb.Done()
+	state := wb.Store.Read()
+	if state.Activity.Status != "completed" || len(state.History) != 1 {
+		t.Fatalf("%+v", state.Activity)
+	}
+	played, err := score.ParseABC(state.History[0].Settings.Abc)
+	must(t, err)
+	if len(played.Vocal().Notes) != 0 || len(played.Ins().Notes) == 0 || !played.HasChords() {
+		t.Fatal(state.History[0].Settings.Abc)
+	}
+	// 已有谱时直接转谱生成，作品里的谱保持原样。
+	d.Abc = testkit.ABC
+	must(t, wb.Generate(d))
+	<-wb.Done()
+	if h := wb.Store.Read().History; len(h) != 2 || h[0].Settings.Abc != state.History[0].Settings.Abc || wb.Store.Read().Drafts[0].Abc != testkit.ABC {
+		t.Fatalf("%+v", h[0].Settings.Abc)
+	}
+}
+
 func TestCoverRequiresModel(t *testing.T) {
 	wb, d := yueWorkbench(t)
 	var ce *msg.CallError
@@ -104,6 +128,9 @@ func TestInspectAndTransformMelody(t *testing.T) {
 		t.Fatal(out)
 	}
 	if out, err = TransformMelody(out, "stripChords", 0); err != nil || InspectMelody(out).Chords {
+		t.Fatal(out, err)
+	}
+	if out, err = TransformMelody(testkit.ABC, "instrumental", 0); err != nil || len(InspectMelody(out).Score.Tracks) != 3 || !strings.Contains(out, `"C"z`) {
 		t.Fatal(out, err)
 	}
 	if _, err = TransformMelody(out, "transpose", 0); err == nil {

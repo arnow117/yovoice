@@ -63,10 +63,14 @@ export function MelodyScore({ draft, state, change }: {
   const settle = useEffectEvent(() => { if (pending && !abc.trim()) apply(pending); });
   useEffect(() => settle(), [pending?.id]);
 
-  const transform = (op: 'stripChords' | 'tempo', value = 0) => attempt(async () => change({ abc: await call<string>('melody.transform', { abc, op, tempo: value }) }));
+  const transform = (op: 'stripChords' | 'tempo' | 'instrumental', value = 0) => attempt(async () => change({ abc: await call<string>('melody.transform', { abc, op, tempo: value }) }));
   const commitTempo = () => { const value = Number(tempo); if (inspection?.tempo && value && value !== inspection.tempo) void transform('tempo', value); else setTempo(inspection?.tempo ? String(inspection.tempo) : ''); };
   const plan = () => attempt(() => call('melody.plan', draft));
-  const canPlan = !busy && !!draft.text.trim() && !!draft.lyrics?.trim();
+  const canPlan = !busy && !!draft.text.trim() && (draft.instrumental || !!draft.lyrics?.trim());
+  // 谱里还有人声旋律：纯音乐生成时会自动交给乐器演奏，也可以先在这里转好再改。
+  // 自由发挥不经过谱：谱仍保留，提示生成时不会用到。
+  const free = !draft.instrumental && draft.modelOptions?.yue2?.cot === 'off';
+  const sung = !!inspection?.score?.tracks.some(track => track.id === 'vocal');
   const summary = inspection && !inspection.issue ? [inspection.key, `${inspection.tempo} BPM`, inspection.meter?.join('/'), t('@yovoice.score.barCount', { count: inspection.bars ?? 0 }), formatTime(inspection.seconds ?? 0), t(inspection.chords ? '@yovoice.melody.withChords' : '@yovoice.melody.melodyOnly')].filter(Boolean).join(' · ') : '';
   const score = inspection?.score ? { ...inspection.score, tracks: inspection.score.tracks.map(track => ({ ...track, name: t(`@yovoice.melody.track.${track.id}`) })) } : undefined;
 
@@ -106,6 +110,7 @@ export function MelodyScore({ draft, state, change }: {
           { id: 'plan', label: t('@yovoice.melody.replan'), isDisabled: !canPlan, onClick: () => void plan() },
           { id: 'cover', label: t('@yovoice.melody.cover'), isDisabled: busy, onClick: () => audio.current?.click() },
           { id: 'strip', label: t('@yovoice.melody.stripChords'), isDisabled: !inspection?.chords, onClick: () => void transform('stripChords') },
+          { id: 'instrumental', label: t('@yovoice.melody.toInstrumental'), isDisabled: !sung, onClick: () => void transform('instrumental') },
           { id: 'import', label: t('@yovoice.melody.import'), onClick: () => file.current?.click() },
           { id: 'copy', label: t('@yovoice.melody.copy'), onClick: () => void attempt(() => navigator.clipboard.writeText(abc)) },
           { id: 'clear', label: t('@yovoice.melody.clear'), onClick: () => { change({ abc: '' }); setNotice(null); } },
@@ -120,6 +125,10 @@ export function MelodyScore({ draft, state, change }: {
     </HStack> : null}
 
     {progress}
+    {free ? <HStack className="melody-notice" data-tone="info" gap={2} vAlign="center" role="status">
+      <small className="grow">{t('@yovoice.melody.freeNotice')}</small>
+      <Button size="sm" variant="ghost" label={t('@yovoice.melody.useScore')} onClick={() => change({ modelOptions: { ...draft.modelOptions, yue2: { ...draft.modelOptions?.yue2, cot: 'auto' } } })} />
+    </HStack> : null}
     {error ? <HStack className="melody-notice" data-tone="danger" gap={2} vAlign="start" role="alert"><CircleAlert size={16} aria-hidden="true" /><small className="grow">{error}</small></HStack> : null}
 
     {!abc.trim() ? working ? null : <VStack className="score-empty melody-empty" gap={3} hAlign="center">
@@ -136,6 +145,10 @@ export function MelodyScore({ draft, state, change }: {
           <small>{t(`@yovoice.melody.notice.${notice.kind}`)}</small>
         </VStack>
         <Button size="sm" variant="ghost" label={t('@yovoice.action.closeNotice')} onClick={() => setNotice(null)} />
+      </HStack> : null}
+      {draft.instrumental && sung && !inspection?.issue ? <HStack className="melody-notice" data-tone="info" gap={2} vAlign="center" role="status">
+        <small className="grow">{t('@yovoice.melody.instrumentalNotice')}</small>
+        <Button size="sm" variant="ghost" label={t('@yovoice.melody.toInstrumental')} onClick={() => void transform('instrumental')} />
       </HStack> : null}
       {inspection?.issue ? <HStack className="melody-notice" data-tone="danger" gap={2} vAlign="start" role="alert">
         <CircleAlert size={16} aria-hidden="true" />

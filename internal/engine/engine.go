@@ -275,6 +275,29 @@ func (e *Engine) Generate(ctx context.Context, executable string, m schema.Insta
 	if err = e.start(ctx, executable, m.Path, definition, backend, encoderSamples, progress); err != nil {
 		return "", err
 	}
+	// YuE2 纯音乐：没谱时先在同一个会话里出谱，再把人声旋律移到器乐声部后生成；
+	// 返回实际演奏的谱，存进这一版，之后可以载入编辑。
+	played := ""
+	if definition.Family == "yue2" && d.Instrumental {
+		if strings.TrimSpace(d.Abc) == "" {
+			plan, _ := payload["request"].(map[string]any)["options"].(map[string]any)
+			plan["stop_after"] = "abc"
+			progress(msg.ActivityPlanMelody, nil)
+			planned, err := e.run(ctx, payload)
+			if err != nil {
+				return "", err
+			}
+			if d.Abc, _, _ = planned.score(); d.Abc == "" {
+				return "", msg.Err(msg.ErrMelodyEmpty, nil)
+			}
+		}
+		if played, err = instrumentalScore(d.Abc); err != nil {
+			return "", err
+		}
+		if payload, err = BuildRequest(d, voice, emotion); err != nil {
+			return "", err
+		}
+	}
 	progress(msg.ActivitySynthesizing, nil)
 	result, err := e.run(ctx, payload)
 	if err != nil {
@@ -297,7 +320,9 @@ func (e *Engine) Generate(ctx context.Context, executable string, m schema.Insta
 	if err = ctx.Err(); err != nil {
 		return "", err
 	}
-	score, _, _ = result.score()
+	if score, _, _ = result.score(); played != "" {
+		score = played
+	}
 	return score, os.Rename(output+".part", output)
 }
 

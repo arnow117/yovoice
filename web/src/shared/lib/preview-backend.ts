@@ -343,6 +343,8 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   if (method === 'melody.transform') {
     const { abc, op, tempo } = data as { abc: string; op: string; tempo: number };
     if (op === 'stripChords') return abc.split('\n').map(line => /^[A-Za-z]:|^%/.test(line) ? line : line.replace(/"[^"]*"/g, '')).join('\n') as T;
+    // 转器乐谱的事件级改写只在 Go 中；预览原样返回。
+    if (op === 'instrumental') return abc as T;
     if (op === 'tempo' && tempo >= 30 && tempo <= 300) return abc.replace(/^Q:.*$/m, `Q:1/4=${tempo}`) as T;
     throw new CallError('@yovoice.error.requestInvalid');
   }

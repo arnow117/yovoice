@@ -2367,16 +2367,13 @@
     "defaultMessage": "Локальные и свои"
   },
   "@yovoice.error.musicLyricsRequired": {
-    "defaultMessage": "YuE2 требуется текст песни; инструменталы не поддерживаются."
+    "defaultMessage": "Для песни с вокалом YuE2 нужен текст; чтобы обойтись без него, переключитесь на инструментал."
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "Создаёт полноценную песню с вокалом по тексту и стилю; длительность определяется текстом. Лицензия CC BY-NC 4.0, только некоммерческое использование."
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 поёт раздел за разделом, поэтому длительность песни зависит от текста."
-  },
-  "@yovoice.music.yueVocalOnly": {
-    "defaultMessage": "YuE2 создаёт только песни с вокалом"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "Использовать стиль и текст этой версии"
@@ -3730,5 +3727,53 @@
   },
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "Выделенный фрагмент будет отправлен Ocho со следующим сообщением"
+  },
+  "@yovoice.music.yueInstrumentalHint": {
+    "defaultMessage": "YuE2 сначала пишет партитуру, затем передаёт вокальную мелодию инструментам. Текст необязателен; метки разделов вроде [Verse] и [Chorus] задают структуру."
+  },
+  "@yovoice.music.structurePlaceholder": {
+    "defaultMessage": "Необязательно: метки разделов, например [Intro], [Verse], [Chorus], [Outro]"
+  },
+  "@yovoice.music.mode": {
+    "defaultMessage": "Способ генерации"
+  },
+  "@yovoice.music.modeScore": {
+    "defaultMessage": "По партитуре"
+  },
+  "@yovoice.music.modeFree": {
+    "defaultMessage": "Свободно"
+  },
+  "@yovoice.music.modeScoreHint": {
+    "defaultMessage": "Поёт по мелодической партитуре ниже; если её нет, YuE2 сначала пишет её, и её можно загрузить из версии и отредактировать."
+  },
+  "@yovoice.music.modeFreeHint": {
+    "defaultMessage": "Генерирует сразу, без партитуры; у результата не будет редактируемой партитуры."
+  },
+  "@yovoice.melody.toInstrumental": {
+    "defaultMessage": "Передать мелодию инструментам"
+  },
+  "@yovoice.melody.instrumentalNotice": {
+    "defaultMessage": "В партитуре ещё есть вокальная мелодия. В инструментальной версии её играют инструменты; аккорды, темп и тональность не меняются."
+  },
+  "@yovoice.options.abc_temperature": {
+    "defaultMessage": "Температура партитуры"
+  },
+  "@yovoice.options.semantic_temperature": {
+    "defaultMessage": "Температура звука"
+  },
+  "@yovoice.options.semantic_top_p": {
+    "defaultMessage": "Top P звука"
+  },
+  "@yovoice.options.semantic_top_k": {
+    "defaultMessage": "Top K звука"
+  },
+  "@yovoice.options.semantic_repetition_penalty": {
+    "defaultMessage": "Штраф за повторы звука"
+  },
+  "@yovoice.melody.freeNotice": {
+    "defaultMessage": "Включена свободная генерация, эта партитура не используется."
+  },
+  "@yovoice.melody.useScore": {
+    "defaultMessage": "Использовать партитуру"
   }
 }

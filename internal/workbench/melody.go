@@ -47,7 +47,7 @@ func InspectMelody(text string) MelodyInspection {
 	return MelodyInspection{Tempo: s.Tempo, Meter: s.Meter, Key: converted.Key, Bars: s.Bars(), Seconds: s.Seconds(), Chords: s.HasChords(), Score: &converted}
 }
 
-// TransformMelody 是不需要模型的快捷改谱：stripChords 去掉和弦，tempo 改速度。
+// TransformMelody 是不需要模型的快捷改谱：stripChords 去掉和弦，tempo 改速度，instrumental 把人声旋律移到器乐声部。
 func TransformMelody(text, op string, tempo int) (string, error) {
 	var out string
 	var e error
@@ -56,6 +56,8 @@ func TransformMelody(text, op string, tempo int) (string, error) {
 		out, e = score.StripABCChords(text)
 	case "tempo":
 		out, e = score.SetABCTempo(text, tempo)
+	case "instrumental":
+		out, _, e = score.InstrumentalABC(text)
 	default:
 		return "", msg.Err(msg.ErrRequestInvalid, nil)
 	}
