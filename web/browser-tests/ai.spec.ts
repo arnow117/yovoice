@@ -107,7 +107,7 @@ test('OrcaRouter 一键连接：未配置时通过设置 AI 统一配置，设�
   await expect(composer.getByRole('textbox', { name: '描述想要的歌' })).toBeVisible();
 });
 
-// 截图与本仓库分开存放，不提交。
+// 验收截图：设置 YOVOICE_SHOTS 目录时才保存，默认不落盘。
 function testInfoPath(name: string) {
-  return `/private/tmp/claude-501/-Users-leemysw-Projects-leemysw-yovoice/1d41db9d-becd-47ff-a400-e5ce20d3aca3/scratchpad/shots/${name}`;
+  return process.env.YOVOICE_SHOTS ? `${process.env.YOVOICE_SHOTS}/${name}` : undefined;
 }
