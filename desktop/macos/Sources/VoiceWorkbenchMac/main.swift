@@ -7,7 +7,8 @@ import UniformTypeIdentifiers
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
     private var window: NSWindow!
     private var web: WKWebView!
-    private var inspectorAccessory: NSTitlebarAccessoryViewController?
+    private var assistantButton: NSButton?
+    private var inspectorButton: NSButton?
     // 服务崩溃后可在应用内重新启动：Process 只能运行一次，每次启动都换新的进程与管道。
     private var service = Process()
     private var input = Pipe()
@@ -60,12 +61,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         assistantButton.isBordered = false
         assistantButton.toolTip = HostL10n.t("assistant.tooltip")
         assistantButton.frame = NSRect(x: 0, y: 0, width: 32, height: 28)
-        let titleButtons = NSStackView(views: [assistantButton, inspectorButton])
-        titleButtons.orientation = .horizontal
-        titleButtons.spacing = 2
+        // 标题栏附件按 view 的 frame 定尺寸，用固定大小的容器手动排布；NSStackView 在这里会被压成零宽而看不见。
+        let titleButtons = NSView(frame: NSRect(x: 0, y: 0, width: 66, height: 28))
+        titleButtons.addSubview(assistantButton)
+        titleButtons.addSubview(inspectorButton)
         rightAccessory.view = titleButtons
-        // 只有工作区有右侧面板，由前端在进入或离开工作区时通知显示。
-        self.inspectorAccessory = rightAccessory
+        window.addTitlebarAccessoryViewController(rightAccessory)
+        self.assistantButton = assistantButton
+        self.inspectorButton = inspectorButton
+        // 助手按钮常驻；右侧面板按钮只在工作区出现，由前端在进入或离开工作区时通知。
+        layoutTitleButtons(inspector: false)
         window.minSize = NSSize(width: 960, height: 600)
         window.isReleasedWhenClosed = false
         window.delegate = self
@@ -100,16 +105,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         web?.evaluateJavaScript("window.dispatchEvent(new Event('workbench-toggle-assistant'))", completionHandler: nil)
     }
 
-    private func updateInspectorAccessory(visible: Bool) {
-        guard let accessory = inspectorAccessory else { return }
-        let isPresent = window.titlebarAccessoryViewControllers.contains(accessory)
-        if visible && !isPresent {
-            window.addTitlebarAccessoryViewController(accessory)
-        } else if !visible && isPresent {
-            if let index = window.titlebarAccessoryViewControllers.firstIndex(of: accessory) {
-                window.removeTitlebarAccessoryViewController(at: index)
-            }
-        }
+    // 右侧面板按钮贴最右；不在工作区时隐藏，助手按钮补到最右，避免留空位。
+    private func layoutTitleButtons(inspector visible: Bool) {
+        inspectorButton?.isHidden = !visible
+        inspectorButton?.frame = NSRect(x: 34, y: 0, width: 32, height: 28)
+        assistantButton?.frame = NSRect(x: visible ? 0 : 34, y: 0, width: 32, height: 28)
     }
 
     @objc private func showAbout() {
@@ -359,7 +359,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         let method = message["method"] as? String ?? ""
         if method == "inspector.available" {
             let available = data["available"] as? Bool == true
-            updateInspectorAccessory(visible: available)
+            layoutTitleButtons(inspector: available)
             return ["id": message["id"]!, "result": true]
         }
         if method == "sidebar.save" {
