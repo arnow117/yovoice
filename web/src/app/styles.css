@@ -568,7 +568,7 @@
 
 .project-menu-icon { width: var(--spacing-4); height: var(--spacing-4); }
 
-.project-row .project-quick-delete { position: absolute; right: var(--spacing-1); top: 50%; transform: translateY(-50%); opacity: 0; pointer-events: none; color: var(--app-muted); }
+.project-row .project-quick-delete { position: absolute; right: var(--spacing-1); top: 50%; translate: 0 -50%; opacity: 0; pointer-events: none; color: var(--app-muted); }
 .project-quick-delete svg { width: var(--spacing-4); height: var(--spacing-4); }
 .project-row:hover .project-quick-delete,.project-row:focus-within .project-quick-delete { opacity: 1; pointer-events: auto; }
 .project-row:hover .project-link,.project-row:focus-within .project-link { padding-inline-end: var(--spacing-10); }
@@ -593,7 +593,7 @@
 .multitrack-trim[data-edge="end"]::before { right: 0; }
 
 .multitrack-clip { padding-inline: min(var(--spacing-2), 10%); }
-.timeline-gap { position: absolute; top: var(--spacing-3); width: var(--spacing-2); min-width: 0; padding: 0; height: var(--spacing-6); transform: translateX(-50%); opacity: 0; cursor: ew-resize; overflow: hidden; }
+.timeline-gap { position: absolute; top: var(--spacing-3); width: var(--spacing-2); min-width: 0; padding: 0; height: var(--spacing-6); translate: -50% 0; opacity: 0; cursor: ew-resize; overflow: hidden; }
 .multitrack-lane:hover .timeline-gap, .timeline-gap:focus-visible { opacity: .5; }
 .timeline-gap svg { pointer-events: none; }
 .multitrack { container-type: inline-size; }

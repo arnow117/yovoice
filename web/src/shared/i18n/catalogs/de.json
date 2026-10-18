@@ -879,7 +879,7 @@
     "defaultMessage": "Allgemein"
   },
   "@yovoice.settings.tabModels": {
-    "defaultMessage": "Modelle"
+    "defaultMessage": "Sprachmodelle"
   },
   "@yovoice.settings.title": {
     "defaultMessage": "Einstellungen"
@@ -2370,7 +2370,7 @@
     "defaultMessage": "YuE2 braucht für einen Song mit Gesang einen Text; wechsle zu Instrumental, um ihn wegzulassen."
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "Erzeugt einen vollständigen Song mit Gesang aus Songtext und Stil; die Länge richtet sich nach dem Text. Lizenz CC BY-NC 4.0, nur nicht-kommerzielle Nutzung."
+    "defaultMessage": "Erzeugt einen vollständigen Song oder ein Instrumental aus Songtext und Stil und kann zuerst eine bearbeitbare Melodiepartitur schreiben; die Länge richtet sich nach Text oder Partitur. Lizenz CC BY-NC 4.0, nur nicht-kommerzielle Nutzung."
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 singt Abschnitt für Abschnitt, daher bestimmt der Songtext die Länge."
@@ -2955,7 +2955,7 @@
     "defaultMessage": "Das Modell hat keine Melodienoten geliefert. Versuche es erneut oder passe den Text an."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Zum Extrahieren einer Melodie wird das Modell SheetSage2 benötigt. Lade es unter Einstellungen › Modelle herunter."
+    "defaultMessage": "Zum Extrahieren einer Melodie wird das Modell SheetSage2 benötigt. Lade es unter Einstellungen › Musikmodelle herunter."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transkribiert Melodie und Akkorde eines Songs in Noten, für Coverversionen mit YuE2."
@@ -3784,5 +3784,8 @@
   },
   "@yovoice.music.switchBackHint": {
     "defaultMessage": "Behält die Wiedergabeposition; mit B umschalten"
+  },
+  "@yovoice.settings.tabMusicModels": {
+    "defaultMessage": "Musikmodelle"
   }
 }

@@ -879,7 +879,7 @@
     "defaultMessage": "Chung"
   },
   "@yovoice.settings.tabModels": {
-    "defaultMessage": "Mô hình"
+    "defaultMessage": "Mô hình giọng nói"
   },
   "@yovoice.settings.title": {
     "defaultMessage": "Cài đặt"
@@ -2370,7 +2370,7 @@
     "defaultMessage": "YuE2 cần lời cho bài hát có giọng hát; chuyển sang nhạc không lời nếu không muốn viết lời."
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "Tạo bài hát có lời hoàn chỉnh từ lời và phong cách; độ dài theo lời bài hát. Giấy phép CC BY-NC 4.0, chỉ dùng cho mục đích phi thương mại."
+    "defaultMessage": "Tạo bài hát hoàn chỉnh hoặc nhạc không lời từ lời và phong cách, có thể viết trước bản nhạc giai điệu chỉnh sửa được; độ dài theo lời hoặc bản nhạc. Giấy phép CC BY-NC 4.0, chỉ dùng cho mục đích phi thương mại."
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 hát theo từng đoạn, nên lời bài hát quyết định độ dài bài."
@@ -2955,7 +2955,7 @@
     "defaultMessage": "Mô hình không trả về bản nhạc nào. Hãy thử lại hoặc chỉnh lời bài hát."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Cần mô hình SheetSage2 để trích xuất giai điệu. Hãy tải trong Cài đặt › Mô hình."
+    "defaultMessage": "Cần mô hình SheetSage2 để trích xuất giai điệu. Hãy tải trong Cài đặt › Mô hình âm nhạc."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Chép giai điệu và hợp âm của bài hát thành bản nhạc, dùng để cover với YuE2."
@@ -3784,5 +3784,8 @@
   },
   "@yovoice.music.switchBackHint": {
     "defaultMessage": "Giữ nguyên vị trí phát; nhấn B để chuyển"
+  },
+  "@yovoice.settings.tabMusicModels": {
+    "defaultMessage": "Mô hình âm nhạc"
   }
 }

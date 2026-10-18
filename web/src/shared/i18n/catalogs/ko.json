@@ -879,7 +879,7 @@
     "defaultMessage": "일반"
   },
   "@yovoice.settings.tabModels": {
-    "defaultMessage": "모델"
+    "defaultMessage": "음성 모델"
   },
   "@yovoice.settings.title": {
     "defaultMessage": "설정"
@@ -2370,7 +2370,7 @@
     "defaultMessage": "YuE2로 보컬 곡을 만들려면 가사가 필요합니다. 가사 없이 하려면 연주곡으로 바꾸세요."
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "가사와 스타일로 보컬이 있는 완전한 노래를 생성하며, 길이는 가사에 따라 정해집니다. CC BY-NC 4.0 라이선스로 비상업적 용도로만 사용할 수 있습니다."
+    "defaultMessage": "가사와 스타일로 완전한 노래나 연주곡을 생성하며, 먼저 편집 가능한 멜로디 악보를 쓸 수도 있습니다. 길이는 가사나 악보에 따라 정해집니다. CC BY-NC 4.0 라이선스로 비상업적 용도로만 사용할 수 있습니다."
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2는 섹션별로 노래하므로 가사가 곡 길이를 결정합니다."
@@ -2955,7 +2955,7 @@
     "defaultMessage": "모델이 멜로디 악보를 만들지 못했습니다. 다시 시도하거나 가사를 조정하세요."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "곡에서 멜로디를 추출하려면 SheetSage2 모델이 필요합니다. 설정 › 모델에서 다운로드하세요."
+    "defaultMessage": "곡에서 멜로디를 추출하려면 SheetSage2 모델이 필요합니다. 설정 › 음악 모델에서 다운로드하세요."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "곡의 멜로디와 코드를 악보로 채보해 YuE2 커버에 사용합니다."
@@ -3784,5 +3784,8 @@
   },
   "@yovoice.music.switchBackHint": {
     "defaultMessage": "재생 위치를 유지한 채 전환 (B 키로도 가능)"
+  },
+  "@yovoice.settings.tabMusicModels": {
+    "defaultMessage": "음악 모델"
   }
 }

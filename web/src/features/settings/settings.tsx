@@ -9,7 +9,7 @@ import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { FolderOpen, FolderCog, ArrowUpRight } from 'lucide-react';
 import { call, isMac } from '../../shared/lib/client';
-import { runtimeStatus, type EngineInfo, type ModelPackage, type State, type Draft, type UiLocale } from '../../shared/workbench';
+import { runtimeStatus, type EngineInfo, type ModelPackage, type State, type Draft, type UiLocale, modelTab, modelTabs } from '../../shared/workbench';
 import { CallError } from '../../shared/lib/call-error';
 import { uiLocales } from '../../shared/i18n/locale';
 import { AISettings } from './ai-settings';
@@ -34,7 +34,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
   const [tab, setTab] = useState('general'); const busy = state.activity?.status === 'running'; const modelBusy = state.modelActivity?.status === 'running';
   useEffect(() => { if (focus) setTab(focus.tab); }, [focus]);
   useEffect(() => {
-    if (!focus || (tab !== 'models' && tab !== 'soundfonts')) return;
+    if (!focus || !modelTabs.includes(tab)) return;
     const row = Array.from(document.querySelectorAll<HTMLElement>('[data-model-id]')).find(row => row.dataset.modelId === focus.modelId);
     row?.scrollIntoView({ block: 'nearest' });
   }, [focus, tab]);
@@ -56,6 +56,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
     <TabList value={tab} onChange={setTab} role="tablist" hasDivider>
       <Tab value="general" label={t('@yovoice.settings.tabGeneral')} panelId="general-panel" />
       <Tab value="models" label={t('@yovoice.settings.tabModels')} panelId="models-panel" />
+      <Tab value="music-models" label={t('@yovoice.settings.tabMusicModels')} panelId="music-models-panel" />
       <Tab value="soundfonts" label={t('@yovoice.settings.tabSoundfonts')} panelId="soundfonts-panel" />
       <Tab value="engine" label={t('@yovoice.settings.tabEngine')} panelId="engine-panel" />
       <Tab value="ai" label={t('@yovoice.settings.tabAI')} panelId="ai-panel" />
@@ -94,7 +95,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
           <Button size="sm" label={t('@yovoice.settings.openLogs')} icon={<ArrowUpRight size={15} />} onClick={() => run(() => call('logs.open'))} />
         </SettingsRow>
       </SettingsGroup>
-    </VStack> : tab === 'models' ? <VStack className="settings-panel" gap={6} id="models-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabModels')}>
+    </VStack> : tab === 'models' || tab === 'music-models' ? <VStack className="settings-panel" gap={6} id={`${tab}-panel`} role="tabpanel" aria-label={t(tab === 'models' ? '@yovoice.settings.tabModels' : '@yovoice.settings.tabMusicModels')}>
       <SettingsGroup title={t('@yovoice.settings.downloads')}>
         <SettingsRow label={t('@yovoice.settings.downloadSource')}>
           <Selector size="sm" label={t('@yovoice.settings.downloadSource')} isLabelHidden value={preferences.downloadSource} options={[{ value: 'modelscope', label: t('@yovoice.settings.source.modelscope') }, { value: 'huggingface', label: t('@yovoice.settings.source.huggingface') }, { value: 'mirror', label: t('@yovoice.settings.source.mirror') }]} onChange={downloadSource => run(() => call('preferences.save', { ...preferences, downloadSource }))} width="calc(var(--spacing-10) * 5)" className="download-source" />
@@ -104,7 +105,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
           <Button size="sm" label={t('@yovoice.settings.openFolder')} icon={<FolderOpen size={16} />} onClick={() => run(() => call('model.directory.open'))} />
         </SettingsRow>
       </SettingsGroup>
-      <ModelGroups models={catalog.filter(model => model.family !== 'soundfont')} state={state} draft={draft} run={run} />
+      <ModelGroups key={tab} models={catalog.filter(model => modelTab(model.family) === tab)} state={state} draft={draft} run={run} />
       <HStack className="settings-footnote" gap={3} vAlign="center" wrap="wrap"><small>{t('@yovoice.settings.licenseBlurb')}</small><Button size="sm" label={t('@yovoice.settings.licenseButton')} variant="ghost" onClick={() => run(async () => { const response = await fetch('./model-license.txt'); if (!response.ok) throw new CallError('@yovoice.error.licenseReadFailed'); setLicense(await response.text()); })} /></HStack>
     </VStack> : tab === 'soundfonts' ? <VStack className="settings-panel" gap={6} id="soundfonts-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabSoundfonts')}>
       <small className="settings-intro">{t('@yovoice.settings.soundfontIntro')}</small>

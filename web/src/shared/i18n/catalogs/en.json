@@ -879,7 +879,7 @@
     "defaultMessage": "General"
   },
   "@yovoice.settings.tabModels": {
-    "defaultMessage": "Models"
+    "defaultMessage": "Voice models"
   },
   "@yovoice.settings.title": {
     "defaultMessage": "Settings"
@@ -2370,7 +2370,7 @@
     "defaultMessage": "YuE2 needs lyrics for a vocal song; switch to instrumental to skip them."
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "Generates a full vocal song from lyrics and style; length follows the lyrics. Licensed CC BY-NC 4.0, non-commercial use only."
+    "defaultMessage": "Generates a full song or instrumental from lyrics and style, and can write an editable melody score first; length follows the lyrics or score. Licensed CC BY-NC 4.0, non-commercial use only."
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 sings section by section, so the lyrics decide the song length."
@@ -2955,7 +2955,7 @@
     "defaultMessage": "The model returned no melody score. Try again or adjust the lyrics."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Extracting a melody needs the SheetSage2 model. Download it in Settings › Models."
+    "defaultMessage": "Extracting a melody needs the SheetSage2 model. Download it in Settings › Music models."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transcribes the melody and chords of a song into a score, used for covers with YuE2."
@@ -3784,5 +3784,8 @@
   },
   "@yovoice.music.switchBackHint": {
     "defaultMessage": "Keeps the playback position; press B to switch"
+  },
+  "@yovoice.settings.tabMusicModels": {
+    "defaultMessage": "Music models"
   }
 }

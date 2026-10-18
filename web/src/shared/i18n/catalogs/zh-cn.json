@@ -879,7 +879,7 @@
     "defaultMessage": "常规"
   },
   "@yovoice.settings.tabModels": {
-    "defaultMessage": "模型"
+    "defaultMessage": "语音模型"
   },
   "@yovoice.settings.title": {
     "defaultMessage": "设置"
@@ -2370,7 +2370,7 @@
     "defaultMessage": "YuE2 生成带人声的歌曲需要歌词；不写歌词可以切到纯音乐。"
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "根据歌词和风格生成整首带人声的歌曲，长度由歌词决定。模型许可为 CC BY-NC 4.0，仅限非商业用途。"
+    "defaultMessage": "根据歌词和风格生成整首歌曲或纯音乐，可先写出可编辑的旋律谱，长度由歌词或谱决定。模型许可为 CC BY-NC 4.0，仅限非商业用途。"
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 按歌词段落生成，歌曲长度由歌词决定。"
@@ -2955,7 +2955,7 @@
     "defaultMessage": "模型没有写出旋律谱，请重试或调整歌词。"
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "从歌曲提取旋律需要 SheetSage2 模型，请在“设置 › 模型”中下载。"
+    "defaultMessage": "从歌曲提取旋律需要 SheetSage2 模型，请在“设置 › 音乐模型”中下载。"
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "把歌曲的旋律与和弦扒成谱，配合 YuE2 做翻唱。"
@@ -3784,5 +3784,8 @@
   },
   "@yovoice.music.switchBackHint": {
     "defaultMessage": "保持播放位置切换，也可以按 B"
+  },
+  "@yovoice.settings.tabMusicModels": {
+    "defaultMessage": "音乐模型"
   }
 }

@@ -879,7 +879,7 @@
     "defaultMessage": "Général"
   },
   "@yovoice.settings.tabModels": {
-    "defaultMessage": "Modèles"
+    "defaultMessage": "Modèles vocaux"
   },
   "@yovoice.settings.title": {
     "defaultMessage": "Paramètres"
@@ -2370,7 +2370,7 @@
     "defaultMessage": "YuE2 a besoin de paroles pour une chanson chantée ; passez en instrumental pour s’en passer."
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "Génère une chanson complète avec chant à partir de paroles et d’un style ; la durée dépend des paroles. Sous licence CC BY-NC 4.0, usage non commercial uniquement."
+    "defaultMessage": "Génère une chanson complète ou un instrumental à partir de paroles et d’un style, et peut d’abord écrire une partition modifiable ; la durée dépend des paroles ou de la partition. Sous licence CC BY-NC 4.0, usage non commercial uniquement."
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 chante section par section : ce sont donc les paroles qui déterminent la durée de la chanson."
@@ -2955,7 +2955,7 @@
     "defaultMessage": "Le modèle n’a renvoyé aucune partition. Réessayez ou modifiez les paroles."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "L’extraction d’une mélodie nécessite le modèle SheetSage2. Téléchargez-le dans Réglages › Modèles."
+    "defaultMessage": "L’extraction d’une mélodie nécessite le modèle SheetSage2. Téléchargez-le dans Réglages › Modèles musicaux."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transcrit la mélodie et les accords d’un morceau en partition, pour les reprises avec YuE2."
@@ -3784,5 +3784,8 @@
   },
   "@yovoice.music.switchBackHint": {
     "defaultMessage": "Conserve la position de lecture ; appuyez sur B pour basculer"
+  },
+  "@yovoice.settings.tabMusicModels": {
+    "defaultMessage": "Modèles musicaux"
   }
 }

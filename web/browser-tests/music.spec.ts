@@ -52,9 +52,9 @@ test('新建音乐作品：示例、风格标签、段落标记、纯音乐与�
   expect(saved.lyrics).toContain('[bridge]');
   await expect(page.getByRole('radio', { name: '纯音乐' })).toBeChecked();
 
-  // 未安装模型时生成直接打开模型设置；配音作品的模型列表不包含音乐模型。
+  // 未安装模型时生成直接打开“音乐模型”设置；配音作品的模型列表不包含音乐模型。
   await page.getByRole('button', { name: '生成歌曲', exact: true }).click();
-  await expect(page.getByRole('tab', { name: '模型', selected: true })).toBeVisible();
+  await expect(page.getByRole('tab', { name: '音乐模型', selected: true })).toBeVisible();
   await page.getByTestId('nav-music').click();
   await expect(page.locator('.project-library-row:visible .record-cover')).toHaveCount(1);
   await page.getByTestId('nav-new').click();

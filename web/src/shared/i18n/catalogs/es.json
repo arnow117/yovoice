@@ -879,7 +879,7 @@
     "defaultMessage": "General"
   },
   "@yovoice.settings.tabModels": {
-    "defaultMessage": "Modelos"
+    "defaultMessage": "Modelos de voz"
   },
   "@yovoice.settings.title": {
     "defaultMessage": "Ajustes"
@@ -2370,7 +2370,7 @@
     "defaultMessage": "YuE2 necesita letra para una canción vocal; cambia a instrumental para omitirla."
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "Genera una canción completa con voz a partir de la letra y el estilo; la duración depende de la letra. Licencia CC BY-NC 4.0, solo uso no comercial."
+    "defaultMessage": "Genera una canción completa o una pieza instrumental a partir de la letra y el estilo, y puede escribir antes una partitura editable; la duración depende de la letra o la partitura. Licencia CC BY-NC 4.0, solo uso no comercial."
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 canta sección por sección, así que la letra determina la duración de la canción."
@@ -2955,7 +2955,7 @@
     "defaultMessage": "El modelo no devolvió ninguna partitura. Vuelve a intentarlo o ajusta la letra."
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "Para extraer una melodía se necesita el modelo SheetSage2. Descárgalo en Ajustes › Modelos."
+    "defaultMessage": "Para extraer una melodía se necesita el modelo SheetSage2. Descárgalo en Ajustes › Modelos de música."
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transcribe la melodía y los acordes de una canción a partitura, para versiones con YuE2."
@@ -3784,5 +3784,8 @@
   },
   "@yovoice.music.switchBackHint": {
     "defaultMessage": "Mantiene la posición de reproducción; pulsa B para cambiar"
+  },
+  "@yovoice.settings.tabMusicModels": {
+    "defaultMessage": "Modelos de música"
   }
 }

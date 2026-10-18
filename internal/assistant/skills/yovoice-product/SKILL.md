@@ -18,7 +18,7 @@ yovoice runs every model locally through its inference engine. Models and the en
 | characters | 声音库 Voice library | Saved characters: designed or cloned voices with a preview, reusable across works. |
 | voices | 参考音色 References | Uploaded reference recordings (1–60 s, ≤ 20 MB, one clean speaker). |
 | history | 历史 History | Every generated take; play, reuse settings, save as a voice. |
-| settings | 设置 Settings | Tabs: 常规 General (language, proxy, download source, storage location), 模型 Models (download/remove), 推理引擎 Engine (install, compute device), 编曲音色库 SoundFonts, AI 服务 AI provider (also the model Ocho uses), 资源 Assets (files and cleanup), 日志 Logs (filter, export diagnostics), 本机接口 Local API (HTTP/MCP for other apps). |
+| settings | 设置 Settings | Tabs: 常规 General (language, proxy, download source, storage location), 语音模型 Voice models and 音乐模型 Music models (ACE-Step, YuE2, SheetSage2; download/remove), 推理引擎 Engine (install, compute device), 编曲音色库 SoundFonts, AI 服务 AI provider (also the model Ocho uses), 资源 Assets (files and cleanup), 日志 Logs (filter, export diagnostics), 本机接口 Local API (HTTP/MCP for other apps). |
 
 The assistant opens with ⌘J / Ctrl+J, the launcher in the corner, or the title bar button.
 
@@ -53,7 +53,7 @@ Recommend in this order: what the user already has installed (list_models), then
 - Voice changes between chunks without a reference: design the voice on a short line, save it to the voice library, then clone from it.
 - Cloning sounds wrong: use one clear speaker, little noise, 5–15 s; transcripts must match word for word for OmniVoice and Breeze.
 - Slow or out of memory: pick Q8 or a smaller model, close other GPU apps, or switch compute device in Settings › Engine.
-- Model missing or engine too old: the user installs it in Settings › Models or Settings › Engine; you can propose it with propose_action.
+- Model missing or engine too old: the user installs it in Settings › Voice models, Settings › Music models (ACE-Step, YuE2, SheetSage2) or Settings › Engine; you can propose it with propose_action.
 
 ## Error codes
 
@@ -147,7 +147,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.midiInvalid` 无法读取这个 MIDI 文件，请使用含音符的标准类型 0 或 1 MIDI。
 - `error.melodyInvalid` 旋律谱有误：{issue}
 - `error.melodyEmpty` 模型没有写出旋律谱，请重试或调整歌词。
-- `error.coverModelRequired` 从歌曲提取旋律需要 SheetSage2 模型，请在“设置 › 模型”中下载。
+- `error.coverModelRequired` 从歌曲提取旋律需要 SheetSage2 模型，请在“设置 › 音乐模型”中下载。
 - `error.engineUpgradeRequired` 该模型需要 {version} 及以上的推理内核，请在设置中更新内核。
 - `error.aiProviderInvalid` AI 服务配置无效，请检查地址、名称和模型。
 - `error.aiNotConfigured` 还没有可用的 AI 服务，请在“设置 › AI”中添加服务并选择模型。

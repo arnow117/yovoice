@@ -230,6 +230,10 @@ export const isKokoroModel = (id: string) => id.startsWith('kokoro-');
 export const isMusicModel = (id: string) => id.startsWith('ace-step-') || id.startsWith('yue2-');
 /** YuE2 由歌词决定长度，没有时长和纯音乐模式。 */
 export const isYuE = (id: string) => id.startsWith('yue2-');
+// 设置里模型按用途分页：语音模型、音乐模型（歌曲生成与扒谱）和编曲音色库。
+const musicFamilies = new Set(['ace_step', 'yue2', 'sheetsage2']);
+export const modelTab = (family: string) => family === 'soundfont' ? 'soundfonts' : musicFamilies.has(family) ? 'music-models' : 'models';
+export const modelTabs = ['models', 'music-models', 'soundfonts'];
 // 音色库只供编曲作品渲染使用。
 export const isSoundFont = (id: string) => id.endsWith('-sf2');
 // 扒谱模型只用于从歌曲提取旋律谱。

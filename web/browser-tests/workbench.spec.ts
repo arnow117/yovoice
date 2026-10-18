@@ -46,8 +46,14 @@ test('四种表达方式、草稿持久化与模型协议', async ({ page }) => 
   await expect(page.getByText('已保存', { exact: true })).toBeVisible();
   await page.reload(); await expect(page.getByLabel('作品名称')).toHaveValue('测试旁白');
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('tab', { name: '模型', exact: true }).click();
-  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(35);
+  // 语音模型与音乐模型分页显示，各自带下载设置。
+  await page.getByRole('tab', { name: '音乐模型', exact: true }).click();
+  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(8);
+  await expect(page.locator('[data-model-id^="yue2-"]')).toHaveCount(3);
+  await expect(page.getByLabel('下载来源', { exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
+  await expect(page.getByRole('button', { name: '下载模型', exact: true })).toHaveCount(27);
+  await expect(page.locator('[data-model-id^="ace-step-"]')).toHaveCount(0);
   await page.getByRole('button', { name: 'IndexTTS 协议' }).click();
   await expect(page.getByRole('heading', { name: '模型使用协议' })).toBeVisible();
   await page.getByRole('button', { name: '关闭协议' }).click();
@@ -163,7 +169,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect(controls).toHaveAttribute('data-playing', 'false');
   await play.click();
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('tab', { name: '模型', exact: true }).click();
+  await page.getByRole('tab', { name: '语音模型', exact: true }).click();
   await expect.poll(() => page.locator('audio').evaluateAll(elements => elements.every(el => (el as HTMLAudioElement).paused))).toBeTruthy();
   await page.getByTestId('nav-story').click();
   await expect(page.locator('footer.player')).toBeHidden();

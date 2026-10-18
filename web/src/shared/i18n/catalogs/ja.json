@@ -879,7 +879,7 @@
     "defaultMessage": "一般"
   },
   "@yovoice.settings.tabModels": {
-    "defaultMessage": "モデル"
+    "defaultMessage": "音声モデル"
   },
   "@yovoice.settings.title": {
     "defaultMessage": "設定"
@@ -2370,7 +2370,7 @@
     "defaultMessage": "YuE2 で歌入りの曲を作るには歌詞が必要です。歌詞なしならインストに切り替えてください。"
   },
   "@yovoice.settings.modelDesc.yue2": {
-    "defaultMessage": "歌詞とスタイルからボーカル入りの曲を丸ごと生成します。長さは歌詞によって決まります。ライセンスは CC BY-NC 4.0 で、非商用利用のみです。"
+    "defaultMessage": "歌詞とスタイルから曲やインストを丸ごと生成し、先に編集できる旋律譜を書くこともできます。長さは歌詞や譜面で決まります。ライセンスは CC BY-NC 4.0 で、非商用利用のみです。"
   },
   "@yovoice.music.yueLength": {
     "defaultMessage": "YuE2 はセクションごとに歌うため、曲の長さは歌詞で決まります。"
@@ -2955,7 +2955,7 @@
     "defaultMessage": "モデルがメロディ譜を返しませんでした。再試行するか歌詞を調整してください。"
   },
   "@yovoice.error.coverModelRequired": {
-    "defaultMessage": "曲からメロディを抽出するには SheetSage2 モデルが必要です。「設定 › モデル」でダウンロードしてください。"
+    "defaultMessage": "曲からメロディを抽出するには SheetSage2 モデルが必要です。「設定 › 音楽モデル」でダウンロードしてください。"
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "曲のメロディとコードを譜面に書き起こし、YuE2 でのカバーに使います。"
@@ -3784,5 +3784,8 @@
   },
   "@yovoice.music.switchBackHint": {
     "defaultMessage": "再生位置を保ったまま切り替え（B キーでも可）"
+  },
+  "@yovoice.settings.tabMusicModels": {
+    "defaultMessage": "音楽モデル"
   }
 }

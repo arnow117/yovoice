@@ -34,7 +34,7 @@ import { dismissSplash } from '../shared/lib/splash';
 import { IntroScreen } from './intro-screen';
 import { GuideTour } from './guide-tour';
 import { formatNotice } from '../shared/i18n/format';
-import { isKokoroModel, isYuE, isVoiceModel, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext } from '../shared/workbench';
+import { isKokoroModel, isYuE, isVoiceModel, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab } from '../shared/workbench';
 // 助手（含形象与点阵动画）首屏后再加载，不占主包。
 const AssistantDock = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantDock })));
 const AssistantTitleButton = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantTitleButton })));
@@ -82,7 +82,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   useEffect(() => setActive(page === 'create' || page === 'history'), [page, setActive]);
   const [settingsFocus, setSettingsFocus] = useState<{ tab: string; modelId: string; request: number } | undefined>();
   // 缺的是音色库时打开独立的音色库页，其余模型在“模型”页。
-  const openSettings = (modelId = draft.modelId, requested = 'models') => { const tab = requested === 'models' && catalog.find(m => m.id === modelId)?.family === 'soundfont' ? 'soundfonts' : requested; setSettingsFocus({ tab, modelId, request: performance.now() }); setPage('settings'); };
+  const openSettings = (modelId = draft.modelId, requested = 'models') => { const family = catalog.find(m => m.id === modelId)?.family; const tab = requested === 'models' && family ? modelTab(family) : requested; setSettingsFocus({ tab, modelId, request: performance.now() }); setPage('settings'); };
   const [voicePicker, setVoicePicker] = useState<'voice' | 'emotion' | 'add' | null>(null);
   const [previewTrack, setPreviewTrack] = useState<Track | null>(null);
   const [track, setTrack] = useState<Track | null>(null);
