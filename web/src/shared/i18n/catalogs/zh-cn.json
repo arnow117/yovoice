@@ -3155,6 +3155,12 @@
   "@yovoice.assistant.hoursAgo": {
     "defaultMessage": "{count} 小时前"
   },
+  "@yovoice.assistant.working": {
+    "defaultMessage": "正在处理…"
+  },
+  "@yovoice.assistant.toolFailed": {
+    "defaultMessage": "操作没有完成"
+  },
   "@yovoice.assistant.copy": {
     "defaultMessage": "复制"
   },

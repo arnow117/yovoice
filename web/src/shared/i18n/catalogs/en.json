@@ -3155,6 +3155,12 @@
   "@yovoice.assistant.hoursAgo": {
     "defaultMessage": "{count}h ago"
   },
+  "@yovoice.assistant.working": {
+    "defaultMessage": "Working…"
+  },
+  "@yovoice.assistant.toolFailed": {
+    "defaultMessage": "The action did not finish"
+  },
   "@yovoice.assistant.copy": {
     "defaultMessage": "Copy"
   },

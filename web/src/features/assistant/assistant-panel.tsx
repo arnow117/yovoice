@@ -207,12 +207,12 @@ function AssistantBody({ message, running, generation, playing, onPlay, openWork
   };
   return <VStack gap={1} className="assistant-reply">
     {text ? <ChatMessageBubble variant="ghost" width="100%">{text}</ChatMessageBubble> : null}
-    {cards.length ? <ChatMessageBubble variant="ghost" width="100%"><ChatToolCalls calls={cards.map((card, index) => ({
-      name: card.tool,
+    {/* 工具卡片只给用户看友好文案，内部工具名不出现；参数留在展开详情里。 */}
+    {cards.length ? <ChatMessageBubble variant="ghost" width="100%" className="assistant-tools"><ChatToolCalls calls={cards.map((card, index) => ({
+      name: card.summary || t('@yovoice.assistant.working'),
       key: `${card.tool}-${index}`,
       status: card.state === 'running' ? 'running' : card.state === 'error' ? 'error' : 'complete',
-      target: card.summary,
-      errorMessage: card.state === 'error' ? (card.summary || card.tool) : undefined,
+      errorMessage: card.state === 'error' ? (card.summary || t('@yovoice.assistant.toolFailed')) : undefined,
       resultDetail: card.args ? <CodeBlock size="sm" language="json" hasLanguageLabel={false} width="100%" code={card.args} /> : undefined,
     }))} /></ChatMessageBubble> : null}
     {generation ? <ChatMessageBubble variant="ghost" width="100%"><HStack gap={2} vAlign="center" wrap="wrap">

@@ -13,6 +13,9 @@ const maxUploadBytes = 20 * 1024 * 1024;
 // 预览不监听端口：本机接口只记录开关与端口，用于演示设置页。
 let localApi: LocalAPIStatus = { enabled: false, port: 8080, token: 'preview'.padEnd(64, '0'), running: false };
 let mockPendingPath = '';
+// 预览助手的轮次序号，用于让停止后的旧定时器失效；运行中再发的消息与真实后端一样排队。
+let assistantTurnSeq = 0;
+let assistantQueue: unknown[] = [];
 
 const listeners = new Set<(state: State) => void>();
 let stored: State | undefined;
@@ -258,6 +261,12 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!assistant.available) throw new CallError('@yovoice.error.assistantMissing');
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
+    if (state.assistantLive?.turn) {
+      assistantQueue.push(data);
+      state.assistantLive.queued = assistantQueue.length;
+      publish();
+      return true as T;
+    }
     const chat = touchSession(state);
     chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'user', text: input.text, createdAt: new Date().toISOString() });
     if (!chat.title) chat.title = input.text.split('\n')[0].slice(0, 24);
@@ -265,17 +274,20 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     const tools: AssistantToolCard[] = [];
     const live: AssistantLive = state.assistantLive ?? {};
     state.assistantLive = live;
+    // 每轮一个序号：停止或新一轮开始后，旧一轮尚未触发的定时器全部失效，不会写进下一轮。
+    const seq = ++assistantTurnSeq;
+    const alive = () => Boolean(live.turn) && seq === assistantTurnSeq;
     // 模拟流式增量：分两段写入。
-    const stream = (at: number, chunk: string) => setTimeout(() => { if (live.turn) { live.turn = { ...live.turn, text: (live.turn.text ?? '') + chunk }; publish(); } }, at);
+    const stream = (at: number, chunk: string) => setTimeout(() => { if (alive() && live.turn) { live.turn = { ...live.turn, text: (live.turn.text ?? '') + chunk }; publish(); } }, at);
     const card = (at: number, tool: string, summary: string, cardState: AssistantToolCardState) => setTimeout(() => {
-      if (!live.turn) return;
+      if (!alive()) return;
       const existing = tools.findIndex(item => item.tool === tool);
       const next = { tool, summary, state: cardState };
       if (existing >= 0) tools[existing] = next; else tools.push(next);
       publish();
     }, at);
-    const timer = (at: number, run: () => void) => setTimeout(() => { if (live.turn) run(); }, at);
-    live.turn = { text: '', tools: [], model: provider.model, startedAt: new Date().toISOString() };
+    const timer = (at: number, run: () => void) => setTimeout(() => { if (alive()) run(); }, at);
+    live.turn = { text: '', tools, model: provider.model, startedAt: new Date().toISOString() };
     publish();
     const wantsScore = /钢琴|旋律|编曲|配乐|score|piano/i.test(input.text);
     const wantsSong = /写词|写歌|歌词|歌|lyric|song/i.test(input.text);
@@ -310,20 +322,24 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     stream(2200, wantsScore ? '写好了：' : '好的，');
     stream(2600, wantsScore ? '四小节钢琴旋律已经写进《示例小步舞曲》，可以直接渲染试听。' : '我先看了作品列表。想让我做什么？');
     setTimeout(() => {
-      if (!live.turn) return;
+      if (!alive()) return;
       chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn?.text ?? '', tools: [...tools], status: 'completed', createdAt: new Date().toISOString() });
       chat.updatedAt = new Date().toISOString();
       live.turn = undefined;
-      live.queued = 0;
+      const next = assistantQueue.shift();
+      live.queued = assistantQueue.length;
       publish();
+      if (next) void previewCall('assistant.send', next);
     }, 3200);
     return true as T;
   }
   if (method === 'assistant.cancel') {
     const live = state.assistantLive;
+    assistantQueue = [];
     if (live?.turn) {
+      assistantTurnSeq++;
       const chat = currentSession(state);
-      chat?.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn.text ?? '', tools: live.turn.tools ?? [], status: 'cancelled', createdAt: new Date().toISOString() });
+      chat?.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn.text ?? '', tools: [...(live.turn.tools ?? [])], status: 'cancelled', createdAt: new Date().toISOString() });
       live.turn = undefined;
       live.queued = 0;
       publish();
