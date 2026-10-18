@@ -19,7 +19,7 @@ var skillFS embed.FS
 var systemPrompt []byte
 
 // skillNames 是随包分发的全部 Skill。Skill 目录下的 references/*.md 是按需读取的参考文档。
-var skillNames = []string{"yovoice-product", "yovoice-score", "yovoice-lyrics", "yovoice-melody", "yovoice-workflows", "yovoice-voice"}
+var skillNames = []string{"yovoice-product", "yovoice-score", "yovoice-lyrics", "yovoice-music", "yovoice-workflows", "yovoice-voice"}
 
 // writeAssets 把系统说明与 Skill 写入数据目录，内容没有变化时不重写文件。
 func writeAssets(root string) error {

@@ -39,9 +39,10 @@ export type TurnPhase = 'thinking' | 'writing' | 'searching' | 'editing' | 'gene
 
 // 工具按用途归类：查资料、改作品、生成音频、打开页面或切换模型；未知工具（如外部 MCP）归为处理中。
 const toolPhases: Record<string, TurnPhase> = {
-  list_works: 'searching', get_work: 'searching', list_models: 'searching', list_voices: 'searching', get_generation: 'searching',
-  create_work: 'editing', update_work: 'editing',
-  generate_work: 'generating', get_generation_status: 'generating',
+  list_works: 'searching', get_work: 'searching', list_models: 'searching', list_voices: 'searching', get_generation: 'searching', list_characters: 'searching',
+  Read: 'searching', Glob: 'searching', Grep: 'searching', WebFetch: 'searching', WebSearch: 'searching', Skill: 'searching',
+  create_work: 'editing', update_work: 'editing', save_character: 'editing', transform_melody: 'editing', Write: 'editing', Edit: 'editing',
+  generate_work: 'generating', get_generation_status: 'generating', plan_melody: 'generating', cover_melody: 'generating',
   open_page: 'opening', open_work: 'opening', set_model: 'opening',
 };
 

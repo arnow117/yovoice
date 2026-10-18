@@ -18,6 +18,7 @@ import (
 // 只能经 propose_action 提议，由用户在确认卡片上执行；不提供导入导出。
 var assistantTools = []string{
 	"list_works", "get_work", "create_work", "update_work", "generate_work", "get_generation_status",
+	"plan_melody", "cover_melody", "transform_melody",
 	"open_work", "open_page", "list_models", "list_voices", "list_characters", "save_character", "status",
 	"get_app_status", "get_recent_errors", "remember_preference", "forget_preference", "propose_action",
 }
@@ -39,6 +40,7 @@ func (w *Workbench) newAssistantServer() *mcp.Server {
 	mcp.AddTool(server, &mcp.Tool{Name: "get_generation_status", Description: "查询作品当前的生成进度与最近一次生成的结果（时长与是否完成）。"}, w.getGenerationStatusTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "open_work", Description: "让界面打开某个作品。"}, w.openWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "open_page", Description: "让界面切换页面：text（语音生成）、story（故事配音）、music（音乐生成）、score（编曲）、characters（声音库）、settings（设置）。"}, w.openPageTool)
+	w.registerMusicTools(server)
 	w.registerAgentTools(server)
 	return server
 }
@@ -206,7 +208,7 @@ type updateWorkInput struct {
 	Settings        *voiceSettingsInput  `json:"settings,omitempty" jsonschema:"右侧检查器的全部声音设置与高级参数，只改给出的项；与同名的顶层字段同时给出时以这里为准"`
 	CharacterID     *string              `json:"characterId,omitempty" jsonschema:"套用声音库里的角色（list_characters）：作品改用该角色的声音设置；空字符串解除关联"`
 	SpeakerSettings []workSpeakerSetting `json:"speakerSettings,omitempty" jsonschema:"故事配音：给指定角色套用声音库角色或单独改声音设置"`
-	Abc             *string              `json:"abc,omitempty" jsonschema:"YuE2 音乐作品的旋律谱（原生 ABC 方言，见 yovoice-melody），整体替换；空字符串清除"`
+	Abc             *string              `json:"abc,omitempty" jsonschema:"YuE2 音乐作品的旋律谱（原生 ABC 方言，见 yovoice-music skill），整体替换；空字符串清除"`
 }
 
 type workSubtitles struct {
@@ -401,6 +403,12 @@ func (w *Workbench) updateWorkTool(ctx context.Context, req *mcp.CallToolRequest
 	if err != nil {
 		return nil, nil, err
 	}
+	// 助手填入了谱：等待中的出谱或扒谱结果已经用掉，界面不再询问是否替换。
+	if in.Abc != nil {
+		if m := w.Store.Read().Melody; m != nil && m.ProjectID == d.ID {
+			_ = w.DismissMelody(m.ID)
+		}
+	}
 	w.chatCard("update_work", fmt.Sprintf("修改了《%s》的%s", d.Title, strings.Join(changed, "、")), fmt.Sprintf("Updated %q: %s", d.Title, strings.Join(changed, ", ")), "done")
 	w.chatUpdate(d.ID)
 	summary := map[string]any{"id": d.ID, "title": d.Title, "changed": changed}
@@ -537,6 +545,12 @@ func (w *Workbench) getGenerationStatusTool(ctx context.Context, req *mcp.CallTo
 			progress["errorCode"], progress["errorParams"] = *a.ErrorCode, a.ErrorParams
 		}
 		out["activity"] = progress
+	}
+	// 出谱或扒谱的结果等待填入作品：给出谱面与概要，助手确认后用 update_work 的 abc 写入。
+	if m := s.Melody; m != nil && m.ProjectID == d.ID {
+		melody := melodySummary(InspectMelody(m.Abc))
+		melody["source"], melody["truncated"], melody["abc"] = m.Source, m.Truncated, m.Abc
+		out["melody"] = melody
 	}
 	for _, g := range s.History {
 		if g.Settings.ID == d.ID {

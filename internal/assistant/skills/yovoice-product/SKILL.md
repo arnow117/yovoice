@@ -42,7 +42,7 @@ Recommend in this order: what the user already has installed (list_models), then
 ## Music and arrangement models
 
 - ACE-Step 1.5 Turbo / XL Turbo: songs or instrumentals from style (≤ 512 chars) + lyrics (≤ 4000 chars, [verse] [chorus] tags). Duration auto or 10–300 s. XL is higher quality and much larger.
-- YuE2 3B: vocal songs (length follows the lyrics) or instrumentals (writes a score, then instruments play the vocal melody; lyrics optional), non-commercial licence. Can plan an ABC melody score first (yovoice-melody skill) or cover a song via SheetSage2.
+- YuE2 3B: vocal songs (length follows the lyrics) or instrumentals (writes a score, then instruments play the vocal melody; lyrics optional), non-commercial licence. Can plan an ABC melody score first or cover a song via SheetSage2 (yovoice-music skill).
 - SheetSage2: extracts melody and chords from a song for YuE2 covers.
 - SoundFonts (MuseScore General, GeneralUser GS, SGM-V2.01) render arrangements on the score page.
 - All music models need inference engine v0.9.1 or later.

@@ -161,3 +161,50 @@ func TestAssistantWritesMelody(t *testing.T) {
 		t.Fatal("非音乐作品不应接受旋律谱")
 	}
 }
+
+// 助手的旋律谱工具：出谱结果经 get_generation_status 读到，update_work 填入后不再等界面确认；
+// 转谱直接改写作品；扒谱需要 SheetSage2；不是 YuE2 的作品不接受。
+func TestAssistantMelodyTools(t *testing.T) {
+	wb, d := yueWorkbench(t)
+	must(t, wb.saveDraft(d))
+	// 工具注册时会推导参数 schema，写法不合规会直接 panic。
+	_ = wb.newAssistantServer()
+	ctx := context.Background()
+	_, _, err := wb.planMelodyTool(ctx, toolReq, workIDInput{ID: d.ID})
+	must(t, err)
+	<-wb.Done()
+	_, status, err := wb.getGenerationStatusTool(ctx, toolReq, workIDInput{ID: d.ID})
+	must(t, err)
+	melody, _ := status.(map[string]any)["melody"].(map[string]any)
+	if melody == nil || melody["abc"] != testkit.ABC || melody["source"] != "plan" || melody["bars"] != 2 || melody["vocalMelody"] != true {
+		t.Fatalf("%+v", status)
+	}
+	abc := melody["abc"].(string)
+	_, _, err = wb.updateWorkTool(ctx, toolReq, updateWorkInput{ID: d.ID, Abc: &abc})
+	must(t, err)
+	if wb.Store.Read().Melody != nil {
+		t.Fatal("填入作品后应清除等待中的出谱结果")
+	}
+	_, out, err := wb.transformMelodyTool(ctx, toolReq, transformMelodyInput{ID: d.ID, Op: "instrumental"})
+	must(t, err)
+	summary := out.(map[string]any)
+	if summary["melody"].(map[string]any)["vocalMelody"] != false || len(summary["melodyChanges"].(score.ABCChanges).Vocal) != 2 {
+		t.Fatalf("%+v", summary)
+	}
+	saved, err := wb.assistantWork(d.ID)
+	must(t, err)
+	if parsed, e := score.ParseABC(saved.Abc); e != nil || len(parsed.Vocal().Notes) != 0 {
+		t.Fatal(saved.Abc)
+	}
+	song := filepath.Join(t.TempDir(), "song.wav")
+	must(t, os.WriteFile(song, wav(), 0600))
+	var ce *msg.CallError
+	if _, _, err = wb.coverMelodyTool(ctx, toolReq, coverMelodyInput{ID: d.ID, Path: song}); !errors.As(err, &ce) || ce.Code != msg.ErrCoverModelRequired {
+		t.Fatal(err)
+	}
+	text := schema.DefaultDraft()
+	must(t, wb.saveDraft(text))
+	if _, _, err = wb.planMelodyTool(ctx, toolReq, workIDInput{ID: text.ID}); err == nil {
+		t.Fatal("非 YuE2 作品不应出谱")
+	}
+}

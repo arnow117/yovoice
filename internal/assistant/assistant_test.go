@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -391,6 +392,15 @@ func TestVoiceReferencesCoverCatalogOptions(t *testing.T) {
 	}
 	if _, err = os.Stat(filepath.Join(root, "assistant", "workspace", ".agents", "skills", "yovoice-voice", "references", "omnivoice.md")); err != nil {
 		t.Fatal("参考文档应随 Skill 写入工作区", err)
+	}
+	// SKILL.md 里链接的参考文档都要存在，并随 Skill 写入工作区。
+	for _, skill := range skillNames {
+		body, _ := skillFS.ReadFile("skills/" + skill + "/SKILL.md")
+		for _, link := range regexp.MustCompile(`\]\((references/[^)]+\.md)\)`).FindAllStringSubmatch(string(body), -1) {
+			if _, err = os.Stat(filepath.Join(root, "assistant", "workspace", ".agents", "skills", skill, link[1])); err != nil {
+				t.Errorf("%s 链接的 %s 不存在", skill, link[1])
+			}
+		}
 	}
 	if _, err = os.Stat(stale); !os.IsNotExist(err) {
 		t.Fatal("已移除的旧 Skill 应从工作区删掉")
