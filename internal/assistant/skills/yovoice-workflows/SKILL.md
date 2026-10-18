@@ -24,7 +24,7 @@ Work types: `text` 语音 (narration / voice-over), `story` 故事配音 (multi-
 
 1. `create_work` {"kind":"music","title":...}.
 2. Follow the yovoice-lyrics skill, then apply with `update_work` {"id","text":<style>,"lyrics":...,"instrumental":false,"language":"zh"}.
-3. `list_models`: an installed `ace-step-*` or `yue2-*` model is required. If missing, tell the user to install it in 设置 › 模型.
+3. `list_models`: an installed `ace-step-*` or `yue2-*` model is required. If missing, propose installing it with `propose_action` {"action":"install_model","target":<model id>}.
 4. `update_work` {"id","modelId":...} then `generate_work`. Music takes longer than voice; say so and let the user check later.
 
 ## Underscore / arrangement (给作品配乐)

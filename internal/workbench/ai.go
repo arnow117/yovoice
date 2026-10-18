@@ -352,7 +352,7 @@ func proxyEnv(p schema.Preferences) []string {
 }
 
 // assistantConfig 由当前服务配置组装某个会话的助手子进程配置；ocho 缺失与服务未配置分别报错。
-// 每个会话有独立的 OCHO_CONFIG_DIR（切换会话即重启子进程），长期记忆目录所有会话共享。
+// 每个会话有独立的 OCHO_CONFIG_DIR（切换会话即重启子进程）；长期偏好由 yovoice 保存并随消息注入。
 func (w *Workbench) assistantConfig(sessionID string) (assistant.Config, error) {
 	executable, err := platform.OchoExecutable()
 	if err != nil {
@@ -374,7 +374,7 @@ func (w *Workbench) assistantConfig(sessionID string) (assistant.Config, error) 
 		return assistant.Config{}, err
 	}
 	env := append(providerEnv(p, c), proxyEnv(w.Store.Read().Preferences)...)
-	env = append(env, "OCHO_CONFIG_DIR="+assistantSessionDir(w.Store.Root, sessionID), "OCHO_MEMORY_DIR="+assistantMemoryDir(w.Store.Root))
+	env = append(env, "OCHO_CONFIG_DIR="+assistantSessionDir(w.Store.Root, sessionID))
 	return assistant.Config{Executable: executable, Model: c.Model, Env: env}, nil
 }
 

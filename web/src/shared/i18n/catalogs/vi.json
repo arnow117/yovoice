@@ -3703,5 +3703,113 @@
   },
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "Đang xử lý"
+  },
+  "@yovoice.assistant.selectionClear": {
+    "defaultMessage": "Không đính kèm phần đã chọn"
+  },
+  "@yovoice.assistant.proposal.confirm": {
+    "defaultMessage": "Xác nhận"
+  },
+  "@yovoice.assistant.proposal.confirmDelete": {
+    "defaultMessage": "Xóa"
+  },
+  "@yovoice.assistant.proposal.dismiss": {
+    "defaultMessage": "Để sau"
+  },
+  "@yovoice.assistant.proposal.confirmed": {
+    "defaultMessage": "Đã thực hiện"
+  },
+  "@yovoice.assistant.proposal.dismissed": {
+    "defaultMessage": "Đã bỏ qua"
+  },
+  "@yovoice.assistant.proposal.failed": {
+    "defaultMessage": "Thất bại"
+  },
+  "@yovoice.assistant.nudge.failed": {
+    "defaultMessage": "Lần tạo này không thành công. Để tôi xem nguyên nhân nhé?"
+  },
+  "@yovoice.assistant.nudge.diagnose": {
+    "defaultMessage": "Xem nguyên nhân"
+  },
+  "@yovoice.assistant.nudge.failedPrompt": {
+    "defaultMessage": "Lần tạo vừa rồi bị lỗi. Hãy tìm nguyên nhân và cho tôi biết cách khắc phục."
+  },
+  "@yovoice.assistant.nudge.improve": {
+    "defaultMessage": "Giúp tôi cải thiện"
+  },
+  "@yovoice.assistant.nudge.done.text": {
+    "defaultMessage": "Giọng đọc đã xong. Muốn đổi giọng hay ngữ điệu không?"
+  },
+  "@yovoice.assistant.nudge.done.story": {
+    "defaultMessage": "Chương này đã lồng tiếng xong. Để tôi xem câu nào nên làm lại nhé?"
+  },
+  "@yovoice.assistant.nudge.done.music": {
+    "defaultMessage": "Bài hát đã xong. Muốn thử phong cách khác hay sửa lời không?"
+  },
+  "@yovoice.assistant.nudge.done.score": {
+    "defaultMessage": "Bản phối đã xuất xong. Để tôi thêm lớp âm thanh nhé?"
+  },
+  "@yovoice.assistant.nudge.donePrompt.text": {
+    "defaultMessage": "Giọng đọc đã xong. Hãy gợi ý cách cải thiện ngữ điệu, chỗ ngắt và giọng."
+  },
+  "@yovoice.assistant.nudge.donePrompt.story": {
+    "defaultMessage": "Chương này đã lồng tiếng xong. Hãy kiểm tra nhân vật chưa có giọng, câu quá dài và từ có thể đọc sai."
+  },
+  "@yovoice.assistant.nudge.donePrompt.music": {
+    "defaultMessage": "Bài hát đã xong. Hãy gợi ý cách cải thiện phong cách và lời."
+  },
+  "@yovoice.assistant.nudge.donePrompt.score": {
+    "defaultMessage": "Bản phối đã xong. Hãy gợi ý bè hoặc biến tấu có thể thêm."
+  },
+  "@yovoice.assistant.nudge.downloadFailed": {
+    "defaultMessage": "Tải xuống không thành công. Để tôi xem nguyên nhân nhé?"
+  },
+  "@yovoice.assistant.nudge.downloadFailedPrompt": {
+    "defaultMessage": "Lần tải vừa rồi bị lỗi. Hãy tìm nguyên nhân và cho tôi biết cách khắc phục."
+  },
+  "@yovoice.assistant.nudge.modelReady": {
+    "defaultMessage": "Đã cài xong {name}."
+  },
+  "@yovoice.assistant.nudge.tryIt": {
+    "defaultMessage": "Thử ngay"
+  },
+  "@yovoice.assistant.nudge.modelReadyPrompt": {
+    "defaultMessage": "Đã cài xong {name}. Hãy tạo thử một đoạn ngắn bằng nó."
+  },
+  "@yovoice.assistant.nudge.close": {
+    "defaultMessage": "Đóng"
+  },
+  "@yovoice.settings.assistantIntro": {
+    "defaultMessage": "Ocho là trợ lý tích hợp của yovoice. Ocho thấy tác phẩm bạn đang sửa và phần bạn chọn, và luôn hỏi trước khi xóa, tải xuống hay đổi cài đặt."
+  },
+  "@yovoice.settings.assistantBehavior": {
+    "defaultMessage": "Hành vi"
+  },
+  "@yovoice.settings.assistantNudges": {
+    "defaultMessage": "Gợi ý chủ động"
+  },
+  "@yovoice.settings.assistantNudgesHint": {
+    "defaultMessage": "Khi tạo xong hoặc bị lỗi, hay khi tải mô hình xong, Ocho sẽ đưa gợi ý ở góc màn hình."
+  },
+  "@yovoice.settings.assistantMemory": {
+    "defaultMessage": "Sở thích đã ghi nhớ"
+  },
+  "@yovoice.settings.assistantMemoryHint": {
+    "defaultMessage": "Hãy cho Ocho biết thói quen của bạn khi trò chuyện, như giọng hay phong cách yêu thích. Ocho sẽ ghi nhớ và làm theo về sau."
+  },
+  "@yovoice.settings.assistantMemoryClear": {
+    "defaultMessage": "Xóa tất cả"
+  },
+  "@yovoice.settings.assistantMemoryClearConfirm": {
+    "defaultMessage": "Xóa hết sở thích"
+  },
+  "@yovoice.settings.assistantMemoryDelete": {
+    "defaultMessage": "Quên: {text}"
+  },
+  "@yovoice.settings.assistantMemoryEmpty": {
+    "defaultMessage": "Chưa có sở thích nào"
+  },
+  "@yovoice.settings.assistantMemoryEmptyHint": {
+    "defaultMessage": "Ví dụ, hãy nói với Ocho \"mặc định dùng giọng nữ ấm áp cho phần dẫn truyện\"."
   }
 }

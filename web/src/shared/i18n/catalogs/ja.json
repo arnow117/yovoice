@@ -3703,5 +3703,113 @@
   },
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "処理中"
+  },
+  "@yovoice.assistant.selectionClear": {
+    "defaultMessage": "選択内容を添付しない"
+  },
+  "@yovoice.assistant.proposal.confirm": {
+    "defaultMessage": "実行する"
+  },
+  "@yovoice.assistant.proposal.confirmDelete": {
+    "defaultMessage": "削除する"
+  },
+  "@yovoice.assistant.proposal.dismiss": {
+    "defaultMessage": "やめておく"
+  },
+  "@yovoice.assistant.proposal.confirmed": {
+    "defaultMessage": "実行しました"
+  },
+  "@yovoice.assistant.proposal.dismissed": {
+    "defaultMessage": "見送りました"
+  },
+  "@yovoice.assistant.proposal.failed": {
+    "defaultMessage": "失敗しました"
+  },
+  "@yovoice.assistant.nudge.failed": {
+    "defaultMessage": "生成がうまくいきませんでした。原因を調べましょうか？"
+  },
+  "@yovoice.assistant.nudge.diagnose": {
+    "defaultMessage": "原因を調べる"
+  },
+  "@yovoice.assistant.nudge.failedPrompt": {
+    "defaultMessage": "さっきの生成が失敗しました。原因を調べて、直し方を教えて。"
+  },
+  "@yovoice.assistant.nudge.improve": {
+    "defaultMessage": "改善を手伝って"
+  },
+  "@yovoice.assistant.nudge.done.text": {
+    "defaultMessage": "音声ができました。声や話し方を変えてみますか？"
+  },
+  "@yovoice.assistant.nudge.done.story": {
+    "defaultMessage": "この章の吹き替えができました。録り直したほうがいいセリフを確認しましょうか？"
+  },
+  "@yovoice.assistant.nudge.done.music": {
+    "defaultMessage": "曲ができました。スタイルや歌詞を変えてみますか？"
+  },
+  "@yovoice.assistant.nudge.done.score": {
+    "defaultMessage": "アレンジの書き出しができました。もっと厚みを出しましょうか？"
+  },
+  "@yovoice.assistant.nudge.donePrompt.text": {
+    "defaultMessage": "音声ができました。話し方、間、声をどう改善できるか提案して。"
+  },
+  "@yovoice.assistant.nudge.donePrompt.story": {
+    "defaultMessage": "章の吹き替えができました。声が未割り当ての話者、長すぎるセリフ、読み間違えそうな語をチェックして。"
+  },
+  "@yovoice.assistant.nudge.donePrompt.music": {
+    "defaultMessage": "曲ができました。スタイルと歌詞をどう良くできるか提案して。"
+  },
+  "@yovoice.assistant.nudge.donePrompt.score": {
+    "defaultMessage": "アレンジができました。追加できるパートや変化を提案して。"
+  },
+  "@yovoice.assistant.nudge.downloadFailed": {
+    "defaultMessage": "ダウンロードに失敗しました。原因を調べましょうか？"
+  },
+  "@yovoice.assistant.nudge.downloadFailedPrompt": {
+    "defaultMessage": "さっきのダウンロードが失敗しました。原因を調べて、直し方を教えて。"
+  },
+  "@yovoice.assistant.nudge.modelReady": {
+    "defaultMessage": "{name} のインストールが完了しました。"
+  },
+  "@yovoice.assistant.nudge.tryIt": {
+    "defaultMessage": "試してみる"
+  },
+  "@yovoice.assistant.nudge.modelReadyPrompt": {
+    "defaultMessage": "{name} が入りました。これで短いサンプルを作って。"
+  },
+  "@yovoice.assistant.nudge.close": {
+    "defaultMessage": "閉じる"
+  },
+  "@yovoice.settings.assistantIntro": {
+    "defaultMessage": "Ocho は yovoice の内蔵アシスタントです。編集中の作品と選択内容を把握し、削除・ダウンロード・設定変更の前には必ず確認します。"
+  },
+  "@yovoice.settings.assistantBehavior": {
+    "defaultMessage": "動作"
+  },
+  "@yovoice.settings.assistantNudges": {
+    "defaultMessage": "先回りの提案"
+  },
+  "@yovoice.settings.assistantNudgesHint": {
+    "defaultMessage": "生成の完了・失敗やモデルのダウンロード終了時に、Ocho が右下で提案します。"
+  },
+  "@yovoice.settings.assistantMemory": {
+    "defaultMessage": "覚えている好み"
+  },
+  "@yovoice.settings.assistantMemoryHint": {
+    "defaultMessage": "よく使う声やスタイルなどの好みを会話で伝えると、Ocho が覚えて次の会話から反映します。"
+  },
+  "@yovoice.settings.assistantMemoryClear": {
+    "defaultMessage": "すべて消去"
+  },
+  "@yovoice.settings.assistantMemoryClearConfirm": {
+    "defaultMessage": "すべて消去する"
+  },
+  "@yovoice.settings.assistantMemoryDelete": {
+    "defaultMessage": "好みを削除：{text}"
+  },
+  "@yovoice.settings.assistantMemoryEmpty": {
+    "defaultMessage": "まだ覚えている好みはありません"
+  },
+  "@yovoice.settings.assistantMemoryEmptyHint": {
+    "defaultMessage": "たとえば Ocho に「ナレーションはやさしい女性の声をデフォルトに」と伝えてみてください。"
   }
 }

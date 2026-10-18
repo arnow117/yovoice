@@ -110,14 +110,14 @@ export interface CleanupReport {
   cleanedCount: number;
   freedBytes: number;
 }
-export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean }
+export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean }
 export interface State {
   characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
   aiProviders?: AIProvider[]; aiProviderID?: string; aiTask?: AITask;
   melody?: MelodyResult;
   /** 助手会话的持久化记录与仅广播的实时状态，与 Go 的 schema.AssistantSessions/Live 一致。 */
-  assistantSessions?: AssistantSessions; assistantLive?: AssistantLive;
+  assistantSessions?: AssistantSessions; assistantLive?: AssistantLive; assistantMemory?: AssistantMemo[];
   /** state.get 附带的随包 AI 助手运行时可用性：缺失时 AI 写作入口禁用。 */
   assistantMissing?: boolean;
 }
@@ -142,7 +142,12 @@ export interface AIProvider { id: string; preset: string; name: string; format: 
 // 助手会话记录与实时状态，与 Go 的 schema.Assistant* 一致。
 export type AssistantMessageRole = 'user' | 'assistant';
 export type AssistantToolCardState = 'running' | 'done' | 'error';
-export interface AssistantToolCard { tool: string; summary?: string; args?: string; state?: AssistantToolCardState }
+export interface AssistantToolCard { tool: string; summary?: string; args?: string; state?: AssistantToolCardState; proposal?: AssistantProposal }
+/** 助手提议、等用户在卡片上确认的操作，与 Go 的 schema.AssistantProposal 一致。 */
+export type AssistantProposalState = 'pending' | 'confirmed' | 'dismissed' | 'failed';
+export interface AssistantProposal { id: string; action: string; target?: string; value?: string; label?: string; reason?: string; state: AssistantProposalState; errorCode?: string; errorParams?: Record<string, unknown> }
+/** 助手记住的一条用户偏好。 */
+export interface AssistantMemo { id: string; text: string; createdAt: string }
 /** 助手消息里按出现顺序排列的一块：文本、思考或一次工具调用。 */
 export interface AssistantBlock { kind: 'text' | 'thinking' | 'tool'; text?: string; card?: AssistantToolCard }
 /** 助手消息：blocks 为按顺序的内容块，text 为文本块拼接；tools 只出现在旧版本记录里。 */
@@ -160,7 +165,12 @@ export interface AssistantNav { id: string; workId?: string; page?: string }
 export interface AssistantUpdate { id: string; workId: string }
 export interface AssistantLive { turn?: AssistantTurn | null; queued?: number; nav?: AssistantNav | null; update?: AssistantUpdate | null }
 /** assistant.send 附带的界面上下文，与 Go 的 workbench.AssistantContext 一致。 */
-export interface AssistantContext { page?: string; workId?: string; workTitle?: string; workKind?: string; locale?: UiLocale }
+export interface AssistantContext {
+  page?: string; workId?: string; workTitle?: string; workKind?: string; locale?: UiLocale;
+  /** 发送时刻用户在编辑区选中的文字、故事配音里选中的台词与播放位置（秒）。 */
+  selection?: string; cue?: AssistantCue; playhead?: number;
+}
+export interface AssistantCue { index: number; total: number; speaker?: string; text?: string }
 
 /** 标题为空或仍是任一界面语言的“未命名作品”时视为尚未命名，AI 写作可以顺带起名。 */
 export const isUntitled = (title: string) => !title.trim() || Object.values(draftCopy).some(copy => copy.untitled === title.trim());

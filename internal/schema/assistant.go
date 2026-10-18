@@ -27,7 +27,34 @@ type AssistantToolCard struct {
 	Summary string `json:"summary,omitempty"` // 动作摘要，如“修改了《示例小步舞曲》的乐谱”
 	Args    string `json:"args,omitempty"`
 	State   string `json:"state,omitempty"` // running、done 或 error
+	// Proposal 是助手提议、等用户确认的操作；只出现在 propose_action 的卡片上。
+	Proposal *AssistantProposal `json:"proposal,omitempty"`
 }
+
+// AssistantProposal 是助手提议的一次写操作（删除、安装模型、改设置等）：界面显示确认卡片，
+// 用户确认后才执行，执行仍走与界面相同的应用服务。
+type AssistantProposal struct {
+	ID     string `json:"id"`
+	Action string `json:"action"`
+	// Target 是操作对象的 ID（作品、生成记录、角色或模型），Value 是设置的新值；Label 是给用户看的对象名。
+	Target      string     `json:"target,omitempty"`
+	Value       string     `json:"value,omitempty"`
+	Label       string     `json:"label,omitempty"`
+	Reason      string     `json:"reason,omitempty"`
+	State       string     `json:"state"` // pending、confirmed、dismissed 或 failed
+	ErrorCode   msg.Code   `json:"errorCode,omitempty"`
+	ErrorParams msg.Params `json:"errorParams,omitempty"`
+}
+
+// AssistantMemo 是助手记住的一条用户偏好（常用音色、风格、语速等），每轮对话随上下文带上；设置里可查看与删除。
+type AssistantMemo struct {
+	ID        string    `json:"id"`
+	Text      string    `json:"text"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+// AssistantMemoLimit 是偏好条数上限，超出时丢弃最旧的一条。
+const AssistantMemoLimit = 30
 
 // AssistantBlock 是助手消息里按出现顺序排列的一块：文本、思考，或一次工具调用（Card）。
 type AssistantBlock struct {

@@ -3703,5 +3703,113 @@
   },
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "Arbeitet"
+  },
+  "@yovoice.assistant.selectionClear": {
+    "defaultMessage": "Auswahl nicht mitsenden"
+  },
+  "@yovoice.assistant.proposal.confirm": {
+    "defaultMessage": "Bestätigen"
+  },
+  "@yovoice.assistant.proposal.confirmDelete": {
+    "defaultMessage": "Löschen"
+  },
+  "@yovoice.assistant.proposal.dismiss": {
+    "defaultMessage": "Nicht jetzt"
+  },
+  "@yovoice.assistant.proposal.confirmed": {
+    "defaultMessage": "Erledigt"
+  },
+  "@yovoice.assistant.proposal.dismissed": {
+    "defaultMessage": "Übersprungen"
+  },
+  "@yovoice.assistant.proposal.failed": {
+    "defaultMessage": "Fehlgeschlagen"
+  },
+  "@yovoice.assistant.nudge.failed": {
+    "defaultMessage": "Die Erzeugung hat nicht geklappt. Soll ich nach der Ursache suchen?"
+  },
+  "@yovoice.assistant.nudge.diagnose": {
+    "defaultMessage": "Ursache suchen"
+  },
+  "@yovoice.assistant.nudge.failedPrompt": {
+    "defaultMessage": "Die letzte Erzeugung ist fehlgeschlagen. Finde die Ursache und sag mir, wie ich es behebe."
+  },
+  "@yovoice.assistant.nudge.improve": {
+    "defaultMessage": "Hilf mir beim Verbessern"
+  },
+  "@yovoice.assistant.nudge.done.text": {
+    "defaultMessage": "Die Sprachaufnahme ist fertig. Andere Stimme oder anderer Ton?"
+  },
+  "@yovoice.assistant.nudge.done.story": {
+    "defaultMessage": "Das Kapitel ist vertont. Soll ich prüfen, welche Zeilen neu sollten?"
+  },
+  "@yovoice.assistant.nudge.done.music": {
+    "defaultMessage": "Der Song ist fertig. Anderer Stil oder Text überarbeiten?"
+  },
+  "@yovoice.assistant.nudge.done.score": {
+    "defaultMessage": "Das Arrangement ist gerendert. Soll ich mehr Ebenen hinzufügen?"
+  },
+  "@yovoice.assistant.nudge.donePrompt.text": {
+    "defaultMessage": "Die Sprachaufnahme ist fertig. Schlag vor, wie Ton, Pausen und Stimme besser werden."
+  },
+  "@yovoice.assistant.nudge.donePrompt.story": {
+    "defaultMessage": "Das Kapitel ist vertont. Prüfe auf Sprecher ohne Stimme, zu lange Zeilen und Wörter, die falsch ausgesprochen werden könnten."
+  },
+  "@yovoice.assistant.nudge.donePrompt.music": {
+    "defaultMessage": "Der Song ist fertig. Schlag vor, wie Stil und Text besser werden."
+  },
+  "@yovoice.assistant.nudge.donePrompt.score": {
+    "defaultMessage": "Das Arrangement ist gerendert. Schlag Stimmen oder Variationen zum Ergänzen vor."
+  },
+  "@yovoice.assistant.nudge.downloadFailed": {
+    "defaultMessage": "Der Download hat nicht geklappt. Soll ich nach der Ursache suchen?"
+  },
+  "@yovoice.assistant.nudge.downloadFailedPrompt": {
+    "defaultMessage": "Der letzte Download ist fehlgeschlagen. Finde die Ursache und sag mir, wie ich es behebe."
+  },
+  "@yovoice.assistant.nudge.modelReady": {
+    "defaultMessage": "{name} ist installiert."
+  },
+  "@yovoice.assistant.nudge.tryIt": {
+    "defaultMessage": "Ausprobieren"
+  },
+  "@yovoice.assistant.nudge.modelReadyPrompt": {
+    "defaultMessage": "{name} ist installiert. Erzeuge damit ein kurzes Beispiel."
+  },
+  "@yovoice.assistant.nudge.close": {
+    "defaultMessage": "Schließen"
+  },
+  "@yovoice.settings.assistantIntro": {
+    "defaultMessage": "Ocho ist der integrierte Assistent von yovoice. Er sieht das geöffnete Werk und Ihre Auswahl und fragt nach, bevor er löscht, herunterlädt oder Einstellungen ändert."
+  },
+  "@yovoice.settings.assistantBehavior": {
+    "defaultMessage": "Verhalten"
+  },
+  "@yovoice.settings.assistantNudges": {
+    "defaultMessage": "Proaktive Hinweise"
+  },
+  "@yovoice.settings.assistantNudgesHint": {
+    "defaultMessage": "Wenn eine Erzeugung fertig ist oder fehlschlägt oder ein Download endet, macht Ocho unten rechts einen Vorschlag."
+  },
+  "@yovoice.settings.assistantMemory": {
+    "defaultMessage": "Gemerkte Vorlieben"
+  },
+  "@yovoice.settings.assistantMemoryHint": {
+    "defaultMessage": "Sagen Sie Ocho im Chat Ihre Gewohnheiten, etwa eine Lieblingsstimme oder einen Stil. Er merkt sie sich für spätere Gespräche."
+  },
+  "@yovoice.settings.assistantMemoryClear": {
+    "defaultMessage": "Alle löschen"
+  },
+  "@yovoice.settings.assistantMemoryClearConfirm": {
+    "defaultMessage": "Alle Vorlieben löschen"
+  },
+  "@yovoice.settings.assistantMemoryDelete": {
+    "defaultMessage": "Vergessen: {text}"
+  },
+  "@yovoice.settings.assistantMemoryEmpty": {
+    "defaultMessage": "Noch keine Vorlieben"
+  },
+  "@yovoice.settings.assistantMemoryEmptyHint": {
+    "defaultMessage": "Sagen Sie Ocho zum Beispiel: „Nimm für Erzählungen standardmäßig die warme Frauenstimme.“"
   }
 }

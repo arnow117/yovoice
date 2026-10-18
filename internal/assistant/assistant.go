@@ -247,14 +247,22 @@ func childEnv(root string, options Options, extra []string) []string {
 	for _, entry := range os.Environ() {
 		have[entry[:strings.IndexByte(entry, '=')]] = true
 	}
-	env := make([]string, 0, len(baseEnvNames)+len(options.ExtraEnv)+len(extra)+1)
+	env := make([]string, 0, len(baseEnvNames)+len(options.ExtraEnv)+len(slimEnv)+len(extra))
 	for _, name := range baseEnvNames {
 		if have[name] {
 			env = append(env, name+"="+os.Getenv(name))
 		}
 	}
 	env = append(env, options.ExtraEnv...)
+	env = append(env, slimEnv...)
 	return append(env, extra...)
+}
+
+// slimEnv 关掉 ocho 面向通用编程场景的能力：自动记忆与整理（偏好由 yovoice 自己保存）、内置子 agent、
+// 后台任务、项目说明与 git 提示。系统提示因此缩短约三成，也避免后台模型的额外调用。
+var slimEnv = []string{
+	"OCHO_DISABLE_AUTO_MEMORY=1", "OCHO_DISABLE_AUTO_DREAM=1", "OCHO_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1",
+	"OCHO_DISABLE_BACKGROUND_TASKS=1", "OCHO_DISABLE_PROJECT_INSTRUCTIONS=1", "OCHO_DISABLE_GIT_INSTRUCTIONS=1",
 }
 
 func systemPromptPath(root string) string { return filepath.Join(root, "assistant", "system.md") }
@@ -271,11 +279,12 @@ func startProcess(ctx context.Context, root string, options Options, cfg Config)
 		return nil, err
 	}
 	workspace := filepath.Join(root, "assistant", "workspace")
-	tools := make([]string, len(options.Tools))
-	for i, name := range options.Tools {
-		tools[i] = "mcp__yovoice__" + name
+	// 只开放 yovoice 的 MCP 工具与 Skill（加载随包分发的知识）；Bash、文件读写、联网、子 agent 等内置工具一律不给。
+	tools := make([]string, 0, len(options.Tools)+1)
+	for _, name := range options.Tools {
+		tools = append(tools, "mcp__yovoice__"+name)
 	}
-	list := strings.Join(tools, ",")
+	list := strings.Join(append(tools, "Skill"), ",")
 	cmd := exec.Command(cfg.Executable, "--print", "--input-format", "stream-json", "--output-format", "stream-json", "--verbose",
 		"--include-partial-messages", "--tools", list, "--allowedTools", list, "--model", cfg.Model, "--append-system-prompt-file", systemPromptPath(root))
 	cmd.Dir = workspace

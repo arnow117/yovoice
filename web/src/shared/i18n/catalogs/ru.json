@@ -3703,5 +3703,113 @@
   },
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "Работаю"
+  },
+  "@yovoice.assistant.selectionClear": {
+    "defaultMessage": "Не прикреплять выделение"
+  },
+  "@yovoice.assistant.proposal.confirm": {
+    "defaultMessage": "Подтвердить"
+  },
+  "@yovoice.assistant.proposal.confirmDelete": {
+    "defaultMessage": "Удалить"
+  },
+  "@yovoice.assistant.proposal.dismiss": {
+    "defaultMessage": "Не сейчас"
+  },
+  "@yovoice.assistant.proposal.confirmed": {
+    "defaultMessage": "Выполнено"
+  },
+  "@yovoice.assistant.proposal.dismissed": {
+    "defaultMessage": "Пропущено"
+  },
+  "@yovoice.assistant.proposal.failed": {
+    "defaultMessage": "Не удалось"
+  },
+  "@yovoice.assistant.nudge.failed": {
+    "defaultMessage": "Генерация не удалась. Посмотреть, в чём причина?"
+  },
+  "@yovoice.assistant.nudge.diagnose": {
+    "defaultMessage": "Найти причину"
+  },
+  "@yovoice.assistant.nudge.failedPrompt": {
+    "defaultMessage": "Последняя генерация не удалась. Выясни причину и подскажи, как исправить."
+  },
+  "@yovoice.assistant.nudge.improve": {
+    "defaultMessage": "Помоги улучшить"
+  },
+  "@yovoice.assistant.nudge.done.text": {
+    "defaultMessage": "Озвучка готова. Попробовать другой голос или интонацию?"
+  },
+  "@yovoice.assistant.nudge.done.story": {
+    "defaultMessage": "Глава озвучена. Проверить, какие реплики стоит перезаписать?"
+  },
+  "@yovoice.assistant.nudge.done.music": {
+    "defaultMessage": "Песня готова. Попробовать другой стиль или поправить текст?"
+  },
+  "@yovoice.assistant.nudge.done.score": {
+    "defaultMessage": "Аранжировка готова. Добавить ещё слоёв?"
+  },
+  "@yovoice.assistant.nudge.donePrompt.text": {
+    "defaultMessage": "Озвучка готова. Подскажи, как улучшить интонацию, паузы и голос."
+  },
+  "@yovoice.assistant.nudge.donePrompt.story": {
+    "defaultMessage": "Глава озвучена. Проверь персонажей без голоса, слишком длинные реплики и слова, которые могут прочитаться неверно."
+  },
+  "@yovoice.assistant.nudge.donePrompt.music": {
+    "defaultMessage": "Песня готова. Подскажи, как улучшить стиль и текст."
+  },
+  "@yovoice.assistant.nudge.donePrompt.score": {
+    "defaultMessage": "Аранжировка готова. Предложи партии или вариации, которые можно добавить."
+  },
+  "@yovoice.assistant.nudge.downloadFailed": {
+    "defaultMessage": "Загрузка не удалась. Посмотреть, в чём причина?"
+  },
+  "@yovoice.assistant.nudge.downloadFailedPrompt": {
+    "defaultMessage": "Последняя загрузка не удалась. Выясни причину и подскажи, как исправить."
+  },
+  "@yovoice.assistant.nudge.modelReady": {
+    "defaultMessage": "{name} установлена."
+  },
+  "@yovoice.assistant.nudge.tryIt": {
+    "defaultMessage": "Попробовать"
+  },
+  "@yovoice.assistant.nudge.modelReadyPrompt": {
+    "defaultMessage": "{name} установлена. Сгенерируй с ней короткий пример."
+  },
+  "@yovoice.assistant.nudge.close": {
+    "defaultMessage": "Закрыть"
+  },
+  "@yovoice.settings.assistantIntro": {
+    "defaultMessage": "Ocho — встроенный помощник yovoice. Он видит открытую работу и выделенный фрагмент и спрашивает подтверждение перед удалением, загрузкой или изменением настроек."
+  },
+  "@yovoice.settings.assistantBehavior": {
+    "defaultMessage": "Поведение"
+  },
+  "@yovoice.settings.assistantNudges": {
+    "defaultMessage": "Подсказки по ходу работы"
+  },
+  "@yovoice.settings.assistantNudgesHint": {
+    "defaultMessage": "Когда генерация завершается или не удаётся, а также после загрузки модели Ocho предлагает подсказку в углу."
+  },
+  "@yovoice.settings.assistantMemory": {
+    "defaultMessage": "Запомненные предпочтения"
+  },
+  "@yovoice.settings.assistantMemoryHint": {
+    "defaultMessage": "Расскажите Ocho о своих привычках в чате, например любимый голос или стиль. Он запомнит и будет учитывать их дальше."
+  },
+  "@yovoice.settings.assistantMemoryClear": {
+    "defaultMessage": "Очистить всё"
+  },
+  "@yovoice.settings.assistantMemoryClearConfirm": {
+    "defaultMessage": "Очистить все"
+  },
+  "@yovoice.settings.assistantMemoryDelete": {
+    "defaultMessage": "Забыть: {text}"
+  },
+  "@yovoice.settings.assistantMemoryEmpty": {
+    "defaultMessage": "Пока нет предпочтений"
+  },
+  "@yovoice.settings.assistantMemoryEmptyHint": {
+    "defaultMessage": "Например, скажите Ocho: «По умолчанию озвучивай повествование мягким женским голосом»."
   }
 }

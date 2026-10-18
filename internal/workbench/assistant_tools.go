@@ -14,11 +14,12 @@ import (
 )
 
 // 内置助手的工具集：只开放给助手进程，不暴露给对外 MCP。
-// 作品工具（list/get/create/update/generate/open）立即反映在界面上；
-// 不提供删除、下载模型、改设置与导入导出（第一版不做破坏性/高成本操作）。
+// 作品工具（list/get/create/update/generate/open）立即反映在界面上；删除、下载模型、改设置
+// 只能经 propose_action 提议，由用户在确认卡片上执行；不提供导入导出。
 var assistantTools = []string{
 	"list_works", "get_work", "create_work", "update_work", "generate_work", "get_generation_status",
 	"open_work", "open_page", "list_models", "list_voices", "status",
+	"get_app_status", "get_recent_errors", "remember_preference", "forget_preference", "propose_action",
 }
 
 // newAssistantServer 构建只给内置助手的 MCP server：status/list_models/list_voices 与对外 MCP 共用定义，
@@ -36,6 +37,7 @@ func (w *Workbench) newAssistantServer() *mcp.Server {
 	mcp.AddTool(server, &mcp.Tool{Name: "get_generation_status", Description: "查询作品当前的生成进度与最近一次生成的结果（时长与是否完成）。"}, w.getGenerationStatusTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "open_work", Description: "让界面打开某个作品。"}, w.openWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "open_page", Description: "让界面切换页面：text（语音生成）、story（故事配音）、music（音乐生成）、score（编曲）、characters（声音库）、settings（设置）。"}, w.openPageTool)
+	w.registerAgentTools(server)
 	return server
 }
 
@@ -555,7 +557,7 @@ func (w *Workbench) assistantModelCheck(model, kind string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("模型 %s 尚未安装，请让用户在“设置 › 模型”中下载，助手不能代为下载", model)
+	return fmt.Errorf("模型 %s 尚未安装：用 propose_action（install_model）提议下载，用户确认后才会开始", model)
 }
 
 func stringPtr(s string) *string { return &s }

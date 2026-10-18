@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -26,6 +27,18 @@ type AssistantContext struct {
 	WorkTitle string          `json:"workTitle,omitempty"`
 	WorkKind  string          `json:"workKind,omitempty"`
 	Locale    schema.UiLocale `json:"locale,omitempty"`
+	// Selection 是用户在编辑区选中的文字；Cue 是故事配音里选中的台词；Playhead 是播放位置（秒）。
+	Selection string        `json:"selection,omitempty"`
+	Cue       *AssistantCue `json:"cue,omitempty"`
+	Playhead  float64       `json:"playhead,omitempty"`
+}
+
+// AssistantCue 是故事配音里选中的一句台词：Index 从 1 开始。
+type AssistantCue struct {
+	Index   int    `json:"index"`
+	Total   int    `json:"total"`
+	Speaker string `json:"speaker,omitempty"`
+	Text    string `json:"text,omitempty"`
 }
 
 // chatMessage 是排队中的一条用户消息，sessionID 记录它属于哪个会话。
@@ -59,11 +72,6 @@ type chatTurn struct {
 // assistantSessionDir 返回某个会话的助手子进程配置目录。
 func assistantSessionDir(root, sessionID string) string {
 	return filepath.Join(root, "assistant", "sessions", sessionID)
-}
-
-// assistantMemoryDir 返回所有会话共享的助手长期记忆目录。
-func assistantMemoryDir(root string) string {
-	return filepath.Join(root, "assistant", "memory")
 }
 
 // SendAssistant 接收一条用户消息：写入当前会话（没有则新建）并开始（或排队）一轮助手回复。
@@ -369,6 +377,15 @@ func (w *Workbench) runTurn(parent context.Context, next chatMessage) {
 // chatCard 供助手工具更新当前轮的工具卡片：state 为 running、done 或 error；没有运行中的一轮时忽略。
 // summary 提供 zh 与 en 两种文案，按界面语言选择。
 func (w *Workbench) chatCard(tool, summaryZH, summaryEN, state string) {
+	w.noteChatCard(tool, summaryZH, summaryEN, state, nil)
+}
+
+// chatProposal 在当前轮登记一张待确认的提议卡片。
+func (w *Workbench) chatProposal(tool, summaryZH, summaryEN string, proposal *schema.AssistantProposal) {
+	w.noteChatCard(tool, summaryZH, summaryEN, "done", proposal)
+}
+
+func (w *Workbench) noteChatCard(tool, summaryZH, summaryEN, state string, proposal *schema.AssistantProposal) {
 	w.chat.mu.Lock()
 	turn := w.chat.turn
 	var snapshot *schema.AssistantTurn
@@ -377,7 +394,7 @@ func (w *Workbench) chatCard(tool, summaryZH, summaryEN, state string) {
 		if turn.locale == schema.UiLocaleEn {
 			summary = summaryEN
 		}
-		turn.noteCard(tool, summary, state)
+		turn.noteCard(tool, summary, state, proposal)
 		snapshot = turn.snapshot()
 	}
 	w.chat.mu.Unlock()
@@ -496,12 +513,12 @@ func (t *chatTurn) startCard(tool, args string) {
 }
 
 // noteCard 由工具处理器登记或更新自己的卡片；调用方持有 chat.mu。
-func (t *chatTurn) noteCard(tool, summary, state string) {
+func (t *chatTurn) noteCard(tool, summary, state string, proposal *schema.AssistantProposal) {
 	if card := t.runningCard(tool); card != nil {
-		card.Summary, card.State = summary, state
+		card.Summary, card.State, card.Proposal = summary, state, proposal
 		return
 	}
-	t.blocks = append(t.blocks, schema.AssistantBlock{Kind: "tool", Card: &schema.AssistantToolCard{Tool: tool, Summary: summary, State: state}})
+	t.blocks = append(t.blocks, schema.AssistantBlock{Kind: "tool", Card: &schema.AssistantToolCard{Tool: tool, Summary: summary, State: state, Proposal: proposal}})
 }
 
 // settleCard 在工具结果事件到达时收尾仍为 running 的同名卡片；调用方持有 chat.mu。
@@ -539,31 +556,112 @@ var pageLabels = map[string]string{
 }
 
 // chatMessageText 组装发给助手的一条用户消息：界面上下文前缀与用户正文。
+// 上下文只带摘要（选中内容、当前台词、最近一次生成的结果与错误码、缺失的模型、记住的偏好），不带作品全文。
 func (w *Workbench) chatMessageText(next chatMessage) string {
 	var b strings.Builder
 	context := next.context
+	s := w.Store.Read()
+	line := func(format string, args ...any) { b.WriteString(fmt.Sprintf(format, args...) + "\n") }
 	b.WriteString("<ui_context>\n")
 	if label, ok := pageLabels[context.Page]; ok {
-		b.WriteString("page: " + label + "\n")
+		line("page: %s", label)
 	}
 	if id := strings.TrimSpace(context.WorkID); id != "" {
 		title, kind := strings.TrimSpace(context.WorkTitle), strings.TrimSpace(context.WorkKind)
-		for _, draft := range w.Store.Read().Drafts {
-			if draft.ID == id {
-				title, kind = draft.Title, workKindOf(draft)
+		var work *schema.Draft
+		for i := range s.Drafts {
+			if s.Drafts[i].ID == id {
+				work = &s.Drafts[i]
+				title, kind = work.Title, workKindOf(*work)
 				break
 			}
 		}
 		if title != "" {
-			b.WriteString(fmt.Sprintf("current work: %q (id %s, kind %s)\n", title, id, kind))
+			line("current work: %q (id %s, kind %s)", title, id, kind)
 		} else {
-			b.WriteString(fmt.Sprintf("current work id: %s (kind %s)\n", id, kind))
+			line("current work id: %s (kind %s)", id, kind)
+		}
+		if work != nil {
+			w.workContext(&b, s, *work)
+		}
+	}
+	if cue := context.Cue; cue != nil && cue.Index > 0 {
+		line("selected line: #%d of %d, speaker %q: %q", cue.Index, cue.Total, clip(cue.Speaker, 40), clip(cue.Text, 300))
+	}
+	if selection := strings.TrimSpace(context.Selection); selection != "" {
+		line("selected text: %q", clip(selection, 600))
+	}
+	// 播放位置只对打开的作品有意义。
+	if context.Playhead > 0 && strings.TrimSpace(context.WorkID) != "" {
+		seconds := int(context.Playhead)
+		line("playhead: %d:%02d", seconds/60, seconds%60)
+	}
+	if !RuntimeReady(s) {
+		line("inference engine: not installed or outdated (Settings › Engine)")
+	}
+	if len(s.AssistantMemory) > 0 {
+		b.WriteString("remembered preferences:\n")
+		for _, memo := range s.AssistantMemory {
+			line("- [%s] %s", memo.ID, memo.Text)
 		}
 	}
 	if context.Locale != "" {
-		b.WriteString("ui_locale: " + string(context.Locale) + "\n")
+		line("ui_locale: %s", context.Locale)
 	}
 	b.WriteString("</ui_context>\n\n")
 	b.WriteString(next.text)
 	return b.String()
+}
+
+// workContext 写入当前作品的状态：所用模型是否已安装、正在进行或最近结束的生成、最新一版的时长。
+func (w *Workbench) workContext(b *strings.Builder, s schema.State, d schema.Draft) {
+	if d.ModelID != "" {
+		if !slices.ContainsFunc(s.Models, func(m schema.InstalledModel) bool { return m.ID == d.ModelID }) {
+			fmt.Fprintf(b, "work model: %s (not installed)\n", d.ModelID)
+		} else {
+			fmt.Fprintf(b, "work model: %s\n", d.ModelID)
+		}
+	}
+	if a := s.Activity; a != nil && a.ProjectID == d.ID {
+		switch {
+		case a.Status == "running":
+			fmt.Fprintf(b, "generation: running (%s)\n", codeKey(a.Code))
+		case a.ErrorCode != nil:
+			fmt.Fprintf(b, "last generation: %s, error %s %s\n", a.Status, codeKey(*a.ErrorCode), paramsText(a.ErrorParams))
+		default:
+			fmt.Fprintf(b, "last generation: %s\n", a.Status)
+		}
+	}
+	for _, g := range s.History {
+		if g.Settings.ID == d.ID {
+			fmt.Fprintf(b, "latest take: %q, %.1fs, %d min ago (id %s)\n", g.Title, g.Duration, int(time.Since(g.CreatedAt).Minutes()), g.ID)
+			break
+		}
+	}
+}
+
+// paramsText 把错误参数拼成简短文本；长参数截断，避免把日志细节整段带进上下文。
+func paramsText(params msg.Params) string {
+	if len(params) == 0 {
+		return ""
+	}
+	keys := make([]string, 0, len(params))
+	for key := range params {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	parts := make([]string, 0, len(keys))
+	for _, key := range keys {
+		parts = append(parts, fmt.Sprintf("%s=%s", key, clip(fmt.Sprint(params[key]), 120)))
+	}
+	return "(" + strings.Join(parts, ", ") + ")"
+}
+
+// clip 按字符截断文本并去掉换行。
+func clip(text string, limit int) string {
+	text = strings.Join(strings.Fields(text), " ")
+	if runes := []rune(text); len(runes) > limit {
+		return string(runes[:limit]) + "…"
+	}
+	return text
 }

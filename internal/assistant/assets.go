@@ -16,7 +16,7 @@ var skillFS embed.FS
 var systemPrompt []byte
 
 // skillNames 是随包分发的全部 Skill。
-var skillNames = []string{"yovoice-score", "yovoice-lyrics", "yovoice-melody", "yovoice-workflows"}
+var skillNames = []string{"yovoice-product", "yovoice-score", "yovoice-lyrics", "yovoice-melody", "yovoice-workflows"}
 
 // writeAssets 把系统说明与 Skill 写入数据目录，内容没有变化时不重写文件。
 func writeAssets(root string) error {

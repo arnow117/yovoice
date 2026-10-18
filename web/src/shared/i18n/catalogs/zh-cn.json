@@ -3703,5 +3703,113 @@
   },
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "正在处理"
+  },
+  "@yovoice.assistant.selectionClear": {
+    "defaultMessage": "不附带选中内容"
+  },
+  "@yovoice.assistant.proposal.confirm": {
+    "defaultMessage": "确认"
+  },
+  "@yovoice.assistant.proposal.confirmDelete": {
+    "defaultMessage": "确认删除"
+  },
+  "@yovoice.assistant.proposal.dismiss": {
+    "defaultMessage": "不用了"
+  },
+  "@yovoice.assistant.proposal.confirmed": {
+    "defaultMessage": "已执行"
+  },
+  "@yovoice.assistant.proposal.dismissed": {
+    "defaultMessage": "已忽略"
+  },
+  "@yovoice.assistant.proposal.failed": {
+    "defaultMessage": "执行失败"
+  },
+  "@yovoice.assistant.nudge.failed": {
+    "defaultMessage": "这次生成没成功，要我看看原因吗？"
+  },
+  "@yovoice.assistant.nudge.diagnose": {
+    "defaultMessage": "看看原因"
+  },
+  "@yovoice.assistant.nudge.failedPrompt": {
+    "defaultMessage": "刚才的生成失败了，帮我查一下原因，并告诉我怎么解决。"
+  },
+  "@yovoice.assistant.nudge.improve": {
+    "defaultMessage": "帮我优化"
+  },
+  "@yovoice.assistant.nudge.done.text": {
+    "defaultMessage": "这段语音生成好了。想换个声音或调整语气吗？"
+  },
+  "@yovoice.assistant.nudge.done.story": {
+    "defaultMessage": "这一章配好了。要我检查哪些句子值得重配吗？"
+  },
+  "@yovoice.assistant.nudge.done.music": {
+    "defaultMessage": "歌生成好了。想换个风格或改改歌词吗？"
+  },
+  "@yovoice.assistant.nudge.done.score": {
+    "defaultMessage": "编曲渲染好了。要我再丰富一下层次吗？"
+  },
+  "@yovoice.assistant.nudge.donePrompt.text": {
+    "defaultMessage": "这段语音生成好了，帮我看看台词的语气、停顿和声音还能怎么改进。"
+  },
+  "@yovoice.assistant.nudge.donePrompt.story": {
+    "defaultMessage": "这一章配好了，帮我检查有没有没分配声音的角色、过长的句子或可能读错的字。"
+  },
+  "@yovoice.assistant.nudge.donePrompt.music": {
+    "defaultMessage": "这首歌生成好了，帮我想想风格和歌词还能怎么改进。"
+  },
+  "@yovoice.assistant.nudge.donePrompt.score": {
+    "defaultMessage": "编曲渲染好了，帮我看看还能加哪些声部或变化。"
+  },
+  "@yovoice.assistant.nudge.downloadFailed": {
+    "defaultMessage": "下载没成功，要我看看原因吗？"
+  },
+  "@yovoice.assistant.nudge.downloadFailedPrompt": {
+    "defaultMessage": "刚才的下载失败了，帮我查一下原因，并告诉我怎么解决。"
+  },
+  "@yovoice.assistant.nudge.modelReady": {
+    "defaultMessage": "{name} 已经装好了。"
+  },
+  "@yovoice.assistant.nudge.tryIt": {
+    "defaultMessage": "试一段"
+  },
+  "@yovoice.assistant.nudge.modelReadyPrompt": {
+    "defaultMessage": "{name} 已经装好了，帮我用它生成一小段试试。"
+  },
+  "@yovoice.assistant.nudge.close": {
+    "defaultMessage": "关闭提示"
+  },
+  "@yovoice.settings.assistantIntro": {
+    "defaultMessage": "Ocho 是 yovoice 的内置助手。它能看到你正在编辑的作品和选中的内容；删除、下载和修改设置都会先请你确认。"
+  },
+  "@yovoice.settings.assistantBehavior": {
+    "defaultMessage": "行为"
+  },
+  "@yovoice.settings.assistantNudges": {
+    "defaultMessage": "主动提示"
+  },
+  "@yovoice.settings.assistantNudgesHint": {
+    "defaultMessage": "生成完成或失败、模型下载结束时，Ocho 在右下角给出建议。"
+  },
+  "@yovoice.settings.assistantMemory": {
+    "defaultMessage": "记住的偏好"
+  },
+  "@yovoice.settings.assistantMemoryHint": {
+    "defaultMessage": "在对话里告诉 Ocho 你的习惯，比如常用的声音或风格，它会记下来并在之后的对话里遵循。"
+  },
+  "@yovoice.settings.assistantMemoryClear": {
+    "defaultMessage": "全部清除"
+  },
+  "@yovoice.settings.assistantMemoryClearConfirm": {
+    "defaultMessage": "确认清除全部"
+  },
+  "@yovoice.settings.assistantMemoryDelete": {
+    "defaultMessage": "删除偏好：{text}"
+  },
+  "@yovoice.settings.assistantMemoryEmpty": {
+    "defaultMessage": "还没有记住的偏好"
+  },
+  "@yovoice.settings.assistantMemoryEmptyHint": {
+    "defaultMessage": "比如对 Ocho 说“旁白默认用温柔女声”。"
   }
 }

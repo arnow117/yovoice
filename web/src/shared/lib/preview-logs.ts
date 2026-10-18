@@ -13,6 +13,7 @@ export const auditedMethods = new Set([
   'generation.lyricTimes', 'preferences.save', 'storage.relocate', 'storage.cleanup', 'model.directory', 'model.download',
   'model.forget', 'runtime.install', 'ai.provider.save', 'ai.provider.delete', 'ai.provider.use', 'ai.test', 'ai.connect', 'ai.codex.login',
   'melody.plan', 'melody.cover', 'melody.dismiss', 'ai.dismiss', 'operation.cancel', 'model.cancel', 'ai.cancel', 'logs.export', 'assets.delete',
+  'assistant.proposal', 'assistant.forget',
 ]);
 
 export function logLevel(event: string, fields: Record<string, unknown> = {}): LogLevel {

@@ -6,23 +6,24 @@ import { Markdown } from '@astryxdesign/core/Markdown';
 import { StatusDot } from '@astryxdesign/core/StatusDot';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { useStreamingText } from '@astryxdesign/core/hooks';
-import { Check, Copy, Pause, Play } from 'lucide-react';
+import { Check, Copy, Download, Pause, Play, Settings2, Sparkles, Trash2 } from 'lucide-react';
 import { formatCallError } from '../../shared/i18n/format';
-import { formatTime, type AssistantBlock, type AssistantMessage, type Generation } from '../../shared/workbench';
+import { formatTime, type AssistantBlock, type AssistantMessage, type AssistantToolCard, type Generation } from '../../shared/workbench';
 import { splitTurn, turnActivity, turnPhase } from './assistant-model';
 import { AssistantOrb } from './assistant-avatar';
 
 // 助手的一轮回复：没有气泡与头像，内容即界面。过程（思考、工具、中间说明）收在一行状态里，
 // 默认收起、点开看步骤；回答逐字流式渲染为 Markdown；生成结果可直接试听。
 
-export function AssistantTurn({ blocks, live, message, generation, playing, onPlay, openWork }: {
+export function AssistantTurn({ blocks, live, message, generation, playing, onPlay, openWork, onResolve }: {
   blocks: AssistantBlock[]; live: boolean; message?: AssistantMessage; generation: Generation | null; playing: string | null;
-  onPlay: (item: Generation) => void; openWork: (workId: string) => void;
+  onPlay: (item: Generation) => void; openWork: (workId: string) => void; onResolve: (id: string, confirm: boolean) => Promise<void>;
 }) {
   const t = useTranslator();
   const { process, answer } = splitTurn(blocks);
   const text = useStreamingText(answer, live, { speed: 'fast' });
   const working = live && !answer;
+  const proposals = blocks.flatMap(block => block.card?.proposal ? [block.card] : []);
   return <VStack className="assistant-turn" gap={2} data-live={live || undefined}>
     {process.length || working ? <ProcessTrace blocks={process} working={working} /> : null}
     {text ? <Markdown className="assistant-answer" density="compact" contentWidth="100%" isStreaming={live}>{text}</Markdown> : null}
@@ -32,6 +33,7 @@ export function AssistantTurn({ blocks, live, message, generation, playing, onPl
       <small className="grow">{generation.title} · {formatTime(generation.duration)}</small>
       <Button size="sm" variant="ghost" label={t('@yovoice.assistant.openWork')} onClick={() => openWork(generation.settings.id)} />
     </HStack> : null}
+    {proposals.map(card => <ProposalCard key={card.proposal!.id} card={card} onResolve={onResolve} />)}
     {message?.status === 'cancelled' ? <small className="assistant-note">{t('@yovoice.assistant.cancelled')}</small> : null}
     {message?.status === 'failed' && message.errorCode ? <small className="assistant-note" data-tone="danger" role="alert">{formatCallError(t, message)}</small> : null}
     {!live && message?.text ? <CopyButton text={message.text} /> : null}
@@ -68,6 +70,35 @@ function ProcessTrace({ blocks, working }: { blocks: AssistantBlock[]; working: 
         : <small key={index} className="assistant-step assistant-thought" data-kind={block.kind}>{block.text?.trim()}</small>)}
     </VStack>
   </Collapsible>;
+}
+
+// 提议卡片：Ocho 想做但需要用户确认的操作（删除、下载、改设置）。待确认时给出确认与“不用了”，处理后只留一行结果。
+function ProposalCard({ card, onResolve }: { card: AssistantToolCard; onResolve: (id: string, confirm: boolean) => Promise<void> }) {
+  const t = useTranslator();
+  const proposal = card.proposal!;
+  const destructive = proposal.action.startsWith('delete_');
+  const icon = destructive ? <Trash2 size={15} /> : proposal.action.startsWith('install_') ? <Download size={15} /> : proposal.action === 'cleanup_storage' ? <Sparkles size={15} /> : <Settings2 size={15} />;
+  const [busy, setBusy] = useState(false);
+  // 失败时恢复按钮，用户可以再试；成功后卡片随状态更新变成结果行。
+  const resolve = (confirm: boolean) => { setBusy(true); onResolve(proposal.id, confirm).catch(() => setBusy(false)); };
+  return <VStack className="assistant-proposal" gap={2} data-state={proposal.state} data-testid="assistant-proposal" role="group" aria-label={card.summary}>
+    <HStack gap={2} vAlign="center">
+      <span className="assistant-proposal-icon" data-tone={destructive ? 'danger' : undefined} aria-hidden>{icon}</span>
+      <span className="assistant-proposal-title grow">{card.summary}</span>
+    </HStack>
+    {proposal.reason ? <small className="assistant-proposal-reason">{proposal.reason}</small> : null}
+    {proposal.state === 'pending'
+      ? <HStack gap={2} hAlign="end">
+        <Button size="sm" variant="ghost" label={t('@yovoice.assistant.proposal.dismiss')} isDisabled={busy} onClick={() => resolve(false)} />
+        <Button size="sm" variant={destructive ? 'destructive' : 'primary'} label={destructive ? t('@yovoice.assistant.proposal.confirmDelete') : t('@yovoice.assistant.proposal.confirm')} isLoading={busy} onClick={() => resolve(true)} />
+      </HStack>
+      : <HStack gap={2} vAlign="center">
+        <StatusDot variant={proposal.state === 'confirmed' ? 'success' : proposal.state === 'failed' ? 'error' : 'neutral'} label={t(`@yovoice.assistant.proposal.${proposal.state}`)} />
+        <small className="assistant-note" data-tone={proposal.state === 'failed' ? 'danger' : undefined}>
+          {proposal.state === 'failed' && proposal.errorCode ? formatCallError(t, { errorCode: proposal.errorCode, errorParams: proposal.errorParams }) : t(`@yovoice.assistant.proposal.${proposal.state}`)}
+        </small>
+      </HStack>}
+  </VStack>;
 }
 
 // 复制回答：无剪贴板权限的环境（如内嵌页面）退回 execCommand，保证总有效果。

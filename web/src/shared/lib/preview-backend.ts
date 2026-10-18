@@ -1,6 +1,6 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantBlock, type AssistantToolCardState, blocksText, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind } from '../workbench';
+import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantBlock, type AssistantToolCardState, type AssistantContext, type Activity, blocksText, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 import { isUiLocale } from '../i18n/locale';
@@ -51,6 +51,13 @@ function publish() {
 }
 
 export function subscribePreview(listener: (state: State) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; }
+
+// 开发预览的测试钩子：浏览器测试据此模拟生成或下载的进度变化（预览没有推理引擎），并读取最近一条消息附带的上下文。
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  Object.assign(window, {
+    __previewActivity: (slot: 'activity' | 'modelActivity', activity: Activity | null) => { preview()[slot] = activity; publish(); },
+  });
+}
 
 
 // 预览的助手会话：与真实后端一致，当前会话由 currentId 指向，消息写入当前会话。
@@ -361,7 +368,8 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   }
   // 预览模拟助手对话：流式文本、工具卡片与界面事件都按真实路径写进状态，编辑器内容与页面随之变化。
   if (method === 'assistant.send') {
-    const input = data as { text: string; context?: { page?: string; workId?: string } };
+    const input = data as { text: string; context?: AssistantContext };
+    Object.assign(window, { __assistantContext: input.context });
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!assistant.available) throw new CallError('@yovoice.error.assistantMissing');
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
@@ -403,6 +411,35 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     const timer = (at: number, run: () => void) => setTimeout(() => { if (alive()) run(); }, at);
     live.turn = { blocks: [], model: provider.model, startedAt: new Date().toISOString() };
     publish();
+    const wantsDelete = /删除|删掉|delete/i.test(input.text);
+    const wantsRemember = /记住|remember/i.test(input.text);
+    if (wantsDelete || wantsRemember) {
+      // 删除走确认卡片，偏好直接记下；两者都只模拟真实后端的结果形态。
+      const target = state.drafts.find(d => input.text.includes(d.title)) ?? state.drafts[0];
+      if (wantsDelete && target) {
+        timer(500, () => {
+          blocks.push({ kind: 'tool', card: { tool: 'propose_action', summary: `删除作品《${target.title}》`, state: 'done', proposal: { id: crypto.randomUUID().replaceAll('-', ''), action: 'delete_work', target: target.id, label: target.title, reason: '这是一份重复的草稿。', state: 'pending' } } });
+          commit();
+        });
+      }
+      if (wantsRemember) {
+        const text = input.text.replace(/^.*?(记住|remember)[:：，,\s]*/i, '').trim() || input.text;
+        timer(500, () => {
+          state.assistantMemory = [...(state.assistantMemory ?? []).filter(memo => memo.text !== text), { id: crypto.randomUUID().replaceAll('-', ''), text, createdAt: new Date().toISOString() }];
+          blocks.push({ kind: 'tool', card: { tool: 'remember_preference', summary: `记住了：${text}`, state: 'done' } });
+          commit();
+        });
+      }
+      stream(900, 'text', wantsDelete ? '我放了一张确认卡片，确认后就删除。' : '记下了，以后都按这个来。');
+      setTimeout(() => {
+        if (!alive()) return;
+        chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: blocksText(blocks), blocks: live.turn?.blocks ?? [], status: 'completed', createdAt: new Date().toISOString() });
+        chat.updatedAt = new Date().toISOString();
+        live.turn = undefined;
+        publish();
+      }, 1600);
+      return true as T;
+    }
     const wantsScore = /钢琴|旋律|编曲|配乐|score|piano/i.test(input.text);
     const wantsSong = /写词|写歌|歌词|歌|lyric|song/i.test(input.text);
     let draftID = '';
@@ -477,6 +514,22 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     const id = (data as { id: string }).id;
     if (!state.assistantSessions?.sessions.some(session => session.id === id)) throw new CallError('@yovoice.error.requestInvalid');
     state.assistantSessions.currentId = id;
+    publish();
+    return true as T;
+  }
+  if (method === 'assistant.proposal') {
+    const { id, confirm } = data as { id: string; confirm: boolean };
+    const cards = (state.assistantSessions?.sessions ?? []).flatMap(session => session.messages.flatMap(message => message.blocks ?? [])).map(block => block.card).filter(card => card?.proposal?.id === id);
+    const proposal = cards[0]?.proposal;
+    if (!proposal || proposal.state !== 'pending') throw new CallError('@yovoice.error.requestInvalid');
+    if (confirm && proposal.action === 'delete_work') state.drafts = state.drafts.filter(d => d.id !== proposal.target);
+    for (const card of cards) card!.proposal = { ...proposal, state: confirm ? 'confirmed' : 'dismissed' };
+    publish();
+    return true as T;
+  }
+  if (method === 'assistant.forget') {
+    const id = (data as { id?: string }).id;
+    state.assistantMemory = id ? (state.assistantMemory ?? []).filter(memo => memo.id !== id) : [];
     publish();
     return true as T;
   }

@@ -979,6 +979,23 @@
   .assistant-actions { margin-inline-start: calc(-1 * var(--spacing-2)); opacity: 0; transition: opacity var(--duration-fast) var(--ease-standard); }
   .assistant-turn:hover .assistant-actions, .assistant-actions:focus-within { opacity: 1; }
   .assistant-model { max-width: 100%; min-width: 0; color: var(--app-muted); }
+  /* 附带的选中内容：输入框上方一行引用，单行截断，点 × 不带。 */
+  .assistant-selection { margin-bottom: var(--spacing-2); padding: var(--spacing-1) var(--spacing-1) var(--spacing-1) var(--spacing-3); border-inline-start: calc(var(--border-width) * 2) solid var(--app-accent); border-radius: var(--radius-element); background: color-mix(in srgb, var(--app-accent) 6%, transparent); color: var(--app-muted); font-size: var(--app-small-font); animation: assistant-rise var(--duration-fast) var(--ease-standard); }
+  .assistant-selection > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* 提议卡片：要用户确认的操作；处理后只留一行结果。 */
+  .assistant-proposal { padding: var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); background: var(--app-white); animation: assistant-rise var(--duration-fast) var(--ease-standard); }
+  .assistant-proposal[data-state="pending"] { border-color: color-mix(in srgb, var(--app-accent) 40%, var(--app-line)); box-shadow: var(--shadow-low); }
+  .assistant-proposal:not([data-state="pending"]) { padding-block: var(--spacing-2); }
+  .assistant-proposal-icon { display: inline-flex; flex-shrink: 0; color: var(--app-accent); }
+  .assistant-proposal-icon[data-tone="danger"] { color: var(--color-text-red); }
+  .assistant-proposal-title { min-width: 0; font-weight: var(--font-weight-medium); color: var(--app-ink); }
+  .assistant-proposal:not([data-state="pending"]) .assistant-proposal-title { color: var(--app-muted); font-weight: var(--font-weight-normal); }
+  .assistant-proposal-reason { color: var(--app-muted); line-height: 1.6; }
+  /* 主动提示气泡：入口在时停在入口上方，入口移走时停在右下角。 */
+  .assistant-nudge { position: fixed; right: var(--assistant-edge-right); bottom: var(--assistant-edge-bottom); z-index: 451; width: min(calc(var(--spacing-8) * 9), calc(100vw - var(--spacing-8))); padding: var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); box-shadow: var(--shadow-high); animation: assistant-pop var(--duration-medium, 410ms) var(--ease-standard); transform-origin: right bottom; }
+  .assistant-nudge[data-launcher] { bottom: calc(var(--assistant-edge-bottom) + var(--spacing-12)); }
+  .assistant-nudge[data-tone="danger"] { border-color: color-mix(in srgb, var(--color-text-red) 35%, var(--app-line)); }
+  .assistant-nudge-text { color: var(--app-ink); line-height: 1.6; }
   @keyframes assistant-shimmer { from { background-position: 100% 0; } to { background-position: 0% 0; } }
   @keyframes assistant-status-in { from { opacity: 0; transform: translateY(var(--spacing-1)); } }
   /* 收起时的入口：工作区卡片内边右下角的小按钮（Ocho + 名称），右、下边距与播放条一致、圆角与播放条同角；
@@ -1001,5 +1018,5 @@
   @keyframes assistant-rise { from { opacity: 0; transform: translateY(var(--spacing-1)); } }
   @keyframes assistant-fade { from { opacity: 0; } }
   @keyframes assistant-slide { from { transform: translateX(-100%); } }
-  @media (prefers-reduced-motion: reduce) { .assistant-panel, .assistant-launcher-wrap, .assistant-launcher-hide, .assistant-launcher::before, .assistant-empty-art, .assistant-empty-title, .assistant-empty-hint, .assistant-suggestions, .assistant-history, .assistant-scrim, .assistant-status-label { animation: none; transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .assistant-panel, .assistant-launcher-wrap, .assistant-nudge, .assistant-proposal, .assistant-selection, .assistant-launcher-hide, .assistant-launcher::before, .assistant-empty-art, .assistant-empty-title, .assistant-empty-hint, .assistant-suggestions, .assistant-history, .assistant-scrim, .assistant-status-label { animation: none; transition: none; } }
   @media (max-width: 600px) { .assistant-launcher .astryx-kbd { display: none; } }

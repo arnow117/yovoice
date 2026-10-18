@@ -3703,5 +3703,113 @@
   },
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "처리하는 중"
+  },
+  "@yovoice.assistant.selectionClear": {
+    "defaultMessage": "선택 내용 빼기"
+  },
+  "@yovoice.assistant.proposal.confirm": {
+    "defaultMessage": "확인"
+  },
+  "@yovoice.assistant.proposal.confirmDelete": {
+    "defaultMessage": "삭제"
+  },
+  "@yovoice.assistant.proposal.dismiss": {
+    "defaultMessage": "괜찮아요"
+  },
+  "@yovoice.assistant.proposal.confirmed": {
+    "defaultMessage": "실행됨"
+  },
+  "@yovoice.assistant.proposal.dismissed": {
+    "defaultMessage": "건너뜀"
+  },
+  "@yovoice.assistant.proposal.failed": {
+    "defaultMessage": "실패"
+  },
+  "@yovoice.assistant.nudge.failed": {
+    "defaultMessage": "생성에 실패했어요. 원인을 찾아볼까요?"
+  },
+  "@yovoice.assistant.nudge.diagnose": {
+    "defaultMessage": "원인 보기"
+  },
+  "@yovoice.assistant.nudge.failedPrompt": {
+    "defaultMessage": "방금 생성이 실패했어. 원인을 찾아보고 해결 방법을 알려줘."
+  },
+  "@yovoice.assistant.nudge.improve": {
+    "defaultMessage": "다듬어 줘"
+  },
+  "@yovoice.assistant.nudge.done.text": {
+    "defaultMessage": "음성이 완성됐어요. 목소리나 말투를 바꿔 볼까요?"
+  },
+  "@yovoice.assistant.nudge.done.story": {
+    "defaultMessage": "이 장의 더빙이 끝났어요. 다시 녹음할 대사를 확인해 볼까요?"
+  },
+  "@yovoice.assistant.nudge.done.music": {
+    "defaultMessage": "노래가 완성됐어요. 스타일이나 가사를 바꿔 볼까요?"
+  },
+  "@yovoice.assistant.nudge.done.score": {
+    "defaultMessage": "편곡 렌더링이 끝났어요. 층을 더 쌓아 볼까요?"
+  },
+  "@yovoice.assistant.nudge.donePrompt.text": {
+    "defaultMessage": "음성이 완성됐어. 말투, 쉼, 목소리를 어떻게 다듬으면 좋을지 알려줘."
+  },
+  "@yovoice.assistant.nudge.donePrompt.story": {
+    "defaultMessage": "이 장 더빙이 끝났어. 목소리가 없는 화자, 너무 긴 대사, 잘못 읽을 만한 단어가 있는지 확인해 줘."
+  },
+  "@yovoice.assistant.nudge.donePrompt.music": {
+    "defaultMessage": "노래가 완성됐어. 스타일과 가사를 어떻게 더 좋게 할지 제안해 줘."
+  },
+  "@yovoice.assistant.nudge.donePrompt.score": {
+    "defaultMessage": "편곡이 끝났어. 더할 만한 파트나 변화를 제안해 줘."
+  },
+  "@yovoice.assistant.nudge.downloadFailed": {
+    "defaultMessage": "다운로드에 실패했어요. 원인을 찾아볼까요?"
+  },
+  "@yovoice.assistant.nudge.downloadFailedPrompt": {
+    "defaultMessage": "방금 다운로드가 실패했어. 원인을 찾아보고 해결 방법을 알려줘."
+  },
+  "@yovoice.assistant.nudge.modelReady": {
+    "defaultMessage": "{name} 설치가 끝났어요."
+  },
+  "@yovoice.assistant.nudge.tryIt": {
+    "defaultMessage": "써 보기"
+  },
+  "@yovoice.assistant.nudge.modelReadyPrompt": {
+    "defaultMessage": "{name} 설치가 끝났어. 이걸로 짧은 샘플을 만들어 줘."
+  },
+  "@yovoice.assistant.nudge.close": {
+    "defaultMessage": "닫기"
+  },
+  "@yovoice.settings.assistantIntro": {
+    "defaultMessage": "Ocho는 yovoice의 내장 어시스턴트입니다. 편집 중인 작품과 선택한 내용을 보고, 삭제·다운로드·설정 변경 전에는 꼭 확인을 받습니다."
+  },
+  "@yovoice.settings.assistantBehavior": {
+    "defaultMessage": "동작"
+  },
+  "@yovoice.settings.assistantNudges": {
+    "defaultMessage": "먼저 제안하기"
+  },
+  "@yovoice.settings.assistantNudgesHint": {
+    "defaultMessage": "생성이 끝나거나 실패했을 때, 모델 다운로드가 끝났을 때 Ocho가 오른쪽 아래에서 제안합니다."
+  },
+  "@yovoice.settings.assistantMemory": {
+    "defaultMessage": "기억한 취향"
+  },
+  "@yovoice.settings.assistantMemoryHint": {
+    "defaultMessage": "자주 쓰는 목소리나 스타일 같은 습관을 대화에서 알려 주면 Ocho가 기억하고 이후 대화에 반영합니다."
+  },
+  "@yovoice.settings.assistantMemoryClear": {
+    "defaultMessage": "모두 지우기"
+  },
+  "@yovoice.settings.assistantMemoryClearConfirm": {
+    "defaultMessage": "모두 지우기 확인"
+  },
+  "@yovoice.settings.assistantMemoryDelete": {
+    "defaultMessage": "취향 삭제: {text}"
+  },
+  "@yovoice.settings.assistantMemoryEmpty": {
+    "defaultMessage": "아직 기억한 취향이 없어요"
+  },
+  "@yovoice.settings.assistantMemoryEmptyHint": {
+    "defaultMessage": "예: Ocho에게 \"내레이션은 기본으로 부드러운 여성 목소리로\"라고 말해 보세요."
   }
 }

@@ -35,11 +35,13 @@ import { dismissSplash } from '../shared/lib/splash';
 import { IntroScreen } from './intro-screen';
 import { GuideTour } from './guide-tour';
 import { formatNotice } from '../shared/i18n/format';
-import { isKokoroModel, isYuE, isVoiceModel, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
+import { isKokoroModel, isYuE, isVoiceModel, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext } from '../shared/workbench';
 // 助手（含形象与点阵动画）首屏后再加载，不占主包。
 const AssistantDock = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantDock })));
 const AssistantTitleButton = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantTitleButton })));
 import { quickActions } from '../features/assistant/assistant-launch';
+import { reportPlayhead, takeAssistantFocus, trackAssistantFocus } from '../features/assistant/assistant-focus';
+import { useAssistantNudge, type Nudge } from '../features/assistant/assistant-nudge';
 import { SidebarNav } from './sidebar-nav';
 import { PageBoundary } from '../shared/ui/page-boundary';
 import { Notifications } from './notifications';
@@ -110,7 +112,6 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   }, []);
   // 编辑页的当前页面键（text/story/music/score），其余页面直接用页面名。
   const assistantPage = page === 'create' || page === 'history' ? projectKind(draft) : page === 'voices' ? 'voices' : page;
-  const assistantContext = { page: assistantPage, workId: page === 'create' ? draft.id : '', workTitle: page === 'create' ? draft.title : '', workKind: page === 'create' ? projectKind(draft) : '', locale: state.preferences.uiLocale };
   const askAssistantPanel = { openWork: (workId: string) => { const target = state.drafts.find(item => item.id === workId); if (target) selectDraft(target); }, openSettings: () => openSettings(draft.modelId, 'ai') };
   // 助手要求界面跳转：open_work/open_page 事件各消费一次。
   const consumedNav = useRef<string | undefined>(undefined);
@@ -275,6 +276,21 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const [playingCue, setPlayingCue] = useState(-1);
   const [cueSelection, setCueSelection] = useState<{ draftId: string; index: number; revision: number } | null>(null);
   const selectedCue = cueSelection?.draftId === draft.id ? Math.min(cueSelection.index, (draft.subtitles?.cues.length ?? 1) - 1) : 0;
+  // 故事配音里选中的台词随上下文带上，Ocho 据此理解“这句”。
+  const focusCue = page === 'create' && draft.subtitles?.cues.length ? (() => {
+    const cue = draft.subtitles.cues[selectedCue];
+    return { index: selectedCue + 1, total: draft.subtitles.cues.length, speaker: draft.subtitles.speakers.find(item => item.id === cue.speakerId)?.sourceName, text: cue.text };
+  })() : undefined;
+  const assistantContext: AssistantContext = { page: assistantPage, workId: page === 'create' ? draft.id : '', workTitle: page === 'create' ? draft.title : '', workKind: page === 'create' ? projectKind(draft) : '', locale: state.preferences.uiLocale, cue: focusCue };
+  useEffect(() => trackAssistantFocus(), []);
+  // 主动提示：面板关着、开着主动提示且助手可用时，生成或下载结束会在右下角冒出建议。
+  const assistantReady = !state.assistantMissing && !!state.aiProviders?.find(item => item.id === state.aiProviderID)?.model;
+  const [nudge, dismissNudge] = useAssistantNudge(state, assistantReady && !assistantOpen && !state.preferences.assistantQuiet);
+  const actOnNudge = (next: Nudge) => {
+    dismissNudge();
+    setAssistantOpen(true);
+    void call('assistant.send', { text: next.prompt, context: { ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page, ...takeAssistantFocus() } }).catch(() => undefined);
+  };
   const activeCue = draft.subtitles?.cues[selectedCue];
   const activeSpeaker = draft.subtitles?.speakers.find(speaker => speaker.id === activeCue?.speakerId) ?? draft.subtitles?.speakers[0];
   const inspectorDraft = activeSpeaker ? { ...draft, ...(activeCue ? cueSettings(draft, activeCue) : activeSpeaker.settings), text: activeCue?.text ?? '' } : draft;
@@ -430,7 +446,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
       {page === 'create' ? <Button label={inspectorCollapsed ? t('@yovoice.app.expandInspector') : t('@yovoice.app.collapseInspector')} isIconOnly variant="ghost" size="sm" icon={<PanelRight size={17} />} aria-expanded={!inspectorCollapsed} onClick={toggleInspectorPanel} /> : null}</HStack> : null}
     <AppShell variant="elevated" sideNav={navigation.isCollapsed ? undefined : sidebar} mobileNav={{ breakpoint: 'none' }} height="fill"><VStack className="app-sheet" gap={0}>
       {characterEditor ? <VStack style={{ display: page === 'characters' ? 'flex' : 'none', height: '100%', minHeight: 0 }} gap={0}><PageBoundary name="character-editor"><CharacterEditor active={page === 'characters'} initial={characterEditor} state={state} catalog={catalog} settings={openSettings} apply={characterOrigin.current ? async saved => { const origin = characterOrigin.current!; await applyToTarget(saved, origin.draftId, origin.speakerId); setCharacterEditor(null); } : undefined} close={() => { setCharacterEditor(null); setPage(characterReturnPage.current); }} /></PageBoundary></VStack> : null}
-      <VStack className="page-panel" style={{ display: characterActive ? 'none' : 'flex' }} gap={0}><Layout height="fill" footer={<VStack gap={0} style={{ display: page === 'create' ? 'flex' : 'none' }}><PageBoundary name="timeline" resetKey={draft.id}>{scoring ? <ScoreDock key={draft.id} draft={draft} change={change} playhead={track ? playback : undefined} seek={time => setSeekRequest({ time, nonce: performance.now() })} /> : null}{draft.timeline || projectKind(draft) === 'story' ? <TimelineEditor exportProject={async () => { await persistDraft(draft); await call('project.export', { id: draft.id, name: draft.title }); }} key={draft.id} selectedCue={selectedCue} cueSelectionRevision={cueSelection?.revision ?? 0} playbackCue={setPlayingCue} selectCue={selectCue} draft={draft} busy={busy} regenerate={async (cueId, clipId) => { await persistDraft(draft); await call('generation.cue', { draft, cueId, clipId }); }} value={draft.timeline ?? { tracks: [] }} history={state.history} change={timeline => change({ timeline })} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget} onError={onError} /> : <Player onProgress={scoring ? (time, playing) => setPlayback({ time, playing }) : undefined} seekRequest={scoring ? seekRequest : undefined} actions={playerActions} reveal={false} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget || !!nowPlaying} track={track} onError={onError} />}</PageBoundary></VStack>} content={<VStack className="content-frame" gap={0}>
+      <VStack className="page-panel" style={{ display: characterActive ? 'none' : 'flex' }} gap={0}><Layout height="fill" footer={<VStack gap={0} style={{ display: page === 'create' ? 'flex' : 'none' }}><PageBoundary name="timeline" resetKey={draft.id}>{scoring ? <ScoreDock key={draft.id} draft={draft} change={change} playhead={track ? playback : undefined} seek={time => setSeekRequest({ time, nonce: performance.now() })} /> : null}{draft.timeline || projectKind(draft) === 'story' ? <TimelineEditor exportProject={async () => { await persistDraft(draft); await call('project.export', { id: draft.id, name: draft.title }); }} key={draft.id} selectedCue={selectedCue} cueSelectionRevision={cueSelection?.revision ?? 0} playbackCue={setPlayingCue} selectCue={selectCue} draft={draft} busy={busy} regenerate={async (cueId, clipId) => { await persistDraft(draft); await call('generation.cue', { draft, cueId, clipId }); }} value={draft.timeline ?? { tracks: [] }} history={state.history} change={timeline => change({ timeline })} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget} onError={onError} /> : <Player onProgress={(time, playing) => { reportPlayhead(time); if (scoring) setPlayback({ time, playing }); }} seekRequest={scoring ? seekRequest : undefined} actions={playerActions} reveal={false} suspended={page !== 'create' || voicePicker !== null || characterActive || !!voiceEditor || !!voiceTarget || !!nowPlaying} track={track} onError={onError} />}</PageBoundary></VStack>} content={<VStack className="content-frame" gap={0}>
         {!ready ? <p className="loading" role="status">{t('@yovoice.app.loading')}</p> : <>
 
           <VStack className="page-panel" gap={0} style={{ display: page === 'create' ? 'flex' : 'none' }}><PageBoundary name="create" resetKey={draft.id}>
@@ -463,7 +479,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
 
       </VStack>} /></VStack>
     </VStack></AppShell>
-    {ready ? <Suspense fallback={null}><AssistantDock state={state} open={assistantOpen} setOpen={setAssistantOpen} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} actions={askAssistantPanel} launcherHidden={launcherHidden} showLauncher={showLauncher} /></Suspense> : null}
+    {ready ? <Suspense fallback={null}><AssistantDock state={state} open={assistantOpen} setOpen={setAssistantOpen} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} actions={askAssistantPanel} launcherHidden={launcherHidden} showLauncher={showLauncher} nudge={nudge} onNudge={actOnNudge} dismissNudge={dismissNudge} /></Suspense> : null}
     <Notifications error={error} clearError={() => setError('')} activity={activity} modelActivity={state.modelActivity} draftId={draft.id} page={page} cancel={() => run(() => call('operation.cancel'))} cancelModel={() => run(() => call('model.cancel'))}
       aiTask={state.aiTask} aiTitle={state.drafts.find(item => item.id === state.aiTask?.projectId)?.title} openAITask={() => { const target = state.drafts.find(item => item.id === state.aiTask?.projectId); if (target) selectDraft(target); }}><UpdateNotice /></Notifications>
     <UpdateDialogHost />

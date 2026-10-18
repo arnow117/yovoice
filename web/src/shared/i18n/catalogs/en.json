@@ -3703,5 +3703,113 @@
   },
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "Working"
+  },
+  "@yovoice.assistant.selectionClear": {
+    "defaultMessage": "Don't include selection"
+  },
+  "@yovoice.assistant.proposal.confirm": {
+    "defaultMessage": "Confirm"
+  },
+  "@yovoice.assistant.proposal.confirmDelete": {
+    "defaultMessage": "Delete"
+  },
+  "@yovoice.assistant.proposal.dismiss": {
+    "defaultMessage": "Not now"
+  },
+  "@yovoice.assistant.proposal.confirmed": {
+    "defaultMessage": "Done"
+  },
+  "@yovoice.assistant.proposal.dismissed": {
+    "defaultMessage": "Skipped"
+  },
+  "@yovoice.assistant.proposal.failed": {
+    "defaultMessage": "Failed"
+  },
+  "@yovoice.assistant.nudge.failed": {
+    "defaultMessage": "That generation didn't work. Want me to find out why?"
+  },
+  "@yovoice.assistant.nudge.diagnose": {
+    "defaultMessage": "Find out why"
+  },
+  "@yovoice.assistant.nudge.failedPrompt": {
+    "defaultMessage": "The last generation failed. Find out why and tell me how to fix it."
+  },
+  "@yovoice.assistant.nudge.improve": {
+    "defaultMessage": "Help me improve"
+  },
+  "@yovoice.assistant.nudge.done.text": {
+    "defaultMessage": "Your voice-over is ready. Want a different voice or tone?"
+  },
+  "@yovoice.assistant.nudge.done.story": {
+    "defaultMessage": "This chapter is dubbed. Want me to check which lines need another take?"
+  },
+  "@yovoice.assistant.nudge.done.music": {
+    "defaultMessage": "Your song is ready. Want to try another style or tweak the lyrics?"
+  },
+  "@yovoice.assistant.nudge.done.score": {
+    "defaultMessage": "The arrangement is rendered. Want me to add more layers?"
+  },
+  "@yovoice.assistant.nudge.donePrompt.text": {
+    "defaultMessage": "The voice-over is done. Suggest how to improve the tone, pauses and voice."
+  },
+  "@yovoice.assistant.nudge.donePrompt.story": {
+    "defaultMessage": "The chapter is dubbed. Check for speakers without a voice, overly long lines and words that may be mispronounced."
+  },
+  "@yovoice.assistant.nudge.donePrompt.music": {
+    "defaultMessage": "The song is done. Suggest how the style and lyrics could be better."
+  },
+  "@yovoice.assistant.nudge.donePrompt.score": {
+    "defaultMessage": "The arrangement is rendered. Suggest parts or variations to add."
+  },
+  "@yovoice.assistant.nudge.downloadFailed": {
+    "defaultMessage": "The download didn't finish. Want me to find out why?"
+  },
+  "@yovoice.assistant.nudge.downloadFailedPrompt": {
+    "defaultMessage": "The last download failed. Find out why and tell me how to fix it."
+  },
+  "@yovoice.assistant.nudge.modelReady": {
+    "defaultMessage": "{name} is installed."
+  },
+  "@yovoice.assistant.nudge.tryIt": {
+    "defaultMessage": "Try it"
+  },
+  "@yovoice.assistant.nudge.modelReadyPrompt": {
+    "defaultMessage": "{name} is installed. Generate a short sample with it."
+  },
+  "@yovoice.assistant.nudge.close": {
+    "defaultMessage": "Dismiss"
+  },
+  "@yovoice.settings.assistantIntro": {
+    "defaultMessage": "Ocho is the built-in assistant in yovoice. It sees the work you are editing and what you have selected, and asks before deleting, downloading or changing settings."
+  },
+  "@yovoice.settings.assistantBehavior": {
+    "defaultMessage": "Behavior"
+  },
+  "@yovoice.settings.assistantNudges": {
+    "defaultMessage": "Proactive tips"
+  },
+  "@yovoice.settings.assistantNudgesHint": {
+    "defaultMessage": "When a generation finishes or fails, or a model download ends, Ocho offers a suggestion in the corner."
+  },
+  "@yovoice.settings.assistantMemory": {
+    "defaultMessage": "Remembered preferences"
+  },
+  "@yovoice.settings.assistantMemoryHint": {
+    "defaultMessage": "Tell Ocho your habits in chat, such as a favourite voice or style. It remembers them and follows them in later conversations."
+  },
+  "@yovoice.settings.assistantMemoryClear": {
+    "defaultMessage": "Clear all"
+  },
+  "@yovoice.settings.assistantMemoryClearConfirm": {
+    "defaultMessage": "Clear all preferences"
+  },
+  "@yovoice.settings.assistantMemoryDelete": {
+    "defaultMessage": "Forget: {text}"
+  },
+  "@yovoice.settings.assistantMemoryEmpty": {
+    "defaultMessage": "No preferences yet"
+  },
+  "@yovoice.settings.assistantMemoryEmptyHint": {
+    "defaultMessage": "For example, tell Ocho \"use the warm female voice for narration by default\"."
   }
 }

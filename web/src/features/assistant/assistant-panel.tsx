@@ -4,13 +4,14 @@ import { ChatComposer, ChatMessage, ChatMessageBubble, ChatMessageList, ChatSend
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { List, ListItem } from '@astryxdesign/core/List';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ChevronDown, ChevronLeft, History, Maximize2, Minimize2, SquarePen, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronLeft, History, Maximize2, Minimize2, SquarePen, TextQuote, Trash2, X } from 'lucide-react';
 import { call, mediaUrl } from '../../shared/lib/client';
 import type { AssistantBlock, AssistantContext, State, Generation } from '../../shared/workbench';
 import { messageBlocks, turnCards } from './assistant-model';
 import { AssistantTurn } from './assistant-turn';
 import type { usePanelFrame } from './assistant-frame';
 import { AssistantAvatar } from './assistant-avatar';
+import { clearAssistantSelection, takeAssistantFocus, useAssistantSelection } from './assistant-focus';
 import { Selector } from '../../shared/selector';
 import voiceArt from '../../assets/assistant/empty-voice.webp';
 import musicArt from '../../assets/assistant/empty-music.webp';
@@ -57,8 +58,11 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
     if (!trimmed || !configured || runtimeMissing) return;
     setDraft('');
     setHistoryOpen(false);
-    void call('assistant.send', { text: trimmed, context }).catch(() => undefined);
+    // 选中的文字与播放位置在发送这一刻取出：选区只随这一条消息带上。
+    void call('assistant.send', { text: trimmed, context: { ...context, ...takeAssistantFocus() } }).catch(() => undefined);
   };
+  const selection = useAssistantSelection();
+  const resolveProposal = (id: string, confirm: boolean) => call('assistant.proposal', { id, confirm }).then(() => undefined);
   const newSession = () => {
     if (running) return;
     setHistoryOpen(false);
@@ -145,10 +149,10 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
         {messages.map(message => message.role === 'user'
           ? <ChatMessage key={message.id} sender="user"><ChatMessageBubble>{message.text}</ChatMessageBubble></ChatMessage>
           : <ChatMessage key={message.id} sender="assistant">
-            <AssistantTurn blocks={messageBlocks(message)} live={false} message={message} generation={generationCard(messageBlocks(message), state)} playing={playing} onPlay={play} openWork={actions.openWork} />
+            <AssistantTurn blocks={messageBlocks(message)} live={false} message={message} generation={generationCard(messageBlocks(message), state)} playing={playing} onPlay={play} openWork={actions.openWork} onResolve={resolveProposal} />
           </ChatMessage>)}
         {live?.turn ? <ChatMessage key="live" sender="assistant">
-          <AssistantTurn blocks={live.turn.blocks ?? []} live generation={null} playing={null} onPlay={() => undefined} openWork={() => undefined} />
+          <AssistantTurn blocks={live.turn.blocks ?? []} live generation={null} playing={null} onPlay={() => undefined} openWork={() => undefined} onResolve={resolveProposal} />
         </ChatMessage> : null}
       </ChatMessageList>}
     </VStack>
@@ -158,6 +162,12 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
       <span className="grow">{t('@yovoice.assistant.setup')}</span>
       <Button size="sm" variant="secondary" label={t('@yovoice.ai.configure')} onClick={actions.openSettings} />
     </HStack> : <VStack className="assistant-dock-bottom" gap={0}>
+      {/* 编辑区里选中的文字会随下一条消息带给 Ocho：在输入框上方提示，点 × 不带。 */}
+      {selection ? <HStack className="assistant-selection" data-testid="assistant-selection" gap={2} vAlign="center">
+        <TextQuote size={14} aria-hidden />
+        <span className="grow" title={selection}>{selection}</span>
+        <Button size="sm" variant="ghost" isIconOnly icon={<X size={12} />} label={t('@yovoice.assistant.selectionClear')} onClick={clearAssistantSelection} />
+      </HStack> : null}
       <ChatComposer className="assistant-composer" density="compact" value={draft} onChange={setDraft}
         placeholder={t('@yovoice.assistant.placeholder')} isDisabled={runtimeMissing}
         isStopShown={running} onStop={() => void call('assistant.cancel').catch(() => undefined)}

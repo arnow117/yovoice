@@ -24,6 +24,7 @@ var audited = map[string]bool{
 	"model.forget": true, "runtime.install": true, "ai.provider.save": true, "ai.provider.delete": true, "ai.provider.use": true,
 	"ai.test": true, "ai.connect": true, "ai.codex.login": true, "melody.plan": true, "melody.cover": true, "melody.dismiss": true, "ai.dismiss": true,
 	"operation.cancel": true, "model.cancel": true, "ai.cancel": true, "logs.export": true, "assets.delete": true,
+	"assistant.proposal": true, "assistant.forget": true,
 }
 
 // Call 解码桌面界面的 RPC 请求并调用应用服务；耗时操作由 Workbench 调度，结果通过状态事件广播。
@@ -268,6 +269,18 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.NewAssistantSession()
 	case "assistant.delete":
 		return true, w.DeleteAssistantSession(p.ID)
+	case "assistant.proposal":
+		var input struct {
+			ID      string `json:"id"`
+			Confirm bool   `json:"confirm"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		return true, w.ResolveAssistantProposal(input.ID, input.Confirm)
+	case "assistant.forget":
+		// id 为空时清空全部偏好。
+		return true, w.ForgetAssistant(p.ID)
 	case "diag.client":
 		// 界面侧的异常（桥接超时、未捕获错误）写入同一份服务日志，便于对照排查。
 		var input struct {
