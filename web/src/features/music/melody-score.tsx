@@ -31,8 +31,8 @@ function useInspection(abc: string) {
 
 // 旋律谱：YuE2 先按歌词写出旋律与和弦（或从一首歌提取旋律做翻唱），在这里看轨道、改谱面或让创作助手改，
 // 然后按谱生成整首歌。参照 YuE 官方的 ABC 方言：人声行带和弦、伴奏行写配器动机，两行成组。
-export function MelodyScore({ draft, state, change }: {
-  draft: Draft; state: State; change: (patch: Partial<Draft>) => void;
+export function MelodyScore({ draft, state, change, planRequest }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; planRequest?: number;
 }) {
   const t = useTranslator();
   const abc = draft.abc ?? '';
@@ -67,6 +67,9 @@ export function MelodyScore({ draft, state, change }: {
   const commitTempo = () => { const value = Number(tempo); if (inspection?.tempo && value && value !== inspection.tempo) void transform('tempo', value); else setTempo(inspection?.tempo ? String(inspection.tempo) : ''); };
   const plan = () => attempt(() => call('melody.plan', draft));
   const canPlan = !busy && !!draft.text.trim() && (draft.instrumental || !!draft.lyrics?.trim());
+  // 从“风格与歌词”一步点“写旋律谱”过来时直接开始出谱。
+  const requested = useEffectEvent(() => { if (planRequest && canPlan && !abc.trim()) void plan(); });
+  useEffect(() => requested(), [planRequest]);
   // 谱里还有人声旋律：纯音乐生成时会自动交给乐器演奏，也可以先在这里转好再改。
   // 自由发挥不经过谱：谱仍保留，提示生成时不会用到。
   const free = !draft.instrumental && draft.modelOptions?.yue2?.cot === 'off';
@@ -94,12 +97,13 @@ export function MelodyScore({ draft, state, change }: {
 
   return <VStack className="music-block melody-score" gap={3}>
     {pickers}
-    <HStack vAlign="center" gap={2} wrap="wrap">
+    {/* 步骤条已写明这一步是旋律谱，空谱时不再重复标题。 */}
+    {abc.trim() ? <HStack vAlign="center" gap={2} wrap="wrap">
       <VStack className="grow" gap={0}>
         <h2>{t('@yovoice.melody.title')}</h2>
-        <small className="score-summary">{abc.trim() ? summary || ' ' : t('@yovoice.melody.subtitle')}</small>
+        <small className="score-summary">{summary || ' '}</small>
       </VStack>
-      {abc.trim() ? <>
+      <>
         <label className="number-field compact" title={t('@yovoice.melody.tempo')}><input type="number" aria-label={t('@yovoice.melody.tempo')} min={30} max={300} step={1} value={tempo} disabled={!inspection?.tempo}
           onChange={event => setTempo(event.target.value)} onBlur={commitTempo} onKeyDown={event => { if (event.key === 'Enter') commitTempo(); }} /><small aria-hidden="true">BPM</small></label>
         <SegmentedControl label={t('@yovoice.melody.view')} size="sm" value={view} onChange={value => setView(value as 'tracks' | 'source')}>
@@ -115,8 +119,8 @@ export function MelodyScore({ draft, state, change }: {
           { id: 'copy', label: t('@yovoice.melody.copy'), onClick: () => void attempt(() => navigator.clipboard.writeText(abc)) },
           { id: 'clear', label: t('@yovoice.melody.clear'), onClick: () => { change({ abc: '' }); setNotice(null); } },
         ]} />
-      </> : null}
-    </HStack>
+      </>
+    </HStack> : null}
 
     {pending && abc.trim() ? <HStack className="melody-notice" data-tone="info" gap={3} vAlign="center" wrap="wrap" role="status">
       <VStack className="grow" gap={0}><b>{t(pending.source === 'cover' ? '@yovoice.melody.readyCover' : '@yovoice.melody.readyPlan')}</b><small>{t('@yovoice.melody.readyReplace')}</small></VStack>

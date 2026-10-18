@@ -2019,7 +2019,7 @@
     "defaultMessage": "박자"
   },
   "@yovoice.music.steps": {
-    "defaultMessage": "샘플링 단계"
+    "defaultMessage": "제작 단계"
   },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "이 모델에는 추론 엔진 {version} 이상이 필요합니다. 설정에서 엔진을 업데이트하세요."
@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "멜로디 악보"
   },
-  "@yovoice.melody.subtitle": {
-    "defaultMessage": "먼저 멜로디를 쓰고 다듬은 뒤 곡 전체를 생성합니다."
-  },
   "@yovoice.melody.empty": {
     "defaultMessage": "YuE2는 가사에 맞춰 보컬 멜로디와 코드를 먼저 쓸 수 있습니다. 악보를 확인하고 고친 다음 곡을 생성하세요. 기존 곡의 멜로디를 가져와 커버할 수도 있습니다."
   },
@@ -3744,7 +3741,7 @@
     "defaultMessage": "자유 생성"
   },
   "@yovoice.music.modeScoreHint": {
-    "defaultMessage": "아래 멜로디 악보대로 부릅니다. 악보가 없으면 YuE2가 먼저 쓰고, 생성 후 해당 버전에서 불러와 수정할 수 있습니다."
+    "defaultMessage": "멜로디 악보대로 부릅니다. 악보가 없으면 YuE2가 먼저 쓰고, 생성 후 해당 버전에서 불러와 수정할 수 있습니다."
   },
   "@yovoice.music.modeFreeHint": {
     "defaultMessage": "악보 없이 바로 생성하며, 결과에는 편집할 악보가 없습니다."
@@ -3799,5 +3796,47 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "정밀도"
+  },
+  "@yovoice.music.stepWrite": {
+    "defaultMessage": "스타일과 가사"
+  },
+  "@yovoice.music.stepWriteEmpty": {
+    "defaultMessage": "아직 비어 있음"
+  },
+  "@yovoice.music.stepWriteStatus": {
+    "defaultMessage": "스타일 {tags}개 · 가사 {lines}줄"
+  },
+  "@yovoice.music.stepWriteInstrumental": {
+    "defaultMessage": "스타일 {tags}개 · 연주곡"
+  },
+  "@yovoice.music.stepScoreEmpty": {
+    "defaultMessage": "악보 없음"
+  },
+  "@yovoice.music.stepScoreReady": {
+    "defaultMessage": "악보 준비됨, 생성 가능"
+  },
+  "@yovoice.music.stepScoreWorking": {
+    "defaultMessage": "악보 작성 중…"
+  },
+  "@yovoice.music.stepScoreFree": {
+    "defaultMessage": "자유 생성, 악보 미사용"
+  },
+  "@yovoice.music.nextPlan": {
+    "defaultMessage": "멜로디 악보 쓰기"
+  },
+  "@yovoice.music.nextOpenScore": {
+    "defaultMessage": "멜로디 악보 보기"
+  },
+  "@yovoice.music.nextPlanHint": {
+    "defaultMessage": "다음으로 YuE2가 가사로 보컬 멜로디와 코드를 씁니다. 확인하고 수정한 뒤 악보대로 생성하세요. 곡이나 .abc 파일이 있으면 멜로디 악보 단계에서 추출하거나 가져올 수 있습니다."
+  },
+  "@yovoice.music.nextScoreHint": {
+    "defaultMessage": "이 작품에는 이미 멜로디 악보가 있으며 생성 시 악보대로 부릅니다."
+  },
+  "@yovoice.music.nextFreeHint": {
+    "defaultMessage": "자유 생성은 악보 없이 스타일과 가사로 바로 생성합니다."
+  },
+  "@yovoice.music.stepScorePending": {
+    "defaultMessage": "새 악보가 준비됨, 열어서 확인"
   }
 }

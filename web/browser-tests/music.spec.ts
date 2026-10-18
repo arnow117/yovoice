@@ -85,7 +85,10 @@ test('选中 YuE2：长度由歌词决定，纯音乐先写谱再交给乐器，
   await expect(page.getByRole('radio', { name: '02:00' })).toHaveCount(0);
   await expect(page.getByRole('combobox', { name: '演唱语言' })).toHaveCount(0);
   await expect(page.getByRole('radio', { name: '自由发挥' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '先写旋律谱' })).toBeEnabled();
+  // YuE2 作品按“风格与歌词 → 旋律谱”两步切换，底部的下一步按钮进入旋律谱并开始写谱。
+  await expect(page.getByRole('tab', { name: /风格与歌词/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tab', { name: /旋律谱/ })).toContainText('还没有谱');
+  await expect(page.getByRole('button', { name: '写旋律谱', exact: true })).toBeEnabled();
   await page.getByLabel('歌词', { exact: true }).fill('');
   await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeEnabled();
   await page.screenshot({ path: testInfo.outputPath('music-yue2-instrumental.png') });
@@ -95,7 +98,8 @@ test('选中 YuE2：长度由歌词决定，纯音乐先写谱再交给乐器，
   await expect(page.getByRole('radio', { name: '按旋律谱' })).toBeChecked();
   await page.getByRole('radio', { name: '自由发挥' }).click();
   await expect(page.getByText('不经过旋律谱直接生成')).toBeVisible();
-  await expect(page.getByText('当前是自由发挥，生成时不使用旋律谱。')).toBeVisible();
+  await expect(page.getByRole('tab', { name: /旋律谱/ })).toContainText('自由发挥，不用谱');
+  await expect(page.getByRole('button', { name: '查看旋律谱', exact: true })).toBeVisible();
   await page.locator('details.advanced > summary').click();
   await expect(page.getByLabel('演唱温度')).toHaveValue('1');
   await expect(page.getByLabel('写谱温度')).toHaveValue('0.7');
@@ -126,8 +130,9 @@ test('YuE2 旋律谱：导入 ABC，看轨道与谱面，调速度、只留旋�
   state.models = [{ id: 'yue2-3b-q8', path: 'Yue2-3B-GGUF', managed: true }];
   await seedState(page, state);
   await page.goto('/');
-  // 空状态给出三种来源：按歌词出谱、从歌曲提取、导入谱文件。
-  await expect(page.getByRole('heading', { name: '旋律谱' })).toBeVisible();
+  // 还没有谱时停在第一步；切到旋律谱，空状态给出三种来源：按歌词出谱、从歌曲提取、导入谱文件。
+  await expect(page.getByRole('tab', { name: /风格与歌词/ })).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('tab', { name: /旋律谱/ }).click();
   await expect(page.getByRole('button', { name: '先写旋律谱' })).toBeEnabled();
   await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeVisible();
   await page.getByLabel('ABC 谱文件').setInputFiles({ name: 'song.abc', mimeType: 'text/plain', buffer: Buffer.from(melodyABC) });

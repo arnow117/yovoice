@@ -2019,7 +2019,7 @@
     "defaultMessage": "拍子"
   },
   "@yovoice.music.steps": {
-    "defaultMessage": "サンプリングステップ数"
+    "defaultMessage": "制作ステップ"
   },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "このモデルには推論エンジン {version} 以降が必要です。設定でエンジンを更新してください。"
@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "メロディ譜"
   },
-  "@yovoice.melody.subtitle": {
-    "defaultMessage": "まずメロディを書き、調整してから曲全体を生成します。"
-  },
   "@yovoice.melody.empty": {
     "defaultMessage": "YuE2 は歌詞からボーカルのメロディとコードを先に書けます。譜面を確認・編集してから曲を生成できます。既存の曲のメロディを取り出してカバーすることもできます。"
   },
@@ -3744,7 +3741,7 @@
     "defaultMessage": "自由生成"
   },
   "@yovoice.music.modeScoreHint": {
-    "defaultMessage": "下の旋律譜に沿って歌います。譜面がなければ YuE2 が先に書き、生成後にそのバージョンから読み込んで編集できます。"
+    "defaultMessage": "旋律譜に沿って歌います。譜面がなければ YuE2 が先に書き、生成後にそのバージョンから読み込んで編集できます。"
   },
   "@yovoice.music.modeFreeHint": {
     "defaultMessage": "譜面を使わずに直接生成します。結果に編集できる譜面はありません。"
@@ -3799,5 +3796,47 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
+  },
+  "@yovoice.music.stepWrite": {
+    "defaultMessage": "スタイルと歌詞"
+  },
+  "@yovoice.music.stepWriteEmpty": {
+    "defaultMessage": "未入力"
+  },
+  "@yovoice.music.stepWriteStatus": {
+    "defaultMessage": "スタイル {tags} 個 · 歌詞 {lines} 行"
+  },
+  "@yovoice.music.stepWriteInstrumental": {
+    "defaultMessage": "スタイル {tags} 個 · インスト"
+  },
+  "@yovoice.music.stepScoreEmpty": {
+    "defaultMessage": "譜面なし"
+  },
+  "@yovoice.music.stepScoreReady": {
+    "defaultMessage": "譜面あり、生成できます"
+  },
+  "@yovoice.music.stepScoreWorking": {
+    "defaultMessage": "譜面を作成中…"
+  },
+  "@yovoice.music.stepScoreFree": {
+    "defaultMessage": "自由生成、譜面は使いません"
+  },
+  "@yovoice.music.nextPlan": {
+    "defaultMessage": "旋律譜を書く"
+  },
+  "@yovoice.music.nextOpenScore": {
+    "defaultMessage": "旋律譜を見る"
+  },
+  "@yovoice.music.nextPlanHint": {
+    "defaultMessage": "次に YuE2 が歌詞からボーカルの旋律とコードを書きます。確認・編集してから譜面どおりに生成します。曲や .abc ファイルがあれば、旋律譜のステップで抽出・読み込みできます。"
+  },
+  "@yovoice.music.nextScoreHint": {
+    "defaultMessage": "この作品には旋律譜があり、生成は譜面に沿って行われます。"
+  },
+  "@yovoice.music.nextFreeHint": {
+    "defaultMessage": "自由生成ではスタイルと歌詞から直接生成し、譜面は使いません。"
+  },
+  "@yovoice.music.stepScorePending": {
+    "defaultMessage": "新しい譜面ができました"
   }
 }

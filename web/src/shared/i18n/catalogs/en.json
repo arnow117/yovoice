@@ -2019,7 +2019,7 @@
     "defaultMessage": "Time signature"
   },
   "@yovoice.music.steps": {
-    "defaultMessage": "Sampling steps"
+    "defaultMessage": "Steps"
   },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "This model needs inference engine {version} or later. Update the engine in Settings."
@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "Melody score"
   },
-  "@yovoice.melody.subtitle": {
-    "defaultMessage": "Write the melody first, adjust it, then generate the whole song from it."
-  },
   "@yovoice.melody.empty": {
     "defaultMessage": "YuE2 can first write the vocal melody and chords for your lyrics. Review and edit the score, then generate the song from it. You can also take the melody of an existing song for a cover."
   },
@@ -3744,7 +3741,7 @@
     "defaultMessage": "Free"
   },
   "@yovoice.music.modeScoreHint": {
-    "defaultMessage": "Sings over the melody score below; without one, YuE2 writes it first and you can load and edit it from the version."
+    "defaultMessage": "Sings over the melody score; without one, YuE2 writes it first, and you can load it from that version to edit."
   },
   "@yovoice.music.modeFreeHint": {
     "defaultMessage": "Skips the score and generates directly; the result has no editable score."
@@ -3799,5 +3796,47 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "Precision"
+  },
+  "@yovoice.music.stepWrite": {
+    "defaultMessage": "Style & lyrics"
+  },
+  "@yovoice.music.stepWriteEmpty": {
+    "defaultMessage": "Not filled in yet"
+  },
+  "@yovoice.music.stepWriteStatus": {
+    "defaultMessage": "{tags} styles · {lines} lyric lines"
+  },
+  "@yovoice.music.stepWriteInstrumental": {
+    "defaultMessage": "{tags} styles · instrumental"
+  },
+  "@yovoice.music.stepScoreEmpty": {
+    "defaultMessage": "No score yet"
+  },
+  "@yovoice.music.stepScoreReady": {
+    "defaultMessage": "Ready to generate from"
+  },
+  "@yovoice.music.stepScoreWorking": {
+    "defaultMessage": "Writing the score…"
+  },
+  "@yovoice.music.stepScoreFree": {
+    "defaultMessage": "Free mode, not used"
+  },
+  "@yovoice.music.nextPlan": {
+    "defaultMessage": "Write the melody score"
+  },
+  "@yovoice.music.nextOpenScore": {
+    "defaultMessage": "Open the melody score"
+  },
+  "@yovoice.music.nextPlanHint": {
+    "defaultMessage": "Next, YuE2 writes the vocal melody and chords from these lyrics; review and edit it, then generate from it. Have a song or .abc file? Open the melody score step to extract or import one."
+  },
+  "@yovoice.music.nextScoreHint": {
+    "defaultMessage": "This work already has a melody score; generation follows it."
+  },
+  "@yovoice.music.nextFreeHint": {
+    "defaultMessage": "Free mode generates straight from style and lyrics without a score."
+  },
+  "@yovoice.music.stepScorePending": {
+    "defaultMessage": "New score ready to review"
   }
 }

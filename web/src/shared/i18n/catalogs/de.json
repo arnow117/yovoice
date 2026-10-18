@@ -2019,7 +2019,7 @@
     "defaultMessage": "Taktart"
   },
   "@yovoice.music.steps": {
-    "defaultMessage": "Sampling-Schritte"
+    "defaultMessage": "Schritte"
   },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Dieses Modell benötigt die Inferenz-Engine {version} oder neuer. Aktualisieren Sie die Engine in den Einstellungen."
@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "Melodienoten"
   },
-  "@yovoice.melody.subtitle": {
-    "defaultMessage": "Erst die Melodie schreiben, anpassen und dann den ganzen Song daraus erzeugen."
-  },
   "@yovoice.melody.empty": {
     "defaultMessage": "YuE2 kann zuerst die Gesangsmelodie und Akkorde zu deinem Text schreiben. Prüfe und bearbeite die Noten und erzeuge dann den Song. Du kannst auch die Melodie eines vorhandenen Songs für ein Cover übernehmen."
   },
@@ -3744,7 +3741,7 @@
     "defaultMessage": "Frei"
   },
   "@yovoice.music.modeScoreHint": {
-    "defaultMessage": "Singt nach der Melodiepartitur unten; ohne Partitur schreibt YuE2 sie zuerst, und du kannst sie aus der Version laden und bearbeiten."
+    "defaultMessage": "Singt nach der Melodiepartitur; ohne Partitur schreibt YuE2 sie zuerst, und du kannst sie aus der Version laden und bearbeiten."
   },
   "@yovoice.music.modeFreeHint": {
     "defaultMessage": "Erzeugt direkt ohne Partitur; das Ergebnis hat keine bearbeitbare Partitur."
@@ -3799,5 +3796,47 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "Präzision"
+  },
+  "@yovoice.music.stepWrite": {
+    "defaultMessage": "Stil & Songtext"
+  },
+  "@yovoice.music.stepWriteEmpty": {
+    "defaultMessage": "Noch leer"
+  },
+  "@yovoice.music.stepWriteStatus": {
+    "defaultMessage": "{tags} Stile · {lines} Textzeilen"
+  },
+  "@yovoice.music.stepWriteInstrumental": {
+    "defaultMessage": "{tags} Stile · Instrumental"
+  },
+  "@yovoice.music.stepScoreEmpty": {
+    "defaultMessage": "Noch keine Partitur"
+  },
+  "@yovoice.music.stepScoreReady": {
+    "defaultMessage": "Bereit zum Erzeugen"
+  },
+  "@yovoice.music.stepScoreWorking": {
+    "defaultMessage": "Partitur wird geschrieben…"
+  },
+  "@yovoice.music.stepScoreFree": {
+    "defaultMessage": "Freier Modus, nicht verwendet"
+  },
+  "@yovoice.music.nextPlan": {
+    "defaultMessage": "Melodiepartitur schreiben"
+  },
+  "@yovoice.music.nextOpenScore": {
+    "defaultMessage": "Melodiepartitur ansehen"
+  },
+  "@yovoice.music.nextPlanHint": {
+    "defaultMessage": "Als Nächstes schreibt YuE2 aus dem Text Gesangsmelodie und Akkorde; prüfe und bearbeite sie und erzeuge dann danach. Du hast einen Song oder eine .abc-Datei? Im Schritt Melodiepartitur kannst du sie extrahieren oder importieren."
+  },
+  "@yovoice.music.nextScoreHint": {
+    "defaultMessage": "Dieses Werk hat bereits eine Melodiepartitur; die Erzeugung folgt ihr."
+  },
+  "@yovoice.music.nextFreeHint": {
+    "defaultMessage": "Der freie Modus erzeugt direkt aus Stil und Text, ohne Partitur."
+  },
+  "@yovoice.music.stepScorePending": {
+    "defaultMessage": "Neue Partitur bereit zum Ansehen"
   }
 }
