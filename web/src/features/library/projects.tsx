@@ -19,8 +19,10 @@ import { LibraryEmpty, LibraryPage, Ticket } from './library-layout';
 import { TapeCover } from './tape-cover';
 import { overflowTitle } from '../../shared/ui/overflow-title';
 
-export function NewProject({ locale, modelId, create, onError, button, kind }: {
-  kind?: 'text' | 'story' | 'music' | 'score'; locale: UiLocale; modelId?: string; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
+export function NewProject({ locale, modelId, modelFor, create, onError, button, kind }: {
+  kind?: 'text' | 'story' | 'music' | 'score'; locale: UiLocale; modelId?: string;
+  // 按作品类型给出默认模型（优先已下载的），不给时用各类型的内置默认。
+  modelFor?: (kind: 'text' | 'story' | 'music' | 'score') => string; create: (draft: Draft) => Promise<void>; onError: (error: string) => void;
   button?: Omit<ComponentProps<typeof Button>, 'onClick' | 'label'> & { label?: string };
 }) {
   const t = useTranslator();
@@ -39,7 +41,8 @@ export function NewProject({ locale, modelId, create, onError, button, kind }: {
   }
   async function start(kind: 'text' | 'story' | 'music' | 'score') {
     setBusy(true);
-    const next: Draft = kind === 'music' ? createMusicDraft(locale, false) : kind === 'score' ? createScoreDraft(locale, false) : { ...createDraft(false, locale, modelId), kind };
+    const base: Draft = kind === 'music' ? createMusicDraft(locale, false) : kind === 'score' ? createScoreDraft(locale, false) : { ...createDraft(false, locale, modelId), kind };
+    const next: Draft = modelFor ? { ...base, modelId: modelFor(kind) } : base;
     if (kind === 'story') next.subtitles = { speakers: [{ id: crypto.randomUUID(), sourceName: t('@yovoice.library.narrator') }], cues: [] };
     try { await create(next); }
     catch (error) { onError((error as Error).message); }

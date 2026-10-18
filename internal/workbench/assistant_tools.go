@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"time"
 	"yovoice/internal/catalog"
 	"yovoice/internal/diag"
 	"yovoice/internal/schema"
@@ -46,6 +47,56 @@ func (w *Workbench) newAssistantServer() *mcp.Server {
 }
 
 // workKindOf 把作品的原始 Kind 归并为界面使用的四种类型。
+// modelKind 返回模型适用的作品类型：music、score 或 text（语音与故事共用）；扒谱模型不用于生成，返回空。
+func modelKind(id string) string {
+	m, err := catalog.Lookup(id)
+	if err != nil {
+		return ""
+	}
+	switch m.Family {
+	case "ace_step", "yue2":
+		return "music"
+	case "soundfont":
+		return "score"
+	case "sheetsage2":
+		return ""
+	}
+	return "text"
+}
+
+// preferredModel 为新作品挑模型：沿用最近一次同类作品用过且已安装的模型，否则用第一个已安装的同类模型，都没有时用 fallback。
+func preferredModel(s schema.State, kind, fallback string) string {
+	if kind == "story" {
+		kind = "text"
+	}
+	installed := map[string]bool{}
+	for _, m := range s.Models {
+		installed[m.ID] = true
+	}
+	recent, latest := "", time.Time{}
+	for _, d := range s.Drafts {
+		if d.UpdatedAt == nil || !installed[d.ModelID] || modelKind(d.ModelID) != kind || !d.UpdatedAt.After(latest) {
+			continue
+		}
+		recent, latest = d.ModelID, *d.UpdatedAt
+	}
+	if recent != "" {
+		return recent
+	}
+	for _, m := range s.Models {
+		if modelKind(m.ID) == kind {
+			return m.ID
+		}
+	}
+	switch kind {
+	case "music":
+		return "ace-step-1.5-turbo-bf16"
+	case "score":
+		return "musescore-general-sf2"
+	}
+	return fallback
+}
+
 func workKindOf(d schema.Draft) string {
 	switch d.Kind {
 	case "music", "score":
@@ -159,21 +210,10 @@ func (w *Workbench) createWorkTool(ctx context.Context, req *mcp.CallToolRequest
 		d.Title = "未命名作品"
 	}
 	s := w.Store.Read()
+	d.ModelID = preferredModel(s, in.Kind, d.ModelID)
 	switch in.Kind {
-	case "music":
-		d.ModelID = "ace-step-1.5-turbo-bf16"
 	case "score":
-		d.ModelID = "musescore-general-sf2"
 		d.Score = &schema.Score{Tempo: 100, TimeSignature: []int{4, 4}}
-	default:
-		// 语音与故事作品默认选已安装的语音模型，避免生成时才发现缺模型；
-		// 故事作品的角色台词由 update_work 的 subtitles 写入。
-		for _, m := range s.Models {
-			if !strings.HasPrefix(m.ID, "ace-step-") && !strings.HasPrefix(m.ID, "yue2-") && !strings.HasSuffix(m.ID, "-sf2") {
-				d.ModelID = m.ID
-				break
-			}
-		}
 	}
 	w.edit.Lock()
 	err := w.saveDraft(d)

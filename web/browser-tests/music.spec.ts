@@ -312,3 +312,20 @@ test('播放页按音频里的人声自动定位歌词，点歌词跳到这一�
   await expect.poll(() => playing.locator('audio').evaluate((audio: HTMLAudioElement) => Number(audio.dataset.seekedTo ?? -1))).toBeGreaterThan(song.starts[index] - .6);
   expect(Number(await playing.locator('audio').getAttribute('data-seeked-to'))).toBeLessThan(song.starts[index] + .6);
 });
+
+test('新建作品默认用已下载的模型，并沿用上一次同类作品的选择', async ({ page }) => {
+  const state = emptyState();
+  const older = { ...createMusicDraft('zh-CN'), id: 'a'.repeat(32), modelId: 'ace-step-1.5-turbo-q8', updatedAt: '2026-10-01T00:00:00Z' };
+  const recent = { ...createMusicDraft('zh-CN'), id: 'b'.repeat(32), modelId: 'yue2-3b-q4', updatedAt: '2026-10-02T00:00:00Z' };
+  state.drafts = [older, recent];
+  state.models = [{ id: 'ace-step-1.5-turbo-q8', path: 'ace', managed: true }, { id: 'yue2-3b-q4', path: 'yue', managed: true }];
+  await seedState(page, state);
+  await page.goto('/');
+  await page.getByTestId('nav-new').click();
+  await page.getByRole('menuitem', { name: '音乐生成', exact: true }).click();
+  const model = page.getByRole('combobox', { name: '模型' });
+  await expect(model).toContainText('YuE2 3B');
+  // 选择器只列已下载的模型。
+  await model.click();
+  await expect(page.getByRole('option')).toHaveText([/ACE-Step 1.5 Turbo · Q8/, /YuE2 3B · Q4/, '管理模型…']);
+});

@@ -228,7 +228,7 @@ export interface AssetResult { kind: AssetKind; id: string; error?: MessageCode;
 export const isKokoroModel = (id: string) => id.startsWith('kokoro-');
 // 音乐模型只用于音乐作品，不出现在配音和角色的模型列表里。
 export const isMusicModel = (id: string) => id.startsWith('ace-step-') || id.startsWith('yue2-');
-/** YuE2 由歌词决定长度，没有时长和纯音乐模式。 */
+/** YuE2 由歌词或旋律谱决定长度，没有时长设置。 */
 export const isYuE = (id: string) => id.startsWith('yue2-');
 // 设置里模型按用途分页：语音模型、音乐模型（歌曲生成与扒谱）和编曲音色库。
 const musicFamilies = new Set(['ace_step', 'yue2', 'sheetsage2']);
@@ -239,6 +239,13 @@ export const isSoundFont = (id: string) => id.endsWith('-sf2');
 // 扒谱模型只用于从歌曲提取旋律谱。
 export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
 export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id);
+// 新作品的默认模型：沿用最近一次同类作品用过且已安装的模型，否则取第一个已安装的同类模型，都没有时用 fallback。
+export function preferredModel(state: Pick<State, 'models' | 'drafts'>, kind: 'text' | 'story' | 'music' | 'score', fallback: string) {
+  const fits = kind === 'music' ? isMusicModel : kind === 'score' ? isSoundFont : isVoiceModel;
+  const installed = new Set(state.models.map(model => model.id));
+  const recent = state.drafts.filter(d => installed.has(d.modelId) && fits(d.modelId)).sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))[0];
+  return recent?.modelId ?? state.models.find(model => fits(model.id))?.id ?? fallback;
+}
 export const isVoxModel = (id: string) => id.startsWith('voxcpm2-');
 export const isReferenceModel = (id: string) => id.startsWith('omnivoice-') || id.startsWith('qwen3-tts-');
 export const isBreezeModel = (id: string) => id.startsWith('breeze-tts-');

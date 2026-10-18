@@ -546,3 +546,23 @@ func waitFor(t *testing.T, ok func() bool) {
 
 func strPtr(s string) *string { return &s }
 func boolPtr(b bool) *bool    { return &b }
+
+// 新作品沿用最近一次同类作品用过的已安装模型；没有时取第一个已安装的同类模型，未安装的模型不作默认。
+func TestPreferredModel(t *testing.T) {
+	older, newer := time.Now().Add(-time.Hour), time.Now()
+	s := schema.State{
+		Models: []schema.InstalledModel{{ID: "sheetsage2-q8"}, {ID: "ace-step-1.5-turbo-q8"}, {ID: "yue2-3b-q4"}, {ID: "omnivoice-q8"}, {ID: "generaluser-gs-sf2"}},
+		Drafts: []schema.Draft{
+			{Kind: "music", SynthesisSettings: schema.SynthesisSettings{ModelID: "yue2-3b-q4"}, UpdatedAt: &older},
+			{Kind: "music", SynthesisSettings: schema.SynthesisSettings{ModelID: "ace-step-1.5-turbo-bf16"}, UpdatedAt: &newer},
+		},
+	}
+	for kind, want := range map[string]string{"music": "yue2-3b-q4", "score": "generaluser-gs-sf2", "text": "omnivoice-q8", "story": "omnivoice-q8"} {
+		if got := preferredModel(s, kind, "index-2.5-q8"); got != want {
+			t.Errorf("%s 默认模型 = %s，应为 %s", kind, got, want)
+		}
+	}
+	if got := preferredModel(schema.State{}, "music", ""); got != "ace-step-1.5-turbo-bf16" {
+		t.Errorf("没有已安装模型时音乐默认 = %s", got)
+	}
+}
