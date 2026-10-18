@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { FileMusic, Mic, Music, Pencil } from 'lucide-react';
+import { ArrowRight, FileMusic, Mic, Music, Pencil } from 'lucide-react';
 import { playParticles } from './intro-particles';
 
 const kinds = [['text', Mic], ['story', Pencil], ['music', Music], ['score', FileMusic]] as const;
@@ -36,12 +36,16 @@ export function IntroScreen({ onStart }: { onStart: () => void }) {
     <canvas ref={canvas} className="intro-canvas" aria-hidden />
     <span className="intro-glow" aria-hidden />
     <VStack className="intro-copy" hAlign="center" gap={0}>
-      <h1 className="intro-word">yovoice</h1>
+      <h1 className="intro-word" data-text="yovoice">yovoice</h1>
       <p className="intro-tagline">{t('@yovoice.intro.tagline')}</p>
       <HStack className="intro-kinds" gap={2} hAlign="center" wrap="wrap">
-        {kinds.map(([kind, Icon]) => <HStack key={kind} as="span" className="intro-kind" gap={2} vAlign="center"><Icon size={16} aria-hidden />{t(`@yovoice.project.${kind}`)}</HStack>)}
+        {kinds.map(([kind, Icon]) => <HStack key={kind} as="span" className="intro-kind" gap={2} vAlign="center"><span className="intro-kind-icon" aria-hidden><Icon size={14} /></span>{t(`@yovoice.project.${kind}`)}</HStack>)}
       </HStack>
-      <Button className="intro-cta" size="lg" label={t('@yovoice.intro.start')} onClick={start} />
+      <Button className="intro-cta" size="lg" label={t('@yovoice.intro.start')} onClick={start}>
+        <span className="intro-cta-sheen" aria-hidden />
+        <span className="intro-cta-label">{t('@yovoice.intro.start')}</span>
+        <ArrowRight className="intro-cta-arrow" size={18} strokeWidth={2.25} aria-hidden />
+      </Button>
     </VStack>
   </VStack>;
 }
