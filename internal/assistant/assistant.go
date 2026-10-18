@@ -402,6 +402,14 @@ func (p *process) ask(ctx context.Context, text string, onEvent func(Event)) (Re
 	p.turnMu.Lock()
 	p.turn = state
 	p.turnMu.Unlock()
+	// 本轮结束（含取消、出错）后解除绑定：迟到的增量与结果不得派发给已结束的一轮。
+	defer func() {
+		p.turnMu.Lock()
+		if p.turn == state {
+			p.turn = nil
+		}
+		p.turnMu.Unlock()
+	}()
 	if err := p.writeLine(map[string]any{"type": "user", "message": map[string]any{"role": "user", "content": text}}); err != nil {
 		return Result{}, err
 	}
@@ -414,10 +422,13 @@ func (p *process) ask(ctx context.Context, text string, onEvent func(Event)) (Re
 	case <-p.done:
 		return Result{}, p.exitError("during turn")
 	case <-ctx.Done():
-		// 取消：请 ocho 中断本轮，最多等一小段时间拿 result，拿不到就结束进程。
+		// 取消后调用方不再关心本轮输出：先停止派发，再请 ocho 中断，最多等一小段时间拿 result，拿不到就结束进程。
+		p.turnMu.Lock()
+		state.onEvent = nil
+		p.turnMu.Unlock()
 		interruptCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		_, _ = p.call(interruptCtx, "interrupt-1", map[string]any{"subtype": "interrupt"})
+		_, _ = p.call(interruptCtx, "interrupt-"+strconv.FormatInt(time.Now().UnixNano(), 36), map[string]any{"subtype": "interrupt"})
 		select {
 		case <-state.result:
 		case <-time.After(5 * time.Second):
@@ -496,8 +507,10 @@ func (p *process) readLoop(stdout io.ReadCloser) {
 				p.noteToolResults(head.Message.Content)
 			}
 		case "result":
+			// 拿到结果即解除本轮绑定，此后读到的迟到增量不会派发给已结束的一轮。
 			p.turnMu.Lock()
 			state := p.turn
+			p.turn = nil
 			p.turnMu.Unlock()
 			if state != nil {
 				select {
@@ -532,12 +545,16 @@ func (p *process) handleControlRequest(id string, request *wireControlRequest) {
 func (p *process) emit(e Event) {
 	p.turnMu.Lock()
 	state := p.turn
-	if state != nil && e.Kind == EventText {
-		state.text.WriteString(e.Text)
+	var onEvent func(Event)
+	if state != nil {
+		if e.Kind == EventText {
+			state.text.WriteString(e.Text)
+		}
+		onEvent = state.onEvent
 	}
 	p.turnMu.Unlock()
-	if state != nil && state.onEvent != nil {
-		state.onEvent(e)
+	if onEvent != nil {
+		onEvent(e)
 	}
 }
 

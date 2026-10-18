@@ -311,6 +311,11 @@ func (w *Workbench) runTurn(parent context.Context, next chatMessage) {
 	var lastDelta time.Time
 	_, err = w.assistant.Ask(ctx, cfg, w.chatMessageText(next), func(e assistant.Event) {
 		w.chat.mu.Lock()
+		// 本轮已结束（取消后迟到的事件）时丢弃，避免覆盖下一轮的实时状态。
+		if w.chat.turn != turn {
+			w.chat.mu.Unlock()
+			return
+		}
 		switch e.Kind {
 		case assistant.EventText:
 			turn.text.WriteString(e.Text)

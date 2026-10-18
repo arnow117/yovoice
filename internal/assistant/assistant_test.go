@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 	"yovoice/internal/assistant/fakeocho"
@@ -138,6 +139,43 @@ func TestAskInterrupt(t *testing.T) {
 	}
 	if _, err := manager.Ask(context.Background(), *cfg, "再来", nil); err != nil {
 		t.Fatal("中断后进程应可继续", err)
+	}
+}
+
+// 取消后、本轮结果到达前迟到的增量只能被丢弃，不得派发给已取消的一轮或混进下一轮。
+func TestLateEventAfterInterrupt(t *testing.T) {
+	manager, cfg := fakeManager(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{{
+		WaitInterrupt: true, LateDelta: "迟到",
+	}}, {{
+		Delta: "第二轮",
+	}, {
+		Result: "success",
+	}}}})
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		time.Sleep(200 * time.Millisecond)
+		cancel()
+	}()
+	var mu sync.Mutex
+	var first, second []string
+	if _, err := manager.Ask(ctx, *cfg, "写一段", func(e Event) {
+		mu.Lock()
+		first = append(first, e.Text)
+		mu.Unlock()
+	}); !errors.Is(err, context.Canceled) {
+		t.Fatal("应返回取消错误", err)
+	}
+	if _, err := manager.Ask(context.Background(), *cfg, "再来", func(e Event) {
+		mu.Lock()
+		second = append(second, e.Text)
+		mu.Unlock()
+	}); err != nil {
+		t.Fatal(err)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if len(first) != 0 || strings.Join(second, "") != "第二轮" {
+		t.Fatalf("迟到事件被派发：第一轮 %q，第二轮 %q", first, second)
 	}
 }
 

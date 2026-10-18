@@ -33,6 +33,7 @@ type Step struct {
 	Crash         int             `json:"crash,omitempty"`         // 立即以状态码退出
 	WaitInterrupt bool            `json:"waitInterrupt,omitempty"` // 等宿主 interrupt 后回 error_interrupted
 	BadLine       string          `json:"badLine,omitempty"`       // 向 stdout 输出一行非 JSON
+	LateDelta     string          `json:"lateDelta,omitempty"`     // 与 WaitInterrupt 同用：收到 interrupt 后、回 error_interrupted 前再发一条迟到的文本增量
 }
 
 // Plan 是假 ocho 的执行计划。
@@ -84,6 +85,7 @@ func main(planPath string) int {
 	in := bufio.NewReader(os.Stdin)
 	nextID := 100
 	waitingInterrupt := false
+	lateDelta := ""
 	// 轮次进度落在计划文件旁：进程重启（崩溃恢复测试）后从下一个 turn 继续。
 	statePath := planPath + ".state"
 	turnBytes, _ := os.ReadFile(statePath)
@@ -189,6 +191,10 @@ func main(planPath string) int {
 				controlSuccess(id, map[string]any{})
 				if waitingInterrupt {
 					waitingInterrupt = false
+					if lateDelta != "" {
+						write(map[string]any{"type": "stream_event", "event": map[string]any{"type": "content_block_delta", "index": 0, "delta": map[string]any{"type": "text_delta", "text": lateDelta}}})
+						lateDelta = ""
+					}
 					write(map[string]any{"type": "result", "subtype": "error_interrupted"})
 				}
 			default:
@@ -250,6 +256,7 @@ func main(planPath string) int {
 					os.Exit(step.Crash)
 				case step.WaitInterrupt:
 					waitingInterrupt = true
+					lateDelta = step.LateDelta
 				case step.Result != "":
 					write(map[string]any{"type": "result", "subtype": step.Result})
 				}
