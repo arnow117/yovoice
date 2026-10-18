@@ -13,8 +13,6 @@ import (
 	"yovoice/internal/assistant/fakeocho"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
-
-	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 // 上下文前缀带上选中内容、当前台词、播放位置、作品模型与最近一次生成的错误码。
@@ -169,15 +167,6 @@ func TestAssistantVoiceSettingsAndCharacters(t *testing.T) {
 	id := created.(map[string]any)["id"].(string)
 	if live := w.Store.Read().AssistantLive; live != nil && live.Nav != nil {
 		t.Fatal("open=false 不应切换界面")
-	}
-	// 模型参数说明从 Skill 的参考文档读取。
-	ref, _, err := w.skillReferenceTool(ctx, toolReq, struct {
-		Skill string `json:"skill" jsonschema:"Skill 名称，如 yovoice-voice"`
-		Name  string `json:"name" jsonschema:"参考文档名，如 omnivoice"`
-	}{"yovoice-voice", "indextts"})
-	must(t, err)
-	if text := ref.Content[0].(*mcp.TextContent).Text; !strings.Contains(text, "IndexTTS") {
-		t.Fatalf("参考文档内容不对：%.80s", text)
 	}
 	temp, seed := 0.55, 42
 	description := "温柔的年轻女声"

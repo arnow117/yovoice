@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -267,6 +268,9 @@ var slimEnv = []string{
 
 func systemPromptPath(root string) string { return filepath.Join(root, "assistant", "system.md") }
 
+// baseTools 是助手可用的 ocho 内置工具。
+var baseTools = []string{"Skill", "Read", "Write", "Edit", "Glob", "Grep", "Bash", "WebFetch", "WebSearch"}
+
 func startProcess(ctx context.Context, root string, options Options, cfg Config) (*process, error) {
 	if info, err := os.Stat(cfg.Executable); err != nil || !info.Mode().IsRegular() {
 		return nil, msg.Err(msg.ErrAssistantMissing, nil)
@@ -279,12 +283,17 @@ func startProcess(ctx context.Context, root string, options Options, cfg Config)
 		return nil, err
 	}
 	workspace := filepath.Join(root, "assistant", "workspace")
-	// 只开放 yovoice 的 MCP 工具与 Skill（加载随包分发的知识）；Bash、文件读写、联网、子 agent 等内置工具一律不给。
-	tools := make([]string, 0, len(options.Tools)+1)
+	// 开放 yovoice 的 MCP 工具与常规 agent 工具（Skill、文件读写与搜索、命令行、联网）；
+	// 计划模式、向用户提问、子 agent 等依赖交互界面的工具不给。
+	tools := make([]string, 0, len(options.Tools)+len(baseTools)+1)
 	for _, name := range options.Tools {
 		tools = append(tools, "mcp__yovoice__"+name)
 	}
-	list := strings.Join(append(tools, "Skill"), ",")
+	tools = append(tools, baseTools...)
+	if runtime.GOOS == "windows" {
+		tools = append(tools, "PowerShell")
+	}
+	list := strings.Join(tools, ",")
 	cmd := exec.Command(cfg.Executable, "--print", "--input-format", "stream-json", "--output-format", "stream-json", "--verbose",
 		"--include-partial-messages", "--tools", list, "--allowedTools", list, "--model", cfg.Model, "--append-system-prompt-file", systemPromptPath(root))
 	cmd.Dir = workspace

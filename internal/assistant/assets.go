@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -74,30 +73,4 @@ func writeFileIfChanged(path string, body []byte) error {
 		return err
 	}
 	return os.WriteFile(path, body, 0600)
-}
-
-// SkillReference 读取某个 Skill 的参考文档 references/<name>.md；助手只有 Skill 工具、不能读文件，
-// 由 MCP 工具转交。只认登记过的 Skill 与单层文件名，不能借此读到别处。
-func SkillReference(skill, name string) (string, error) {
-	name = strings.TrimSuffix(name, ".md")
-	if !slices.Contains(skillNames, skill) || name == "" || strings.ContainsAny(name, `/\.`) {
-		return "", fmt.Errorf("没有参考文档 %s/%s", skill, name)
-	}
-	body, err := skillFS.ReadFile(path.Join("skills", skill, "references", name+".md"))
-	if err != nil {
-		return "", fmt.Errorf("没有参考文档 %s/%s，可用：%s", skill, name, strings.Join(SkillReferences(skill), "、"))
-	}
-	return string(body), nil
-}
-
-// SkillReferences 列出某个 Skill 的全部参考文档名（不含扩展名）。
-func SkillReferences(skill string) []string {
-	entries, _ := skillFS.ReadDir(path.Join("skills", skill, "references"))
-	names := make([]string, 0, len(entries))
-	for _, entry := range entries {
-		if strings.HasSuffix(entry.Name(), ".md") {
-			names = append(names, strings.TrimSuffix(entry.Name(), ".md"))
-		}
-	}
-	return names
 }

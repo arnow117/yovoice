@@ -7,7 +7,7 @@ description: Voice settings in the right-hand inspector of text and story works 
 
 Everything in the inspector is edited with `update_work` {"id","settings":{...}}; only given fields change, and out-of-range values are rejected with the reason. For one story speaker use `speakerSettings` [{"speaker","settings":{...}}].
 
-Fields, ranges, voice-source modes and `modelOptions` differ per model. Read only the reference for the work's model, found by the prefix of its `modelId` (`get_work`), with `read_skill_reference` {"skill":"yovoice-voice","name":...}:
+Fields, ranges, voice-source modes and `modelOptions` differ per model. Read only the reference for the work's model, `references/<name>.md` in this skill's directory (from the workspace: `.agents/skills/yovoice-voice/references/<name>.md`), found by the prefix of its `modelId` (`get_work`):
 
 | modelId prefix | name |
 | --- | --- |

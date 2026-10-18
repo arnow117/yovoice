@@ -19,7 +19,7 @@ import (
 var assistantTools = []string{
 	"list_works", "get_work", "create_work", "update_work", "generate_work", "get_generation_status",
 	"open_work", "open_page", "list_models", "list_voices", "list_characters", "save_character", "status",
-	"get_app_status", "get_recent_errors", "remember_preference", "forget_preference", "read_skill_reference", "propose_action",
+	"get_app_status", "get_recent_errors", "remember_preference", "forget_preference", "propose_action",
 }
 
 // newAssistantServer 构建只给内置助手的 MCP server：status/list_models/list_voices 与对外 MCP 共用定义，

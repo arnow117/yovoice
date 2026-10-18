@@ -236,12 +236,12 @@ func TestAssistantSessionRestartsChild(t *testing.T) {
 	if !strings.Contains(text, "OCHO_CONFIG_DIR="+assistantSessionDir(w.Store.Root, w.Store.Read().AssistantSessions.CurrentID)) {
 		t.Fatal("子进程环境应包含当前会话的配置目录")
 	}
-	// 偏好由 yovoice 保存：ocho 的自动记忆关闭；内置工具只开放 Skill。
+	// 偏好由 yovoice 保存：ocho 的自动记忆关闭；内置工具开放 Skill、文件读写与命令行等常规工具。
 	if strings.Contains(text, "OCHO_MEMORY_DIR=") || !strings.Contains(text, "OCHO_DISABLE_AUTO_MEMORY=1") {
 		t.Fatal("子进程应关闭 ocho 自动记忆")
 	}
-	if !strings.Contains(text, "mcp__yovoice__get_work") || !strings.Contains(text, ",Skill\n") {
-		t.Fatal("工具列表应包含 yovoice 工具与 Skill")
+	if !strings.Contains(text, "mcp__yovoice__get_work") || !strings.Contains(text, ",Skill,Read,Write,Edit,Glob,Grep,Bash,") {
+		t.Fatal("工具列表应包含 yovoice 工具与常规 agent 工具")
 	}
 }
 

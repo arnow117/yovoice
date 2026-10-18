@@ -343,7 +343,7 @@ func TestReapOrphan(t *testing.T) {
 }
 
 // 各语音模型的参数说明是 yovoice-voice 的参考文档，只在需要时读取；高级参数的键必须与目录里的定义一致，
-// 目录新增或改名参数后这里会提醒同步文档。参考文档随 Skill 写入工作区，读取不能越出 references 目录。
+// 目录新增或改名参数后这里会提醒同步文档。参考文档随 Skill 写入工作区，由助手用 Read 读取。
 func TestVoiceReferencesCoverCatalogOptions(t *testing.T) {
 	raw, err := os.ReadFile("../catalog/generation_options.json")
 	if err != nil {
@@ -360,14 +360,15 @@ func TestVoiceReferencesCoverCatalogOptions(t *testing.T) {
 		t.Fatal(err)
 	}
 	families := map[string]string{"index_tts2": "indextts", "omnivoice": "omnivoice", "qwen3_tts": "qwen3-tts", "voxcpm2": "voxcpm2", "breeze_tts": "breeze", "kokoro_tts": "kokoro"}
-	if got := SkillReferences("yovoice-voice"); len(got) != len(families) {
-		t.Fatalf("参考文档数量不对：%v", got)
+	if entries, _ := skillFS.ReadDir("skills/yovoice-voice/references"); len(entries) != len(families) {
+		t.Fatalf("参考文档数量不对：%d", len(entries))
 	}
 	for family, name := range families {
-		text, err := SkillReference("yovoice-voice", name)
+		body, err := skillFS.ReadFile("skills/yovoice-voice/references/" + name + ".md")
 		if err != nil {
 			t.Fatal(err)
 		}
+		text := string(body)
 		if !strings.Contains(string(skill), "`"+name+"`") {
 			t.Errorf("SKILL.md 没有列出参考文档 %s", name)
 		}
@@ -378,11 +379,6 @@ func TestVoiceReferencesCoverCatalogOptions(t *testing.T) {
 			if !strings.Contains(text, "`"+option.Key+"`") {
 				t.Errorf("%s 没有说明高级参数 %s", name, option.Key)
 			}
-		}
-	}
-	for _, bad := range [][2]string{{"yovoice-voice", "../SKILL"}, {"yovoice-voice", "nope"}, {"other", "kokoro"}, {"yovoice-voice", ""}} {
-		if _, err := SkillReference(bad[0], bad[1]); err == nil {
-			t.Errorf("%v 应被拒绝", bad)
 		}
 	}
 	root := t.TempDir()
