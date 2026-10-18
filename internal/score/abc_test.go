@@ -143,3 +143,58 @@ func TestCompareABC(t *testing.T) {
 		t.Fatalf("changes = %+v", c)
 	}
 }
+
+// 转纯音乐：人声音符原样移到 Ins，Vocal 只留休止与和弦；重叠时人声优先，速度、调与和弦不变。
+func TestInstrumentalABC(t *testing.T) {
+	out, report, e := InstrumentalABC(sampleABC)
+	if e != nil {
+		t.Fatal(e)
+	}
+	before, _ := ParseABC(sampleABC)
+	after, e := ParseABC(out)
+	if e != nil {
+		t.Fatalf("%v\n%s", e, out)
+	}
+	if len(after.Vocal().Notes) != 0 || !slices.Equal(after.Vocal().Chords, before.Vocal().Chords) {
+		t.Fatalf("Vocal 应只剩和弦：\n%s", out)
+	}
+	want := append(slices.Clone(before.Ins().Notes), before.Vocal().Notes...)
+	if !slices.Equal(after.Ins().Notes, want) || report.Moved != 9 || report.Trimmed != 0 || !report.Changed {
+		t.Fatalf("Ins = %+v report=%+v\n%s", after.Ins().Notes, report, out)
+	}
+	if !strings.Contains(out, "% verse\nV: Vocal\n\"D\"z32|") || after.SectionTags() != "[Intro]\n\n[Verse]\n" {
+		t.Fatalf("段落与和弦行：\n%s", out)
+	}
+	// 已是纯器乐时原样返回。
+	again, report, e := InstrumentalABC(out)
+	if e != nil || again != out || report.Changed {
+		t.Fatalf("再次转换应不变：%v %+v", e, report)
+	}
+
+	// 重叠：Ins 的长音被人声切开，只保留不重叠的部分；调外音、跨小节连音与降号调都能写回。
+	overlap := strings.Replace(strings.Replace(sampleABC, "K:D", "K:Bb", 1), `"D"D8F8A8F8|"G"G8B8d16-|"G"d16"A"c16|"D"d32|
+V: Ins
+Z4|`, `"D"z16=B8^c8|"G"G8z8d16-|"G"d16"A"z16|"D"d32|
+V: Ins
+B32|e32-|e32|Z|`, 1)
+	src, e := ParseABC(overlap)
+	if e != nil {
+		t.Fatal(e)
+	}
+	out, report, e = InstrumentalABC(overlap)
+	if e != nil {
+		t.Fatal(e)
+	}
+	after, e = ParseABC(out)
+	if e != nil {
+		t.Fatalf("%v\n%s", e, out)
+	}
+	if report.Trimmed != 2 || len(after.Vocal().Notes) != 0 {
+		t.Fatalf("report=%+v\n%s", report, out)
+	}
+	for _, n := range src.Vocal().Notes {
+		if !slices.Contains(after.Ins().Notes, n) {
+			t.Fatalf("人声音符 %+v 没有原样保留\n%s", n, out)
+		}
+	}
+}
