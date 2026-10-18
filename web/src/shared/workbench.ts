@@ -116,6 +116,10 @@ export interface State {
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
   aiProviders?: AIProvider[]; aiProviderID?: string; aiTask?: AITask;
   melody?: MelodyResult;
+  /** 助手会话的持久化记录与仅广播的实时状态，与 Go 的 schema.AssistantSessions/Live 一致。 */
+  assistantSessions?: AssistantSessions; assistantLive?: AssistantLive;
+  /** state.get 附带的随包 AI 助手运行时可用性：缺失时 AI 写作入口禁用。 */
+  assistantMissing?: boolean;
 }
 
 // 引擎写出的旋律谱，与 Go 的 schema.MelodyResult 一致：plan 为按歌词出谱，cover 为从歌曲扒谱；只在本次会话有效。
@@ -128,13 +132,31 @@ export interface MelodyChanges { tempo?: boolean; key?: boolean; vocal?: number[
 // 可选的大模型服务，与 Go 的 schema.AIProvider 一致；密钥不在状态中，只有掩码。
 export interface AITest { ok: boolean; code?: string; params?: Record<string, unknown>; at: string }
 // 后台 AI 写作任务，与 Go 的 schema.AITask 一致；只在本次会话有效。
-export type AITaskKind = 'score' | 'lyrics' | 'cast' | 'melody';
+export type AITaskKind = 'cast' | 'melody' | 'image';
 export interface AITask {
   id: string; kind: AITaskKind; projectId: string; brief: string; status: 'running' | 'completed' | 'failed' | 'cancelled'; stage: 'writing' | 'repairing'; done?: number; total?: number;
   provider: string; model: string; timeout: number; startedAt: string; finishedAt?: string; result?: unknown; errorCode?: string; errorParams?: Record<string, unknown>;
 }
 export const aiTimeoutDefault = 600;
 export interface AIProvider { id: string; preset: string; name: string; format: string; baseURL: string; modelsPath: string; model: string; models?: string[]; keyMask?: string; lastTest?: AITest }
+
+// 助手会话记录与实时状态，与 Go 的 schema.Assistant* 一致。
+export type AssistantMessageRole = 'user' | 'assistant';
+export type AssistantToolCardState = 'running' | 'done' | 'error';
+export interface AssistantToolCard { tool: string; summary?: string; args?: string; state?: AssistantToolCardState }
+export interface AssistantMessage {
+  id: string; role: AssistantMessageRole; text?: string; tools?: AssistantToolCard[];
+  status?: 'completed' | 'cancelled' | 'failed'; errorCode?: MessageCode; errorParams?: MessageParams; createdAt: string;
+}
+/** 一段助手对话：每个会话对应独立的助手时间线。 */
+export interface AssistantSession { id: string; title: string; messages: AssistantMessage[]; updatedAt: string }
+export interface AssistantSessions { currentId: string; sessions: AssistantSession[] }
+export interface AssistantTurn { text?: string; tools?: AssistantToolCard[]; model?: string; startedAt: string }
+export interface AssistantNav { id: string; workId?: string; page?: string }
+export interface AssistantUpdate { id: string; workId: string }
+export interface AssistantLive { turn?: AssistantTurn | null; queued?: number; nav?: AssistantNav | null; update?: AssistantUpdate | null }
+/** assistant.send 附带的界面上下文，与 Go 的 workbench.AssistantContext 一致。 */
+export interface AssistantContext { page?: string; workId?: string; workTitle?: string; workKind?: string; locale?: UiLocale }
 
 /** 标题为空或仍是任一界面语言的“未命名作品”时视为尚未命名，AI 写作可以顺带起名。 */
 export const isUntitled = (title: string) => !title.trim() || Object.values(draftCopy).some(copy => copy.untitled === title.trim());

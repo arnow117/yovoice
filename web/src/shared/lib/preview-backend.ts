@@ -1,6 +1,6 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault } from '../workbench';
+import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantToolCard, type AssistantToolCardState, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 import { isUiLocale } from '../i18n/locale';
@@ -15,6 +15,9 @@ const maxUploadBytes = 20 * 1024 * 1024;
 // 预览不监听端口：本机接口只记录开关与端口，用于演示设置页。
 let localApi: LocalAPIStatus = { enabled: false, port: 8080, token: 'preview'.padEnd(64, '0'), running: false };
 let mockPendingPath = '';
+// 预览助手的轮次序号，用于让停止后的旧定时器失效；运行中再发的消息与真实后端一样排队。
+let assistantTurnSeq = 0;
+let assistantQueue: unknown[] = [];
 
 const listeners = new Set<(state: State) => void>();
 let stored: State | undefined;
@@ -28,7 +31,7 @@ function load(): State {
       state = value; break;
     } catch { /* 主副本损坏时继续读取恢复备份。 */ }
   }
-  state.characters ??= []; state.previews = []; delete state.aiTask; delete state.melody;
+  state.characters ??= []; state.previews = []; delete state.aiTask; delete state.melody; state.assistantLive = undefined;
   // 浏览器预览默认跳过首次启动的开场画面；需要查看时在状态里把 introSeen 设为 false。
   state.preferences = { ...state.preferences, introSeen: state.preferences?.introSeen ?? true };
   if (!isUiLocale(state.preferences?.uiLocale)) {
@@ -48,6 +51,24 @@ function publish() {
 }
 
 export function subscribePreview(listener: (state: State) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; }
+
+
+// 预览的助手会话：与真实后端一致，当前会话由 currentId 指向，消息写入当前会话。
+function currentSession(state: State): AssistantSession | undefined {
+  return state.assistantSessions?.sessions.find(session => session.id === state.assistantSessions?.currentId);
+}
+
+function touchSession(state: State): AssistantSession {
+  const sessions = state.assistantSessions ?? { currentId: '', sessions: [] };
+  state.assistantSessions = sessions;
+  let session = currentSession(state);
+  if (!session) {
+    session = { id: crypto.randomUUID().replaceAll('-', ''), title: '', messages: [], updatedAt: new Date().toISOString() };
+    sessions.sessions.unshift(session);
+    sessions.currentId = session.id;
+  }
+  return session;
+}
 
 // 关键操作与桌面端一样记入日志；日志页的查询、导出和界面事件在这里直接处理。
 export async function previewCall<T>(method: string, data: unknown): Promise<T> {
@@ -77,11 +98,13 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
 
 async function dispatch<T>(method: string, data: unknown): Promise<T> {
   const state = preview();
+  // 预览默认带上助手运行时；测试可用 yovoice-preview-no-ocho 模拟安装包缺失的情形。
+  const assistant = { available: !localStorage.getItem('yovoice-preview-no-ocho') };
   if (method === 'logs.export') return true as T;
   // 预览不能运行本机程序：Codex 显示为未安装，登录需要桌面端。
   if (method === 'ai.codex.status') return {} as T;
   if (method === 'ai.codex.login') throw new CallError('@yovoice.error.previewDesktopOnly');
-  if (method === 'state.get') return { state, catalog, engine: { version: '', minimum: '' }, desktop: false } as T;
+  if (method === 'state.get') return { state, catalog, engine: { version: '', minimum: '' }, desktop: false, assistant } as T;
   if (method === 'character.save') {
     const character = structuredClone(data as Character);
     if (!character.name.trim() || character.name.length > 120 || character.demoText.length > 2000) throw new CallError('@yovoice.error.characterInvalid');
@@ -279,12 +302,12 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (state.melody?.id === (data as { id: string }).id) { delete state.melody; publish(); }
     return true as T;
   }
-  if (method === 'ai.score' || method === 'ai.lyrics' || method === 'ai.cast' || method === 'ai.melody') {
+  if (method === 'ai.cast' || method === 'ai.melody') {
     const input = method === 'ai.cast' ? { projectId: '', brief: (data as { title: string }).title } : data as { projectId: string; brief: string };
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
     if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
-    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : method === 'ai.cast' ? 'cast' : method === 'ai.melody' ? 'melody' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.cast' ? 'cast' : 'melody', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
     state.aiTask = task; publish();
     setTimeout(() => {
       if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;
@@ -298,6 +321,125 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
   }
   if (method === 'ai.dismiss') {
     if (state.aiTask?.id === (data as { id: string }).id && state.aiTask.status !== 'running') { delete state.aiTask; publish(); }
+    return true as T;
+  }
+  // 预览模拟助手对话：流式文本、工具卡片与界面事件都按真实路径写进状态，编辑器内容与页面随之变化。
+  if (method === 'assistant.send') {
+    const input = data as { text: string; context?: { page?: string; workId?: string } };
+    const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
+    if (!assistant.available) throw new CallError('@yovoice.error.assistantMissing');
+    if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
+    if (state.assistantLive?.turn) {
+      assistantQueue.push(data);
+      state.assistantLive.queued = assistantQueue.length;
+      publish();
+      return true as T;
+    }
+    const chat = touchSession(state);
+    chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'user', text: input.text, createdAt: new Date().toISOString() });
+    if (!chat.title) chat.title = input.text.split('\n')[0].slice(0, 24);
+    chat.updatedAt = new Date().toISOString();
+    const tools: AssistantToolCard[] = [];
+    const live: AssistantLive = state.assistantLive ?? {};
+    state.assistantLive = live;
+    // 每轮一个序号：停止或新一轮开始后，旧一轮尚未触发的定时器全部失效，不会写进下一轮。
+    const seq = ++assistantTurnSeq;
+    const alive = () => Boolean(live.turn) && seq === assistantTurnSeq;
+    // 模拟流式增量：分两段写入。
+    const stream = (at: number, chunk: string) => setTimeout(() => { if (alive() && live.turn) { live.turn = { ...live.turn, text: (live.turn.text ?? '') + chunk }; publish(); } }, at);
+    const card = (at: number, tool: string, summary: string, cardState: AssistantToolCardState) => setTimeout(() => {
+      if (!alive()) return;
+      const existing = tools.findIndex(item => item.tool === tool);
+      const next = { tool, summary, state: cardState };
+      if (existing >= 0) tools[existing] = next; else tools.push(next);
+      publish();
+    }, at);
+    const timer = (at: number, run: () => void) => setTimeout(() => { if (alive()) run(); }, at);
+    live.turn = { text: '', tools, model: provider.model, startedAt: new Date().toISOString() };
+    publish();
+    const wantsScore = /钢琴|旋律|编曲|配乐|score|piano/i.test(input.text);
+    const wantsSong = /写词|写歌|歌词|歌|lyric|song/i.test(input.text);
+    let draftID = '';
+    if (wantsScore || wantsSong) {
+      card(300, 'create_work', wantsScore ? '新建了《示例小步舞曲》' : '新建了《夏夜兜风》', 'running');
+      timer(700, () => {
+        draftID = crypto.randomUUID().replaceAll('-', '');
+        const draft: Draft = wantsScore
+          ? { ...createDraft(false, state.preferences.uiLocale, 'musescore-general-sf2'), id: draftID, kind: 'score', title: '示例小步舞曲', score: { tempo: 100, timeSignature: [4, 4], sections: [], tracks: [] } }
+          : { ...createDraft(false, state.preferences.uiLocale, 'ace-step-1.5-turbo-bf16'), id: draftID, kind: 'music', title: '夏夜兜风', text: 'city pop, warm synths', lyrics: '[verse]\n晚风吹过海岸线\n[chorus]\n夏夜一路向前' };
+        state.drafts = [draft, ...state.drafts];
+        live.update = { id: crypto.randomUUID().replaceAll('-', ''), workId: draftID };
+        live.nav = { id: crypto.randomUUID().replaceAll('-', ''), workId: draftID };
+        publish();
+      });
+      card(800, 'create_work', wantsScore ? '新建了《示例小步舞曲》' : '新建了《夏夜兜风》', 'done');
+      if (wantsScore) {
+        card(1100, 'update_work', '正在修改《示例小步舞曲》的乐谱…', 'running');
+        timer(1600, () => {
+          const target = state.drafts.find(d => d.id === draftID);
+          if (!target?.score) return;
+          target.score = { tempo: 100, timeSignature: [4, 4], sections: [{ name: 'A', start: 1, end: 4 }], tracks: [{ id: 'p', name: '钢琴', role: 'piano', program: 0, notes: [{ bar: 1, beat: 1, pitch: 60, length: 1, velocity: 80 }, { bar: 1, beat: 3, pitch: 64, length: 1, velocity: 76 }, { bar: 2, beat: 1, pitch: 67, length: 2, velocity: 78 }] }] };
+          live.update = { id: crypto.randomUUID().replaceAll('-', ''), workId: draftID };
+          publish();
+        });
+        card(1900, 'update_work', '修改了《示例小步舞曲》的乐谱', 'done');
+      }
+    } else {
+      card(300, 'list_works', `查看了作品列表（${state.drafts.length} 个）`, 'done');
+    }
+    stream(2200, wantsScore ? '写好了：' : '好的，');
+    stream(2600, wantsScore ? '四小节钢琴旋律已经写进《示例小步舞曲》，可以直接渲染试听。' : '我先看了作品列表。想让我做什么？');
+    setTimeout(() => {
+      if (!alive()) return;
+      chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn?.text ?? '', tools: [...tools], status: 'completed', createdAt: new Date().toISOString() });
+      chat.updatedAt = new Date().toISOString();
+      live.turn = undefined;
+      const next = assistantQueue.shift();
+      live.queued = assistantQueue.length;
+      publish();
+      if (next) void previewCall('assistant.send', next);
+    }, 3200);
+    return true as T;
+  }
+  if (method === 'assistant.cancel') {
+    const live = state.assistantLive;
+    assistantQueue = [];
+    if (live?.turn) {
+      assistantTurnSeq++;
+      const chat = currentSession(state);
+      chat?.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn.text ?? '', tools: [...(live.turn.tools ?? [])], status: 'cancelled', createdAt: new Date().toISOString() });
+      live.turn = undefined;
+      live.queued = 0;
+      publish();
+    }
+    return true as T;
+  }
+  if (method === 'assistant.sessions') {
+    return [...(state.assistantSessions?.sessions ?? [])].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) as T;
+  }
+  if (method === 'assistant.new') {
+    const sessions = state.assistantSessions ?? { currentId: '', sessions: [] };
+    const session: AssistantSession = { id: crypto.randomUUID().replaceAll('-', ''), title: '', messages: [], updatedAt: new Date().toISOString() };
+    sessions.sessions = [session, ...sessions.sessions];
+    sessions.currentId = session.id;
+    state.assistantSessions = sessions;
+    if (state.assistantLive?.turn) { state.assistantLive.turn = undefined; state.assistantLive.queued = 0; }
+    publish();
+    return structuredClone(session) as T;
+  }
+  if (method === 'assistant.open') {
+    const id = (data as { id: string }).id;
+    if (!state.assistantSessions?.sessions.some(session => session.id === id)) throw new CallError('@yovoice.error.requestInvalid');
+    state.assistantSessions.currentId = id;
+    publish();
+    return true as T;
+  }
+  if (method === 'assistant.delete') {
+    const id = (data as { id: string }).id;
+    const sessions = (state.assistantSessions?.sessions ?? []).filter(session => session.id !== id);
+    const currentId = state.assistantSessions?.currentId === id ? sessions[0]?.id ?? '' : state.assistantSessions?.currentId ?? '';
+    state.assistantSessions = { currentId, sessions };
+    publish();
     return true as T;
   }
   throw new CallError('@yovoice.error.previewDesktopOnly');

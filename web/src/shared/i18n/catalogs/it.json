@@ -2343,7 +2343,7 @@
     "defaultMessage": "Servizi IA"
   },
   "@yovoice.ai.intro": {
-    "defaultMessage": "Collega un modello linguistico di grandi dimensioni per far scrivere all’IA arrangiamenti in Partitura e testi in Musica. Le richieste vanno direttamente da questo computer al servizio che scegli."
+    "defaultMessage": "Collega un modello linguistico e l’assistente IA integrato scrive arrangiamenti in Partitura e testi in Musica, con ulteriori modifiche sul risultato."
   },
   "@yovoice.ai.addProvider": {
     "defaultMessage": "Aggiungi servizio"
@@ -2575,30 +2575,6 @@
   },
   "@yovoice.ai.stage.repairing": {
     "defaultMessage": "{model} sta correggendo il formato"
-  },
-  "@yovoice.ai.task.running.score": {
-    "defaultMessage": "L’IA sta componendo"
-  },
-  "@yovoice.ai.task.running.lyrics": {
-    "defaultMessage": "L’IA sta scrivendo il testo"
-  },
-  "@yovoice.ai.task.done.score": {
-    "defaultMessage": "L’IA ha completato un nuovo arrangiamento"
-  },
-  "@yovoice.ai.task.done.lyrics": {
-    "defaultMessage": "L’IA ha completato stile e testo"
-  },
-  "@yovoice.ai.task.failed.score": {
-    "defaultMessage": "L’IA non è riuscita a comporre"
-  },
-  "@yovoice.ai.task.failed.lyrics": {
-    "defaultMessage": "L’IA non è riuscita a scrivere il testo"
-  },
-  "@yovoice.ai.task.replace.score": {
-    "defaultMessage": "Applicando, l’arrangiamento attuale verrà sostituito."
-  },
-  "@yovoice.ai.task.replace.lyrics": {
-    "defaultMessage": "Applicando, lo stile e il testo attuali verranno sostituiti."
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "Il servizio IA non ha terminato entro {seconds} secondi. Aumenta il timeout delle richieste IA in Impostazioni › Generali o scegli un modello più veloce."
@@ -3655,6 +3631,165 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex non ha generato alcuna immagine: {detail}"
+  },
+  "@yovoice.ai.assistantMissing": {
+    "defaultMessage": "Questa versione non include l’ambiente dell’assistente IA"
+  },
+  "@yovoice.error.assistantMissing": {
+    "defaultMessage": "Questa versione non include l’ambiente dell’assistente IA, quindi composizione e testi con l’IA non sono disponibili."
+  },
+  "@yovoice.error.assistantProvider": {
+    "defaultMessage": "Il servizio IA attuale (abbonamento ChatGPT) non può essere usato dall’assistente. Passa a un servizio via API nelle Impostazioni."
+  },
+  "@yovoice.assistant.toggle": {
+    "defaultMessage": "Apri assistente"
+  },
+  "@yovoice.assistant.title": {
+    "defaultMessage": "Assistente"
+  },
+  "@yovoice.assistant.newChat": {
+    "defaultMessage": "Nuova chat"
+  },
+  "@yovoice.assistant.expand": {
+    "defaultMessage": "Espandi pannello"
+  },
+  "@yovoice.assistant.collapse": {
+    "defaultMessage": "Comprimi pannello"
+  },
+  "@yovoice.assistant.close": {
+    "defaultMessage": "Chiudi"
+  },
+  "@yovoice.assistant.placeholder": {
+    "defaultMessage": "Chiedi all’assistente di scrivere, modificare o generare…"
+  },
+  "@yovoice.assistant.empty": {
+    "defaultMessage": "Basta una frase: scrivere testi o parole, comporre, scegliere una voce o generare."
+  },
+  "@yovoice.assistant.queued": {
+    "defaultMessage": "{count} in coda"
+  },
+  "@yovoice.assistant.hideChips": {
+    "defaultMessage": "Nascondi azioni rapide"
+  },
+  "@yovoice.assistant.cancelled": {
+    "defaultMessage": "Interrotto"
+  },
+  "@yovoice.assistant.setup": {
+    "defaultMessage": "Nessun servizio IA. Aggiungine uno nelle Impostazioni e scegli un modello."
+  },
+  "@yovoice.assistant.openWork": {
+    "defaultMessage": "Apri opera"
+  },
+  "@yovoice.assistant.play": {
+    "defaultMessage": "Riproduci"
+  },
+  "@yovoice.assistant.pause": {
+    "defaultMessage": "Pausa"
+  },
+  "@yovoice.assistant.chip.piano": {
+    "defaultMessage": "Scrivi un brano per pianoforte"
+  },
+  "@yovoice.assistant.chip.pianoPrompt": {
+    "defaultMessage": "Crea un’opera di partitura e scrivi una melodia per pianoforte di quattro battute"
+  },
+  "@yovoice.assistant.chip.minor": {
+    "defaultMessage": "Passa al minore"
+  },
+  "@yovoice.assistant.chip.minorPrompt": {
+    "defaultMessage": "Porta la partitura attuale in tonalità minore"
+  },
+  "@yovoice.assistant.chip.song": {
+    "defaultMessage": "Scrivi una canzone"
+  },
+  "@yovoice.assistant.chip.songPrompt": {
+    "defaultMessage": "Crea un’opera musicale e scrivi una canzone completa"
+  },
+  "@yovoice.assistant.chip.style": {
+    "defaultMessage": "Cambia stile"
+  },
+  "@yovoice.assistant.chip.stylePrompt": {
+    "defaultMessage": "Riscrivi l’opera attuale in un altro stile"
+  },
+  "@yovoice.assistant.chip.voice": {
+    "defaultMessage": "Scegli una voce"
+  },
+  "@yovoice.assistant.chip.voicePrompt": {
+    "defaultMessage": "Guarda le mie voci di riferimento e consigliane una per quest’opera"
+  },
+  "@yovoice.assistant.chip.polish": {
+    "defaultMessage": "Più cordiale"
+  },
+  "@yovoice.assistant.chip.polishPrompt": {
+    "defaultMessage": "Riscrivi la narrazione attuale in modo più caldo e naturale"
+  },
+  "@yovoice.assistant.chip.assign": {
+    "defaultMessage": "Assegna le voci"
+  },
+  "@yovoice.assistant.chip.assignPrompt": {
+    "defaultMessage": "Guarda le mie voci di riferimento e assegnane una a ogni personaggio di questa storia"
+  },
+  "@yovoice.assistant.chip.dub": {
+    "defaultMessage": "Genera il doppiaggio"
+  },
+  "@yovoice.assistant.chip.dubPrompt": {
+    "defaultMessage": "Avvia la generazione vocale di questa storia"
+  },
+  "@yovoice.assistant.history": {
+    "defaultMessage": "Cronologia"
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "Torna alla chat"
+  },
+  "@yovoice.assistant.historyCount": {
+    "defaultMessage": "{count} chat"
+  },
+  "@yovoice.assistant.historyMeta": {
+    "defaultMessage": "{count} msg · {time}"
+  },
+  "@yovoice.assistant.historyEmpty": {
+    "defaultMessage": "Ancora nessuna chat."
+  },
+  "@yovoice.assistant.deleteChat": {
+    "defaultMessage": "Elimina chat: {title}"
+  },
+  "@yovoice.assistant.deleteConfirm": {
+    "defaultMessage": "Elimina"
+  },
+  "@yovoice.assistant.justNow": {
+    "defaultMessage": "proprio ora"
+  },
+  "@yovoice.assistant.minutesAgo": {
+    "defaultMessage": "{count} min fa"
+  },
+  "@yovoice.assistant.hoursAgo": {
+    "defaultMessage": "{count} h fa"
+  },
+  "@yovoice.assistant.working": {
+    "defaultMessage": "In corso…"
+  },
+  "@yovoice.assistant.toolFailed": {
+    "defaultMessage": "L’azione non è stata completata"
+  },
+  "@yovoice.assistant.copy": {
+    "defaultMessage": "Copia"
+  },
+  "@yovoice.assistant.copied": {
+    "defaultMessage": "Copiato"
+  },
+  "@yovoice.assistant.contextOn": {
+    "defaultMessage": "Include pagina e opera attuali. Fai clic per non allegare più il contesto."
+  },
+  "@yovoice.assistant.contextOff": {
+    "defaultMessage": "Nessun contesto allegato. Fai clic per allegare pagina e opera attuali."
+  },
+  "@yovoice.assistant.askLyrics": {
+    "defaultMessage": "Scrivi il testo per quest’opera musicale: {brief}"
+  },
+  "@yovoice.assistant.askLyricsInstrumental": {
+    "defaultMessage": "Scrivi per quest’opera musicale: {brief} (strumentale: solo stile e sezioni)"
+  },
+  "@yovoice.assistant.askScore": {
+    "defaultMessage": "Scrivi un arrangiamento per questa partitura: {brief} (circa {seconds} secondi)"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Dai voce alle tue parole. Trasforma le idee in canzoni."

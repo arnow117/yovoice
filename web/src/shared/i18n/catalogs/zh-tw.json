@@ -2343,7 +2343,7 @@
     "defaultMessage": "AI 服務"
   },
   "@yovoice.ai.intro": {
-    "defaultMessage": "接上大型語言模型後，可在編曲中讓 AI 寫譜、在音樂生成中讓 AI 寫歌詞。請求從本機直接傳送到你選擇的服務。"
+    "defaultMessage": "接入大型語言模型後，內建 AI 助理可在編曲中寫譜、在音樂生成中寫詞，並可在結果上繼續修改。"
   },
   "@yovoice.ai.addProvider": {
     "defaultMessage": "新增服務"
@@ -2575,30 +2575,6 @@
   },
   "@yovoice.ai.stage.repairing": {
     "defaultMessage": "{model} 正在修正格式"
-  },
-  "@yovoice.ai.task.running.score": {
-    "defaultMessage": "AI 正在寫譜"
-  },
-  "@yovoice.ai.task.running.lyrics": {
-    "defaultMessage": "AI 正在寫歌詞"
-  },
-  "@yovoice.ai.task.done.score": {
-    "defaultMessage": "AI 寫好了新的編曲"
-  },
-  "@yovoice.ai.task.done.lyrics": {
-    "defaultMessage": "AI 寫好了風格和歌詞"
-  },
-  "@yovoice.ai.task.failed.score": {
-    "defaultMessage": "AI 寫譜沒有成功"
-  },
-  "@yovoice.ai.task.failed.lyrics": {
-    "defaultMessage": "AI 寫歌詞沒有成功"
-  },
-  "@yovoice.ai.task.replace.score": {
-    "defaultMessage": "套用後會取代目前編曲。"
-  },
-  "@yovoice.ai.task.replace.lyrics": {
-    "defaultMessage": "套用後會取代目前的風格和歌詞。"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "AI 服務在 {seconds} 秒內沒有寫完。可以在「設定 › 一般」裡延長 AI 請求逾時，或換一個更快的模型。"
@@ -3655,6 +3631,165 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex 沒有產生圖片：{detail}"
+  },
+  "@yovoice.ai.assistantMissing": {
+    "defaultMessage": "目前安裝包未包含 AI 助理執行環境"
+  },
+  "@yovoice.error.assistantMissing": {
+    "defaultMessage": "目前安裝包未包含 AI 助理執行環境，AI 寫譜與寫詞暫時無法使用。"
+  },
+  "@yovoice.error.assistantProvider": {
+    "defaultMessage": "目前的 AI 服務（ChatGPT 訂閱）無法用於助理，請在設定中改用 API 類服務。"
+  },
+  "@yovoice.assistant.toggle": {
+    "defaultMessage": "開啟創作助理"
+  },
+  "@yovoice.assistant.title": {
+    "defaultMessage": "創作助理"
+  },
+  "@yovoice.assistant.newChat": {
+    "defaultMessage": "新對話"
+  },
+  "@yovoice.assistant.expand": {
+    "defaultMessage": "展開面板"
+  },
+  "@yovoice.assistant.collapse": {
+    "defaultMessage": "收合面板"
+  },
+  "@yovoice.assistant.close": {
+    "defaultMessage": "關閉"
+  },
+  "@yovoice.assistant.placeholder": {
+    "defaultMessage": "讓助理幫你寫台詞、寫歌、配樂或直接生成…"
+  },
+  "@yovoice.assistant.empty": {
+    "defaultMessage": "用一句話讓助理動手：寫台詞、寫歌、配樂、選音色或直接生成。"
+  },
+  "@yovoice.assistant.queued": {
+    "defaultMessage": "排隊 {count} 則"
+  },
+  "@yovoice.assistant.hideChips": {
+    "defaultMessage": "隱藏快捷操作"
+  },
+  "@yovoice.assistant.cancelled": {
+    "defaultMessage": "已停止"
+  },
+  "@yovoice.assistant.setup": {
+    "defaultMessage": "還沒有可用的 AI 服務，請先在設定中新增並選擇模型。"
+  },
+  "@yovoice.assistant.openWork": {
+    "defaultMessage": "開啟作品"
+  },
+  "@yovoice.assistant.play": {
+    "defaultMessage": "播放"
+  },
+  "@yovoice.assistant.pause": {
+    "defaultMessage": "暫停"
+  },
+  "@yovoice.assistant.chip.piano": {
+    "defaultMessage": "寫一段鋼琴曲"
+  },
+  "@yovoice.assistant.chip.pianoPrompt": {
+    "defaultMessage": "新增一個編曲作品，寫一段四小節的鋼琴旋律"
+  },
+  "@yovoice.assistant.chip.minor": {
+    "defaultMessage": "改成小調"
+  },
+  "@yovoice.assistant.chip.minorPrompt": {
+    "defaultMessage": "把目前作品的樂譜改成小調"
+  },
+  "@yovoice.assistant.chip.song": {
+    "defaultMessage": "寫一首歌"
+  },
+  "@yovoice.assistant.chip.songPrompt": {
+    "defaultMessage": "新增一個音樂作品，寫一首完整的歌"
+  },
+  "@yovoice.assistant.chip.style": {
+    "defaultMessage": "換個風格"
+  },
+  "@yovoice.assistant.chip.stylePrompt": {
+    "defaultMessage": "幫目前作品換一種風格"
+  },
+  "@yovoice.assistant.chip.voice": {
+    "defaultMessage": "幫我挑個音色"
+  },
+  "@yovoice.assistant.chip.voicePrompt": {
+    "defaultMessage": "看看現有的參考音色，為目前作品推薦一個合適的"
+  },
+  "@yovoice.assistant.chip.polish": {
+    "defaultMessage": "改得更親切"
+  },
+  "@yovoice.assistant.chip.polishPrompt": {
+    "defaultMessage": "把目前作品的台詞改得更親切自然"
+  },
+  "@yovoice.assistant.chip.assign": {
+    "defaultMessage": "依角色分配音色"
+  },
+  "@yovoice.assistant.chip.assignPrompt": {
+    "defaultMessage": "看看現有的參考音色，為這個故事的角色逐一分配合適的音色"
+  },
+  "@yovoice.assistant.chip.dub": {
+    "defaultMessage": "生成配音"
+  },
+  "@yovoice.assistant.chip.dubPrompt": {
+    "defaultMessage": "為目前的故事作品發起配音生成"
+  },
+  "@yovoice.assistant.history": {
+    "defaultMessage": "歷史"
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "返回對話"
+  },
+  "@yovoice.assistant.historyCount": {
+    "defaultMessage": "{count} 個對話"
+  },
+  "@yovoice.assistant.historyMeta": {
+    "defaultMessage": "{count} 則 · {time}"
+  },
+  "@yovoice.assistant.historyEmpty": {
+    "defaultMessage": "還沒有歷史對話。"
+  },
+  "@yovoice.assistant.deleteChat": {
+    "defaultMessage": "刪除對話：{title}"
+  },
+  "@yovoice.assistant.deleteConfirm": {
+    "defaultMessage": "刪除"
+  },
+  "@yovoice.assistant.justNow": {
+    "defaultMessage": "剛剛"
+  },
+  "@yovoice.assistant.minutesAgo": {
+    "defaultMessage": "{count} 分鐘前"
+  },
+  "@yovoice.assistant.hoursAgo": {
+    "defaultMessage": "{count} 小時前"
+  },
+  "@yovoice.assistant.working": {
+    "defaultMessage": "處理中…"
+  },
+  "@yovoice.assistant.toolFailed": {
+    "defaultMessage": "操作沒有完成"
+  },
+  "@yovoice.assistant.copy": {
+    "defaultMessage": "複製"
+  },
+  "@yovoice.assistant.copied": {
+    "defaultMessage": "已複製"
+  },
+  "@yovoice.assistant.contextOn": {
+    "defaultMessage": "附帶目前頁面與作品脈絡，點擊後不再附帶"
+  },
+  "@yovoice.assistant.contextOff": {
+    "defaultMessage": "不附帶脈絡，點擊恢復"
+  },
+  "@yovoice.assistant.askLyrics": {
+    "defaultMessage": "為目前的音樂作品寫詞：{brief}"
+  },
+  "@yovoice.assistant.askLyricsInstrumental": {
+    "defaultMessage": "為目前的音樂作品寫詞：{brief}（純音樂，只寫風格與段落）"
+  },
+  "@yovoice.assistant.askScore": {
+    "defaultMessage": "為目前的編曲作品寫譜：{brief}（目標長度約 {seconds} 秒）"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "讓文字發聲，把靈感譜成歌"

@@ -8,7 +8,7 @@ import { useTranslator } from '@astryxdesign/core/i18n';
 import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, Sparkles } from 'lucide-react';
 import { call, CallError, coverMelodyFile } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatMelodyIssue } from '../../shared/i18n/format';
-import { AIComposer } from '../../shared/ui/ai-composer';
+import { AITaskComposer } from '../../shared/ui/ai-task-composer';
 import { formatTime, type Draft, type MelodyChanges, type MelodyInspection, type MelodyResult, type State, type UiLocale } from '../../shared/workbench';
 import { ScoreArrangement } from '../score/score-arrangement';
 
@@ -150,7 +150,7 @@ export function MelodyScore({ draft, state, change, locale, configureAI }: {
       <Button size="sm" variant="primary" label={t('@yovoice.melody.replace')} onClick={() => apply(pending)} />
     </HStack> : null}
 
-    {abc.trim() ? <AIComposer kind="melody" projectId={draft.id} state={state} overwrite configure={configureAI} apply={applyEdit}
+    {abc.trim() ? <AITaskComposer kind="melody" projectId={draft.id} state={state} overwrite configure={configureAI} apply={applyEdit}
       placeholder={t('@yovoice.ai.melodyPlaceholder')} submitLabel={t('@yovoice.ai.melodySubmit')}
       start={brief => call('ai.melody', { projectId: draft.id, brief, abc, style: draft.text, lyrics: draft.lyrics ?? '', locale })} /> : null}
 

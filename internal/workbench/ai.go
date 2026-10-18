@@ -5,13 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"net/url"
+	"os"
 	"slices"
 	"strings"
 	"sync"
 	"time"
+	"yovoice/internal/assistant"
 	"yovoice/internal/diag"
+	"yovoice/internal/download"
 	"yovoice/internal/llm"
 	"yovoice/internal/msg"
+	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 )
 
@@ -290,6 +294,88 @@ func (w *Workbench) complete(ctx context.Context, request llm.Request) (llm.Resu
 	}
 	diag.Log(w.Store.Root, "ai.response", append(fields, "elapsed_ms", time.Since(started).Milliseconds(), "chars", len(result.Text), "truncated", result.Truncated, "error", diag.Error(e))...)
 	return result, e
+}
+
+// providerEnv 把服务配置翻译成 ocho 的模型服务环境变量；密钥只经环境变量传给子进程。
+func providerEnv(p schema.AIProvider, c llm.Config) []string {
+	var env []string
+	set := func(name, value string) { env = append(env, name+"="+value) }
+	switch p.Format {
+	case llm.FormatAnthropic:
+		set("ANTHROPIC_BASE_URL", c.BaseURL)
+		if c.Key != "" {
+			set("ANTHROPIC_API_KEY", c.Key)
+		}
+	case llm.FormatResponses:
+		set("OCHO_API_PROVIDER", "responses")
+		set("OPENAI_BASE_URL", c.BaseURL)
+		if c.Key != "" {
+			set("OPENAI_API_KEY", c.Key)
+		}
+	default:
+		set("OCHO_API_PROVIDER", "openai")
+		set("OPENAI_BASE_URL", c.BaseURL)
+		if c.Key != "" {
+			set("OPENAI_API_KEY", c.Key)
+		}
+	}
+	return env
+}
+
+// proxyEnvNames 是透传给助手子进程的代理环境变量名；小写形式一并透传，匹配常见代理客户端的约定。
+var proxyEnvNames = []string{
+	"HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy", "ALL_PROXY", "all_proxy", "NO_PROXY", "no_proxy",
+}
+
+// proxyEnv 按偏好设置生成助手子进程的代理环境变量：启用时指向配置的地址（本地地址仍直连，
+// 与下载代理一致），显式关闭时全部不设，未配置时从宿主环境透传，方便依赖系统代理的用户。
+func proxyEnv(p schema.Preferences) []string {
+	if p.ProxyEnabled != nil && !*p.ProxyEnabled {
+		return nil
+	}
+	address := strings.TrimSpace(p.ProxyURL)
+	if _, err := download.ParseProxy(address); err != nil {
+		return nil
+	}
+	if address == "" {
+		var env []string
+		for _, name := range proxyEnvNames {
+			if value := os.Getenv(name); value != "" {
+				env = append(env, name+"="+value)
+			}
+		}
+		return env
+	}
+	// NO_PROXY 兜住本机服务（如 Ollama）：代理只应接管远程模型请求。
+	return []string{"HTTPS_PROXY=" + address, "HTTP_PROXY=" + address, "ALL_PROXY=" + address,
+		"NO_PROXY=localhost,127.0.0.1,::1", "no_proxy=localhost,127.0.0.1,::1"}
+}
+
+// assistantConfig 由当前服务配置组装某个会话的助手子进程配置；ocho 缺失与服务未配置分别报错。
+// 每个会话有独立的 OCHO_CONFIG_DIR（切换会话即重启子进程），长期记忆目录所有会话共享。
+func (w *Workbench) assistantConfig(sessionID string) (assistant.Config, error) {
+	executable, err := platform.OchoExecutable()
+	if err != nil {
+		return assistant.Config{}, msg.Err(msg.ErrAssistantMissing, nil)
+	}
+	p, c, err := w.aiConfig("")
+	if err != nil {
+		return assistant.Config{}, err
+	}
+	// ChatGPT 订阅经 Codex CLI 调用，没有 ocho 可用的接口地址与密钥。
+	if c.Format == llm.FormatCodex {
+		return assistant.Config{}, msg.Err(msg.ErrAssistantProvider, nil)
+	}
+	if c.Model == "" {
+		return assistant.Config{}, msg.Err(msg.ErrAINotConfigured, nil)
+	}
+	// 会话目录预先建好：ocho 首次启动要往里写自己的配置。
+	if err = os.MkdirAll(assistantSessionDir(w.Store.Root, sessionID), 0700); err != nil {
+		return assistant.Config{}, err
+	}
+	env := append(providerEnv(p, c), proxyEnv(w.Store.Read().Preferences)...)
+	env = append(env, "OCHO_CONFIG_DIR="+assistantSessionDir(w.Store.Root, sessionID), "OCHO_MEMORY_DIR="+assistantMemoryDir(w.Store.Root))
+	return assistant.Config{Executable: executable, Model: c.Model, Env: env}, nil
 }
 
 // logAIOutput 记录无法使用的模型输出的形态，便于排查格式问题；不记录输出内容，其中可能有 AI 写的歌词。

@@ -2,7 +2,7 @@
 
 **English** | [简体中文](ai_zh.md)
 
-yovoice can optionally connect to a large language model. With an AI service set up, **AI compose** writes an arrangement in a Score project and **AI lyrics** fills in the style, lyrics and title of a Music project. Everything else works without it.
+yovoice can optionally connect to a large language model. With an AI service set up, the **assistant panel** in the bottom-right corner chats about your work and acts on it: it creates works, writes arrangements and lyrics, edits text, assigns voices and starts generation, with every change applied in the app immediately. Everything else works without it.
 
 ## Set up a service
 
@@ -25,20 +25,22 @@ Type a model name, or **Sync model list** and pick one. After **Add service** or
 
 ## Where data goes
 
-- Requests go straight from this computer to the service you chose, through the proxy set in Settings › General. Local addresses skip the proxy.
+- Requests go straight from this computer to the service you chose, through the proxy set in Settings › General; without a configured proxy the system proxy is used. Local addresses skip the proxy.
 - Keys are stored in a private table of the data folder's database (`yovoice.db`, owner-only permissions `0600`). They are never included in the state sent to the interface. The settings page only shows a masked key. Deleting a service removes its key.
 - What is sent is the request you type plus a fixed instruction describing the score or lyrics format. Error messages are cleaned of keys before they are shown or logged.
 
-## AI compose
+## Assistant panel
 
-In a Score project, **AI compose** asks for a description and a length (10–600 seconds). The model replies with a score in the [score format](score.md#format); yovoice checks it and, if something is wrong (for example a note outside its bar), sends the problem back once for the model to fix. The result replaces the current arrangement, so you can then adjust tracks and render as usual. Larger models give noticeably better arrangements; small local models may fail the check.
+Open the panel with the assistant button in the title bar or **⌘J / Ctrl+J**. Type what you want — “create a score work and write a four-bar piano melody”, “assign a voice to each character in this story”, “generate the narration” — and the assistant does it in the app: works are created and opened, editors update as it writes, and generation starts through the same commands the app uses. Tool calls show up as cards in the conversation; generated audio can be played right there and replies can be copied. Messages sent while a turn is running are queued. **History** organizes chats into sessions you can create, switch between and delete — each session keeps its own context, up to 50 sessions of 200 messages.
 
-## AI lyrics
+Each message carries where you are (page, open work, interface language) so the assistant acts on the right target. It has no delete, download, import or settings tools — when a model is missing it tells you where to install it.
 
-In a Music project, **AI lyrics** asks for a theme and fills in the style description, lyrics with section markers and the singing language. With Instrumental on, it writes only the style. The title is replaced only while it is still the default.
+## AI compose and AI lyrics
+
+In Score and Music projects, the **AI compose** / **AI lyrics** bar at the top sends your description into the same conversation and opens the panel: the assistant reads the work, writes the arrangement (validated like a hand-written one, with self-correction) or the style, lyrics and title, and applies it to the work directly — ask for changes in the panel to keep revising. Larger models give noticeably better arrangements; small local models may fail the check.
 
 ## Limits
 
-- One AI request runs at a time and can be cancelled; a request stops after 4 minutes.
-- The browser preview can edit the service list but does not call models.
+- One conversation turn runs at a time and can be stopped; a turn stops after 10 minutes by default, adjustable in settings. Sessions survive restarts.
+- The browser preview simulates the conversation; real model calls need the desktop app.
 - AI features have not been verified against every listed provider; if a service rejects a request, the error shows its HTTP status and message.

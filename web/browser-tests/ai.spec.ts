@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-test('AI 服务：未配置时引导到设置，左侧选服务、右侧直接编辑，切换和删除', async ({ page }, testInfo) => {
+// AI 服务设置与写作入口的基础行为；对话面板的完整流程见 assistant.spec.ts。
+
+test('AI 服务：未配置时引导到设置，左侧选服务、右侧直接编辑，切换和删除', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '编曲', exact: true }).click();
@@ -35,7 +37,7 @@ test('AI 服务：未配置时引导到设置，左侧选服务、右侧直接�
   // 服务页不再显示开关和说明文字，当前服务只在左侧用状态点标出。
   await expect(panel.getByRole('switch')).toHaveCount(0);
   await expect(panel.locator('.ai-detail h2')).toHaveText('Ollama');
-  await page.screenshot({ path: testInfo.outputPath('ai-settings.png') });
+  await page.screenshot({ path: testInfoPath('ai-settings.png') });
 
   // 更换密钥：输入框为空，不回填旧密钥。
   await panel.getByRole('button', { name: 'DeepSeek', exact: true }).click();
@@ -53,53 +55,36 @@ test('AI 服务：未配置时引导到设置，左侧选服务、右侧直接�
   await expect(panel.locator('.ai-nav').getByLabel('使用中')).toHaveCount(1);
 });
 
-test('AI 写歌词：在后台运行，结束后在写作栏显示结果或失败原因', async ({ page }, testInfo) => {
+test('安装包缺少 AI 助手运行时：写作入口与助手面板禁用并说明原因，不影响其他功能', async ({ page }) => {
   await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('yovoice-preview-no-ocho', '1'));
+  await page.reload();
   await page.getByTestId('nav-settings').click();
   await page.getByRole('tab', { name: 'AI 服务' }).click();
   await page.getByRole('button', { name: 'Ollama', exact: true }).click();
   await page.getByRole('textbox', { name: '当前模型' }).fill('qwen3');
   await page.getByRole('button', { name: '添加服务', exact: true }).click();
-  await expect(page.locator('.ai-nav').getByLabel('使用中')).toHaveCount(1);
-  await page.getByRole('button', { name: 'DeepSeek', exact: true }).click();
-  await page.getByLabel('API 密钥').fill('sk-preview-key');
-  await page.getByRole('textbox', { name: '当前模型' }).fill('deepseek-chat');
-  await page.getByRole('button', { name: '添加服务', exact: true }).click();
-
   await page.getByTestId('nav-new').click();
-  await page.getByRole('menuitem', { name: '音乐生成', exact: true }).click();
+  await page.getByRole('menuitem', { name: '编曲', exact: true }).click();
   const composer = page.locator('.ai-composer');
-  await expect(composer).toContainText('Ollama · qwen3');
-  // 写作栏按服务分组列出已配置的模型，切换后写入当前服务和模型。
-  const model = composer.getByRole('combobox', { name: '模型' });
-  await model.click();
-  await page.getByRole('option', { name: 'deepseek-chat' }).click();
-  await expect(composer).toContainText('DeepSeek · deepseek-chat');
-  await composer.screenshot({ path: testInfo.outputPath('ai-model.png') });
-  await model.click();
-  await page.getByRole('option', { name: 'qwen3' }).click();
-  await expect(composer).toContainText('Ollama · qwen3');
-  await expect(composer.getByRole('button', { name: '写歌', exact: true })).toBeDisabled();
-  await composer.getByRole('textbox', { name: '描述想要的歌' }).fill('夏夜海边兜风');
-  await composer.getByRole('button', { name: '写歌', exact: true }).click();
-  // 运行中显示模型、用时与后台提示；预览后端随后以“仅桌面可用”结束。
-  await expect(composer.locator('.ai-composer-body')).toContainText('qwen3 正在写');
-  await expect(composer).toContainText('夏夜海边兜风');
-  await page.screenshot({ path: testInfo.outputPath('ai-running.png') });
-  await expect(composer.getByRole('alert')).toContainText('AI 写歌词没有成功');
-  await page.screenshot({ path: testInfo.outputPath('ai-failed.png') });
-  await expect(composer.getByRole('button', { name: '重试', exact: true })).toBeVisible();
-  await composer.getByRole('button', { name: '关闭提示', exact: true }).click();
-  await expect(composer.getByRole('textbox', { name: '描述想要的歌' })).toHaveValue('夏夜海边兜风');
+  await expect(composer).toContainText('当前安装包未包含 AI 助手运行时');
+  await composer.getByRole('textbox', { name: '描述想要的配乐' }).fill('温暖的钢琴小品');
+  await expect(composer.getByRole('button', { name: '写谱', exact: true })).toBeDisabled();
+  // 助手面板同样说明原因，输入不可用。
+  await page.keyboard.press('ControlOrMeta+j');
+  await expect(page.getByTestId('assistant-panel')).toContainText('当前安装包未包含 AI 助手运行时');
+  await expect(page.getByTestId('assistant-panel').getByRole('textbox')).toHaveCount(0);
+  // 其他功能不受影响：乐谱导入仍可用（导出按钮本来就因空乐谱禁用）。
+  await expect(page.getByRole('button', { name: '导入', exact: true })).toBeEnabled();
 });
 
-test('OrcaRouter 一键连接：未配置时通过设置 AI 统一配置，默认打开首个服务，设置页授权后切到新服务', async ({ page }, testInfo) => {
+test('OrcaRouter 一键连接：未配置时通过设置 AI 统一配置，设置页授权后切到新服务', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '音乐生成', exact: true }).click();
   const composer = page.locator('.ai-composer');
-  await composer.screenshot({ path: testInfo.outputPath('orca-setup.png') });
-  // 写作栏移除快捷连接按钮，统一从“设置 AI”去配置。
+  await composer.screenshot({ path: testInfoPath('orca-setup.png') });
+  // 写作栏没有快捷连接按钮，统一从“设置 AI”去配置。
   await expect(composer.getByRole('button', { name: '免费连接 OrcaRouter', exact: true })).toHaveCount(0);
   await composer.getByRole('button', { name: '设置 AI', exact: true }).click();
 
@@ -113,7 +98,7 @@ test('OrcaRouter 一键连接：未配置时通过设置 AI 统一配置，默�
   await expect(panel.getByLabel('API 密钥')).toHaveText('••••••••');
   await expect(panel.getByRole('textbox', { name: '当前模型' })).toHaveValue('orcarouter/free');
   await expect(panel.locator('.ai-nav').getByLabel('使用中')).toHaveCount(1);
-  await page.screenshot({ path: testInfo.outputPath('orca-settings.png') });
+  await page.screenshot({ path: testInfoPath('orca-settings.png') });
 
   // 切回音乐生成，写作栏随即可用。
   await page.getByTestId('nav-new').click();
@@ -138,3 +123,8 @@ test('ChatGPT 订阅（Codex）：单独分组，没有地址和密钥，显示�
   await expect(panel.getByRole('button', { name: '同步模型' })).toBeEnabled();
   await page.screenshot({ path: testInfo.outputPath('codex-settings.png') });
 });
+
+// 验收截图：设置 YOVOICE_SHOTS 目录时才保存，默认不落盘。
+function testInfoPath(name: string) {
+  return process.env.YOVOICE_SHOTS ? `${process.env.YOVOICE_SHOTS}/${name}` : undefined;
+}

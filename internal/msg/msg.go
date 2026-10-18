@@ -129,6 +129,10 @@ const (
 	ErrAIModelsPath      Code = "@yovoice.error.aiModelsPath"
 	ErrAIResultInvalid   Code = "@yovoice.error.aiResultInvalid"
 	ErrAITimeout         Code = "@yovoice.error.aiTimeout"
+	// 内置助手（ocho 运行时）缺失：安装包未随附且未通过 YOVOICE_OCHO_PATH 指定。
+	ErrAssistantMissing Code = "@yovoice.error.assistantMissing"
+	// 当前 AI 服务无法供内置助手使用（如经 Codex CLI 的 ChatGPT 订阅）。
+	ErrAssistantProvider Code = "@yovoice.error.assistantProvider"
 	// Codex CLI：未安装、未登录、运行失败、额度用完。
 	ErrCodexMissing   Code = "@yovoice.error.codexMissing"
 	ErrCodexLoggedOut Code = "@yovoice.error.codexLoggedOut"
@@ -216,7 +220,7 @@ func All() []Code {
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
 		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired,
-		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout,
+		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout, ErrAssistantMissing, ErrAssistantProvider,
 		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess, ErrCodexMissing, ErrCodexLoggedOut, ErrCodexFailed, ErrCodexLimit, ErrCodexNoImage,
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,
 		ErrStorageInsideApp, ErrStorageTargetNotEmpty, ErrStorageSame, ErrStorageInsideData, ErrStorageRestart, ErrDataRootMissing, ErrDiskFull,

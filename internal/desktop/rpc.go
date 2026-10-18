@@ -9,6 +9,7 @@ import (
 	"yovoice/internal/catalog"
 	"yovoice/internal/diag"
 	"yovoice/internal/msg"
+	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 	"yovoice/internal/score"
 	"yovoice/internal/workbench"
@@ -70,7 +71,9 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	}
 	switch method {
 	case "state.get":
-		return map[string]any{"state": w.Store.Read(), "catalog": catalog.Models, "engine": map[string]string{"version": catalog.EngineVersion, "minimum": catalog.EngineMinimum}, "desktop": true}, nil
+		// assistant 报告随包的 AI 助手运行时是否存在：缺失时界面禁用 AI 写作并说明原因。
+		_, ochoErr := platform.OchoExecutable()
+		return map[string]any{"state": w.Store.Read(), "catalog": catalog.Models, "engine": map[string]string{"version": catalog.EngineVersion, "minimum": catalog.EngineMinimum}, "desktop": true, "assistant": map[string]bool{"available": ochoErr == nil}}, nil
 	case "draft.save", "generation.start":
 		d := schema.DefaultDraft()
 		if e := json.Unmarshal(data, &d); e != nil {
@@ -184,18 +187,18 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "ai.connect":
 		authURL, e := w.ConnectOrcaRouter()
 		return map[string]string{"url": authURL}, e
-	case "ai.score":
-		var input workbench.ScoreBrief
+	case "assistant.send":
+		var input struct {
+			Text    string                     `json:"text"`
+			Context workbench.AssistantContext `json:"context"`
+		}
 		if e := json.Unmarshal(data, &input); e != nil {
 			return nil, e
 		}
-		return w.StartScore(input)
-	case "ai.lyrics":
-		var input workbench.LyricsBrief
-		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
-		}
-		return w.StartLyrics(input)
+		return true, w.SendAssistant(input.Text, input.Context)
+	case "assistant.cancel":
+		w.CancelAssistant()
+		return true, nil
 	case "ai.cast":
 		var input workbench.CastBrief
 		if e := json.Unmarshal(data, &input); e != nil {
@@ -251,6 +254,14 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "ai.cancel":
 		w.CancelAI()
 		return true, nil
+	case "assistant.sessions":
+		return w.SessionsAssistant(), nil
+	case "assistant.open":
+		return true, w.OpenAssistantSession(p.ID)
+	case "assistant.new":
+		return w.NewAssistantSession()
+	case "assistant.delete":
+		return true, w.DeleteAssistantSession(p.ID)
 	case "diag.client":
 		// 界面侧的异常（桥接超时、未捕获错误）写入同一份服务日志，便于对照排查。
 		var input struct {

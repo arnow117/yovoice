@@ -2,7 +2,7 @@
   <img src="web/public/icon/voice-workbench-app-icon-v1.png" width="96" alt="yovoice" />
 </p>
 <h1 align="center">yovoice</h1>
-<p align="center">让文字拥有你的声音，让创意谱成完整乐章。</p>
+<p align="center">把文字，变成有情绪的声音</p>
 <p align="center">
   <a href="https://yovoice.leemysw.com"><img src="https://img.shields.io/badge/website-yovoice.leemysw.com-10b981?style=flat-square" alt="官网" /></a>
   <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.2.1-blue?style=flat-square" alt="Version 0.2.1" /></a>
@@ -42,7 +42,7 @@ yovoice 是一款适用于 macOS 和 Windows 的开源、本地优先（Local-fi
 - 💸 **零按字/按秒扣费**：无需订阅昂贵的云端 API（告别 ElevenLabs、Suno、商用配音会员计费）。
 - ⚡ **原生 C++ 极速引擎，免配 Python**：基于 [audio.cpp](https://github.com/0xShug0/audio.cpp) v0.9.1 原生构建，支持 macOS Metal 与 Windows NVIDIA CUDA 12.4/13.3 开箱即用，告别 Conda 与 PyTorch 依赖地狱。
 - 🎛️ **全流程专业创作流**：多版本试听对比（Takes）、多轨时间轴吸附裁剪、General MIDI 音色库本地渲染与分轨导出（Stems）。
-- 🤖 **原生 MCP 与 AI Agent 协创**：支持接入 DeepSeek、通义千问、Claude、OpenAI 或本地 Ollama 自动写歌写谱，并提供 Model Context Protocol (MCP) 服务，支持在 Cursor 或 Claude Code 中直接调用。
+- 🤖 **原生 MCP 与 AI Agent 协创**：接入 DeepSeek、通义千问、Claude、OpenAI 或本地 Ollama，用对话完成写歌写谱到生成的全流程，并提供 Model Context Protocol (MCP) 服务，支持在 Cursor 或 Claude Code 中直接调用。
 
 ---
 
@@ -52,7 +52,7 @@ yovoice 是一款适用于 macOS 和 Windows 的开源、本地优先（Local-fi
 - **故事配音** — 导入文本或字幕文件，为每句台词分配角色并逐句生成。
 - **音乐生成** — 写下风格和带段落标记的歌词，用 ACE-Step 1.5 生成歌曲或纯音乐，或用 YuE2 生成带人声歌曲；播放页按人声同步歌词。
 - **编曲** — 按小节和拍写声部，或导入 MIDI、交给 Agent 写谱，用 General MIDI 音色库渲染，导出 MIDI 和分轨。详见[编曲](docs/score_zh.md)。
-- **可选 AI 服务** — 让 DeepSeek、通义千问、Kimi、OpenAI、Anthropic、Ollama 或任意兼容接口写谱、写歌词；密钥只保存在本机。详见[AI 服务](docs/ai_zh.md)。
+- **可选 AI 服务** — 内置助手面板通过 DeepSeek、通义千问、Kimi、OpenAI、Anthropic、Ollama 或任意兼容接口对话创作：写谱写词、改台词、配音色、发起生成；密钥只保存在本机。详见[AI 服务](docs/ai_zh.md)。
 - **12 种界面语言** — 简体中文、繁體中文、English、日本語、한국어、Español、Français、Deutsch、Português (Brasil)、Русский、Italiano 和 Tiếng Việt，可在设置中随时切换，无需重启。
 
 ---

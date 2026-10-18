@@ -31,7 +31,7 @@ type AITest struct {
 
 const AIProviderLimit = 16
 
-// AI 写作任务的默认与允许的超时（秒），每次请求单独计时。
+// AI 请求（写作任务与助手对话一轮）的默认与允许的超时（秒），每次请求单独计时。
 const (
 	AITimeoutDefault = 600
 	AITimeoutMin     = 30

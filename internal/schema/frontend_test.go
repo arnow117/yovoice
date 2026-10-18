@@ -22,6 +22,10 @@ func TestFrontendTypesMatchSchema(t *testing.T) {
 		"AudioClip":    {"fadeIn", "fadeOut"},              // 旧版淡化，读取时忽略
 		"ModelPackage": {"revision", "repo", "modelScope"}, // 下载时固定的仓库与修订号
 	}
+	// 仅界面使用、不随状态保存的字段。
+	tsOnly := map[string][]string{
+		"State": {"assistantMissing"}, // state.get 附带的随包助手可用性，不入库
+	}
 	for _, value := range []any{
 		schema.SynthesisSettings{}, schema.SubtitleSpeaker{}, schema.CharacterPerformance{}, schema.SubtitleCue{}, schema.SubtitleDocument{},
 		schema.AudioClip{}, schema.AudioLane{}, schema.AudioAsset{}, schema.AudioMarker{}, schema.AudioTimeline{}, schema.Draft{},
@@ -29,6 +33,7 @@ func TestFrontendTypesMatchSchema(t *testing.T) {
 		schema.GenerationSegment{}, schema.Activity{}, schema.Preferences{}, schema.State{}, catalog.ModelPackage{},
 		schema.Score{}, schema.ScoreSection{}, schema.ScoreTrack{}, schema.Humanize{}, schema.ScoreRamp{}, schema.ScoreNote{},
 		schema.AIProvider{}, schema.AITest{}, schema.AITask{}, schema.MelodyResult{},
+		schema.AssistantMessage{}, schema.AssistantToolCard{}, schema.AssistantSession{}, schema.AssistantSessions{}, schema.AssistantTurn{}, schema.AssistantNav{}, schema.AssistantUpdate{}, schema.AssistantLive{},
 	} {
 		typ := reflect.TypeOf(value)
 		ts, ok := interfaces[typ.Name()]
@@ -43,7 +48,7 @@ func TestFrontendTypesMatchSchema(t *testing.T) {
 			}
 		}
 		for _, name := range ts {
-			if !slices.Contains(fields, name) {
+			if !slices.Contains(fields, name) && !slices.Contains(tsOnly[typ.Name()], name) {
 				t.Errorf("%s.%s 只在 TS 中定义，后端不会保存", typ.Name(), name)
 			}
 		}

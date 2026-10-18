@@ -280,6 +280,9 @@ type State struct {
 	AITask       *AITask      `json:"aiTask,omitempty"`
 	// Melody 是最近一次出谱或扒谱的结果，等界面填入作品；只属于本次会话。
 	Melody *MelodyResult `json:"melody,omitempty"`
+	// AssistantSessions 是助手会话的持久化记录；AssistantLive 只随状态广播（进行中的一轮与界面事件）。
+	AssistantSessions *AssistantSessions `json:"assistantSessions,omitempty"`
+	AssistantLive     *AssistantLive     `json:"assistantLive,omitempty"`
 }
 
 // MelodyResult 是引擎写出的旋律谱：Source 为 plan（YuE2 按歌词出谱）或 cover（从歌曲扒谱）。

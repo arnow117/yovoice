@@ -2343,7 +2343,7 @@
     "defaultMessage": "ИИ-сервисы"
   },
   "@yovoice.ai.intro": {
-    "defaultMessage": "Подключите большую языковую модель, чтобы ИИ писал аранжировки в «Партитуре» и тексты песен в «Музыке». Запросы идут напрямую с этого компьютера в выбранный сервис."
+    "defaultMessage": "Подключите языковую модель — встроенный ИИ-ассистент напишет аранжировку в разделе «Партитура» и текст песни в разделе «Музыка», а результат можно дорабатывать."
   },
   "@yovoice.ai.addProvider": {
     "defaultMessage": "Добавить сервис"
@@ -2575,30 +2575,6 @@
   },
   "@yovoice.ai.stage.repairing": {
     "defaultMessage": "{model} исправляет формат"
-  },
-  "@yovoice.ai.task.running.score": {
-    "defaultMessage": "ИИ сочиняет"
-  },
-  "@yovoice.ai.task.running.lyrics": {
-    "defaultMessage": "ИИ пишет текст песни"
-  },
-  "@yovoice.ai.task.done.score": {
-    "defaultMessage": "ИИ закончил новую аранжировку"
-  },
-  "@yovoice.ai.task.done.lyrics": {
-    "defaultMessage": "ИИ закончил стиль и текст песни"
-  },
-  "@yovoice.ai.task.failed.score": {
-    "defaultMessage": "ИИ не смог сочинить музыку"
-  },
-  "@yovoice.ai.task.failed.lyrics": {
-    "defaultMessage": "ИИ не смог написать текст песни"
-  },
-  "@yovoice.ai.task.replace.score": {
-    "defaultMessage": "Применение заменит текущую аранжировку."
-  },
-  "@yovoice.ai.task.replace.lyrics": {
-    "defaultMessage": "Применение заменит текущий стиль и текст песни."
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "ИИ-сервис не ответил за {seconds} с. Увеличьте тайм-аут запросов ИИ в разделе «Настройки › Общие» или выберите более быструю модель."
@@ -3655,6 +3631,165 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex не создал изображение: {detail}"
+  },
+  "@yovoice.ai.assistantMissing": {
+    "defaultMessage": "В этой сборке нет среды ИИ-ассистента"
+  },
+  "@yovoice.error.assistantMissing": {
+    "defaultMessage": "В этой сборке нет среды ИИ-ассистента, поэтому сочинение музыки и текстов с ИИ недоступно."
+  },
+  "@yovoice.error.assistantProvider": {
+    "defaultMessage": "Текущий ИИ-сервис (подписка ChatGPT) нельзя использовать в ассистенте. Выберите сервис с API в настройках."
+  },
+  "@yovoice.assistant.toggle": {
+    "defaultMessage": "Открыть ассистента"
+  },
+  "@yovoice.assistant.title": {
+    "defaultMessage": "Ассистент"
+  },
+  "@yovoice.assistant.newChat": {
+    "defaultMessage": "Новый чат"
+  },
+  "@yovoice.assistant.expand": {
+    "defaultMessage": "Развернуть панель"
+  },
+  "@yovoice.assistant.collapse": {
+    "defaultMessage": "Свернуть панель"
+  },
+  "@yovoice.assistant.close": {
+    "defaultMessage": "Закрыть"
+  },
+  "@yovoice.assistant.placeholder": {
+    "defaultMessage": "Попросите ассистента написать, изменить или сгенерировать…"
+  },
+  "@yovoice.assistant.empty": {
+    "defaultMessage": "Достаточно одной фразы: написать текст или стихи, сочинить музыку, выбрать голос или сгенерировать."
+  },
+  "@yovoice.assistant.queued": {
+    "defaultMessage": "В очереди: {count}"
+  },
+  "@yovoice.assistant.hideChips": {
+    "defaultMessage": "Скрыть быстрые действия"
+  },
+  "@yovoice.assistant.cancelled": {
+    "defaultMessage": "Остановлено"
+  },
+  "@yovoice.assistant.setup": {
+    "defaultMessage": "ИИ-сервиса пока нет. Добавьте его в настройках и выберите модель."
+  },
+  "@yovoice.assistant.openWork": {
+    "defaultMessage": "Открыть работу"
+  },
+  "@yovoice.assistant.play": {
+    "defaultMessage": "Воспроизвести"
+  },
+  "@yovoice.assistant.pause": {
+    "defaultMessage": "Пауза"
+  },
+  "@yovoice.assistant.chip.piano": {
+    "defaultMessage": "Написать пьесу для фортепиано"
+  },
+  "@yovoice.assistant.chip.pianoPrompt": {
+    "defaultMessage": "Создай партитуру и напиши фортепианную мелодию на четыре такта"
+  },
+  "@yovoice.assistant.chip.minor": {
+    "defaultMessage": "Сделать минор"
+  },
+  "@yovoice.assistant.chip.minorPrompt": {
+    "defaultMessage": "Переведи текущую партитуру в минор"
+  },
+  "@yovoice.assistant.chip.song": {
+    "defaultMessage": "Написать песню"
+  },
+  "@yovoice.assistant.chip.songPrompt": {
+    "defaultMessage": "Создай музыкальную работу и напиши целую песню"
+  },
+  "@yovoice.assistant.chip.style": {
+    "defaultMessage": "Другой стиль"
+  },
+  "@yovoice.assistant.chip.stylePrompt": {
+    "defaultMessage": "Перепиши текущую работу в другом стиле"
+  },
+  "@yovoice.assistant.chip.voice": {
+    "defaultMessage": "Подобрать голос"
+  },
+  "@yovoice.assistant.chip.voicePrompt": {
+    "defaultMessage": "Посмотри мои эталонные голоса и посоветуй подходящий для этой работы"
+  },
+  "@yovoice.assistant.chip.polish": {
+    "defaultMessage": "Теплее"
+  },
+  "@yovoice.assistant.chip.polishPrompt": {
+    "defaultMessage": "Перепиши текущий текст теплее и естественнее"
+  },
+  "@yovoice.assistant.chip.assign": {
+    "defaultMessage": "Распределить голоса"
+  },
+  "@yovoice.assistant.chip.assignPrompt": {
+    "defaultMessage": "Посмотри мои эталонные голоса и назначь подходящий каждому персонажу этой истории"
+  },
+  "@yovoice.assistant.chip.dub": {
+    "defaultMessage": "Озвучить"
+  },
+  "@yovoice.assistant.chip.dubPrompt": {
+    "defaultMessage": "Запусти генерацию озвучки для этой истории"
+  },
+  "@yovoice.assistant.history": {
+    "defaultMessage": "История"
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "Назад к чату"
+  },
+  "@yovoice.assistant.historyCount": {
+    "defaultMessage": "Чатов: {count}"
+  },
+  "@yovoice.assistant.historyMeta": {
+    "defaultMessage": "Сообщений: {count} · {time}"
+  },
+  "@yovoice.assistant.historyEmpty": {
+    "defaultMessage": "Чатов пока нет."
+  },
+  "@yovoice.assistant.deleteChat": {
+    "defaultMessage": "Удалить чат: {title}"
+  },
+  "@yovoice.assistant.deleteConfirm": {
+    "defaultMessage": "Удалить"
+  },
+  "@yovoice.assistant.justNow": {
+    "defaultMessage": "только что"
+  },
+  "@yovoice.assistant.minutesAgo": {
+    "defaultMessage": "{count} мин назад"
+  },
+  "@yovoice.assistant.hoursAgo": {
+    "defaultMessage": "{count} ч назад"
+  },
+  "@yovoice.assistant.working": {
+    "defaultMessage": "Выполняется…"
+  },
+  "@yovoice.assistant.toolFailed": {
+    "defaultMessage": "Действие не завершилось"
+  },
+  "@yovoice.assistant.copy": {
+    "defaultMessage": "Копировать"
+  },
+  "@yovoice.assistant.copied": {
+    "defaultMessage": "Скопировано"
+  },
+  "@yovoice.assistant.contextOn": {
+    "defaultMessage": "Прикладываются текущая страница и работа. Нажмите, чтобы не прикладывать контекст."
+  },
+  "@yovoice.assistant.contextOff": {
+    "defaultMessage": "Контекст не прикладывается. Нажмите, чтобы приложить текущую страницу и работу."
+  },
+  "@yovoice.assistant.askLyrics": {
+    "defaultMessage": "Напиши текст песни для этой музыкальной работы: {brief}"
+  },
+  "@yovoice.assistant.askLyricsInstrumental": {
+    "defaultMessage": "Напиши для этой музыкальной работы: {brief} (инструментал: только стиль и разделы)"
+  },
+  "@yovoice.assistant.askScore": {
+    "defaultMessage": "Напиши аранжировку для этой партитуры: {brief} (около {seconds} с)"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Дайте словам голос. Превратите идеи в песни."

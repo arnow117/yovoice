@@ -6,7 +6,6 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -166,26 +165,9 @@ func (a *API) generate(w http.ResponseWriter, r *http.Request) {
 	a.audio(w, r, g.ID)
 }
 
+// decodeGeneration 解析 HTTP 请求体中的生成参数，规则与 MCP 工具共用（见 workbench.DecodeRemoteGeneration）。
 func decodeGeneration(body io.Reader) (schema.Draft, error) {
-	d := schema.DefaultDraft()
-	d.Title, d.Text, d.Mode, d.EmotionText = "API 语音", "", "speaker", ""
-	input := struct {
-		Text string `json:"text"`
-		schema.SynthesisSettings
-	}{SynthesisSettings: d.SynthesisSettings}
-	decoder := json.NewDecoder(body)
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(&input); err != nil {
-		return d, err
-	}
-	if err := decoder.Decode(new(any)); err != io.EOF {
-		return d, fmt.Errorf("仅允许一个 JSON 对象")
-	}
-	d.Text, d.SynthesisSettings = input.Text, input.SynthesisSettings
-	if strings.TrimSpace(d.Text) == "" {
-		return d, fmt.Errorf("正文不能为空")
-	}
-	return d, schema.Validate(d)
+	return workbench.DecodeRemoteGeneration(body)
 }
 
 var errBusy = errors.New("推理服务繁忙，请稍后重试")

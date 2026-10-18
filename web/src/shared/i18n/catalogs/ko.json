@@ -2343,7 +2343,7 @@
     "defaultMessage": "AI 서비스"
   },
   "@yovoice.ai.intro": {
-    "defaultMessage": "대규모 언어 모델을 연결하면 AI가 악보의 편곡과 음악의 가사를 작성합니다. 요청은 이 컴퓨터에서 선택한 서비스로 직접 전송됩니다."
+    "defaultMessage": "대규모 언어 모델을 연결하면 내장 AI 어시스턴트가 편곡에서 악보를, 음악에서 가사를 쓰고 결과를 이어서 고칠 수 있습니다."
   },
   "@yovoice.ai.addProvider": {
     "defaultMessage": "서비스 추가"
@@ -2575,30 +2575,6 @@
   },
   "@yovoice.ai.stage.repairing": {
     "defaultMessage": "{model} 형식 수정 중"
-  },
-  "@yovoice.ai.task.running.score": {
-    "defaultMessage": "AI가 작곡하는 중"
-  },
-  "@yovoice.ai.task.running.lyrics": {
-    "defaultMessage": "AI가 작사하는 중"
-  },
-  "@yovoice.ai.task.done.score": {
-    "defaultMessage": "AI가 새 편곡을 완성했습니다"
-  },
-  "@yovoice.ai.task.done.lyrics": {
-    "defaultMessage": "AI가 스타일과 가사를 완성했습니다"
-  },
-  "@yovoice.ai.task.failed.score": {
-    "defaultMessage": "AI가 작곡하지 못했습니다"
-  },
-  "@yovoice.ai.task.failed.lyrics": {
-    "defaultMessage": "AI가 가사를 작성하지 못했습니다"
-  },
-  "@yovoice.ai.task.replace.score": {
-    "defaultMessage": "적용하면 현재 편곡이 대체됩니다."
-  },
-  "@yovoice.ai.task.replace.lyrics": {
-    "defaultMessage": "적용하면 현재 스타일과 가사가 대체됩니다."
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "AI 서비스가 {seconds}초 안에 완료하지 못했습니다. 설정 › 일반에서 AI 요청 시간 제한을 늘리거나 더 빠른 모델을 선택하세요."
@@ -3655,6 +3631,165 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex가 이미지를 생성하지 않았습니다: {detail}"
+  },
+  "@yovoice.ai.assistantMissing": {
+    "defaultMessage": "이 빌드에는 AI 어시스턴트 런타임이 포함되어 있지 않습니다"
+  },
+  "@yovoice.error.assistantMissing": {
+    "defaultMessage": "이 빌드에는 AI 어시스턴트 런타임이 없어 AI 작곡과 작사를 사용할 수 없습니다."
+  },
+  "@yovoice.error.assistantProvider": {
+    "defaultMessage": "현재 AI 서비스(ChatGPT 구독)는 어시스턴트에서 사용할 수 없습니다. 설정에서 API 방식 서비스로 바꾸세요."
+  },
+  "@yovoice.assistant.toggle": {
+    "defaultMessage": "어시스턴트 열기"
+  },
+  "@yovoice.assistant.title": {
+    "defaultMessage": "어시스턴트"
+  },
+  "@yovoice.assistant.newChat": {
+    "defaultMessage": "새 대화"
+  },
+  "@yovoice.assistant.expand": {
+    "defaultMessage": "패널 펼치기"
+  },
+  "@yovoice.assistant.collapse": {
+    "defaultMessage": "패널 접기"
+  },
+  "@yovoice.assistant.close": {
+    "defaultMessage": "닫기"
+  },
+  "@yovoice.assistant.placeholder": {
+    "defaultMessage": "대본, 작사, 작곡, 생성을 어시스턴트에게 맡기세요…"
+  },
+  "@yovoice.assistant.empty": {
+    "defaultMessage": "한 문장이면 됩니다: 대본이나 가사 쓰기, 곡 만들기, 목소리 고르기, 바로 생성하기."
+  },
+  "@yovoice.assistant.queued": {
+    "defaultMessage": "대기 {count}개"
+  },
+  "@yovoice.assistant.hideChips": {
+    "defaultMessage": "빠른 작업 숨기기"
+  },
+  "@yovoice.assistant.cancelled": {
+    "defaultMessage": "중지됨"
+  },
+  "@yovoice.assistant.setup": {
+    "defaultMessage": "사용할 수 있는 AI 서비스가 없습니다. 설정에서 추가하고 모델을 선택하세요."
+  },
+  "@yovoice.assistant.openWork": {
+    "defaultMessage": "작품 열기"
+  },
+  "@yovoice.assistant.play": {
+    "defaultMessage": "재생"
+  },
+  "@yovoice.assistant.pause": {
+    "defaultMessage": "일시정지"
+  },
+  "@yovoice.assistant.chip.piano": {
+    "defaultMessage": "피아노곡 쓰기"
+  },
+  "@yovoice.assistant.chip.pianoPrompt": {
+    "defaultMessage": "편곡 작품을 만들고 4마디 피아노 선율을 써 줘"
+  },
+  "@yovoice.assistant.chip.minor": {
+    "defaultMessage": "단조로 바꾸기"
+  },
+  "@yovoice.assistant.chip.minorPrompt": {
+    "defaultMessage": "현재 작품의 악보를 단조로 바꿔 줘"
+  },
+  "@yovoice.assistant.chip.song": {
+    "defaultMessage": "노래 쓰기"
+  },
+  "@yovoice.assistant.chip.songPrompt": {
+    "defaultMessage": "음악 작품을 만들고 노래 한 곡을 완성해 줘"
+  },
+  "@yovoice.assistant.chip.style": {
+    "defaultMessage": "스타일 바꾸기"
+  },
+  "@yovoice.assistant.chip.stylePrompt": {
+    "defaultMessage": "현재 작품을 다른 스타일로 바꿔 줘"
+  },
+  "@yovoice.assistant.chip.voice": {
+    "defaultMessage": "목소리 골라 줘"
+  },
+  "@yovoice.assistant.chip.voicePrompt": {
+    "defaultMessage": "내 참조 음성을 보고 이 작품에 맞는 것을 추천해 줘"
+  },
+  "@yovoice.assistant.chip.polish": {
+    "defaultMessage": "더 친근하게"
+  },
+  "@yovoice.assistant.chip.polishPrompt": {
+    "defaultMessage": "현재 작품의 대본을 더 친근하고 자연스럽게 고쳐 줘"
+  },
+  "@yovoice.assistant.chip.assign": {
+    "defaultMessage": "역할별 목소리 배정"
+  },
+  "@yovoice.assistant.chip.assignPrompt": {
+    "defaultMessage": "내 참조 음성을 보고 이 이야기의 등장인물마다 어울리는 목소리를 배정해 줘"
+  },
+  "@yovoice.assistant.chip.dub": {
+    "defaultMessage": "더빙 생성"
+  },
+  "@yovoice.assistant.chip.dubPrompt": {
+    "defaultMessage": "현재 이야기 작품의 음성 생성을 시작해 줘"
+  },
+  "@yovoice.assistant.history": {
+    "defaultMessage": "기록"
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "대화로 돌아가기"
+  },
+  "@yovoice.assistant.historyCount": {
+    "defaultMessage": "대화 {count}개"
+  },
+  "@yovoice.assistant.historyMeta": {
+    "defaultMessage": "{count}개 · {time}"
+  },
+  "@yovoice.assistant.historyEmpty": {
+    "defaultMessage": "아직 대화 기록이 없습니다."
+  },
+  "@yovoice.assistant.deleteChat": {
+    "defaultMessage": "대화 삭제: {title}"
+  },
+  "@yovoice.assistant.deleteConfirm": {
+    "defaultMessage": "삭제"
+  },
+  "@yovoice.assistant.justNow": {
+    "defaultMessage": "방금"
+  },
+  "@yovoice.assistant.minutesAgo": {
+    "defaultMessage": "{count}분 전"
+  },
+  "@yovoice.assistant.hoursAgo": {
+    "defaultMessage": "{count}시간 전"
+  },
+  "@yovoice.assistant.working": {
+    "defaultMessage": "처리 중…"
+  },
+  "@yovoice.assistant.toolFailed": {
+    "defaultMessage": "작업을 완료하지 못했습니다"
+  },
+  "@yovoice.assistant.copy": {
+    "defaultMessage": "복사"
+  },
+  "@yovoice.assistant.copied": {
+    "defaultMessage": "복사됨"
+  },
+  "@yovoice.assistant.contextOn": {
+    "defaultMessage": "현재 페이지와 작품 정보를 함께 보냅니다. 클릭하면 보내지 않습니다"
+  },
+  "@yovoice.assistant.contextOff": {
+    "defaultMessage": "정보를 함께 보내지 않습니다. 클릭하면 다시 보냅니다"
+  },
+  "@yovoice.assistant.askLyrics": {
+    "defaultMessage": "현재 음악 작품의 가사를 써 줘: {brief}"
+  },
+  "@yovoice.assistant.askLyricsInstrumental": {
+    "defaultMessage": "현재 음악 작품의 가사를 써 줘: {brief} (연주곡: 스타일과 구성만)"
+  },
+  "@yovoice.assistant.askScore": {
+    "defaultMessage": "현재 편곡 작품의 악보를 써 줘: {brief} (약 {seconds}초)"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "글에 목소리를, 영감을 노래로."
