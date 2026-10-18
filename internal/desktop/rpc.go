@@ -23,7 +23,7 @@ var audited = map[string]bool{
 	"preferences.save": true, "storage.relocate": true, "storage.cleanup": true, "model.directory": true, "model.download": true,
 	"model.forget": true, "runtime.install": true, "ai.provider.save": true, "ai.provider.delete": true, "ai.provider.use": true,
 	"ai.test": true, "ai.connect": true, "ai.codex.login": true, "melody.plan": true, "melody.cover": true, "melody.dismiss": true, "ai.dismiss": true,
-	"operation.cancel": true, "model.cancel": true, "ai.cancel": true, "logs.export": true,
+	"operation.cancel": true, "model.cancel": true, "ai.cancel": true, "logs.export": true, "assets.delete": true,
 }
 
 // Call 解码桌面界面的 RPC 请求并调用应用服务；耗时操作由 Workbench 调度，结果通过状态事件广播。
@@ -144,6 +144,18 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return true, w.RenameMedia(p.Kind, p.ID, p.Name)
 	case "media.delete":
 		return true, w.DeleteMedia(p.Kind, p.ID)
+	case "assets.list":
+		return w.ListAssets()
+	case "assets.delete":
+		var in struct {
+			Items []workbench.AssetRef `json:"items"`
+		}
+		if e := json.Unmarshal(data, &in); e != nil || len(in.Items) == 0 || len(in.Items) > 2000 {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return w.DeleteAssets(in.Items), nil
+	case "assets.image":
+		return w.ImagePreview(p.ID)
 	case "generation.lyricTimes":
 		return true, w.SetLyricTimes(p.ID, p.Times)
 	case "preferences.save":

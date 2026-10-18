@@ -3802,5 +3802,146 @@
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Воспроизвести снова"
+  },
+  "@yovoice.nav.assets": {
+    "defaultMessage": "Ресурсы"
+  },
+  "@yovoice.assets.title": {
+    "defaultMessage": "Ресурсы"
+  },
+  "@yovoice.assets.total": {
+    "defaultMessage": "Всего: {count} · {size}"
+  },
+  "@yovoice.assets.storage": {
+    "defaultMessage": "Настройки хранилища"
+  },
+  "@yovoice.assets.stats": {
+    "defaultMessage": "По типам"
+  },
+  "@yovoice.assets.stat": {
+    "defaultMessage": "{kind} · {count} · {size}"
+  },
+  "@yovoice.assets.kind.generation": {
+    "defaultMessage": "Сгенерированное аудио"
+  },
+  "@yovoice.assets.kind.segment": {
+    "defaultMessage": "Фрагмент озвучки"
+  },
+  "@yovoice.assets.kind.voice": {
+    "defaultMessage": "Референсное аудио"
+  },
+  "@yovoice.assets.kind.material": {
+    "defaultMessage": "Медиа таймлайна"
+  },
+  "@yovoice.assets.kind.image": {
+    "defaultMessage": "Изображение"
+  },
+  "@yovoice.assets.col.name": {
+    "defaultMessage": "Название"
+  },
+  "@yovoice.assets.col.kind": {
+    "defaultMessage": "Тип"
+  },
+  "@yovoice.assets.col.project": {
+    "defaultMessage": "Проект"
+  },
+  "@yovoice.assets.col.duration": {
+    "defaultMessage": "Длительность"
+  },
+  "@yovoice.assets.col.size": {
+    "defaultMessage": "Размер"
+  },
+  "@yovoice.assets.col.created": {
+    "defaultMessage": "Создано"
+  },
+  "@yovoice.assets.col.status": {
+    "defaultMessage": "Статус"
+  },
+  "@yovoice.assets.allKinds": {
+    "defaultMessage": "Все типы"
+  },
+  "@yovoice.assets.allProjects": {
+    "defaultMessage": "Все проекты"
+  },
+  "@yovoice.assets.usage": {
+    "defaultMessage": "Использование"
+  },
+  "@yovoice.assets.usage.all": {
+    "defaultMessage": "Все"
+  },
+  "@yovoice.assets.status.unused": {
+    "defaultMessage": "Не используется"
+  },
+  "@yovoice.assets.status.used": {
+    "defaultMessage": "Используется"
+  },
+  "@yovoice.assets.status.usedBy": {
+    "defaultMessage": "Используется: {names}"
+  },
+  "@yovoice.assets.status.missing": {
+    "defaultMessage": "Файл отсутствует"
+  },
+  "@yovoice.assets.search": {
+    "defaultMessage": "Поиск"
+  },
+  "@yovoice.assets.searchPlaceholder": {
+    "defaultMessage": "Название, проект или персонаж"
+  },
+  "@yovoice.assets.hint": {
+    "defaultMessage": "Используемые ресурсы и медиа таймлайна нельзя удалить здесь: сначала замените их в персонаже или проекте, а медиа удалите на таймлайне проекта."
+  },
+  "@yovoice.assets.selection": {
+    "defaultMessage": "Выбранные ресурсы"
+  },
+  "@yovoice.assets.selected": {
+    "defaultMessage": "Выбрано: {count} · {size}"
+  },
+  "@yovoice.assets.deleteSelected": {
+    "defaultMessage": "Удалить выбранное"
+  },
+  "@yovoice.assets.clearSelection": {
+    "defaultMessage": "Снять выделение"
+  },
+  "@yovoice.assets.deleteOne": {
+    "defaultMessage": "Удалить {name}"
+  },
+  "@yovoice.assets.deleteTitle": {
+    "defaultMessage": "Удалить ресурсы ({count})?"
+  },
+  "@yovoice.assets.deleteBody": {
+    "defaultMessage": "Выбранные файлы будут удалены безвозвратно, освободится около {size}. Отменить нельзя."
+  },
+  "@yovoice.assets.deleteConfirm": {
+    "defaultMessage": "Удалить"
+  },
+  "@yovoice.assets.deleted": {
+    "defaultMessage": "Удалено: {count}, освобождено {size}."
+  },
+  "@yovoice.assets.skipped": {
+    "defaultMessage": "Не удалено: {count}."
+  },
+  "@yovoice.assets.showSkipped": {
+    "defaultMessage": "Почему"
+  },
+  "@yovoice.assets.skippedTitle": {
+    "defaultMessage": "Некоторые ресурсы не удалены"
+  },
+  "@yovoice.assets.noMatch": {
+    "defaultMessage": "Нет ресурсов, подходящих под фильтры."
+  },
+  "@yovoice.assets.empty": {
+    "defaultMessage": "Ресурсов пока нет. Здесь появятся сгенерированное аудио, импортированное референсное аудио и медиа."
+  },
+  "@yovoice.assets.pages": {
+    "defaultMessage": "Страницы ресурсов"
+  },
+  "@yovoice.assets.play": {
+    "defaultMessage": "Прослушать {name}"
+  },
+  "@yovoice.assets.preview": {
+    "defaultMessage": "Просмотр: {name}"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "Исходный проект удалён"
   }
 }

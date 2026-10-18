@@ -1,6 +1,6 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantToolCard, type AssistantToolCardState, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault } from '../workbench';
+import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantToolCard, type AssistantToolCardState, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 import { isUiLocale } from '../i18n/locale';
@@ -96,7 +96,47 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
   }
 }
 
+// 引用参考音频的角色与作品名称，与服务端 State.VoiceUsers 一致。
+function voiceUsers(state: State, id: string): string[] {
+  const uses = (s: SynthesisSettings) => s.voiceId === id || s.emotionVoiceId === id;
+  // 与服务端一致：所有说话人都有独立设置时，作品级设置与演绎快照不可见，不阻止删除，删除时一并清理。
+  const baseHidden = (d: Draft) => !!d.subtitles?.speakers.length && d.subtitles.speakers.every(s => s.settings);
+  const draftUses = (d: Draft) => (!baseHidden(d) && (uses(d) || (d.performance && uses(d.performance.settings)))) || d.subtitles?.speakers.some(s => s.settings && uses(s.settings)) || d.subtitles?.cues.some(c => c.performance && uses(c.performance.settings));
+  return [...state.characters.filter(c => uses(c.settings) || c.performances?.some(p => uses(p.settings)) || (c.preview && uses(c.preview.settings))).map(c => c.name), ...state.drafts.filter(draftUses).map(d => d.title)];
+}
+
+// 资源列表：预览没有真实文件大小，按 24 kHz 16 位单声道 WAV 由时长估算；预览不生成图片。
+function previewAssets(state: State): Asset[] {
+  const drafts = new Map(state.drafts.map(d => [d.id, d]));
+  const bytes = (seconds: number) => Math.round(seconds * 48000) + 44;
+  const clipUsers = (id: string) => state.drafts.filter(d => d.timeline?.tracks.some(t => t.clips.some(c => c.generationId === id))).map(d => d.title);
+  const project = (id: string) => { const d = drafts.get(id); return { projectId: id, projectTitle: d?.title, projectKind: d && projectKind(d) }; };
+  return [
+    ...state.history.map((g): Asset => ({ kind: g.segment ? 'segment' : 'generation', id: g.id, name: g.segment?.speakerName ? `${g.segment.speakerName} · ${g.settings.text.trim()}` : g.title, media: 'outputs', fileName: g.fileName, createdAt: g.createdAt, duration: g.duration, bytes: bytes(g.duration), users: clipUsers(g.id), ...project(g.settings.id) })),
+    ...state.voices.map((v): Asset => ({ kind: 'voice', id: v.id, name: v.name, media: 'voices', fileName: v.fileName, createdAt: '', duration: v.duration, bytes: bytes(v.duration), users: voiceUsers(state, v.id) })),
+    ...state.drafts.flatMap(d => (d.timeline?.assets ?? []).map((m): Asset => ({ kind: 'material', id: m.id, name: m.name, media: 'outputs', fileName: m.fileName, createdAt: '', duration: m.duration, bytes: bytes(m.duration), users: [d.title], ...project(d.id) }))),
+  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
 async function dispatch<T>(method: string, data: unknown): Promise<T> {
+  if (method === 'assets.list') return previewAssets(preview()) as T;
+  if (method === 'assets.image') throw new CallError('@yovoice.error.audioMissing');
+  if (method === 'assets.delete') {
+    // 与服务端一致：逐项删除，单项失败不影响其他项，失败项带消息码。
+    const results: AssetResult[] = [];
+    for (const item of (data as { items: { kind: AssetKind; id: string }[] }).items) {
+      try {
+        if (item.kind === 'material') throw new CallError('@yovoice.timeline.inUse');
+        if (item.kind === 'image') throw new CallError('@yovoice.error.audioMissing');
+        if (!['generation', 'segment', 'voice'].includes(item.kind)) throw new CallError('@yovoice.error.audioKindInvalid');
+        await dispatch('media.delete', { kind: item.kind === 'voice' ? 'voices' : 'outputs', id: item.id });
+        results.push({ kind: item.kind, id: item.id });
+      } catch (e) {
+        results.push({ kind: item.kind, id: item.id, error: e instanceof CallError ? e.code : '@yovoice.error.unknown', params: e instanceof CallError ? e.params : undefined });
+      }
+    }
+    return results as T;
+  }
   const state = preview();
   // 预览默认带上助手运行时；测试可用 yovoice-preview-no-ocho 模拟安装包缺失的情形。
   const assistant = { available: !localStorage.getItem('yovoice-preview-no-ocho') };
@@ -164,11 +204,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
       const item = kind === 'voices' ? state.voices.find(v => v.id === id) : state.history.find(v => v.id === id);
       if (kind === 'outputs' && state.drafts.some(d => d.timeline?.tracks.some(t => t.clips.some(c => c.generationId === id)))) throw new CallError('@yovoice.timeline.inUse');
       if (kind === 'voices') {
-        const uses = (s: SynthesisSettings) => s.voiceId === id || s.emotionVoiceId === id;
-        // 与服务端一致：所有说话人都有独立设置时，作品级设置与演绎快照不可见，不阻止删除，删除时一并清理。
-        const baseHidden = (d: Draft) => !!d.subtitles?.speakers.length && d.subtitles.speakers.every(s => s.settings);
-        const draftUses = (d: Draft) => (!baseHidden(d) && (uses(d) || (d.performance && uses(d.performance.settings)))) || d.subtitles?.speakers.some(s => s.settings && uses(s.settings)) || d.subtitles?.cues.some(c => c.performance && uses(c.performance.settings));
-        const names = [...state.characters.filter(c => uses(c.settings) || c.performances?.some(p => uses(p.settings)) || (c.preview && uses(c.preview.settings))).map(c => c.name), ...state.drafts.filter(draftUses).map(d => d.title)];
+        const names = voiceUsers(state, id);
         if (names.length) throw new CallError('@yovoice.error.voiceReferenced', { names: names.join(', ') });
         state.voices = state.voices.filter(v => v.id !== id);
         const clear = <T extends SynthesisSettings>(s: T): T => ({ ...s, voiceId: s.voiceId === id ? null : s.voiceId, emotionVoiceId: s.emotionVoiceId === id ? null : s.emotionVoiceId });

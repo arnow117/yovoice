@@ -3802,5 +3802,146 @@
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "다시 재생"
+  },
+  "@yovoice.nav.assets": {
+    "defaultMessage": "자산"
+  },
+  "@yovoice.assets.title": {
+    "defaultMessage": "자산"
+  },
+  "@yovoice.assets.total": {
+    "defaultMessage": "{count}개 · {size}"
+  },
+  "@yovoice.assets.storage": {
+    "defaultMessage": "저장 공간 설정"
+  },
+  "@yovoice.assets.stats": {
+    "defaultMessage": "유형별"
+  },
+  "@yovoice.assets.stat": {
+    "defaultMessage": "{kind} · {count}개 · {size}"
+  },
+  "@yovoice.assets.kind.generation": {
+    "defaultMessage": "생성된 오디오"
+  },
+  "@yovoice.assets.kind.segment": {
+    "defaultMessage": "내레이션 클립"
+  },
+  "@yovoice.assets.kind.voice": {
+    "defaultMessage": "참조 오디오"
+  },
+  "@yovoice.assets.kind.material": {
+    "defaultMessage": "타임라인 소재"
+  },
+  "@yovoice.assets.kind.image": {
+    "defaultMessage": "이미지"
+  },
+  "@yovoice.assets.col.name": {
+    "defaultMessage": "이름"
+  },
+  "@yovoice.assets.col.kind": {
+    "defaultMessage": "유형"
+  },
+  "@yovoice.assets.col.project": {
+    "defaultMessage": "작품"
+  },
+  "@yovoice.assets.col.duration": {
+    "defaultMessage": "길이"
+  },
+  "@yovoice.assets.col.size": {
+    "defaultMessage": "크기"
+  },
+  "@yovoice.assets.col.created": {
+    "defaultMessage": "생성 시간"
+  },
+  "@yovoice.assets.col.status": {
+    "defaultMessage": "상태"
+  },
+  "@yovoice.assets.allKinds": {
+    "defaultMessage": "모든 유형"
+  },
+  "@yovoice.assets.allProjects": {
+    "defaultMessage": "모든 작품"
+  },
+  "@yovoice.assets.usage": {
+    "defaultMessage": "사용 여부"
+  },
+  "@yovoice.assets.usage.all": {
+    "defaultMessage": "전체"
+  },
+  "@yovoice.assets.status.unused": {
+    "defaultMessage": "사용 안 함"
+  },
+  "@yovoice.assets.status.used": {
+    "defaultMessage": "사용 중"
+  },
+  "@yovoice.assets.status.usedBy": {
+    "defaultMessage": "사용 중: {names}"
+  },
+  "@yovoice.assets.status.missing": {
+    "defaultMessage": "파일 없음"
+  },
+  "@yovoice.assets.search": {
+    "defaultMessage": "검색"
+  },
+  "@yovoice.assets.searchPlaceholder": {
+    "defaultMessage": "이름, 작품 또는 캐릭터"
+  },
+  "@yovoice.assets.hint": {
+    "defaultMessage": "사용 중인 자산과 타임라인 소재는 여기서 삭제할 수 없습니다. 먼저 캐릭터나 작품에서 교체하고, 타임라인 소재는 해당 작품의 타임라인에서 제거하세요."
+  },
+  "@yovoice.assets.selection": {
+    "defaultMessage": "선택한 자산"
+  },
+  "@yovoice.assets.selected": {
+    "defaultMessage": "{count}개 선택 · {size}"
+  },
+  "@yovoice.assets.deleteSelected": {
+    "defaultMessage": "선택 항목 삭제"
+  },
+  "@yovoice.assets.clearSelection": {
+    "defaultMessage": "선택 해제"
+  },
+  "@yovoice.assets.deleteOne": {
+    "defaultMessage": "{name} 삭제"
+  },
+  "@yovoice.assets.deleteTitle": {
+    "defaultMessage": "자산 {count}개를 삭제할까요?"
+  },
+  "@yovoice.assets.deleteBody": {
+    "defaultMessage": "선택한 파일을 영구 삭제하고 약 {size}를 확보합니다. 되돌릴 수 없습니다."
+  },
+  "@yovoice.assets.deleteConfirm": {
+    "defaultMessage": "삭제"
+  },
+  "@yovoice.assets.deleted": {
+    "defaultMessage": "{count}개를 삭제하고 {size}를 확보했습니다."
+  },
+  "@yovoice.assets.skipped": {
+    "defaultMessage": "{count}개는 삭제되지 않았습니다."
+  },
+  "@yovoice.assets.showSkipped": {
+    "defaultMessage": "이유 보기"
+  },
+  "@yovoice.assets.skippedTitle": {
+    "defaultMessage": "일부 자산을 삭제하지 못했습니다"
+  },
+  "@yovoice.assets.noMatch": {
+    "defaultMessage": "조건에 맞는 자산이 없습니다."
+  },
+  "@yovoice.assets.empty": {
+    "defaultMessage": "아직 자산이 없습니다. 생성한 오디오, 가져온 참조 오디오와 소재가 여기에 표시됩니다."
+  },
+  "@yovoice.assets.pages": {
+    "defaultMessage": "자산 페이지"
+  },
+  "@yovoice.assets.play": {
+    "defaultMessage": "{name} 미리 듣기"
+  },
+  "@yovoice.assets.preview": {
+    "defaultMessage": "{name} 미리 보기"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "원본 프로젝트가 삭제됨"
   }
 }

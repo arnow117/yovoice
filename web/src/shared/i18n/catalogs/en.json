@@ -3802,5 +3802,146 @@
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Replay"
+  },
+  "@yovoice.nav.assets": {
+    "defaultMessage": "Assets"
+  },
+  "@yovoice.assets.title": {
+    "defaultMessage": "Assets"
+  },
+  "@yovoice.assets.total": {
+    "defaultMessage": "{count} items · {size}"
+  },
+  "@yovoice.assets.storage": {
+    "defaultMessage": "Storage settings"
+  },
+  "@yovoice.assets.stats": {
+    "defaultMessage": "By type"
+  },
+  "@yovoice.assets.stat": {
+    "defaultMessage": "{kind} · {count} · {size}"
+  },
+  "@yovoice.assets.kind.generation": {
+    "defaultMessage": "Generated audio"
+  },
+  "@yovoice.assets.kind.segment": {
+    "defaultMessage": "Narration clip"
+  },
+  "@yovoice.assets.kind.voice": {
+    "defaultMessage": "Reference audio"
+  },
+  "@yovoice.assets.kind.material": {
+    "defaultMessage": "Timeline media"
+  },
+  "@yovoice.assets.kind.image": {
+    "defaultMessage": "Image"
+  },
+  "@yovoice.assets.col.name": {
+    "defaultMessage": "Name"
+  },
+  "@yovoice.assets.col.kind": {
+    "defaultMessage": "Type"
+  },
+  "@yovoice.assets.col.project": {
+    "defaultMessage": "Project"
+  },
+  "@yovoice.assets.col.duration": {
+    "defaultMessage": "Length"
+  },
+  "@yovoice.assets.col.size": {
+    "defaultMessage": "Size"
+  },
+  "@yovoice.assets.col.created": {
+    "defaultMessage": "Created"
+  },
+  "@yovoice.assets.col.status": {
+    "defaultMessage": "Status"
+  },
+  "@yovoice.assets.allKinds": {
+    "defaultMessage": "All types"
+  },
+  "@yovoice.assets.allProjects": {
+    "defaultMessage": "All projects"
+  },
+  "@yovoice.assets.usage": {
+    "defaultMessage": "Usage"
+  },
+  "@yovoice.assets.usage.all": {
+    "defaultMessage": "All"
+  },
+  "@yovoice.assets.status.unused": {
+    "defaultMessage": "Not in use"
+  },
+  "@yovoice.assets.status.used": {
+    "defaultMessage": "In use"
+  },
+  "@yovoice.assets.status.usedBy": {
+    "defaultMessage": "Used by {names}"
+  },
+  "@yovoice.assets.status.missing": {
+    "defaultMessage": "File missing"
+  },
+  "@yovoice.assets.search": {
+    "defaultMessage": "Search"
+  },
+  "@yovoice.assets.searchPlaceholder": {
+    "defaultMessage": "Name, project or character"
+  },
+  "@yovoice.assets.hint": {
+    "defaultMessage": "Assets in use and timeline media can’t be deleted here: replace them in the character or project first, and remove timeline media from the project’s timeline."
+  },
+  "@yovoice.assets.selection": {
+    "defaultMessage": "Selected assets"
+  },
+  "@yovoice.assets.selected": {
+    "defaultMessage": "{count} selected · {size}"
+  },
+  "@yovoice.assets.deleteSelected": {
+    "defaultMessage": "Delete selected"
+  },
+  "@yovoice.assets.clearSelection": {
+    "defaultMessage": "Clear selection"
+  },
+  "@yovoice.assets.deleteOne": {
+    "defaultMessage": "Delete {name}"
+  },
+  "@yovoice.assets.deleteTitle": {
+    "defaultMessage": "Delete {count} assets?"
+  },
+  "@yovoice.assets.deleteBody": {
+    "defaultMessage": "The selected files will be permanently deleted, freeing about {size}. This can’t be undone."
+  },
+  "@yovoice.assets.deleteConfirm": {
+    "defaultMessage": "Delete"
+  },
+  "@yovoice.assets.deleted": {
+    "defaultMessage": "Deleted {count} items, freed {size}."
+  },
+  "@yovoice.assets.skipped": {
+    "defaultMessage": "{count} not deleted."
+  },
+  "@yovoice.assets.showSkipped": {
+    "defaultMessage": "See why"
+  },
+  "@yovoice.assets.skippedTitle": {
+    "defaultMessage": "Some assets weren’t deleted"
+  },
+  "@yovoice.assets.noMatch": {
+    "defaultMessage": "No assets match these filters."
+  },
+  "@yovoice.assets.empty": {
+    "defaultMessage": "No assets yet. Generated audio, imported reference audio and media will show up here."
+  },
+  "@yovoice.assets.pages": {
+    "defaultMessage": "Asset pages"
+  },
+  "@yovoice.assets.play": {
+    "defaultMessage": "Play {name}"
+  },
+  "@yovoice.assets.preview": {
+    "defaultMessage": "Preview {name}"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "Source project deleted"
   }
 }

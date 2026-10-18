@@ -3802,5 +3802,146 @@
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Phát lại"
+  },
+  "@yovoice.nav.assets": {
+    "defaultMessage": "Tài nguyên"
+  },
+  "@yovoice.assets.title": {
+    "defaultMessage": "Tài nguyên"
+  },
+  "@yovoice.assets.total": {
+    "defaultMessage": "{count} mục · {size}"
+  },
+  "@yovoice.assets.storage": {
+    "defaultMessage": "Cài đặt lưu trữ"
+  },
+  "@yovoice.assets.stats": {
+    "defaultMessage": "Theo loại"
+  },
+  "@yovoice.assets.stat": {
+    "defaultMessage": "{kind} · {count} mục · {size}"
+  },
+  "@yovoice.assets.kind.generation": {
+    "defaultMessage": "Âm thanh đã tạo"
+  },
+  "@yovoice.assets.kind.segment": {
+    "defaultMessage": "Đoạn lồng tiếng"
+  },
+  "@yovoice.assets.kind.voice": {
+    "defaultMessage": "Âm thanh tham chiếu"
+  },
+  "@yovoice.assets.kind.material": {
+    "defaultMessage": "Tư liệu dòng thời gian"
+  },
+  "@yovoice.assets.kind.image": {
+    "defaultMessage": "Hình ảnh"
+  },
+  "@yovoice.assets.col.name": {
+    "defaultMessage": "Tên"
+  },
+  "@yovoice.assets.col.kind": {
+    "defaultMessage": "Loại"
+  },
+  "@yovoice.assets.col.project": {
+    "defaultMessage": "Tác phẩm"
+  },
+  "@yovoice.assets.col.duration": {
+    "defaultMessage": "Thời lượng"
+  },
+  "@yovoice.assets.col.size": {
+    "defaultMessage": "Dung lượng"
+  },
+  "@yovoice.assets.col.created": {
+    "defaultMessage": "Thời gian tạo"
+  },
+  "@yovoice.assets.col.status": {
+    "defaultMessage": "Trạng thái"
+  },
+  "@yovoice.assets.allKinds": {
+    "defaultMessage": "Tất cả loại"
+  },
+  "@yovoice.assets.allProjects": {
+    "defaultMessage": "Tất cả tác phẩm"
+  },
+  "@yovoice.assets.usage": {
+    "defaultMessage": "Tình trạng sử dụng"
+  },
+  "@yovoice.assets.usage.all": {
+    "defaultMessage": "Tất cả"
+  },
+  "@yovoice.assets.status.unused": {
+    "defaultMessage": "Chưa dùng"
+  },
+  "@yovoice.assets.status.used": {
+    "defaultMessage": "Đang dùng"
+  },
+  "@yovoice.assets.status.usedBy": {
+    "defaultMessage": "Đang dùng bởi {names}"
+  },
+  "@yovoice.assets.status.missing": {
+    "defaultMessage": "Thiếu tệp"
+  },
+  "@yovoice.assets.search": {
+    "defaultMessage": "Tìm kiếm"
+  },
+  "@yovoice.assets.searchPlaceholder": {
+    "defaultMessage": "Tên, tác phẩm hoặc nhân vật"
+  },
+  "@yovoice.assets.hint": {
+    "defaultMessage": "Không thể xóa tài nguyên đang dùng và tư liệu dòng thời gian tại đây: hãy thay thế trong nhân vật hoặc tác phẩm trước, còn tư liệu thì gỡ khỏi dòng thời gian của tác phẩm."
+  },
+  "@yovoice.assets.selection": {
+    "defaultMessage": "Tài nguyên đã chọn"
+  },
+  "@yovoice.assets.selected": {
+    "defaultMessage": "Đã chọn {count} mục · {size}"
+  },
+  "@yovoice.assets.deleteSelected": {
+    "defaultMessage": "Xóa mục đã chọn"
+  },
+  "@yovoice.assets.clearSelection": {
+    "defaultMessage": "Bỏ chọn"
+  },
+  "@yovoice.assets.deleteOne": {
+    "defaultMessage": "Xóa {name}"
+  },
+  "@yovoice.assets.deleteTitle": {
+    "defaultMessage": "Xóa {count} tài nguyên?"
+  },
+  "@yovoice.assets.deleteBody": {
+    "defaultMessage": "Các tệp đã chọn sẽ bị xóa vĩnh viễn, giải phóng khoảng {size}. Không thể hoàn tác."
+  },
+  "@yovoice.assets.deleteConfirm": {
+    "defaultMessage": "Xóa"
+  },
+  "@yovoice.assets.deleted": {
+    "defaultMessage": "Đã xóa {count} mục, giải phóng {size}."
+  },
+  "@yovoice.assets.skipped": {
+    "defaultMessage": "{count} mục chưa được xóa."
+  },
+  "@yovoice.assets.showSkipped": {
+    "defaultMessage": "Xem lý do"
+  },
+  "@yovoice.assets.skippedTitle": {
+    "defaultMessage": "Một số tài nguyên chưa được xóa"
+  },
+  "@yovoice.assets.noMatch": {
+    "defaultMessage": "Không có tài nguyên phù hợp với bộ lọc."
+  },
+  "@yovoice.assets.empty": {
+    "defaultMessage": "Chưa có tài nguyên nào. Âm thanh đã tạo, âm thanh tham chiếu và tư liệu đã nhập sẽ xuất hiện ở đây."
+  },
+  "@yovoice.assets.pages": {
+    "defaultMessage": "Trang tài nguyên"
+  },
+  "@yovoice.assets.play": {
+    "defaultMessage": "Nghe thử {name}"
+  },
+  "@yovoice.assets.preview": {
+    "defaultMessage": "Xem trước {name}"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "Dự án nguồn đã bị xóa"
   }
 }

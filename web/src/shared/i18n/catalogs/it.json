@@ -3802,5 +3802,146 @@
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Riproduci di nuovo"
+  },
+  "@yovoice.nav.assets": {
+    "defaultMessage": "Risorse"
+  },
+  "@yovoice.assets.title": {
+    "defaultMessage": "Risorse"
+  },
+  "@yovoice.assets.total": {
+    "defaultMessage": "{count} elementi · {size}"
+  },
+  "@yovoice.assets.storage": {
+    "defaultMessage": "Impostazioni di archiviazione"
+  },
+  "@yovoice.assets.stats": {
+    "defaultMessage": "Per tipo"
+  },
+  "@yovoice.assets.stat": {
+    "defaultMessage": "{kind} · {count} · {size}"
+  },
+  "@yovoice.assets.kind.generation": {
+    "defaultMessage": "Audio generato"
+  },
+  "@yovoice.assets.kind.segment": {
+    "defaultMessage": "Clip di narrazione"
+  },
+  "@yovoice.assets.kind.voice": {
+    "defaultMessage": "Audio di riferimento"
+  },
+  "@yovoice.assets.kind.material": {
+    "defaultMessage": "Media della timeline"
+  },
+  "@yovoice.assets.kind.image": {
+    "defaultMessage": "Immagine"
+  },
+  "@yovoice.assets.col.name": {
+    "defaultMessage": "Nome"
+  },
+  "@yovoice.assets.col.kind": {
+    "defaultMessage": "Tipo"
+  },
+  "@yovoice.assets.col.project": {
+    "defaultMessage": "Progetto"
+  },
+  "@yovoice.assets.col.duration": {
+    "defaultMessage": "Durata"
+  },
+  "@yovoice.assets.col.size": {
+    "defaultMessage": "Dimensione"
+  },
+  "@yovoice.assets.col.created": {
+    "defaultMessage": "Creato"
+  },
+  "@yovoice.assets.col.status": {
+    "defaultMessage": "Stato"
+  },
+  "@yovoice.assets.allKinds": {
+    "defaultMessage": "Tutti i tipi"
+  },
+  "@yovoice.assets.allProjects": {
+    "defaultMessage": "Tutti i progetti"
+  },
+  "@yovoice.assets.usage": {
+    "defaultMessage": "Utilizzo"
+  },
+  "@yovoice.assets.usage.all": {
+    "defaultMessage": "Tutti"
+  },
+  "@yovoice.assets.status.unused": {
+    "defaultMessage": "Non in uso"
+  },
+  "@yovoice.assets.status.used": {
+    "defaultMessage": "In uso"
+  },
+  "@yovoice.assets.status.usedBy": {
+    "defaultMessage": "In uso da {names}"
+  },
+  "@yovoice.assets.status.missing": {
+    "defaultMessage": "File mancante"
+  },
+  "@yovoice.assets.search": {
+    "defaultMessage": "Cerca"
+  },
+  "@yovoice.assets.searchPlaceholder": {
+    "defaultMessage": "Nome, progetto o personaggio"
+  },
+  "@yovoice.assets.hint": {
+    "defaultMessage": "Le risorse in uso e i media della timeline non si possono eliminare qui: sostituiscili prima nel personaggio o nel progetto e rimuovi i media dalla timeline del progetto."
+  },
+  "@yovoice.assets.selection": {
+    "defaultMessage": "Risorse selezionate"
+  },
+  "@yovoice.assets.selected": {
+    "defaultMessage": "{count} selezionati · {size}"
+  },
+  "@yovoice.assets.deleteSelected": {
+    "defaultMessage": "Elimina selezionati"
+  },
+  "@yovoice.assets.clearSelection": {
+    "defaultMessage": "Deseleziona"
+  },
+  "@yovoice.assets.deleteOne": {
+    "defaultMessage": "Elimina {name}"
+  },
+  "@yovoice.assets.deleteTitle": {
+    "defaultMessage": "Eliminare {count} risorse?"
+  },
+  "@yovoice.assets.deleteBody": {
+    "defaultMessage": "I file selezionati verranno eliminati definitivamente, liberando circa {size}. L’operazione non è reversibile."
+  },
+  "@yovoice.assets.deleteConfirm": {
+    "defaultMessage": "Elimina"
+  },
+  "@yovoice.assets.deleted": {
+    "defaultMessage": "Eliminati {count} elementi, liberati {size}."
+  },
+  "@yovoice.assets.skipped": {
+    "defaultMessage": "{count} non eliminati."
+  },
+  "@yovoice.assets.showSkipped": {
+    "defaultMessage": "Vedi perché"
+  },
+  "@yovoice.assets.skippedTitle": {
+    "defaultMessage": "Alcune risorse non sono state eliminate"
+  },
+  "@yovoice.assets.noMatch": {
+    "defaultMessage": "Nessuna risorsa corrisponde ai filtri."
+  },
+  "@yovoice.assets.empty": {
+    "defaultMessage": "Ancora nessuna risorsa. Qui compariranno l’audio generato, l’audio di riferimento importato e i media."
+  },
+  "@yovoice.assets.pages": {
+    "defaultMessage": "Pagine delle risorse"
+  },
+  "@yovoice.assets.play": {
+    "defaultMessage": "Ascolta {name}"
+  },
+  "@yovoice.assets.preview": {
+    "defaultMessage": "Anteprima di {name}"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "Progetto di origine eliminato"
   }
 }

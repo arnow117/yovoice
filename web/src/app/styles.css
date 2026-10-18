@@ -371,6 +371,16 @@
   .number-field input::-webkit-inner-spin-button { margin-inline-start: var(--spacing-2); }
 
   .settings-page > *,.library-page > * { flex-shrink: 0; }
+  /* 资源页：整页滚动，试听播放器贴在底部；名称过长时截断，状态与辅助文字用次要色。 */
+  .assets-page { max-width: none; overflow-y: auto; overscroll-behavior: contain; }
+  .assets-page h1 { margin: 0; }
+  .asset-muted { color: var(--app-muted); }
+  .asset-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .asset-selection { padding: var(--spacing-2) var(--spacing-3); border-radius: var(--radius-element); background: var(--color-background-muted); }
+  .asset-outcome { margin: 0; color: var(--app-muted); }
+  .asset-failures { margin: 0; padding-left: var(--spacing-5); }
+  .asset-image { display: block; max-width: 100%; max-height: 60vh; margin-inline: auto; border-radius: var(--radius-element); }
+  .assets-page > .audio-panel, .assets-page > [class*="player"] { position: sticky; bottom: 0; }
   .model-size { font-variant-numeric: tabular-nums; white-space: nowrap; }
   .model-row > .model-summary > .astryx-button { min-width: calc(var(--spacing-10) * 2.5); }
   .settings-page > [role="tabpanel"] { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin-inline-end: calc(-1 * var(--spacing-4)); padding-inline-end: var(--spacing-4); scrollbar-gutter: stable; }
