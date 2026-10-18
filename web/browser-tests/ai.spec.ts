@@ -4,8 +4,6 @@ import { test, expect } from '@playwright/test';
 
 test('AI 服务：未配置时引导到设置，左侧选服务、右侧直接编辑，切换和删除', async ({ page }) => {
   await page.goto('/');
-  // 助手面板浮在右下角，先收起再操作编辑器。
-  await page.keyboard.press('ControlOrMeta+j');
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '编曲', exact: true }).click();
   const notConfigured = page.locator('.ai-composer');
@@ -59,7 +57,6 @@ test('AI 服务：未配置时引导到设置，左侧选服务、右侧直接�
 
 test('安装包缺少 AI 助手运行时：写作入口与助手面板禁用并说明原因，不影响其他功能', async ({ page }) => {
   await page.goto('/');
-  await page.keyboard.press('ControlOrMeta+j');
   await page.evaluate(() => localStorage.setItem('yovoice-preview-no-ocho', '1'));
   await page.reload();
   await page.getByTestId('nav-settings').click();

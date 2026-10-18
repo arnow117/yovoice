@@ -84,7 +84,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const [pronunciation, setPronunciation] = useState<Pronunciation | null>(null);
   const [showInspector, setShowInspector] = useState(false);
   // 助手面板：开关与展开状态跨启动保留；⌘J/Ctrl+J、宿主标题栏按钮与编辑器 AI 写作栏都能打开。
-  const [assistantOpen, setAssistantOpen] = useState(() => { try { return localStorage.getItem('yovoice-assistant-open') !== 'false'; } catch { return true; } });
+  const [assistantOpen, setAssistantOpen] = useState(() => { try { return localStorage.getItem('yovoice-assistant-open') === 'true'; } catch { return false; } });
   const [assistantExpanded, setAssistantExpanded] = useState(() => { try { return localStorage.getItem('yovoice-assistant-expanded') === 'true'; } catch { return false; } });
   useEffect(() => { try { localStorage.setItem('yovoice-assistant-open', String(assistantOpen)); localStorage.setItem('yovoice-assistant-expanded', String(assistantExpanded)); } catch { /* 存储不可用时只在本次生效 */ } }, [assistantOpen, assistantExpanded]);
   useEffect(() => {

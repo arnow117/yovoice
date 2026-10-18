@@ -17,8 +17,9 @@ async function configureAI(page: Page) {
 test('助手面板：⌘J 开关、空状态引导与快捷胶囊，状态跨刷新记住', async ({ page }) => {
   await page.goto('/');
   await configureAI(page);
-  // 配置时收起了面板；⌘J 重新打开（默认记住的开关状态是打开）。
+  // 默认收起，不遮挡工作区；⌘J 打开。
   const panel = page.getByTestId('assistant-panel');
+  await expect(panel).toHaveCount(0);
   await page.keyboard.press('ControlOrMeta+j');
   await expect(panel).toBeVisible();
   await expect(panel.getByText('用一句话让助手动手')).toBeVisible();
@@ -27,12 +28,16 @@ test('助手面板：⌘J 开关、空状态引导与快捷胶囊，状态跨刷
   await panel.screenshot({ path: `${shots}/assistant-empty.png` });
   await page.keyboard.press('ControlOrMeta+j');
   await expect(panel).toHaveCount(0);
-  // 开关状态记住：刷新后仍收起，再按 ⌘J 打开。
+  // 开关状态记住：打开后刷新仍打开，收起后刷新仍收起。
+  await page.keyboard.press('ControlOrMeta+j');
+  await expect(panel).toBeVisible();
+  await page.reload();
+  await page.getByTestId('assistant-toggle').waitFor({ state: 'visible' });
+  await expect(page.getByTestId('assistant-panel')).toBeVisible();
+  await page.keyboard.press('ControlOrMeta+j');
   await page.reload();
   await page.getByTestId('assistant-toggle').waitFor({ state: 'visible' });
   await expect(page.getByTestId('assistant-panel')).toHaveCount(0);
-  await page.keyboard.press('ControlOrMeta+j');
-  await expect(page.getByTestId('assistant-panel')).toBeVisible();
 });
 
 test('助手对话：发送后流式回复，工具卡片联动编辑器与页面，可停止、可新对话', async ({ page }) => {
@@ -96,6 +101,7 @@ test('编辑器 AI 写作入口：提交即进助手对话，面板自动打开'
 
 test('未配置 AI 服务：面板引导去设置，配置后即可用', async ({ page }) => {
   await page.goto('/');
+  await page.keyboard.press('ControlOrMeta+j');
   const panel = page.getByTestId('assistant-panel');
   await expect(panel).toContainText('还没有可用的 AI 服务');
   await panel.getByRole('button', { name: '设置 AI', exact: true }).click();
