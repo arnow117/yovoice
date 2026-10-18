@@ -54,7 +54,7 @@ test('选中的文字随下一条消息带给 Ocho，输入框上方有提示，
   await script.evaluate((element: HTMLTextAreaElement) => { element.focus(); element.setSelectionRange(9, 15); });
   await page.getByTestId('assistant-toggle').click();
   await expect(chip).toContainText('远处传来钟声');
-  await chip.getByRole('button', { name: '不附带选中内容' }).click();
+  await chip.getByRole('button').click();
   await expect(chip).toHaveCount(0);
 });
 

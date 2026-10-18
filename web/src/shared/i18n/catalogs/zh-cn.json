@@ -3704,9 +3704,6 @@
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "正在处理"
   },
-  "@yovoice.assistant.selectionClear": {
-    "defaultMessage": "不附带选中内容"
-  },
   "@yovoice.assistant.proposal.confirm": {
     "defaultMessage": "确认"
   },
@@ -3811,5 +3808,8 @@
   },
   "@yovoice.settings.assistantMemoryEmptyHint": {
     "defaultMessage": "比如对 Ocho 说“旁白默认用温柔女声”。"
+  },
+  "@yovoice.assistant.selectionHint": {
+    "defaultMessage": "选中的内容会随下一条消息发给 Ocho"
   }
 }

@@ -979,9 +979,8 @@
   .assistant-actions { margin-inline-start: calc(-1 * var(--spacing-2)); opacity: 0; transition: opacity var(--duration-fast) var(--ease-standard); }
   .assistant-turn:hover .assistant-actions, .assistant-actions:focus-within { opacity: 1; }
   .assistant-model { max-width: 100%; min-width: 0; color: var(--app-muted); }
-  /* 附带的选中内容：输入框上方一行引用，单行截断，点 × 不带。 */
-  .assistant-selection { margin-bottom: var(--spacing-2); padding: var(--spacing-1) var(--spacing-1) var(--spacing-1) var(--spacing-3); border-inline-start: calc(var(--border-width) * 2) solid var(--app-accent); border-radius: var(--radius-element); background: color-mix(in srgb, var(--app-accent) 6%, transparent); color: var(--app-muted); font-size: var(--app-small-font); animation: assistant-rise var(--duration-fast) var(--ease-standard); }
-  .assistant-selection > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* 附带的选中内容：输入框里的一枚引用标签，单行截断。 */
+  .assistant-selection.astryx-token { min-width: 0; max-width: calc(var(--assistant-width, 100%) - var(--spacing-12)); color: var(--app-muted); }
   /* 提议卡片：要用户确认的操作；处理后只留一行结果。 */
   .assistant-proposal { padding: var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); background: var(--app-white); animation: assistant-rise var(--duration-fast) var(--ease-standard); }
   .assistant-proposal[data-state="pending"] { border-color: color-mix(in srgb, var(--app-accent) 40%, var(--app-line)); box-shadow: var(--shadow-low); }
@@ -1018,5 +1017,5 @@
   @keyframes assistant-rise { from { opacity: 0; transform: translateY(var(--spacing-1)); } }
   @keyframes assistant-fade { from { opacity: 0; } }
   @keyframes assistant-slide { from { transform: translateX(-100%); } }
-  @media (prefers-reduced-motion: reduce) { .assistant-panel, .assistant-launcher-wrap, .assistant-nudge, .assistant-proposal, .assistant-selection, .assistant-launcher-hide, .assistant-launcher::before, .assistant-empty-art, .assistant-empty-title, .assistant-empty-hint, .assistant-suggestions, .assistant-history, .assistant-scrim, .assistant-status-label { animation: none; transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .assistant-panel, .assistant-launcher-wrap, .assistant-nudge, .assistant-proposal, .assistant-launcher-hide, .assistant-launcher::before, .assistant-empty-art, .assistant-empty-title, .assistant-empty-hint, .assistant-suggestions, .assistant-history, .assistant-scrim, .assistant-status-label { animation: none; transition: none; } }
   @media (max-width: 600px) { .assistant-launcher .astryx-kbd { display: none; } }

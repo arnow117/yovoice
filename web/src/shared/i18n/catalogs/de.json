@@ -3704,9 +3704,6 @@
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "Arbeitet"
   },
-  "@yovoice.assistant.selectionClear": {
-    "defaultMessage": "Auswahl nicht mitsenden"
-  },
   "@yovoice.assistant.proposal.confirm": {
     "defaultMessage": "Bestätigen"
   },
@@ -3811,5 +3808,8 @@
   },
   "@yovoice.settings.assistantMemoryEmptyHint": {
     "defaultMessage": "Sagen Sie Ocho zum Beispiel: „Nimm für Erzählungen standardmäßig die warme Frauenstimme.“"
+  },
+  "@yovoice.assistant.selectionHint": {
+    "defaultMessage": "Ihre Auswahl wird mit der nächsten Nachricht an Ocho gesendet"
   }
 }

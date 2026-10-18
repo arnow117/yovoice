@@ -3704,9 +3704,6 @@
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "処理中"
   },
-  "@yovoice.assistant.selectionClear": {
-    "defaultMessage": "選択内容を添付しない"
-  },
   "@yovoice.assistant.proposal.confirm": {
     "defaultMessage": "実行する"
   },
@@ -3811,5 +3808,8 @@
   },
   "@yovoice.settings.assistantMemoryEmptyHint": {
     "defaultMessage": "たとえば Ocho に「ナレーションはやさしい女性の声をデフォルトに」と伝えてみてください。"
+  },
+  "@yovoice.assistant.selectionHint": {
+    "defaultMessage": "選択した内容は次のメッセージと一緒に Ocho に送られます"
   }
 }

@@ -3704,9 +3704,6 @@
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "처리하는 중"
   },
-  "@yovoice.assistant.selectionClear": {
-    "defaultMessage": "선택 내용 빼기"
-  },
   "@yovoice.assistant.proposal.confirm": {
     "defaultMessage": "확인"
   },
@@ -3811,5 +3808,8 @@
   },
   "@yovoice.settings.assistantMemoryEmptyHint": {
     "defaultMessage": "예: Ocho에게 \"내레이션은 기본으로 부드러운 여성 목소리로\"라고 말해 보세요."
+  },
+  "@yovoice.assistant.selectionHint": {
+    "defaultMessage": "선택한 내용은 다음 메시지와 함께 Ocho에게 전달됩니다"
   }
 }

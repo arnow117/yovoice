@@ -3704,9 +3704,6 @@
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "Trabajando"
   },
-  "@yovoice.assistant.selectionClear": {
-    "defaultMessage": "No incluir la selección"
-  },
   "@yovoice.assistant.proposal.confirm": {
     "defaultMessage": "Confirmar"
   },
@@ -3811,5 +3808,8 @@
   },
   "@yovoice.settings.assistantMemoryEmptyHint": {
     "defaultMessage": "Por ejemplo, dile a Ocho «usa por defecto la voz femenina cálida para la narración»."
+  },
+  "@yovoice.assistant.selectionHint": {
+    "defaultMessage": "Tu selección se enviará a Ocho con el próximo mensaje"
   }
 }

@@ -3704,9 +3704,6 @@
   "@yovoice.assistant.phase.working": {
     "defaultMessage": "Trabalhando"
   },
-  "@yovoice.assistant.selectionClear": {
-    "defaultMessage": "Não incluir a seleção"
-  },
   "@yovoice.assistant.proposal.confirm": {
     "defaultMessage": "Confirmar"
   },
@@ -3811,5 +3808,8 @@
   },
   "@yovoice.settings.assistantMemoryEmptyHint": {
     "defaultMessage": "Por exemplo, diga ao Ocho \"use por padrão a voz feminina suave na narração\"."
+  },
+  "@yovoice.assistant.selectionHint": {
+    "defaultMessage": "Sua seleção será enviada ao Ocho com a próxima mensagem"
   }
 }

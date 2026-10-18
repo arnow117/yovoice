@@ -3,8 +3,9 @@ import { Button } from '@astryxdesign/core/Button';
 import { ChatComposer, ChatMessage, ChatMessageBubble, ChatMessageList, ChatSendButton } from '@astryxdesign/core/Chat';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { List, ListItem } from '@astryxdesign/core/List';
+import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ChevronDown, ChevronLeft, History, Maximize2, Minimize2, SquarePen, TextQuote, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, History, Maximize2, Minimize2, SquarePen, TextQuote, Trash2 } from 'lucide-react';
 import { call, mediaUrl } from '../../shared/lib/client';
 import type { AssistantBlock, AssistantContext, State, Generation } from '../../shared/workbench';
 import { messageBlocks, turnCards } from './assistant-model';
@@ -162,16 +163,13 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
       <span className="grow">{t('@yovoice.assistant.setup')}</span>
       <Button size="sm" variant="secondary" label={t('@yovoice.ai.configure')} onClick={actions.openSettings} />
     </HStack> : <VStack className="assistant-dock-bottom" gap={0}>
-      {/* 编辑区里选中的文字会随下一条消息带给 Ocho：在输入框上方提示，点 × 不带。 */}
-      {selection ? <HStack className="assistant-selection" data-testid="assistant-selection" gap={2} vAlign="center">
-        <TextQuote size={14} aria-hidden />
-        <span className="grow" title={selection}>{selection}</span>
-        <Button size="sm" variant="ghost" isIconOnly icon={<X size={12} />} label={t('@yovoice.assistant.selectionClear')} onClick={clearAssistantSelection} />
-      </HStack> : null}
       <ChatComposer className="assistant-composer" density="compact" value={draft} onChange={setDraft}
         placeholder={t('@yovoice.assistant.placeholder')} isDisabled={runtimeMissing}
         isStopShown={running} onStop={() => void call('assistant.cancel').catch(() => undefined)}
         onSubmit={send} sendButton={<ChatSendButton className="assistant-send" />}
+        // 编辑区里选中的文字会随下一条消息带给 Ocho：以引用标签放在输入框里，点 × 不带。
+        headerActions={selection ? <Token data-testid="assistant-selection" className="assistant-selection" size="sm" icon={<TextQuote size={12} />}
+          label={selection.replace(/\s+/g, ' ')} description={t('@yovoice.assistant.selectionHint')} onRemove={clearAssistantSelection} /> : undefined}
         footerActions={provider ? <Selector label={t('@yovoice.ai.model')} isLabelHidden size="sm" variant="ghost" className="assistant-model" data-testid="assistant-model"
           value={provider.model ? choice(provider.id, provider.model) : undefined} options={modelOptions} onChange={pickModel}
           hasSearch={modelOptions.reduce((n, section) => n + section.options.length, 0) > 12} searchPlaceholder={t('@yovoice.ai.searchModels')} /> : undefined} />
