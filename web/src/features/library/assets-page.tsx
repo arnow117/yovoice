@@ -8,7 +8,7 @@ import { Table, pixel, proportional, useTableSelection, useTableSortable, type T
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { Token } from '@astryxdesign/core/Token';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowUpRight, FolderOpen, Image as ImageIcon, Play, RefreshCw, Trash2 } from 'lucide-react';
+import { FolderOpen, Image as ImageIcon, Play, RefreshCw, Trash2 } from 'lucide-react';
 import { call, isDesktop } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatCallError } from '../../shared/i18n/format';
@@ -28,12 +28,12 @@ const isUsed = (a: Asset) => (a.users?.length ?? 0) > 0;
 const canDelete = (a: Asset) => a.kind !== 'material' && !isUsed(a);
 
 /**
- * 资源页：汇总所有生成音频、故事配音片段、参考音频、时间轴素材和 AI 图片，
+ * 设置里的资源页：汇总所有生成音频、故事配音片段、参考音频、时间轴素材和 AI 图片，
  * 按类型、作品、使用情况和关键词筛选，可排序、试听或预览，并批量删除未被使用的项目。
  */
-export function AssetsPage({ state, active, run, onError, openProject, openStorage }: {
+export function AssetsPage({ state, active, run, onError, openProject }: {
   state: State; active: boolean; run: (task: () => Promise<unknown>) => void; onError: (error: string) => void;
-  openProject: (id: string) => void; openStorage: () => void;
+  openProject: (id: string) => void;
 }) {
   const t = useTranslator();
   const locale = useLocale();
@@ -115,18 +115,18 @@ export function AssetsPage({ state, active, run, onError, openProject, openStora
         : <Button size="sm" variant="ghost" isIconOnly icon={<Play size={15} />} label={t('@yovoice.assets.play', { name: a.name })} isDisabled={a.bytes < 0} onClick={() => listen(a)} />}
       <small className="asset-name" title={a.name}>{a.name}</small>
     </HStack> },
-    { key: 'kind', header: t('@yovoice.assets.col.kind'), width: pixel(104), renderCell: ({ asset: a }) => <Token size="sm" color={a.kind === 'voice' ? 'teal' : a.kind === 'image' ? 'purple' : a.kind === 'material' ? 'orange' : 'default'} label={kindLabel(a.kind)} /> },
-    { key: 'project', header: t('@yovoice.assets.col.project'), width: proportional(1), renderCell: ({ asset: a }) => a.projectId
+    { key: 'kind', header: t('@yovoice.assets.col.kind'), width: pixel(104), align: 'center', renderCell: ({ asset: a }) => <Token size="sm" color={a.kind === 'voice' ? 'teal' : a.kind === 'image' ? 'purple' : a.kind === 'material' ? 'orange' : 'default'} label={kindLabel(a.kind)} /> },
+    { key: 'project', header: t('@yovoice.assets.col.project'), width: proportional(1), align: 'center', renderCell: ({ asset: a }) => a.projectId
       ? a.projectTitle ? <Button size="sm" variant="ghost" label={a.projectTitle} onClick={() => openProject(a.projectId!)} /> : <small className="asset-muted">{t('@yovoice.assets.sourceMissing')}</small>
       : <small className="asset-muted">—</small> },
-    { key: 'duration', header: t('@yovoice.assets.col.duration'), width: pixel(76), align: 'end', sortable: true, renderCell: ({ asset: a }) => <small>{a.duration ? formatTime(a.duration) : '—'}</small> },
-    { key: 'bytes', header: t('@yovoice.assets.col.size'), width: pixel(92), align: 'end', sortable: true, renderCell: ({ asset: a }) => <small>{a.bytes < 0 ? '—' : formatBytes(a.bytes)}</small> },
-    { key: 'createdAt', header: t('@yovoice.assets.col.created'), width: pixel(136), sortable: true, renderCell: ({ asset: a }) => <small>{time(a.createdAt)}</small> },
-    { key: 'status', header: t('@yovoice.assets.col.status'), width: proportional(1), renderCell: ({ asset: a }) => a.bytes < 0
-      ? <HStack gap={2} vAlign="center"><StatusDot variant="error" label={t('@yovoice.assets.status.missing')} /><small>{t('@yovoice.assets.status.missing')}</small></HStack>
+    { key: 'duration', header: t('@yovoice.assets.col.duration'), width: pixel(76), align: 'center', sortable: true, renderCell: ({ asset: a }) => <small>{a.duration ? formatTime(a.duration) : '—'}</small> },
+    { key: 'bytes', header: t('@yovoice.assets.col.size'), width: pixel(92), align: 'center', sortable: true, renderCell: ({ asset: a }) => <small>{a.bytes < 0 ? '—' : formatBytes(a.bytes)}</small> },
+    { key: 'createdAt', header: t('@yovoice.assets.col.created'), width: pixel(136), align: 'center', sortable: true, renderCell: ({ asset: a }) => <small>{time(a.createdAt)}</small> },
+    { key: 'status', header: t('@yovoice.assets.col.status'), width: proportional(1), align: 'center', renderCell: ({ asset: a }) => a.bytes < 0
+      ? <HStack gap={2} vAlign="center" hAlign="center"><StatusDot variant="error" label={t('@yovoice.assets.status.missing')} /><small>{t('@yovoice.assets.status.missing')}</small></HStack>
       : isUsed(a)
-        ? <HStack gap={2} vAlign="center"><StatusDot variant="warning" label={t('@yovoice.assets.status.used')} /><small className="asset-name" title={t('@yovoice.assets.status.usedBy', { names: a.users!.join('、') })}>{t('@yovoice.assets.status.usedBy', { names: a.users!.join('、') })}</small></HStack>
-        : <HStack gap={2} vAlign="center"><StatusDot variant="neutral" label={t('@yovoice.assets.status.unused')} /><small>{t('@yovoice.assets.status.unused')}</small></HStack> },
+        ? <HStack gap={2} vAlign="center" hAlign="center"><StatusDot variant="warning" label={t('@yovoice.assets.status.used')} /><small className="asset-name" title={t('@yovoice.assets.status.usedBy', { names: a.users!.join('、') })}>{t('@yovoice.assets.status.usedBy', { names: a.users!.join('、') })}</small></HStack>
+        : <HStack gap={2} vAlign="center" hAlign="center"><StatusDot variant="neutral" label={t('@yovoice.assets.status.unused')} /><small>{t('@yovoice.assets.status.unused')}</small></HStack> },
     { key: 'actions', header: '', width: pixel(76), renderCell: ({ asset: a }) => <HStack gap={1}>
       {isDesktop && a.media !== 'images' && a.bytes >= 0 ? <Button size="sm" variant="ghost" isIconOnly icon={<FolderOpen size={15} />} label={t('@yovoice.media.reveal', { name: a.name })}
         onClick={() => { void call('media.reveal', { kind: a.media, id: a.id }).catch(e => onError(noticeMessage(e))); }} /> : null}
@@ -151,41 +151,33 @@ export function AssetsPage({ state, active, run, onError, openProject, openStora
     } finally { setDeleting(false); }
   });
 
-  return <VStack className="library-page assets-page" gap={4} data-testid="assets-page">
-    <HStack hAlign="between" vAlign="center" gap={3} wrap="wrap">
-      <VStack gap={1}>
-        <h1>{t('@yovoice.assets.title')}</h1>
-        <small className="asset-muted">{t('@yovoice.assets.total', { count: assets.length, size: formatBytes(totals.bytes) })}</small>
-      </VStack>
-      <HStack gap={2} wrap="wrap">
-        <Button size="sm" variant="ghost" label={t('@yovoice.logs.refresh')} icon={<RefreshCw size={15} />} isLoading={loading} onClick={load} />
-        <Button size="sm" label={t('@yovoice.assets.storage')} icon={<ArrowUpRight size={15} />} onClick={openStorage} />
+  // 一行工具栏：搜索与筛选在左，合计与刷新在右；表格区域自己滚动，表头、分页和试听条固定。
+  return <VStack className="settings-panel assets-page" gap={3} data-testid="assets-page" id="assets-panel" role="tabpanel" aria-label={t('@yovoice.nav.assets')}>
+    <HStack className="asset-toolbar" gap={2} vAlign="center" wrap="wrap">
+      <TextInput size="sm" label={t('@yovoice.assets.search')} isLabelHidden value={text} onChange={filter(setText)} placeholder={t('@yovoice.assets.searchPlaceholder')} width="calc(var(--spacing-10) * 5)" />
+      <Selector size="sm" label={t('@yovoice.assets.col.kind')} isLabelHidden value={kind} onChange={filter(setKind)} width="calc(var(--spacing-10) * 3.5)"
+        options={[{ value: '', label: t('@yovoice.assets.allKinds') }, ...kinds.map(value => ({ value, label: totals.byKind.has(value) ? `${kindLabel(value)} · ${totals.byKind.get(value)!.count}` : kindLabel(value) }))]} />
+      <Selector size="sm" label={t('@yovoice.assets.col.project')} isLabelHidden value={project} onChange={filter(setProject)} width="calc(var(--spacing-10) * 4)"
+        options={[{ value: '', label: t('@yovoice.assets.allProjects') }, ...projects.filter(([, title]) => title).map(([value, label]) => ({ value, label })), ...(projects.some(([, title]) => !title) ? [{ value: '-', label: t('@yovoice.assets.sourceMissing') }] : [])]} />
+      <Selector size="sm" label={t('@yovoice.assets.usage')} isLabelHidden value={usage} onChange={filter(setUsage)} width="calc(var(--spacing-10) * 3)"
+        options={[{ value: '', label: t('@yovoice.assets.usage.all') }, { value: 'unused', label: t('@yovoice.assets.status.unused') }, { value: 'used', label: t('@yovoice.assets.status.used') }]} />
+      <HStack className="grow" hAlign="end" vAlign="center" gap={1}>
+        {selected.size > 0 ? <>
+          <small>{t('@yovoice.assets.selected', { count: selected.size, size: formatBytes(pickedBytes) })}</small>
+          <Button size="sm" variant="ghost" label={t('@yovoice.assets.clearSelection')} onClick={() => setSelected(new Set())} />
+          <Button size="sm" variant="destructive" icon={<Trash2 size={15} />} label={t('@yovoice.assets.deleteSelected')} onClick={() => setConfirming(true)} />
+        </> : <>
+          {outcome ? <small className="asset-muted" role="status">{t('@yovoice.assets.deleted', { count: outcome.deleted, size: formatBytes(outcome.freed) })}
+            {outcome.failed.length ? <> {t('@yovoice.assets.skipped', { count: outcome.failed.length })} <Button size="sm" variant="ghost" label={t('@yovoice.assets.showSkipped')} onClick={() => setShowFailures(true)} /></> : null}</small>
+            : <small className="asset-muted" title={t('@yovoice.assets.hint')}>{t('@yovoice.assets.total', { count: assets.length, size: formatBytes(totals.bytes) })}</small>}
+          <Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.logs.refresh')} icon={<RefreshCw size={15} />} isLoading={loading} onClick={load} />
+        </>}
       </HStack>
     </HStack>
-    <HStack className="asset-stats" gap={2} wrap="wrap" role="group" aria-label={t('@yovoice.assets.stats')}>
-      {kinds.filter(k => totals.byKind.has(k)).map(k => <Button key={k} size="sm" aria-pressed={kind === k} variant={kind === k ? 'primary' : 'secondary'}
-        label={t('@yovoice.assets.stat', { kind: kindLabel(k), count: totals.byKind.get(k)!.count, size: formatBytes(totals.byKind.get(k)!.bytes) })}
-        onClick={() => filter(setKind)(kind === k ? '' : k)} />)}
-    </HStack>
-    <HStack gap={2} vAlign="end" wrap="wrap">
-      <Selector size="sm" label={t('@yovoice.assets.col.kind')} value={kind} onChange={filter(setKind)} width="calc(var(--spacing-10) * 3.5)"
-        options={[{ value: '', label: t('@yovoice.assets.allKinds') }, ...kinds.map(value => ({ value, label: kindLabel(value) }))]} />
-      <Selector size="sm" label={t('@yovoice.assets.col.project')} value={project} onChange={filter(setProject)} width="calc(var(--spacing-10) * 4.5)"
-        options={[{ value: '', label: t('@yovoice.assets.allProjects') }, ...projects.filter(([, title]) => title).map(([value, label]) => ({ value, label })), ...(projects.some(([, title]) => !title) ? [{ value: '-', label: t('@yovoice.assets.sourceMissing') }] : [])]} />
-      <Selector size="sm" label={t('@yovoice.assets.usage')} value={usage} onChange={filter(setUsage)} width="calc(var(--spacing-10) * 3)"
-        options={[{ value: '', label: t('@yovoice.assets.usage.all') }, { value: 'unused', label: t('@yovoice.assets.status.unused') }, { value: 'used', label: t('@yovoice.assets.status.used') }]} />
-      <TextInput size="sm" label={t('@yovoice.assets.search')} value={text} onChange={filter(setText)} placeholder={t('@yovoice.assets.searchPlaceholder')} width="calc(var(--spacing-10) * 5)" />
-    </HStack>
-    {selected.size > 0 ? <HStack className="asset-selection" gap={3} vAlign="center" wrap="wrap" role="region" aria-label={t('@yovoice.assets.selection')}>
-      <strong>{t('@yovoice.assets.selected', { count: selected.size, size: formatBytes(pickedBytes) })}</strong>
-      <Button size="sm" variant="destructive" icon={<Trash2 size={15} />} label={t('@yovoice.assets.deleteSelected')} onClick={() => setConfirming(true)} />
-      <Button size="sm" variant="ghost" label={t('@yovoice.assets.clearSelection')} onClick={() => setSelected(new Set())} />
-    </HStack> : outcome ? <p className="asset-outcome" role="status">
-      {t('@yovoice.assets.deleted', { count: outcome.deleted, size: formatBytes(outcome.freed) })}
-      {outcome.failed.length ? <> {t('@yovoice.assets.skipped', { count: outcome.failed.length })} <Button size="sm" variant="ghost" label={t('@yovoice.assets.showSkipped')} onClick={() => setShowFailures(true)} /></> : null}
-    </p> : <small className="asset-muted">{t('@yovoice.assets.hint')}</small>}
-    <Table<Row> data={pageRows} columns={columns} idKey="key" density="compact" textOverflow="truncate" hasHover plugins={{ selection, sortable }}
-      emptyState={loading ? false : <EmptyState title={t(assets.length ? '@yovoice.assets.noMatch' : '@yovoice.assets.empty')} />} />
+    <VStack className="asset-table" gap={0}>
+      <Table<Row> data={pageRows} columns={columns} idKey="key" density="compact" textOverflow="truncate" hasHover plugins={{ selection, sortable }}
+        emptyState={loading ? false : <EmptyState title={t(assets.length ? '@yovoice.assets.noMatch' : '@yovoice.assets.empty')} />} />
+    </VStack>
     {filtered.length > pageSize ? <Pagination size="sm" variant="count" page={page} pageSize={pageSize} totalItems={filtered.length} onChange={setPage} label={t('@yovoice.assets.pages')} /> : null}
     {track ? <Player track={track} suspended={!active} onError={onError} reveal={false} /> : null}
 

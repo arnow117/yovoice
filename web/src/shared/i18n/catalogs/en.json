@@ -2357,18 +2357,6 @@
   "@yovoice.score.roleOf": {
     "defaultMessage": "Role for {name}"
   },
-  "@yovoice.settings.aiTimeout": {
-    "defaultMessage": "Request timeout"
-  },
-  "@yovoice.settings.aiTimeoutHint": {
-    "defaultMessage": "A full arrangement can take several minutes. A request still running after this counts as failed and is logged."
-  },
-  "@yovoice.settings.minutes": {
-    "defaultMessage": "{n} min"
-  },
-  "@yovoice.settings.minutesDefault": {
-    "defaultMessage": "{n} min (default)"
-  },
   "@yovoice.settings.diagnosticsGroup": {
     "defaultMessage": "Diagnostics"
   },
@@ -3287,9 +3275,6 @@
   "@yovoice.logs.export": {
     "defaultMessage": "Export diagnostics"
   },
-  "@yovoice.logs.hint": {
-    "defaultMessage": "Logs record actions, IDs, durations and errors, never text, lyrics or keys. Diagnostics don't include raw inference engine output."
-  },
   "@yovoice.logs.empty": {
     "defaultMessage": "No matching logs."
   },
@@ -3354,25 +3339,25 @@
     "defaultMessage": "This build does not include the AI assistant runtime, so AI composing and lyric writing are unavailable."
   },
   "@yovoice.assistant.title": {
-    "defaultMessage": "Assistant"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.newChat": {
     "defaultMessage": "New chat"
   },
   "@yovoice.assistant.expand": {
-    "defaultMessage": "Expand panel"
+    "defaultMessage": "Extend"
   },
   "@yovoice.assistant.collapse": {
-    "defaultMessage": "Collapse panel"
+    "defaultMessage": "Restore height"
   },
   "@yovoice.assistant.close": {
-    "defaultMessage": "Close"
+    "defaultMessage": "Minimize"
   },
   "@yovoice.assistant.placeholder": {
-    "defaultMessage": "Ask the assistant to write, edit or generate…"
+    "defaultMessage": "Tell Ocho what to make…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "What shall we make?"
+    "defaultMessage": "Your creative partner, ready when you are"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "{count} queued"
@@ -3441,7 +3426,7 @@
     "defaultMessage": "Start voice generation for this story"
   },
   "@yovoice.assistant.history": {
-    "defaultMessage": "History"
+    "defaultMessage": "Chat history"
   },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "No chats yet."
@@ -3521,11 +3506,8 @@
   "@yovoice.guide.voices": {
     "defaultMessage": "Keep reference audio and favorite voice settings here so a voice stays the same across projects."
   },
-  "@yovoice.guide.assets": {
-    "defaultMessage": "All generated audio, reference audio, timeline media and images live here. Play, filter, see what takes up space and clean up in bulk."
-  },
   "@yovoice.guide.settings": {
-    "defaultMessage": "Download and manage models, set up AI services, change the interface language and move the data folder. On first use, download a model here."
+    "defaultMessage": "Download and manage models, set up AI services, clean up assets, change the interface language and move the data folder. On first use, download a model here."
   },
   "@yovoice.guide.assistant": {
     "defaultMessage": "Press ⌘J (Ctrl+J on Windows) or click the assistant button in the title bar and just say what you want, such as “Create a story narration and give each character a voice.” Set up an AI service in Settings first."
@@ -3545,20 +3527,8 @@
   "@yovoice.nav.assets": {
     "defaultMessage": "Assets"
   },
-  "@yovoice.assets.title": {
-    "defaultMessage": "Assets"
-  },
   "@yovoice.assets.total": {
     "defaultMessage": "{count} items · {size}"
-  },
-  "@yovoice.assets.storage": {
-    "defaultMessage": "Storage settings"
-  },
-  "@yovoice.assets.stats": {
-    "defaultMessage": "By type"
-  },
-  "@yovoice.assets.stat": {
-    "defaultMessage": "{kind} · {count} · {size}"
   },
   "@yovoice.assets.kind.generation": {
     "defaultMessage": "Generated audio"
@@ -3629,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Assets in use and timeline media can’t be deleted here: replace them in the character or project first, and remove timeline media from the project’s timeline."
   },
-  "@yovoice.assets.selection": {
-    "defaultMessage": "Selected assets"
-  },
   "@yovoice.assets.selected": {
     "defaultMessage": "{count} selected · {size}"
   },
@@ -3684,10 +3651,7 @@
     "defaultMessage": "Source project deleted"
   },
   "@yovoice.assistant.launch": {
-    "defaultMessage": "Ask the assistant"
-  },
-  "@yovoice.assistant.thinking": {
-    "defaultMessage": "Thinking"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.thought": {
     "defaultMessage": "Thought process"
@@ -3697,5 +3661,47 @@
   },
   "@yovoice.assistant.toolDone": {
     "defaultMessage": "Done"
+  },
+  "@yovoice.assistant.move": {
+    "defaultMessage": "Drag to move, double-click to extend"
+  },
+  "@yovoice.assistant.emptyHint": {
+    "defaultMessage": "Write lines or lyrics, rework a melody, score or generate. Just say it and I will work on the piece you have open."
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "Back to chat"
+  },
+  "@yovoice.assistant.messageCount": {
+    "defaultMessage": "{count} msgs"
+  },
+  "@yovoice.assistant.hideLauncher": {
+    "defaultMessage": "Hide launcher"
+  },
+  "@yovoice.assistant.hideLauncherHint": {
+    "defaultMessage": "You can still open it from the top-right corner or ⌘J"
+  },
+  "@yovoice.assistant.toggleHint": {
+    "defaultMessage": "Open or close Ocho (⌘J)"
+  },
+  "@yovoice.assistant.phase.thinking": {
+    "defaultMessage": "Thinking"
+  },
+  "@yovoice.assistant.phase.writing": {
+    "defaultMessage": "Replying"
+  },
+  "@yovoice.assistant.phase.searching": {
+    "defaultMessage": "Looking up"
+  },
+  "@yovoice.assistant.phase.editing": {
+    "defaultMessage": "Editing the work"
+  },
+  "@yovoice.assistant.phase.generating": {
+    "defaultMessage": "Generating audio"
+  },
+  "@yovoice.assistant.phase.opening": {
+    "defaultMessage": "Switching"
+  },
+  "@yovoice.assistant.phase.working": {
+    "defaultMessage": "Working"
   }
 }

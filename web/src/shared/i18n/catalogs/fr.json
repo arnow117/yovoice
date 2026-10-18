@@ -2357,18 +2357,6 @@
   "@yovoice.score.roleOf": {
     "defaultMessage": "Rôle de {name}"
   },
-  "@yovoice.settings.aiTimeout": {
-    "defaultMessage": "Délai d’expiration des requêtes"
-  },
-  "@yovoice.settings.aiTimeoutHint": {
-    "defaultMessage": "Un arrangement complet peut prendre plusieurs minutes. Une requête encore en cours au-delà de ce délai est considérée comme échouée et journalisée."
-  },
-  "@yovoice.settings.minutes": {
-    "defaultMessage": "{n} min"
-  },
-  "@yovoice.settings.minutesDefault": {
-    "defaultMessage": "{n} min (par défaut)"
-  },
   "@yovoice.settings.diagnosticsGroup": {
     "defaultMessage": "Diagnostic"
   },
@@ -3287,9 +3275,6 @@
   "@yovoice.logs.export": {
     "defaultMessage": "Exporter le diagnostic"
   },
-  "@yovoice.logs.hint": {
-    "defaultMessage": "Les journaux enregistrent les actions, ID, durées et erreurs, jamais les textes, paroles ou clés. Le diagnostic n’inclut pas la sortie brute du moteur d’inférence."
-  },
   "@yovoice.logs.empty": {
     "defaultMessage": "Aucun journal correspondant."
   },
@@ -3357,25 +3342,25 @@
     "defaultMessage": "Le service d’IA actuel (abonnement ChatGPT) ne peut pas être utilisé par l’assistant. Choisissez un service par API dans les réglages."
   },
   "@yovoice.assistant.title": {
-    "defaultMessage": "Assistant"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.newChat": {
     "defaultMessage": "Nouvelle discussion"
   },
   "@yovoice.assistant.expand": {
-    "defaultMessage": "Agrandir le panneau"
+    "defaultMessage": "Agrandir en hauteur"
   },
   "@yovoice.assistant.collapse": {
-    "defaultMessage": "Réduire le panneau"
+    "defaultMessage": "Rétablir la hauteur"
   },
   "@yovoice.assistant.close": {
-    "defaultMessage": "Fermer"
+    "defaultMessage": "Réduire"
   },
   "@yovoice.assistant.placeholder": {
-    "defaultMessage": "Demandez à l’assistant d’écrire, de modifier ou de générer…"
+    "defaultMessage": "Dites à Ocho quoi créer…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "Que créons-nous ?"
+    "defaultMessage": "Votre partenaire créatif, prêt quand vous l’êtes"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "{count} en attente"
@@ -3521,11 +3506,8 @@
   "@yovoice.guide.voices": {
     "defaultMessage": "Conservez les audios de référence et vos réglages de voix favoris pour garder la même voix d’un projet à l’autre."
   },
-  "@yovoice.guide.assets": {
-    "defaultMessage": "Tous les audios générés, audios de référence, médias et images sont ici. Écoutez, filtrez, voyez ce qui prend de la place et faites le ménage en lot."
-  },
   "@yovoice.guide.settings": {
-    "defaultMessage": "Téléchargez et gérez les modèles, configurez les services d’IA, changez la langue de l’interface et déplacez le dossier de données. La première fois, téléchargez un modèle ici."
+    "defaultMessage": "Téléchargez et gérez les modèles, configurez les services d’IA, faites le tri dans les ressources, changez la langue et déplacez le dossier de données. La première fois, téléchargez un modèle ici."
   },
   "@yovoice.guide.assistant": {
     "defaultMessage": "Appuyez sur ⌘J (Ctrl+J sous Windows) ou sur le bouton de l’assistant dans la barre de titre et dites ce que vous voulez, par exemple : « Crée une narration et donne une voix à chaque personnage ». Configurez d’abord un service d’IA dans les Paramètres."
@@ -3545,20 +3527,8 @@
   "@yovoice.nav.assets": {
     "defaultMessage": "Ressources"
   },
-  "@yovoice.assets.title": {
-    "defaultMessage": "Ressources"
-  },
   "@yovoice.assets.total": {
     "defaultMessage": "{count} éléments · {size}"
-  },
-  "@yovoice.assets.storage": {
-    "defaultMessage": "Réglages de stockage"
-  },
-  "@yovoice.assets.stats": {
-    "defaultMessage": "Par type"
-  },
-  "@yovoice.assets.stat": {
-    "defaultMessage": "{kind} · {count} · {size}"
   },
   "@yovoice.assets.kind.generation": {
     "defaultMessage": "Audio généré"
@@ -3629,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Les ressources utilisées et les médias de la timeline ne peuvent pas être supprimés ici : remplacez-les d’abord dans le personnage ou le projet, et retirez les médias depuis la timeline du projet."
   },
-  "@yovoice.assets.selection": {
-    "defaultMessage": "Ressources sélectionnées"
-  },
   "@yovoice.assets.selected": {
     "defaultMessage": "{count} sélectionnés · {size}"
   },
@@ -3684,10 +3651,7 @@
     "defaultMessage": "Projet source supprimé"
   },
   "@yovoice.assistant.launch": {
-    "defaultMessage": "Demander à l'assistant"
-  },
-  "@yovoice.assistant.thinking": {
-    "defaultMessage": "Réflexion"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.thought": {
     "defaultMessage": "Raisonnement"
@@ -3697,5 +3661,47 @@
   },
   "@yovoice.assistant.toolDone": {
     "defaultMessage": "Terminé"
+  },
+  "@yovoice.assistant.move": {
+    "defaultMessage": "Faites glisser pour déplacer, double-cliquez pour agrandir"
+  },
+  "@yovoice.assistant.emptyHint": {
+    "defaultMessage": "Écrire des répliques ou des paroles, retoucher une mélodie, composer ou générer. Dites-le, je travaille sur l’œuvre ouverte."
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "Retour à la conversation"
+  },
+  "@yovoice.assistant.messageCount": {
+    "defaultMessage": "{count} msg"
+  },
+  "@yovoice.assistant.hideLauncher": {
+    "defaultMessage": "Masquer le lanceur"
+  },
+  "@yovoice.assistant.hideLauncherHint": {
+    "defaultMessage": "Toujours accessible en haut à droite ou avec ⌘J"
+  },
+  "@yovoice.assistant.toggleHint": {
+    "defaultMessage": "Ouvrir ou fermer Ocho (⌘J)"
+  },
+  "@yovoice.assistant.phase.thinking": {
+    "defaultMessage": "Réflexion"
+  },
+  "@yovoice.assistant.phase.writing": {
+    "defaultMessage": "Réponse en cours"
+  },
+  "@yovoice.assistant.phase.searching": {
+    "defaultMessage": "Recherche"
+  },
+  "@yovoice.assistant.phase.editing": {
+    "defaultMessage": "Modification de l’œuvre"
+  },
+  "@yovoice.assistant.phase.generating": {
+    "defaultMessage": "Génération audio"
+  },
+  "@yovoice.assistant.phase.opening": {
+    "defaultMessage": "Changement"
+  },
+  "@yovoice.assistant.phase.working": {
+    "defaultMessage": "Traitement"
   }
 }

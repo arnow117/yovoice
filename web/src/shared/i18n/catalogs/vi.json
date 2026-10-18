@@ -2357,18 +2357,6 @@
   "@yovoice.score.roleOf": {
     "defaultMessage": "Vai trò cho {name}"
   },
-  "@yovoice.settings.aiTimeout": {
-    "defaultMessage": "Thời gian chờ yêu cầu"
-  },
-  "@yovoice.settings.aiTimeoutHint": {
-    "defaultMessage": "Một bản phối hoàn chỉnh có thể mất vài phút. Yêu cầu vẫn chạy sau thời gian này sẽ bị tính là thất bại và được ghi nhật ký."
-  },
-  "@yovoice.settings.minutes": {
-    "defaultMessage": "{n} phút"
-  },
-  "@yovoice.settings.minutesDefault": {
-    "defaultMessage": "{n} phút (mặc định)"
-  },
   "@yovoice.settings.diagnosticsGroup": {
     "defaultMessage": "Chẩn đoán"
   },
@@ -3287,9 +3275,6 @@
   "@yovoice.logs.export": {
     "defaultMessage": "Xuất gói chẩn đoán"
   },
-  "@yovoice.logs.hint": {
-    "defaultMessage": "Nhật ký chỉ ghi thao tác, ID, thời lượng và lỗi, không ghi nội dung, lời bài hát hay khóa. Gói chẩn đoán không gồm đầu ra thô của bộ suy luận."
-  },
   "@yovoice.logs.empty": {
     "defaultMessage": "Không có nhật ký phù hợp."
   },
@@ -3357,25 +3342,25 @@
     "defaultMessage": "Dịch vụ AI hiện tại (gói ChatGPT) không dùng được cho trợ lý. Hãy chuyển sang dịch vụ dạng API trong Cài đặt."
   },
   "@yovoice.assistant.title": {
-    "defaultMessage": "Trợ lý"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.newChat": {
     "defaultMessage": "Cuộc trò chuyện mới"
   },
   "@yovoice.assistant.expand": {
-    "defaultMessage": "Mở rộng bảng"
+    "defaultMessage": "Kéo dài"
   },
   "@yovoice.assistant.collapse": {
-    "defaultMessage": "Thu gọn bảng"
+    "defaultMessage": "Khôi phục chiều cao"
   },
   "@yovoice.assistant.close": {
-    "defaultMessage": "Đóng"
+    "defaultMessage": "Thu nhỏ"
   },
   "@yovoice.assistant.placeholder": {
-    "defaultMessage": "Nhờ trợ lý viết, chỉnh sửa hoặc tạo…"
+    "defaultMessage": "Nói với Ocho bạn muốn làm gì…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "Mình làm gì nhé?"
+    "defaultMessage": "Cộng sự sáng tác của bạn, sẵn sàng bất cứ lúc nào"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "{count} đang chờ"
@@ -3444,7 +3429,7 @@
     "defaultMessage": "Bắt đầu tạo giọng cho tác phẩm truyện này"
   },
   "@yovoice.assistant.history": {
-    "defaultMessage": "Lịch sử"
+    "defaultMessage": "Lịch sử trò chuyện"
   },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "Chưa có cuộc trò chuyện nào."
@@ -3521,11 +3506,8 @@
   "@yovoice.guide.voices": {
     "defaultMessage": "Lưu âm thanh tham chiếu và thiết lập giọng yêu thích để giữ cùng một giọng giữa các dự án."
   },
-  "@yovoice.guide.assets": {
-    "defaultMessage": "Mọi âm thanh đã tạo, âm thanh tham chiếu, tư liệu và hình ảnh đều ở đây. Nghe thử, lọc, xem mục nào chiếm dung lượng và dọn dẹp hàng loạt."
-  },
   "@yovoice.guide.settings": {
-    "defaultMessage": "Tải và quản lý mô hình, thiết lập dịch vụ AI, đổi ngôn ngữ giao diện và di chuyển thư mục dữ liệu. Lần đầu sử dụng, hãy tải một mô hình tại đây."
+    "defaultMessage": "Tải và quản lý mô hình, thiết lập dịch vụ AI, dọn dẹp tài nguyên, đổi ngôn ngữ giao diện và di chuyển thư mục dữ liệu. Lần đầu sử dụng, hãy tải một mô hình tại đây."
   },
   "@yovoice.guide.assistant": {
     "defaultMessage": "Nhấn ⌘J (Ctrl+J trên Windows) hoặc nút trợ lý trên thanh tiêu đề rồi nói điều bạn muốn, ví dụ: “Tạo một dự án kể chuyện và chọn giọng cho từng nhân vật”. Trước tiên hãy thêm dịch vụ AI trong Cài đặt."
@@ -3545,20 +3527,8 @@
   "@yovoice.nav.assets": {
     "defaultMessage": "Tài nguyên"
   },
-  "@yovoice.assets.title": {
-    "defaultMessage": "Tài nguyên"
-  },
   "@yovoice.assets.total": {
     "defaultMessage": "{count} mục · {size}"
-  },
-  "@yovoice.assets.storage": {
-    "defaultMessage": "Cài đặt lưu trữ"
-  },
-  "@yovoice.assets.stats": {
-    "defaultMessage": "Theo loại"
-  },
-  "@yovoice.assets.stat": {
-    "defaultMessage": "{kind} · {count} mục · {size}"
   },
   "@yovoice.assets.kind.generation": {
     "defaultMessage": "Âm thanh đã tạo"
@@ -3629,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Không thể xóa tài nguyên đang dùng và tư liệu dòng thời gian tại đây: hãy thay thế trong nhân vật hoặc tác phẩm trước, còn tư liệu thì gỡ khỏi dòng thời gian của tác phẩm."
   },
-  "@yovoice.assets.selection": {
-    "defaultMessage": "Tài nguyên đã chọn"
-  },
   "@yovoice.assets.selected": {
     "defaultMessage": "Đã chọn {count} mục · {size}"
   },
@@ -3684,10 +3651,7 @@
     "defaultMessage": "Dự án nguồn đã bị xóa"
   },
   "@yovoice.assistant.launch": {
-    "defaultMessage": "Hỏi trợ lý"
-  },
-  "@yovoice.assistant.thinking": {
-    "defaultMessage": "Đang suy nghĩ"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.thought": {
     "defaultMessage": "Quá trình suy nghĩ"
@@ -3697,5 +3661,47 @@
   },
   "@yovoice.assistant.toolDone": {
     "defaultMessage": "Xong"
+  },
+  "@yovoice.assistant.move": {
+    "defaultMessage": "Kéo để di chuyển, nhấp đúp để kéo dài"
+  },
+  "@yovoice.assistant.emptyHint": {
+    "defaultMessage": "Viết lời thoại hay lời bài hát, chỉnh giai điệu, phối nhạc hoặc tạo luôn. Chỉ cần nói, tôi sẽ làm trên tác phẩm đang mở."
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "Quay lại cuộc trò chuyện"
+  },
+  "@yovoice.assistant.messageCount": {
+    "defaultMessage": "{count} tin"
+  },
+  "@yovoice.assistant.hideLauncher": {
+    "defaultMessage": "Ẩn lối vào"
+  },
+  "@yovoice.assistant.hideLauncherHint": {
+    "defaultMessage": "Vẫn mở được ở góc trên bên phải hoặc ⌘J"
+  },
+  "@yovoice.assistant.toggleHint": {
+    "defaultMessage": "Mở hoặc đóng Ocho (⌘J)"
+  },
+  "@yovoice.assistant.phase.thinking": {
+    "defaultMessage": "Đang suy nghĩ"
+  },
+  "@yovoice.assistant.phase.writing": {
+    "defaultMessage": "Đang trả lời"
+  },
+  "@yovoice.assistant.phase.searching": {
+    "defaultMessage": "Đang tìm"
+  },
+  "@yovoice.assistant.phase.editing": {
+    "defaultMessage": "Đang sửa tác phẩm"
+  },
+  "@yovoice.assistant.phase.generating": {
+    "defaultMessage": "Đang tạo âm thanh"
+  },
+  "@yovoice.assistant.phase.opening": {
+    "defaultMessage": "Đang chuyển"
+  },
+  "@yovoice.assistant.phase.working": {
+    "defaultMessage": "Đang xử lý"
   }
 }

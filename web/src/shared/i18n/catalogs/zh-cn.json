@@ -2357,18 +2357,6 @@
   "@yovoice.score.roleOf": {
     "defaultMessage": "{name} 的角色"
   },
-  "@yovoice.settings.aiTimeout": {
-    "defaultMessage": "请求超时"
-  },
-  "@yovoice.settings.aiTimeoutHint": {
-    "defaultMessage": "写一首完整的编曲可能要几分钟；超过这个时间仍没写完就算失败，并记入日志。"
-  },
-  "@yovoice.settings.minutes": {
-    "defaultMessage": "{n} 分钟"
-  },
-  "@yovoice.settings.minutesDefault": {
-    "defaultMessage": "{n} 分钟（默认）"
-  },
   "@yovoice.settings.diagnosticsGroup": {
     "defaultMessage": "诊断"
   },
@@ -3287,9 +3275,6 @@
   "@yovoice.logs.export": {
     "defaultMessage": "导出诊断包"
   },
-  "@yovoice.logs.hint": {
-    "defaultMessage": "日志只记录操作、ID、耗时和错误，不含正文、歌词和密钥；诊断包不包含推理进程的原始输出。"
-  },
   "@yovoice.logs.empty": {
     "defaultMessage": "没有符合条件的日志。"
   },
@@ -3354,25 +3339,25 @@
     "defaultMessage": "当前安装包未包含 AI 助手运行时，AI 写谱与写词暂不可用。"
   },
   "@yovoice.assistant.title": {
-    "defaultMessage": "创作助手"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.newChat": {
     "defaultMessage": "新对话"
   },
   "@yovoice.assistant.expand": {
-    "defaultMessage": "展开面板"
+    "defaultMessage": "拉高"
   },
   "@yovoice.assistant.collapse": {
-    "defaultMessage": "收起面板"
+    "defaultMessage": "恢复高度"
   },
   "@yovoice.assistant.close": {
-    "defaultMessage": "关闭"
+    "defaultMessage": "收起"
   },
   "@yovoice.assistant.placeholder": {
-    "defaultMessage": "让助手帮你写台词、写歌、配乐或直接生成…"
+    "defaultMessage": "告诉 Ocho 你想做什么…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "想做点什么？"
+    "defaultMessage": "你的创作搭档，随时可以开工"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "排队 {count} 条"
@@ -3441,7 +3426,7 @@
     "defaultMessage": "对当前故事作品发起配音生成"
   },
   "@yovoice.assistant.history": {
-    "defaultMessage": "历史"
+    "defaultMessage": "历史对话"
   },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "还没有历史会话。"
@@ -3521,11 +3506,8 @@
   "@yovoice.guide.voices": {
     "defaultMessage": "保存参考音频和常用的声音设置，在不同作品里保持同一个声线。"
   },
-  "@yovoice.guide.assets": {
-    "defaultMessage": "生成的音频、参考音频、素材和图片都集中在这里，可以试听、筛选，看看哪些占了空间并批量清理。"
-  },
   "@yovoice.guide.settings": {
-    "defaultMessage": "下载和管理模型、配置 AI 服务、切换界面语言、迁移数据目录。第一次使用，先在这里下载一个模型。"
+    "defaultMessage": "下载和管理模型、配置 AI 服务、清理资源、切换界面语言、迁移数据目录。第一次使用，先在这里下载一个模型。"
   },
   "@yovoice.guide.assistant": {
     "defaultMessage": "按 ⌘J（Windows 上是 Ctrl+J）或点标题栏的助手按钮，直接说要做什么，比如“新建一个故事配音，给每个角色配好声音”。使用前需要在设置里配置 AI 服务。"
@@ -3545,20 +3527,8 @@
   "@yovoice.nav.assets": {
     "defaultMessage": "资源"
   },
-  "@yovoice.assets.title": {
-    "defaultMessage": "资源"
-  },
   "@yovoice.assets.total": {
     "defaultMessage": "共 {count} 项 · {size}"
-  },
-  "@yovoice.assets.storage": {
-    "defaultMessage": "存储设置"
-  },
-  "@yovoice.assets.stats": {
-    "defaultMessage": "按类型统计"
-  },
-  "@yovoice.assets.stat": {
-    "defaultMessage": "{kind} · {count} 项 · {size}"
   },
   "@yovoice.assets.kind.generation": {
     "defaultMessage": "生成音频"
@@ -3629,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "正在使用的资源和时间轴素材不能在这里删除：先在角色或作品中替换，时间轴素材请在所属作品的时间轴里移除。"
   },
-  "@yovoice.assets.selection": {
-    "defaultMessage": "已选资源"
-  },
   "@yovoice.assets.selected": {
     "defaultMessage": "已选 {count} 项 · {size}"
   },
@@ -3684,10 +3651,7 @@
     "defaultMessage": "来源作品已删除"
   },
   "@yovoice.assistant.launch": {
-    "defaultMessage": "问问创作助手"
-  },
-  "@yovoice.assistant.thinking": {
-    "defaultMessage": "正在思考"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.thought": {
     "defaultMessage": "思考过程"
@@ -3697,5 +3661,47 @@
   },
   "@yovoice.assistant.toolDone": {
     "defaultMessage": "已完成"
+  },
+  "@yovoice.assistant.move": {
+    "defaultMessage": "拖动以移动，双击拉高"
+  },
+  "@yovoice.assistant.emptyHint": {
+    "defaultMessage": "写台词、写歌、改旋律、配乐或直接生成，说一句就行。我会在你打开的作品上动手。"
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "返回对话"
+  },
+  "@yovoice.assistant.messageCount": {
+    "defaultMessage": "{count} 条"
+  },
+  "@yovoice.assistant.hideLauncher": {
+    "defaultMessage": "移走入口"
+  },
+  "@yovoice.assistant.hideLauncherHint": {
+    "defaultMessage": "移走后可从右上角或 ⌘J 打开"
+  },
+  "@yovoice.assistant.toggleHint": {
+    "defaultMessage": "打开或关闭 Ocho（⌘J）"
+  },
+  "@yovoice.assistant.phase.thinking": {
+    "defaultMessage": "正在思考"
+  },
+  "@yovoice.assistant.phase.writing": {
+    "defaultMessage": "正在回复"
+  },
+  "@yovoice.assistant.phase.searching": {
+    "defaultMessage": "正在查找"
+  },
+  "@yovoice.assistant.phase.editing": {
+    "defaultMessage": "正在修改作品"
+  },
+  "@yovoice.assistant.phase.generating": {
+    "defaultMessage": "正在生成音频"
+  },
+  "@yovoice.assistant.phase.opening": {
+    "defaultMessage": "正在切换"
+  },
+  "@yovoice.assistant.phase.working": {
+    "defaultMessage": "正在处理"
   }
 }

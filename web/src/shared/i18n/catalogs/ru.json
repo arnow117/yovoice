@@ -2357,18 +2357,6 @@
   "@yovoice.score.roleOf": {
     "defaultMessage": "Роль: {name}"
   },
-  "@yovoice.settings.aiTimeout": {
-    "defaultMessage": "Тайм-аут запроса"
-  },
-  "@yovoice.settings.aiTimeoutHint": {
-    "defaultMessage": "Полная аранжировка может занять несколько минут. Запрос, не завершившийся за это время, считается неудачным и записывается в журнал."
-  },
-  "@yovoice.settings.minutes": {
-    "defaultMessage": "{n} мин"
-  },
-  "@yovoice.settings.minutesDefault": {
-    "defaultMessage": "{n} мин (по умолчанию)"
-  },
   "@yovoice.settings.diagnosticsGroup": {
     "defaultMessage": "Диагностика"
   },
@@ -3287,9 +3275,6 @@
   "@yovoice.logs.export": {
     "defaultMessage": "Экспорт диагностики"
   },
-  "@yovoice.logs.hint": {
-    "defaultMessage": "В журнал записываются действия, ID, длительность и ошибки, но не тексты, слова песен и ключи. Пакет диагностики не содержит необработанный вывод движка вывода."
-  },
   "@yovoice.logs.empty": {
     "defaultMessage": "Нет подходящих записей."
   },
@@ -3357,25 +3342,25 @@
     "defaultMessage": "Текущий ИИ-сервис (подписка ChatGPT) нельзя использовать в ассистенте. Выберите сервис с API в настройках."
   },
   "@yovoice.assistant.title": {
-    "defaultMessage": "Ассистент"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.newChat": {
     "defaultMessage": "Новый чат"
   },
   "@yovoice.assistant.expand": {
-    "defaultMessage": "Развернуть панель"
+    "defaultMessage": "Растянуть"
   },
   "@yovoice.assistant.collapse": {
-    "defaultMessage": "Свернуть панель"
+    "defaultMessage": "Вернуть высоту"
   },
   "@yovoice.assistant.close": {
-    "defaultMessage": "Закрыть"
+    "defaultMessage": "Свернуть"
   },
   "@yovoice.assistant.placeholder": {
-    "defaultMessage": "Попросите ассистента написать, изменить или сгенерировать…"
+    "defaultMessage": "Скажите Ocho, что сделать…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "Что создадим?"
+    "defaultMessage": "Ваш творческий партнёр, готов, когда готовы вы"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "В очереди: {count}"
@@ -3444,7 +3429,7 @@
     "defaultMessage": "Запусти генерацию озвучки для этой истории"
   },
   "@yovoice.assistant.history": {
-    "defaultMessage": "История"
+    "defaultMessage": "История чатов"
   },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "Чатов пока нет."
@@ -3521,11 +3506,8 @@
   "@yovoice.guide.voices": {
     "defaultMessage": "Храните референсные записи и любимые настройки голоса, чтобы голос не менялся от проекта к проекту."
   },
-  "@yovoice.guide.assets": {
-    "defaultMessage": "Здесь собраны все сгенерированные аудио, референсные записи, материалы и изображения. Слушайте, фильтруйте, смотрите, что занимает место, и удаляйте пакетно."
-  },
   "@yovoice.guide.settings": {
-    "defaultMessage": "Загрузка и управление моделями, настройка ИИ-сервисов, язык интерфейса и перенос папки данных. При первом запуске скачайте здесь модель."
+    "defaultMessage": "Загрузка и управление моделями, настройка ИИ-сервисов, очистка ресурсов, язык интерфейса и перенос папки данных. При первом запуске скачайте здесь модель."
   },
   "@yovoice.guide.assistant": {
     "defaultMessage": "Нажмите ⌘J (Ctrl+J в Windows) или кнопку ассистента в заголовке окна и просто скажите, что нужно, например: «Создай чтение истории и подбери голос каждому персонажу». Сначала добавьте ИИ-сервис в настройках."
@@ -3545,20 +3527,8 @@
   "@yovoice.nav.assets": {
     "defaultMessage": "Ресурсы"
   },
-  "@yovoice.assets.title": {
-    "defaultMessage": "Ресурсы"
-  },
   "@yovoice.assets.total": {
     "defaultMessage": "Всего: {count} · {size}"
-  },
-  "@yovoice.assets.storage": {
-    "defaultMessage": "Настройки хранилища"
-  },
-  "@yovoice.assets.stats": {
-    "defaultMessage": "По типам"
-  },
-  "@yovoice.assets.stat": {
-    "defaultMessage": "{kind} · {count} · {size}"
   },
   "@yovoice.assets.kind.generation": {
     "defaultMessage": "Сгенерированное аудио"
@@ -3629,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Используемые ресурсы и медиа таймлайна нельзя удалить здесь: сначала замените их в персонаже или проекте, а медиа удалите на таймлайне проекта."
   },
-  "@yovoice.assets.selection": {
-    "defaultMessage": "Выбранные ресурсы"
-  },
   "@yovoice.assets.selected": {
     "defaultMessage": "Выбрано: {count} · {size}"
   },
@@ -3684,10 +3651,7 @@
     "defaultMessage": "Исходный проект удалён"
   },
   "@yovoice.assistant.launch": {
-    "defaultMessage": "Спросить ассистента"
-  },
-  "@yovoice.assistant.thinking": {
-    "defaultMessage": "Думает"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.thought": {
     "defaultMessage": "Ход мыслей"
@@ -3697,5 +3661,47 @@
   },
   "@yovoice.assistant.toolDone": {
     "defaultMessage": "Готово"
+  },
+  "@yovoice.assistant.move": {
+    "defaultMessage": "Перетащите, чтобы переместить; двойной щелчок — растянуть"
+  },
+  "@yovoice.assistant.emptyHint": {
+    "defaultMessage": "Реплики и тексты песен, правка мелодии, музыка или генерация. Просто скажите — я поработаю над открытым произведением."
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "Назад к чату"
+  },
+  "@yovoice.assistant.messageCount": {
+    "defaultMessage": "{count} сообщ."
+  },
+  "@yovoice.assistant.hideLauncher": {
+    "defaultMessage": "Скрыть кнопку"
+  },
+  "@yovoice.assistant.hideLauncherHint": {
+    "defaultMessage": "Открывается в правом верхнем углу или по ⌘J"
+  },
+  "@yovoice.assistant.toggleHint": {
+    "defaultMessage": "Открыть или закрыть Ocho (⌘J)"
+  },
+  "@yovoice.assistant.phase.thinking": {
+    "defaultMessage": "Думаю"
+  },
+  "@yovoice.assistant.phase.writing": {
+    "defaultMessage": "Отвечаю"
+  },
+  "@yovoice.assistant.phase.searching": {
+    "defaultMessage": "Ищу"
+  },
+  "@yovoice.assistant.phase.editing": {
+    "defaultMessage": "Правлю работу"
+  },
+  "@yovoice.assistant.phase.generating": {
+    "defaultMessage": "Создаю аудио"
+  },
+  "@yovoice.assistant.phase.opening": {
+    "defaultMessage": "Переключаю"
+  },
+  "@yovoice.assistant.phase.working": {
+    "defaultMessage": "Работаю"
   }
 }

@@ -34,5 +34,21 @@ export function turnActivity(blocks: AssistantBlock[]): TurnActivity {
   return blocks.at(-1)?.kind === 'text' ? { kind: 'writing' } : { kind: 'thinking' };
 }
 
+/** 运行中的阶段：决定状态点用哪种点阵、文字说什么、流光的节奏。 */
+export type TurnPhase = 'thinking' | 'writing' | 'searching' | 'editing' | 'generating' | 'opening' | 'working';
+
+// 工具按用途归类：查资料、改作品、生成音频、打开页面或切换模型；未知工具（如外部 MCP）归为处理中。
+const toolPhases: Record<string, TurnPhase> = {
+  list_works: 'searching', get_work: 'searching', list_models: 'searching', list_voices: 'searching', get_generation: 'searching',
+  create_work: 'editing', update_work: 'editing',
+  generate_work: 'generating', get_generation_status: 'generating',
+  open_page: 'opening', open_work: 'opening', set_model: 'opening',
+};
+
+export function turnPhase(activity: TurnActivity): TurnPhase {
+  if (activity.kind !== 'tool') return activity.kind;
+  return toolPhases[activity.card.tool.replace(/^.*__/, '')] ?? 'working';
+}
+
 /** 一轮里的工具卡片，按出现顺序。 */
 export const turnCards = (blocks: AssistantBlock[]) => blocks.flatMap(block => block.card ? [block.card] : []);

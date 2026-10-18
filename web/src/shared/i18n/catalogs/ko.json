@@ -2357,18 +2357,6 @@
   "@yovoice.score.roleOf": {
     "defaultMessage": "{name} 역할"
   },
-  "@yovoice.settings.aiTimeout": {
-    "defaultMessage": "요청 시간 제한"
-  },
-  "@yovoice.settings.aiTimeoutHint": {
-    "defaultMessage": "전체 편곡에는 몇 분이 걸릴 수 있습니다. 이 시간이 지나도 실행 중인 요청은 실패로 처리되고 로그에 기록됩니다."
-  },
-  "@yovoice.settings.minutes": {
-    "defaultMessage": "{n}분"
-  },
-  "@yovoice.settings.minutesDefault": {
-    "defaultMessage": "{n}분 (기본값)"
-  },
   "@yovoice.settings.diagnosticsGroup": {
     "defaultMessage": "진단"
   },
@@ -3287,9 +3275,6 @@
   "@yovoice.logs.export": {
     "defaultMessage": "진단 패키지 내보내기"
   },
-  "@yovoice.logs.hint": {
-    "defaultMessage": "로그에는 작업, ID, 소요 시간, 오류만 기록되며 본문, 가사, 키는 포함되지 않습니다. 진단 패키지에는 추론 엔진의 원시 출력이 포함되지 않습니다."
-  },
   "@yovoice.logs.empty": {
     "defaultMessage": "조건에 맞는 로그가 없습니다."
   },
@@ -3357,25 +3342,25 @@
     "defaultMessage": "현재 AI 서비스(ChatGPT 구독)는 어시스턴트에서 사용할 수 없습니다. 설정에서 API 방식 서비스로 바꾸세요."
   },
   "@yovoice.assistant.title": {
-    "defaultMessage": "어시스턴트"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.newChat": {
     "defaultMessage": "새 대화"
   },
   "@yovoice.assistant.expand": {
-    "defaultMessage": "패널 펼치기"
+    "defaultMessage": "세로로 늘리기"
   },
   "@yovoice.assistant.collapse": {
-    "defaultMessage": "패널 접기"
+    "defaultMessage": "높이 복원"
   },
   "@yovoice.assistant.close": {
-    "defaultMessage": "닫기"
+    "defaultMessage": "최소화"
   },
   "@yovoice.assistant.placeholder": {
-    "defaultMessage": "대본, 작사, 작곡, 생성을 어시스턴트에게 맡기세요…"
+    "defaultMessage": "Ocho에게 하고 싶은 걸…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "무엇을 만들어 볼까요?"
+    "defaultMessage": "당신의 창작 파트너, 언제든 시작할 수 있어요"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "대기 {count}개"
@@ -3444,7 +3429,7 @@
     "defaultMessage": "현재 이야기 작품의 음성 생성을 시작해 줘"
   },
   "@yovoice.assistant.history": {
-    "defaultMessage": "기록"
+    "defaultMessage": "대화 기록"
   },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "아직 대화 기록이 없습니다."
@@ -3521,11 +3506,8 @@
   "@yovoice.guide.voices": {
     "defaultMessage": "참조 오디오와 자주 쓰는 목소리 설정을 저장해 여러 프로젝트에서 같은 목소리를 유지합니다."
   },
-  "@yovoice.guide.assets": {
-    "defaultMessage": "생성한 오디오, 참조 오디오, 소재, 이미지가 모두 여기에 모입니다. 미리 듣고 필터링하며 공간을 차지하는 항목을 한꺼번에 정리할 수 있습니다."
-  },
   "@yovoice.guide.settings": {
-    "defaultMessage": "모델 다운로드와 관리, AI 서비스 설정, 인터페이스 언어 변경, 데이터 폴더 이동을 합니다. 처음이라면 여기서 모델을 하나 내려받으세요."
+    "defaultMessage": "모델 다운로드와 관리, AI 서비스 설정, 리소스 정리, 인터페이스 언어 변경, 데이터 폴더 이동을 합니다. 처음이라면 여기서 모델을 하나 내려받으세요."
   },
   "@yovoice.guide.assistant": {
     "defaultMessage": "⌘J(Windows에서는 Ctrl+J)를 누르거나 제목 표시줄의 어시스턴트 버튼을 눌러 원하는 작업을 말해 보세요. 예: “스토리 내레이션을 만들고 캐릭터마다 목소리를 정해 줘”. 먼저 설정에서 AI 서비스를 추가해야 합니다."
@@ -3545,20 +3527,8 @@
   "@yovoice.nav.assets": {
     "defaultMessage": "자산"
   },
-  "@yovoice.assets.title": {
-    "defaultMessage": "자산"
-  },
   "@yovoice.assets.total": {
     "defaultMessage": "{count}개 · {size}"
-  },
-  "@yovoice.assets.storage": {
-    "defaultMessage": "저장 공간 설정"
-  },
-  "@yovoice.assets.stats": {
-    "defaultMessage": "유형별"
-  },
-  "@yovoice.assets.stat": {
-    "defaultMessage": "{kind} · {count}개 · {size}"
   },
   "@yovoice.assets.kind.generation": {
     "defaultMessage": "생성된 오디오"
@@ -3629,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "사용 중인 자산과 타임라인 소재는 여기서 삭제할 수 없습니다. 먼저 캐릭터나 작품에서 교체하고, 타임라인 소재는 해당 작품의 타임라인에서 제거하세요."
   },
-  "@yovoice.assets.selection": {
-    "defaultMessage": "선택한 자산"
-  },
   "@yovoice.assets.selected": {
     "defaultMessage": "{count}개 선택 · {size}"
   },
@@ -3684,10 +3651,7 @@
     "defaultMessage": "원본 프로젝트가 삭제됨"
   },
   "@yovoice.assistant.launch": {
-    "defaultMessage": "어시스턴트에게 묻기"
-  },
-  "@yovoice.assistant.thinking": {
-    "defaultMessage": "생각하는 중"
+    "defaultMessage": "Ocho"
   },
   "@yovoice.assistant.thought": {
     "defaultMessage": "생각 과정"
@@ -3697,5 +3661,47 @@
   },
   "@yovoice.assistant.toolDone": {
     "defaultMessage": "완료"
+  },
+  "@yovoice.assistant.move": {
+    "defaultMessage": "드래그하여 이동, 두 번 클릭하면 세로로 늘리기"
+  },
+  "@yovoice.assistant.emptyHint": {
+    "defaultMessage": "대사나 가사 쓰기, 멜로디 수정, 음악 입히기, 바로 생성까지. 한마디면 열려 있는 작품에서 작업합니다."
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "대화로 돌아가기"
+  },
+  "@yovoice.assistant.messageCount": {
+    "defaultMessage": "{count}개"
+  },
+  "@yovoice.assistant.hideLauncher": {
+    "defaultMessage": "실행 버튼 숨기기"
+  },
+  "@yovoice.assistant.hideLauncherHint": {
+    "defaultMessage": "오른쪽 위 또는 ⌘J로 열 수 있어요"
+  },
+  "@yovoice.assistant.toggleHint": {
+    "defaultMessage": "Ocho 열기/닫기 (⌘J)"
+  },
+  "@yovoice.assistant.phase.thinking": {
+    "defaultMessage": "생각하는 중"
+  },
+  "@yovoice.assistant.phase.writing": {
+    "defaultMessage": "답변하는 중"
+  },
+  "@yovoice.assistant.phase.searching": {
+    "defaultMessage": "찾는 중"
+  },
+  "@yovoice.assistant.phase.editing": {
+    "defaultMessage": "작품 수정 중"
+  },
+  "@yovoice.assistant.phase.generating": {
+    "defaultMessage": "오디오 생성 중"
+  },
+  "@yovoice.assistant.phase.opening": {
+    "defaultMessage": "전환하는 중"
+  },
+  "@yovoice.assistant.phase.working": {
+    "defaultMessage": "처리하는 중"
   }
 }

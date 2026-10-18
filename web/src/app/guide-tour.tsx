@@ -10,7 +10,6 @@ const steps = [
   { id: 'story', target: 'nav-story', title: '@yovoice.project.story' },
   { id: 'music', target: 'nav-music', title: '@yovoice.project.music' },
   { id: 'voices', target: 'nav-characters', title: '@yovoice.nav.characters' },
-  { id: 'assets', target: 'nav-assets', title: '@yovoice.nav.assets' },
   { id: 'settings', target: 'nav-settings', title: '@yovoice.nav.settings' },
   { id: 'assistant', target: 'assistant-toggle', title: '@yovoice.guide.assistantTitle' },
 ] as const;

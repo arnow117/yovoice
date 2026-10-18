@@ -29,9 +29,9 @@ async function seed(page: Page) {
 test('资源页汇总各类资源，筛选、统计，并只能批量删除未使用的项目', async ({ page }) => {
   await seed(page);
   await page.goto('/');
-  await page.getByTestId('nav-assets').click();
+  await page.getByTestId('nav-settings').click();
+  await page.getByRole('tab', { name: '资源', exact: true }).click();
   const assets = page.getByTestId('assets-page');
-  await expect(assets.getByRole('heading', { name: '资源' })).toBeVisible();
   await expect(assets.getByText(/^共 7 项/)).toBeVisible();
   const rows = assets.locator('tbody tr');
   await expect(rows).toHaveCount(7);
@@ -42,14 +42,16 @@ test('资源页汇总各类资源，筛选、统计，并只能批量删除未�
   await expect(rows.filter({ hasText: '雨声' }).getByRole('checkbox')).toBeDisabled();
   await expect(rows.filter({ hasText: '天亮了' }).getByText('配音片段')).toBeVisible();
 
-  // 按类型筛选：统计按钮与类型下拉一致。
-  await assets.getByRole('button', { name: /^参考音频 · 2 项/ }).click();
+  // 按类型筛选：类型下拉里带各类数量。
+  await assets.getByRole('combobox', { name: '类型' }).click();
+  await page.getByRole('option', { name: '参考音频 · 2' }).click();
   await expect(rows).toHaveCount(2);
-  await assets.getByRole('button', { name: /^参考音频 · 2 项/ }).click();
+  await assets.getByRole('combobox', { name: '类型' }).click();
+  await page.getByRole('option', { name: '全部类型' }).click();
   await expect(rows).toHaveCount(7);
 
   // 只看未使用的，全选后批量删除：4 项可删（两条语音版本、片段、闲置录音）。
-  await assets.getByLabel('使用情况').click();
+  await assets.getByRole('combobox', { name: '使用情况' }).click();
   await page.getByRole('option', { name: '未使用' }).click();
   await expect(rows).toHaveCount(4);
   await assets.locator('thead').getByRole('checkbox').check();
@@ -58,7 +60,7 @@ test('资源页汇总各类资源，筛选、统计，并只能批量删除未�
   await page.getByRole('dialog', { name: '删除 4 项资源？' }).getByRole('button', { name: '删除', exact: true }).click();
   await expect(assets.getByText(/^已删除 4 项/)).toBeVisible();
   await expect(assets.getByText('没有符合条件的资源。')).toBeVisible();
-  await assets.getByLabel('使用情况').click();
+  await assets.getByRole('combobox', { name: '使用情况' }).click();
   await page.getByRole('option', { name: '全部' }).click();
   await expect(rows).toHaveCount(3);
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}'));
@@ -69,7 +71,8 @@ test('资源页汇总各类资源，筛选、统计，并只能批量删除未�
 test('资源页按大小排序，并能跳到所属作品', async ({ page }) => {
   await seed(page);
   await page.goto('/');
-  await page.getByTestId('nav-assets').click();
+  await page.getByTestId('nav-settings').click();
+  await page.getByRole('tab', { name: '资源', exact: true }).click();
   const assets = page.getByTestId('assets-page');
   await assets.getByRole('button', { name: '大小' }).click();
   // 升序：最小的是 1 秒的配音片段；降序：最大的是 30 秒的长篇试读。

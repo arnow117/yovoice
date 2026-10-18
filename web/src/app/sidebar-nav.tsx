@@ -1,10 +1,9 @@
 import { useState, type ReactNode } from 'react';
 import { ResizeHandle, type ResizableProps } from '@astryxdesign/core/Resizable';
 import { Button } from '@astryxdesign/core/Button';
-import { Kbd } from '@astryxdesign/core/Kbd';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { AudioLines, ChevronRight, MessageSquareText, Mic, Music, Pencil, Settings2, Trash2, HardDrive } from 'lucide-react';
+import { AudioLines, ChevronRight, Mic, Music, Pencil, Settings2, Trash2 } from 'lucide-react';
 import { projectKind, type Draft, type State } from '../shared/workbench';
 import { overflowTitle } from '../shared/ui/overflow-title';
 import { UpdateSidebarCard } from '../features/update/update-notice';
@@ -19,11 +18,9 @@ export function SidebarNav(props: {
   selectDraft: (item: Draft) => void;
   removeDraft: (item: Draft) => void;
   resizable: ResizableProps;
-  assistantOpen: boolean;
-  toggleAssistant: () => void;
 }) {
   const t = useTranslator();
-  const { page, setPage, newDraft, state, draft, selectDraft, removeDraft, resizable, assistantOpen, toggleAssistant } = props;
+  const { page, setPage, newDraft, state, draft, selectDraft, removeDraft, resizable } = props;
   const [recentOpen, setRecentOpen] = useState(() => localStorage.getItem('yovoice-recent-open') !== 'false');
   const projectActive = page === 'create' || page === 'history';
   return <VStack as="nav" className="sidebar" aria-label={t('@yovoice.nav.main')} gap={6} data-testid="sidebar">
@@ -36,7 +33,6 @@ export function SidebarNav(props: {
         return <Button key={kind} data-testid={`nav-${kind}`} label={t(`@yovoice.project.${kind}`)} variant="ghost" icon={kind === 'text' ? <Mic /> : kind === 'story' ? <Pencil /> : <Music />} className={`nav-item ${selected ? 'selected' : ''}`} aria-current={selected ? 'page' : undefined} onClick={() => setPage(kind)} />;
       })}
       <Button data-testid="nav-characters" label={t('@yovoice.nav.characters')} variant="ghost" icon={<AudioLines />} className={`nav-item ${page === 'characters' || page === 'voices' ? 'selected' : ''}`} aria-current={page === 'characters' || page === 'voices' ? 'page' : undefined} onClick={() => setPage('characters')} />
-      <Button data-testid="nav-assets" label={t('@yovoice.nav.assets')} variant="ghost" icon={<HardDrive />} className={`nav-item ${page === 'assets' ? 'selected' : ''}`} aria-current={page === 'assets' ? 'page' : undefined} onClick={() => setPage('assets')} />
     </VStack>
     <details className="recent-projects" open={recentOpen}>
       <summary onClick={event => { event.preventDefault(); const open = !recentOpen; setRecentOpen(open); localStorage.setItem('yovoice-recent-open', String(open)); }}><ChevronRight aria-hidden />{t('@yovoice.nav.recent')}</summary>
@@ -46,9 +42,6 @@ export function SidebarNav(props: {
       </HStack>)}</VStack>
     </details>
     <VStack className="sidebar-bottom" gap={3}><UpdateSidebarCard />
-      {/* 创作助手入口做成输入框的样子：一眼能看出“在这里说一句话”，快捷键常驻提示。 */}
-      <Button data-testid="assistant-toggle" label={t('@yovoice.assistant.launch')} variant="ghost" icon={<MessageSquareText />} endContent={<Kbd keys="mod+J" />}
-        className={`assistant-launch${assistantOpen ? ' open' : ''}`} aria-expanded={assistantOpen} aria-keyshortcuts="Control+J" onClick={toggleAssistant} />
       <Button data-testid="nav-settings" label={t('@yovoice.nav.settings')} icon={<Settings2 size={18} />} variant="ghost" className={`nav-item ${page === 'settings' ? 'selected' : ''}`} onClick={() => setPage('settings')} /></VStack>
     <ResizeHandle label={t('@yovoice.nav.resize')} direction="horizontal" position="overlay" pillPlacement="center" resizable={resizable} isAlwaysVisible={false} />
   </VStack>;

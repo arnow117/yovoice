@@ -9,10 +9,11 @@ import { useStreamingText } from '@astryxdesign/core/hooks';
 import { Check, Copy, Pause, Play } from 'lucide-react';
 import { formatCallError } from '../../shared/i18n/format';
 import { formatTime, type AssistantBlock, type AssistantMessage, type Generation } from '../../shared/workbench';
-import { splitTurn, turnActivity } from './assistant-model';
+import { splitTurn, turnActivity, turnPhase } from './assistant-model';
+import { AssistantOrb } from './assistant-avatar';
 
 // 助手的一轮回复：没有气泡与头像，内容即界面。过程（思考、工具、中间说明）收在一行状态里，
-// 运行中展开、结束后收起；回答逐字流式渲染为 Markdown；生成结果可直接试听。
+// 默认收起、点开看步骤；回答逐字流式渲染为 Markdown；生成结果可直接试听。
 
 export function AssistantTurn({ blocks, live, message, generation, playing, onPlay, openWork }: {
   blocks: AssistantBlock[]; live: boolean; message?: AssistantMessage; generation: Generation | null; playing: string | null;
@@ -37,22 +38,26 @@ export function AssistantTurn({ blocks, live, message, generation, playing, onPl
   </VStack>;
 }
 
-// 过程：一行状态（运行中带三点呼吸），点开是按顺序的步骤；运行中强制展开，结束后默认收起。
+// 过程：一行状态（运行中带点阵动画），点开是按顺序的步骤；默认收起，运行中也只显示当前这一步。
 function ProcessTrace({ blocks, working }: { blocks: AssistantBlock[]; working: boolean }) {
   const t = useTranslator();
   const [open, setOpen] = useState<boolean | null>(null);
   const activity = turnActivity(blocks);
+  const phase = turnPhase(activity);
   const tools = blocks.filter(block => block.kind === 'tool').length;
   const failed = blocks.some(block => block.card?.state === 'error');
   const label = working
-    ? activity.kind === 'tool' ? activity.card.summary || t('@yovoice.assistant.working') : t('@yovoice.assistant.thinking')
+    ? t(`@yovoice.assistant.phase.${phase}`)
     : tools ? t('@yovoice.assistant.steps', { count: tools }) : t('@yovoice.assistant.thought');
-  const status = <HStack className="assistant-status" gap={2} vAlign="center" role={working ? 'status' : undefined} data-tone={failed && !working ? 'danger' : undefined}>
-    {working ? <span className="assistant-dots" aria-hidden /> : null}
+  // 运行中：点阵 + 带流光的阶段文字，工具调用时后面跟一句具体在做什么。
+  const detail = working && activity.kind === 'tool' ? activity.card.summary : '';
+  const status = <HStack className="assistant-status" gap={2} vAlign="center" role={working ? 'status' : undefined} data-phase={working ? phase : undefined} data-tone={failed && !working ? 'danger' : undefined}>
+    {working ? <AssistantOrb phase={phase} size={32} /> : null}
     <span className="assistant-status-label">{label}</span>
+    {detail ? <span className="assistant-status-detail">{detail}</span> : null}
   </HStack>;
   if (!blocks.length) return status;
-  return <Collapsible className="assistant-process" trigger={status} isOpen={open ?? working} onOpenChange={setOpen} chevronPosition="end">
+  return <Collapsible className="assistant-process" trigger={status} isOpen={open ?? false} onOpenChange={setOpen} chevronPosition="end">
     <VStack className="assistant-steps" gap={1}>
       {blocks.map((block, index) => block.kind === 'tool' && block.card
         ? <HStack key={index} className="assistant-step" gap={2} vAlign="center">
