@@ -415,12 +415,12 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
       }} /> : null}
   </VStack>} catalog={catalog} close={() => setShowInspector(false)} draft={inspectorDraft} state={state} change={changeSpeaker} chooseVoice={() => setVoicePicker('voice')} chooseEmotion={() => setVoicePicker('emotion')} play={audition} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(inspectorDraft.modelId)} advanced={advanced} setAdvanced={setAdvanced} />;
   // 播放器工具栏右侧：导出当前音频，查看历史（语音生成是“历史生成”，音乐与编曲是本作品的“版本记录”），删除在历史里处理；音乐另有播放页。
-  const historyCount = projectKind(draft) === 'text' ? state.history.filter(item => !item.segment && projectKind(state.drafts.find(d => d.id === item.settings.id) ?? item.settings) === 'text').length : generations.length;
   const historyLabel = t(projectKind(draft) === 'text' ? '@yovoice.history.generations' : '@yovoice.history.versions');
   const playerActions = projectKind(draft) === 'story' ? undefined : <HStack gap={2} vAlign="center">
     {currentVersion ? <Button className="player-tool" label={t('@yovoice.app.exportVersion')} tooltip={t('@yovoice.app.exportVersion')} size="sm" icon={<Download />} isDisabled={busy} onClick={() => exportVersion(currentVersion)} /> : null}
     {currentVersion && music ? <Button className="player-tool" label={t('@yovoice.music.nowPlaying')} tooltip={t('@yovoice.music.nowPlaying')} size="sm" variant="ghost" icon={<Disc3 />} onClick={() => setNowPlaying(currentVersion)} /> : null}
-    {historyCount ? <Button className="player-tool" label={historyLabel} tooltip={historyLabel} size="sm" variant="ghost" icon={<History />} onClick={() => openHistory(draft)} /> : null}
+    {/* 历史入口始终保留：还没生成过时也能进入历史页查看其他作品的生成记录。 */}
+    <Button className="player-tool" label={historyLabel} tooltip={historyLabel} size="sm" variant="ghost" icon={<History />} onClick={() => openHistory(draft)} />
     {currentVersion ? <DropdownMenu presentation="popover" placement="above" alignment="end" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.history.audioActions'), tooltip: t('@yovoice.history.audioActions') }} items={[
       ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.voice.save'), onClick: () => setVoiceEditor(currentVersion) }] : []),
       { label: t('@yovoice.player.reveal'), onClick: () => { void call('media.reveal', { kind: 'outputs', id: currentVersion.id }).catch(e => onError(noticeMessage(e))); } },

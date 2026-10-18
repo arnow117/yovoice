@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Verwendete Ressourcen und Timeline-Medien lassen sich hier nicht löschen: Ersetzen Sie sie zuerst in der Figur oder im Projekt; Timeline-Medien entfernen Sie in der Timeline des Projekts."
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "{count} ausgewählt · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "Auswahl löschen"
   },

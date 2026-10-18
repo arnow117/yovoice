@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Используемые ресурсы и медиа таймлайна нельзя удалить здесь: сначала замените их в персонаже или проекте, а медиа удалите на таймлайне проекта."
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "Выбрано: {count} · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "Удалить выбранное"
   },

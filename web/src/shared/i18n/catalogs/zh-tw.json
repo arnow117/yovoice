@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "正在使用的資源和時間軸素材無法在這裡刪除：請先在角色或作品中替換，時間軸素材請在所屬作品的時間軸裡移除。"
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "已選 {count} 項 · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "刪除所選"
   },

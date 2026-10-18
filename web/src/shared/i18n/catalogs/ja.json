@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "使用中のアセットとタイムライン素材はここでは削除できません。先にキャラクターや作品で置き換え、タイムライン素材は作品のタイムラインから削除してください。"
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "{count} 件を選択 · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "選択項目を削除"
   },

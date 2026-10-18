@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "사용 중인 자산과 타임라인 소재는 여기서 삭제할 수 없습니다. 먼저 캐릭터나 작품에서 교체하고, 타임라인 소재는 해당 작품의 타임라인에서 제거하세요."
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "{count}개 선택 · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "선택 항목 삭제"
   },

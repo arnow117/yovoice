@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Les ressources utilisées et les médias de la timeline ne peuvent pas être supprimés ici : remplacez-les d’abord dans le personnage ou le projet, et retirez les médias depuis la timeline du projet."
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "{count} sélectionnés · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "Supprimer la sélection"
   },

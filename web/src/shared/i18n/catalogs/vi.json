@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Không thể xóa tài nguyên đang dùng và tư liệu dòng thời gian tại đây: hãy thay thế trong nhân vật hoặc tác phẩm trước, còn tư liệu thì gỡ khỏi dòng thời gian của tác phẩm."
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "Đã chọn {count} mục · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "Xóa mục đã chọn"
   },

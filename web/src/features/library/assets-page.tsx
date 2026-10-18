@@ -163,7 +163,6 @@ export function AssetsPage({ state, active, run, onError, openProject }: {
         options={[{ value: '', label: t('@yovoice.assets.usage.all') }, { value: 'unused', label: t('@yovoice.assets.status.unused') }, { value: 'used', label: t('@yovoice.assets.status.used') }]} />
       <HStack className="grow" hAlign="end" vAlign="center" gap={1}>
         {selected.size > 0 ? <>
-          <small>{t('@yovoice.assets.selected', { count: selected.size, size: formatBytes(pickedBytes) })}</small>
           <Button size="sm" variant="ghost" label={t('@yovoice.assets.clearSelection')} onClick={() => setSelected(new Set())} />
           <Button size="sm" variant="destructive" icon={<Trash2 size={15} />} label={t('@yovoice.assets.deleteSelected')} onClick={() => setConfirming(true)} />
         </> : <>

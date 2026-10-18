@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Recursos em uso e mídias da linha do tempo não podem ser excluídos aqui: substitua-os primeiro no personagem ou projeto e remova as mídias pela linha do tempo do projeto."
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "{count} selecionados · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "Excluir selecionados"
   },

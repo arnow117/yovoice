@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Assets in use and timeline media can’t be deleted here: replace them in the character or project first, and remove timeline media from the project’s timeline."
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "{count} selected · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "Delete selected"
   },

@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "正在使用的资源和时间轴素材不能在这里删除：先在角色或作品中替换，时间轴素材请在所属作品的时间轴里移除。"
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "已选 {count} 项 · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "删除所选"
   },

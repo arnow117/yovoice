@@ -55,7 +55,7 @@ test('资源页汇总各类资源，筛选、统计，并只能批量删除未�
   await page.getByRole('option', { name: '未使用' }).click();
   await expect(rows).toHaveCount(4);
   await assets.locator('thead').getByRole('checkbox').check();
-  await expect(assets.getByText(/^已选 4 项/)).toBeVisible();
+  await expect(assets.getByRole('button', { name: '删除所选' })).toBeVisible();
   await assets.getByRole('button', { name: '删除所选' }).click();
   await page.getByRole('dialog', { name: '删除 4 项资源？' }).getByRole('button', { name: '删除', exact: true }).click();
   await expect(assets.getByText(/^已删除 4 项/)).toBeVisible();

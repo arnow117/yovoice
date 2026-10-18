@@ -3599,9 +3599,6 @@
   "@yovoice.assets.hint": {
     "defaultMessage": "Los recursos en uso y los medios de la línea de tiempo no se pueden eliminar aquí: reemplázalos primero en el personaje o proyecto, y quita los medios desde la línea de tiempo del proyecto."
   },
-  "@yovoice.assets.selected": {
-    "defaultMessage": "{count} seleccionados · {size}"
-  },
   "@yovoice.assets.deleteSelected": {
     "defaultMessage": "Eliminar seleccionados"
   },
