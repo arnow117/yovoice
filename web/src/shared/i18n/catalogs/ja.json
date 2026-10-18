@@ -3802,5 +3802,143 @@
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "もう一度再生"
+  },
+  "@yovoice.nav.assets": {
+    "defaultMessage": "アセット"
+  },
+  "@yovoice.assets.title": {
+    "defaultMessage": "アセット"
+  },
+  "@yovoice.assets.total": {
+    "defaultMessage": "{count} 件 · {size}"
+  },
+  "@yovoice.assets.storage": {
+    "defaultMessage": "ストレージ設定"
+  },
+  "@yovoice.assets.stats": {
+    "defaultMessage": "種類別"
+  },
+  "@yovoice.assets.stat": {
+    "defaultMessage": "{kind} · {count} 件 · {size}"
+  },
+  "@yovoice.assets.kind.generation": {
+    "defaultMessage": "生成音声"
+  },
+  "@yovoice.assets.kind.segment": {
+    "defaultMessage": "ナレーションクリップ"
+  },
+  "@yovoice.assets.kind.voice": {
+    "defaultMessage": "参照音声"
+  },
+  "@yovoice.assets.kind.material": {
+    "defaultMessage": "タイムライン素材"
+  },
+  "@yovoice.assets.kind.image": {
+    "defaultMessage": "画像"
+  },
+  "@yovoice.assets.col.name": {
+    "defaultMessage": "名前"
+  },
+  "@yovoice.assets.col.kind": {
+    "defaultMessage": "種類"
+  },
+  "@yovoice.assets.col.project": {
+    "defaultMessage": "作品"
+  },
+  "@yovoice.assets.col.duration": {
+    "defaultMessage": "長さ"
+  },
+  "@yovoice.assets.col.size": {
+    "defaultMessage": "サイズ"
+  },
+  "@yovoice.assets.col.created": {
+    "defaultMessage": "作成日時"
+  },
+  "@yovoice.assets.col.status": {
+    "defaultMessage": "状態"
+  },
+  "@yovoice.assets.allKinds": {
+    "defaultMessage": "すべての種類"
+  },
+  "@yovoice.assets.allProjects": {
+    "defaultMessage": "すべての作品"
+  },
+  "@yovoice.assets.usage": {
+    "defaultMessage": "使用状況"
+  },
+  "@yovoice.assets.usage.all": {
+    "defaultMessage": "すべて"
+  },
+  "@yovoice.assets.status.unused": {
+    "defaultMessage": "未使用"
+  },
+  "@yovoice.assets.status.used": {
+    "defaultMessage": "使用中"
+  },
+  "@yovoice.assets.status.usedBy": {
+    "defaultMessage": "使用中：{names}"
+  },
+  "@yovoice.assets.status.missing": {
+    "defaultMessage": "ファイルが見つかりません"
+  },
+  "@yovoice.assets.search": {
+    "defaultMessage": "検索"
+  },
+  "@yovoice.assets.searchPlaceholder": {
+    "defaultMessage": "名前、作品、キャラクター"
+  },
+  "@yovoice.assets.hint": {
+    "defaultMessage": "使用中のアセットとタイムライン素材はここでは削除できません。先にキャラクターや作品で置き換え、タイムライン素材は作品のタイムラインから削除してください。"
+  },
+  "@yovoice.assets.selection": {
+    "defaultMessage": "選択したアセット"
+  },
+  "@yovoice.assets.selected": {
+    "defaultMessage": "{count} 件を選択 · {size}"
+  },
+  "@yovoice.assets.deleteSelected": {
+    "defaultMessage": "選択項目を削除"
+  },
+  "@yovoice.assets.clearSelection": {
+    "defaultMessage": "選択を解除"
+  },
+  "@yovoice.assets.deleteOne": {
+    "defaultMessage": "{name} を削除"
+  },
+  "@yovoice.assets.deleteTitle": {
+    "defaultMessage": "{count} 件のアセットを削除しますか？"
+  },
+  "@yovoice.assets.deleteBody": {
+    "defaultMessage": "選択したファイルを完全に削除し、約 {size} を解放します。元に戻せません。"
+  },
+  "@yovoice.assets.deleteConfirm": {
+    "defaultMessage": "削除"
+  },
+  "@yovoice.assets.deleted": {
+    "defaultMessage": "{count} 件を削除し、{size} を解放しました。"
+  },
+  "@yovoice.assets.skipped": {
+    "defaultMessage": "{count} 件は削除されませんでした。"
+  },
+  "@yovoice.assets.showSkipped": {
+    "defaultMessage": "理由を見る"
+  },
+  "@yovoice.assets.skippedTitle": {
+    "defaultMessage": "一部のアセットを削除できませんでした"
+  },
+  "@yovoice.assets.noMatch": {
+    "defaultMessage": "条件に一致するアセットはありません。"
+  },
+  "@yovoice.assets.empty": {
+    "defaultMessage": "まだアセットはありません。生成した音声、読み込んだ参照音声や素材がここに表示されます。"
+  },
+  "@yovoice.assets.pages": {
+    "defaultMessage": "アセットのページ"
+  },
+  "@yovoice.assets.play": {
+    "defaultMessage": "{name} を試聴"
+  },
+  "@yovoice.assets.preview": {
+    "defaultMessage": "{name} をプレビュー"
   }
 }

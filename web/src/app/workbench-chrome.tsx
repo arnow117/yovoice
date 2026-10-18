@@ -45,6 +45,7 @@ import { UpdateNotice } from '../features/update/update-notice';
 import { PronunciationDialog, type Pronunciation } from './pronunciation-dialog';
 import type { DraftSession } from './use-draft-session';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
+const AssetsPage = lazy(() => import('../features/library/assets-page').then(module => ({ default: module.AssetsPage })));
 const VoicePicker = lazy(() => import('../features/media/voice-picker').then(module => ({ default: module.VoicePicker })));
 
 // 工作台界面：导航、页面切换与各页面之间的协作；作品保存由 useDraftSession 负责。
@@ -63,7 +64,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     if (isDesktop) {
       try {
         const saved = localStorage.getItem('yovoice-active-page');
-        const listPages = ['text', 'story', 'music', 'score', 'characters', 'settings'];
+        const listPages = ['text', 'story', 'music', 'score', 'characters', 'assets', 'settings'];
         return saved && listPages.includes(saved) ? saved : 'text';
       } catch {
         return 'text';
@@ -426,6 +427,11 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
           <VStack id="voice-library-panel" className="page-panel" gap={0} style={{ display: page === 'characters' ? 'flex' : 'none' }}><PageBoundary name="characters">
             <CharacterLibrary controls={libraryTabs} active={page === 'characters' && !voiceTarget && !characterActive} create={createVoice} state={state} catalog={catalog} edit={editCharacter} apply={setVoiceTarget} onError={onError} />
           </PageBoundary></VStack>
+          {/* 资源页只在打开时挂载：每次进入都重新汇总文件大小。 */}
+          {page === 'assets' ? <VStack className="page-panel" gap={0}>
+            <PageBoundary name="assets"><Suspense fallback={<p role="status">{t('@yovoice.app.loading')}</p>}><AssetsPage state={state} active run={run} onError={onError}
+              openProject={id => { const item = state.drafts.find(d => d.id === id); if (item) selectDraft(item); }} openStorage={() => openSettings(draft.modelId, 'general')} /></Suspense></PageBoundary>
+          </VStack> : null}
           <VStack className="page-panel" gap={0} style={{ display: page === 'settings' ? 'flex' : 'none' }}>
             <PageBoundary name="settings"><Suspense fallback={<p role="status">{t('@yovoice.app.loadingSettings')}</p>}><Settings focus={settingsFocus} state={state} catalog={catalog} engine={engine} draft={draft} run={run} /></Suspense></PageBoundary>
           </VStack>

@@ -3802,5 +3802,143 @@
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "Volver a reproducir"
+  },
+  "@yovoice.nav.assets": {
+    "defaultMessage": "Recursos"
+  },
+  "@yovoice.assets.title": {
+    "defaultMessage": "Recursos"
+  },
+  "@yovoice.assets.total": {
+    "defaultMessage": "{count} elementos · {size}"
+  },
+  "@yovoice.assets.storage": {
+    "defaultMessage": "Ajustes de almacenamiento"
+  },
+  "@yovoice.assets.stats": {
+    "defaultMessage": "Por tipo"
+  },
+  "@yovoice.assets.stat": {
+    "defaultMessage": "{kind} · {count} · {size}"
+  },
+  "@yovoice.assets.kind.generation": {
+    "defaultMessage": "Audio generado"
+  },
+  "@yovoice.assets.kind.segment": {
+    "defaultMessage": "Clip de narración"
+  },
+  "@yovoice.assets.kind.voice": {
+    "defaultMessage": "Audio de referencia"
+  },
+  "@yovoice.assets.kind.material": {
+    "defaultMessage": "Medio de la línea de tiempo"
+  },
+  "@yovoice.assets.kind.image": {
+    "defaultMessage": "Imagen"
+  },
+  "@yovoice.assets.col.name": {
+    "defaultMessage": "Nombre"
+  },
+  "@yovoice.assets.col.kind": {
+    "defaultMessage": "Tipo"
+  },
+  "@yovoice.assets.col.project": {
+    "defaultMessage": "Proyecto"
+  },
+  "@yovoice.assets.col.duration": {
+    "defaultMessage": "Duración"
+  },
+  "@yovoice.assets.col.size": {
+    "defaultMessage": "Tamaño"
+  },
+  "@yovoice.assets.col.created": {
+    "defaultMessage": "Creado"
+  },
+  "@yovoice.assets.col.status": {
+    "defaultMessage": "Estado"
+  },
+  "@yovoice.assets.allKinds": {
+    "defaultMessage": "Todos los tipos"
+  },
+  "@yovoice.assets.allProjects": {
+    "defaultMessage": "Todos los proyectos"
+  },
+  "@yovoice.assets.usage": {
+    "defaultMessage": "Uso"
+  },
+  "@yovoice.assets.usage.all": {
+    "defaultMessage": "Todos"
+  },
+  "@yovoice.assets.status.unused": {
+    "defaultMessage": "Sin usar"
+  },
+  "@yovoice.assets.status.used": {
+    "defaultMessage": "En uso"
+  },
+  "@yovoice.assets.status.usedBy": {
+    "defaultMessage": "En uso por {names}"
+  },
+  "@yovoice.assets.status.missing": {
+    "defaultMessage": "Falta el archivo"
+  },
+  "@yovoice.assets.search": {
+    "defaultMessage": "Buscar"
+  },
+  "@yovoice.assets.searchPlaceholder": {
+    "defaultMessage": "Nombre, proyecto o personaje"
+  },
+  "@yovoice.assets.hint": {
+    "defaultMessage": "Los recursos en uso y los medios de la línea de tiempo no se pueden eliminar aquí: reemplázalos primero en el personaje o proyecto, y quita los medios desde la línea de tiempo del proyecto."
+  },
+  "@yovoice.assets.selection": {
+    "defaultMessage": "Recursos seleccionados"
+  },
+  "@yovoice.assets.selected": {
+    "defaultMessage": "{count} seleccionados · {size}"
+  },
+  "@yovoice.assets.deleteSelected": {
+    "defaultMessage": "Eliminar seleccionados"
+  },
+  "@yovoice.assets.clearSelection": {
+    "defaultMessage": "Quitar selección"
+  },
+  "@yovoice.assets.deleteOne": {
+    "defaultMessage": "Eliminar {name}"
+  },
+  "@yovoice.assets.deleteTitle": {
+    "defaultMessage": "¿Eliminar {count} recursos?"
+  },
+  "@yovoice.assets.deleteBody": {
+    "defaultMessage": "Los archivos seleccionados se eliminarán de forma permanente y se liberarán unos {size}. No se puede deshacer."
+  },
+  "@yovoice.assets.deleteConfirm": {
+    "defaultMessage": "Eliminar"
+  },
+  "@yovoice.assets.deleted": {
+    "defaultMessage": "Se eliminaron {count} elementos y se liberaron {size}."
+  },
+  "@yovoice.assets.skipped": {
+    "defaultMessage": "{count} no se eliminaron."
+  },
+  "@yovoice.assets.showSkipped": {
+    "defaultMessage": "Ver motivo"
+  },
+  "@yovoice.assets.skippedTitle": {
+    "defaultMessage": "Algunos recursos no se eliminaron"
+  },
+  "@yovoice.assets.noMatch": {
+    "defaultMessage": "Ningún recurso coincide con estos filtros."
+  },
+  "@yovoice.assets.empty": {
+    "defaultMessage": "Aún no hay recursos. El audio generado, el audio de referencia importado y los medios aparecerán aquí."
+  },
+  "@yovoice.assets.pages": {
+    "defaultMessage": "Páginas de recursos"
+  },
+  "@yovoice.assets.play": {
+    "defaultMessage": "Escuchar {name}"
+  },
+  "@yovoice.assets.preview": {
+    "defaultMessage": "Vista previa de {name}"
   }
 }

@@ -3802,5 +3802,143 @@
   },
   "@yovoice.settings.introReplay": {
     "defaultMessage": "重新播放"
+  },
+  "@yovoice.nav.assets": {
+    "defaultMessage": "资源"
+  },
+  "@yovoice.assets.title": {
+    "defaultMessage": "资源"
+  },
+  "@yovoice.assets.total": {
+    "defaultMessage": "共 {count} 项 · {size}"
+  },
+  "@yovoice.assets.storage": {
+    "defaultMessage": "存储设置"
+  },
+  "@yovoice.assets.stats": {
+    "defaultMessage": "按类型统计"
+  },
+  "@yovoice.assets.stat": {
+    "defaultMessage": "{kind} · {count} 项 · {size}"
+  },
+  "@yovoice.assets.kind.generation": {
+    "defaultMessage": "生成音频"
+  },
+  "@yovoice.assets.kind.segment": {
+    "defaultMessage": "配音片段"
+  },
+  "@yovoice.assets.kind.voice": {
+    "defaultMessage": "参考音频"
+  },
+  "@yovoice.assets.kind.material": {
+    "defaultMessage": "时间轴素材"
+  },
+  "@yovoice.assets.kind.image": {
+    "defaultMessage": "图片"
+  },
+  "@yovoice.assets.col.name": {
+    "defaultMessage": "名称"
+  },
+  "@yovoice.assets.col.kind": {
+    "defaultMessage": "类型"
+  },
+  "@yovoice.assets.col.project": {
+    "defaultMessage": "所属作品"
+  },
+  "@yovoice.assets.col.duration": {
+    "defaultMessage": "时长"
+  },
+  "@yovoice.assets.col.size": {
+    "defaultMessage": "大小"
+  },
+  "@yovoice.assets.col.created": {
+    "defaultMessage": "创建时间"
+  },
+  "@yovoice.assets.col.status": {
+    "defaultMessage": "状态"
+  },
+  "@yovoice.assets.allKinds": {
+    "defaultMessage": "全部类型"
+  },
+  "@yovoice.assets.allProjects": {
+    "defaultMessage": "全部作品"
+  },
+  "@yovoice.assets.usage": {
+    "defaultMessage": "使用情况"
+  },
+  "@yovoice.assets.usage.all": {
+    "defaultMessage": "全部"
+  },
+  "@yovoice.assets.status.unused": {
+    "defaultMessage": "未使用"
+  },
+  "@yovoice.assets.status.used": {
+    "defaultMessage": "使用中"
+  },
+  "@yovoice.assets.status.usedBy": {
+    "defaultMessage": "使用中：{names}"
+  },
+  "@yovoice.assets.status.missing": {
+    "defaultMessage": "文件丢失"
+  },
+  "@yovoice.assets.search": {
+    "defaultMessage": "搜索"
+  },
+  "@yovoice.assets.searchPlaceholder": {
+    "defaultMessage": "名称、作品或角色"
+  },
+  "@yovoice.assets.hint": {
+    "defaultMessage": "正在使用的资源和时间轴素材不能在这里删除：先在角色或作品中替换，时间轴素材请在所属作品的时间轴里移除。"
+  },
+  "@yovoice.assets.selection": {
+    "defaultMessage": "已选资源"
+  },
+  "@yovoice.assets.selected": {
+    "defaultMessage": "已选 {count} 项 · {size}"
+  },
+  "@yovoice.assets.deleteSelected": {
+    "defaultMessage": "删除所选"
+  },
+  "@yovoice.assets.clearSelection": {
+    "defaultMessage": "取消选择"
+  },
+  "@yovoice.assets.deleteOne": {
+    "defaultMessage": "删除 {name}"
+  },
+  "@yovoice.assets.deleteTitle": {
+    "defaultMessage": "删除 {count} 项资源？"
+  },
+  "@yovoice.assets.deleteBody": {
+    "defaultMessage": "将永久删除所选文件，释放约 {size}，无法撤销。"
+  },
+  "@yovoice.assets.deleteConfirm": {
+    "defaultMessage": "删除"
+  },
+  "@yovoice.assets.deleted": {
+    "defaultMessage": "已删除 {count} 项，释放 {size}。"
+  },
+  "@yovoice.assets.skipped": {
+    "defaultMessage": "{count} 项未删除。"
+  },
+  "@yovoice.assets.showSkipped": {
+    "defaultMessage": "查看原因"
+  },
+  "@yovoice.assets.skippedTitle": {
+    "defaultMessage": "部分资源未删除"
+  },
+  "@yovoice.assets.noMatch": {
+    "defaultMessage": "没有符合条件的资源。"
+  },
+  "@yovoice.assets.empty": {
+    "defaultMessage": "还没有任何资源。生成的音频、导入的参考音频和素材都会出现在这里。"
+  },
+  "@yovoice.assets.pages": {
+    "defaultMessage": "资源分页"
+  },
+  "@yovoice.assets.play": {
+    "defaultMessage": "试听 {name}"
+  },
+  "@yovoice.assets.preview": {
+    "defaultMessage": "预览 {name}"
   }
 }

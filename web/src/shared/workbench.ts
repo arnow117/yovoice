@@ -206,6 +206,10 @@ export function formatBytes(bytes: number): string {
   return `${value.toFixed(2)} ${units[i]}`;
 }
 export interface Track { id: string; name: string; fileName: string; kind: 'voices' | 'outputs'; subtitle: string; playRequest?: number }
+/** 资源页的一行，对应 Go 的 workbench.Asset；bytes 为 -1 表示文件已丢失，users 非空表示正在被引用。 */
+export type AssetKind = 'generation' | 'segment' | 'voice' | 'material' | 'image';
+export interface Asset { kind: AssetKind; id: string; name: string; media: 'outputs' | 'voices' | 'images'; fileName: string; projectId?: string; projectTitle?: string; projectKind?: ProjectPage; createdAt: string; duration?: number; bytes: number; users?: string[] }
+export interface AssetResult { kind: AssetKind; id: string; error?: MessageCode; params?: MessageParams }
 
 export const isKokoroModel = (id: string) => id.startsWith('kokoro-');
 // 音乐模型只用于音乐作品，不出现在配音和角色的模型列表里。
