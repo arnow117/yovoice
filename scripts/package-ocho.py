@@ -17,7 +17,7 @@ import urllib.request
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASES = 'https://github.com/leemysw/ocho/releases/download'
+RELEASES = 'https://github.com/leemysw/ocho-release/releases/download'
 
 
 def current_platform():
