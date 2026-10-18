@@ -28,7 +28,7 @@ Type a model name, or **Sync model list** and pick one. After **Add service** or
 
 ## Assistant panel
 
-Open the panel with the assistant button in the title bar or **⌘J / Ctrl+J**. Type what you want — “create a score work and write a four-bar piano melody”, “assign a voice to each character in this story”, “generate the narration” — and the assistant does it in the app: works are created and opened, editors update as it writes, and generation starts through the same commands the app uses. Tool calls show up as cards in the conversation; generated audio can be played right there. Messages sent while a turn is running are queued; **New chat** starts a fresh topic and the conversation history stays in the panel.
+Open the panel with the assistant button in the title bar or **⌘J / Ctrl+J**. Type what you want — “create a score work and write a four-bar piano melody”, “assign a voice to each character in this story”, “generate the narration” — and the assistant does it in the app: works are created and opened, editors update as it writes, and generation starts through the same commands the app uses. Tool calls show up as cards in the conversation; generated audio can be played right there and replies can be copied. Messages sent while a turn is running are queued. **History** organizes chats into sessions you can create, switch between and delete — each session keeps its own context, up to 50 sessions of 200 messages.
 
 Each message carries where you are (page, open work, interface language) so the assistant acts on the right target. It has no delete, download, import or settings tools — when a model is missing it tells you where to install it.
 
@@ -38,6 +38,6 @@ In Score and Music projects, the **AI compose** / **AI lyrics** bar at the top s
 
 ## Limits
 
-- One conversation turn runs at a time and can be stopped; a turn stops after 10 minutes by default, adjustable in settings. The panel keeps the most recent messages across restarts.
+- One conversation turn runs at a time and can be stopped; a turn stops after 10 minutes by default, adjustable in settings. Sessions survive restarts.
 - The browser preview simulates the conversation; real model calls need the desktop app.
 - AI features have not been verified against every listed provider; if a service rejects a request, the error shows its HTTP status and message.

@@ -6,11 +6,11 @@
 
 ### English
 
-- New AI assistant panel in the bottom-right corner (⌘J / Ctrl+J): chat to create and edit works, pick voices, adjust parameters, and start voice, music or score generation — every action is applied in the app right away. AI score and lyric writing from the editors now go through the same conversation, so progress and follow-up questions live in one place.
+- New AI assistant panel in the bottom-right corner (⌘J / Ctrl+J): chat to create and edit works, pick voices, adjust parameters, and start voice, music or score generation — every action is applied in the app right away. Chats are organized into sessions with a history drawer; AI score and lyric writing from the editors goes through the same conversation.
 
 ### 简体中文
 
-- 新增右下角 AI 助手面板（⌘J / Ctrl+J）：用对话新建和修改作品、挑音色、调参数、发起语音/音乐/配乐生成，操作即时反映到界面。编辑器里的 AI 写谱写词也并入同一对话，进度与继续追问都在面板里完成。
+- 新增右下角 AI 助手面板（⌘J / Ctrl+J）：用对话新建和修改作品、挑音色、调参数、发起语音/音乐/配乐生成，操作即时反映到界面。对话按会话组织并带历史抽屉；编辑器里的 AI 写谱写词也并入同一对话。
 
 ## [0.2.1] - 2026-10-16
 
