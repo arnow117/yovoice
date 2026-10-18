@@ -310,3 +310,24 @@ func TestCancelAI(t *testing.T) {
 		t.Fatal("结束后应能再次开始", err)
 	}
 }
+
+// Codex 订阅没有地址和密钥：忽略界面传来的地址与协议，拒绝填写密钥；未选模型时也能发起任务（使用 CLI 默认模型）。
+func TestCodexProviderSaves(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	key := "sk-should-not-be-here"
+	if _, err = w.SaveAIProvider(AIProviderInput{Preset: "codex", Key: &key}); err == nil {
+		t.Fatal("Codex 订阅不接受密钥")
+	}
+	p, err := w.SaveAIProvider(AIProviderInput{Preset: "codex", BaseURL: "http://evil.test", Format: "chat_completions"})
+	must(t, err)
+	if p.Format != llm.FormatCodex || p.BaseURL != "" || p.Model != "" || p.Name != "ChatGPT (Codex)" {
+		t.Fatalf("Codex 服务: %+v", p)
+	}
+	_, c, err := w.aiConfig(p.ID)
+	must(t, err)
+	if c.Format != llm.FormatCodex || c.Key != "" {
+		t.Fatalf("调用配置: %+v", c)
+	}
+}

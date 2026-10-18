@@ -12,9 +12,12 @@ yovoice 可以选择接入大模型。配置 AI 服务后，编曲作品中的�
 | --- | --- | --- |
 | DeepSeek、通义千问（百炼）、智谱 GLM、Kimi、豆包（火山方舟）、MiniMax、OpenAI、Anthropic、OpenRouter、OrcaRouter | 内置 | 需要；“从 … 获取 API 密钥”打开对应控制台 |
 | Ollama、LM Studio | 默认本机（`127.0.0.1`），可修改 | 通常不需要 |
+| ChatGPT (Codex) | 本机的 Codex CLI | 不需要；通过 Codex 用 ChatGPT 登录 |
 | 自定义 | 任意兼容地址 | 可选 |
 
 OrcaRouter 提供免费模型，而且不用复制密钥：点“免费连接 OrcaRouter”（在设置里的 OrcaRouter 页），在浏览器登录 OrcaRouter 并同意授权。yovoice 在本机（`127.0.0.1`）接收密钥，自动添加服务、使用免费模型 `orcarouter/free` 并立即启用。免费模型高峰期可能限流，稍等一会儿重试或换一个模型即可。
+
+**ChatGPT (Codex)** 通过官方 [Codex CLI](https://github.com/openai/codex)（`npm i -g @openai/codex` 或 `brew install codex`）使用你的 ChatGPT 订阅。设置页显示 Codex 是否已安装和登录；“用 ChatGPT 登录”会运行 `codex login`，在浏览器中完成后点“检测”。yovoice 不读取也不保存你的登录凭证。每次请求都在空的临时目录里以只读沙箱运行 `codex exec`，并忽略 `~/.codex/config.toml`，你为编程配置的模型、MCP 服务和钩子不会生效。保存服务时会读取 Codex 的模型列表并选中第一个。请求比 API 调用多几秒，并计入订阅的用量额度。
 
 自定义服务可选择三种协议：OpenAI Chat Completions、OpenAI Responses 或 Anthropic Messages，并填写模型列表路径（如 `/models`；服务没有模型列表时留空，直接填写模型名）。
 

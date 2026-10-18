@@ -3607,5 +3607,50 @@
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "複製"
+  },
+  "@yovoice.ai.group.subscription": {
+    "defaultMessage": "訂閱"
+  },
+  "@yovoice.ai.codex.title": {
+    "defaultMessage": "Codex CLI"
+  },
+  "@yovoice.ai.codex.missing": {
+    "defaultMessage": "找不到 Codex CLI"
+  },
+  "@yovoice.ai.codex.chatgpt": {
+    "defaultMessage": "Codex {version} · 已用 ChatGPT 登入"
+  },
+  "@yovoice.ai.codex.apiKey": {
+    "defaultMessage": "Codex {version} · 已用 API 金鑰登入（按量計費）"
+  },
+  "@yovoice.ai.codex.loggedOut": {
+    "defaultMessage": "Codex {version} · 尚未登入"
+  },
+  "@yovoice.ai.codex.checking": {
+    "defaultMessage": "正在檢測…"
+  },
+  "@yovoice.ai.codex.check": {
+    "defaultMessage": "檢測"
+  },
+  "@yovoice.ai.codex.login": {
+    "defaultMessage": "用 ChatGPT 登入"
+  },
+  "@yovoice.ai.codex.install": {
+    "defaultMessage": "如何安裝 Codex"
+  },
+  "@yovoice.ai.codex.hint": {
+    "defaultMessage": "透過本機的 Codex CLI 使用 ChatGPT 訂閱額度。yovoice 不讀取也不保存你的登入憑證；每次請求都在空的暫存資料夾中以唯讀沙箱執行，會消耗訂閱的用量額度。"
+  },
+  "@yovoice.error.codexMissing": {
+    "defaultMessage": "找不到 Codex CLI。請先安裝 Codex（npm i -g @openai/codex 或 brew install codex），再點「檢測」。"
+  },
+  "@yovoice.error.codexLoggedOut": {
+    "defaultMessage": "Codex 尚未登入。點「用 ChatGPT 登入」，在瀏覽器中完成登入後再試。"
+  },
+  "@yovoice.error.codexFailed": {
+    "defaultMessage": "Codex 執行失敗：{detail}"
+  },
+  "@yovoice.error.codexLimit": {
+    "defaultMessage": "ChatGPT 訂閱的 Codex 用量已達上限或請求過於頻繁，請稍後再試。"
   }
 }

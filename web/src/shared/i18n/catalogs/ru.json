@@ -3607,5 +3607,50 @@
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "Копировать"
+  },
+  "@yovoice.ai.group.subscription": {
+    "defaultMessage": "Подписки"
+  },
+  "@yovoice.ai.codex.title": {
+    "defaultMessage": "Codex CLI"
+  },
+  "@yovoice.ai.codex.missing": {
+    "defaultMessage": "Codex CLI не найден"
+  },
+  "@yovoice.ai.codex.chatgpt": {
+    "defaultMessage": "Codex {version} · вход через ChatGPT"
+  },
+  "@yovoice.ai.codex.apiKey": {
+    "defaultMessage": "Codex {version} · вход по API-ключу (оплата за использование)"
+  },
+  "@yovoice.ai.codex.loggedOut": {
+    "defaultMessage": "Codex {version} · вход не выполнен"
+  },
+  "@yovoice.ai.codex.checking": {
+    "defaultMessage": "Проверка…"
+  },
+  "@yovoice.ai.codex.check": {
+    "defaultMessage": "Проверить"
+  },
+  "@yovoice.ai.codex.login": {
+    "defaultMessage": "Войти через ChatGPT"
+  },
+  "@yovoice.ai.codex.install": {
+    "defaultMessage": "Как установить Codex"
+  },
+  "@yovoice.ai.codex.hint": {
+    "defaultMessage": "Использует вашу подписку ChatGPT через Codex CLI на этом компьютере. yovoice не читает и не хранит данные входа; каждый запрос выполняется в пустой временной папке в песочнице только для чтения и учитывается в лимитах подписки."
+  },
+  "@yovoice.error.codexMissing": {
+    "defaultMessage": "Codex CLI не найден. Установите Codex (npm i -g @openai/codex или brew install codex) и нажмите «Проверить»."
+  },
+  "@yovoice.error.codexLoggedOut": {
+    "defaultMessage": "Вход в Codex не выполнен. Нажмите «Войти через ChatGPT», завершите вход в браузере и повторите попытку."
+  },
+  "@yovoice.error.codexFailed": {
+    "defaultMessage": "Ошибка Codex: {detail}"
+  },
+  "@yovoice.error.codexLimit": {
+    "defaultMessage": "Достигнут лимит использования Codex в вашей подписке ChatGPT или запросы слишком частые. Повторите позже."
   }
 }

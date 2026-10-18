@@ -12,9 +12,12 @@ Open Settings › AI services. The left column lists added and available service
 | --- | --- | --- |
 | DeepSeek, Qwen (Bailian), GLM, Kimi, Doubao (Ark), MiniMax, OpenAI, Anthropic, OpenRouter, OrcaRouter | Built in | Required; **Get an API key from …** opens the provider's console |
 | Ollama, LM Studio | Defaults to this computer (`127.0.0.1`), editable | Usually not needed |
+| ChatGPT (Codex) | The Codex CLI on this computer | None; sign in with ChatGPT through Codex |
 | Custom | Any compatible address | Optional |
 
 OrcaRouter has free models and needs no key to copy: click **Connect OrcaRouter for free** (on the OrcaRouter page in settings), sign in to OrcaRouter in your browser and approve. yovoice receives the key on this computer (`127.0.0.1`), adds the service with the free model `orcarouter/free` and uses it right away. Free models can be rate limited at busy times; wait a minute and retry, or pick another model.
+
+**ChatGPT (Codex)** uses your ChatGPT plan through the official [Codex CLI](https://github.com/openai/codex) (`npm i -g @openai/codex` or `brew install codex`). Settings shows whether Codex is installed and signed in; **Sign in with ChatGPT** runs `codex login`, which finishes in your browser, then select **Check**. yovoice never reads or stores your sign-in. Each request runs `codex exec` in an empty temporary folder with a read-only sandbox and ignores your `~/.codex/config.toml`, so models, MCP servers and hooks you set up for coding don't apply. Saving the service loads Codex's model list and picks the first model. Requests take several seconds longer than an API call and count toward your plan's usage limits.
 
 A custom service chooses one of three protocols: OpenAI Chat Completions, OpenAI Responses or Anthropic Messages, plus the path of its model list (for example `/models`; leave it empty if the service has none and type the model name).
 

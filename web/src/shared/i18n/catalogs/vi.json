@@ -3607,5 +3607,50 @@
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "Sao chép"
+  },
+  "@yovoice.ai.group.subscription": {
+    "defaultMessage": "Gói đăng ký"
+  },
+  "@yovoice.ai.codex.title": {
+    "defaultMessage": "Codex CLI"
+  },
+  "@yovoice.ai.codex.missing": {
+    "defaultMessage": "Không tìm thấy Codex CLI"
+  },
+  "@yovoice.ai.codex.chatgpt": {
+    "defaultMessage": "Codex {version} · đã đăng nhập bằng ChatGPT"
+  },
+  "@yovoice.ai.codex.apiKey": {
+    "defaultMessage": "Codex {version} · đã đăng nhập bằng khóa API (tính phí theo dùng)"
+  },
+  "@yovoice.ai.codex.loggedOut": {
+    "defaultMessage": "Codex {version} · chưa đăng nhập"
+  },
+  "@yovoice.ai.codex.checking": {
+    "defaultMessage": "Đang kiểm tra…"
+  },
+  "@yovoice.ai.codex.check": {
+    "defaultMessage": "Kiểm tra"
+  },
+  "@yovoice.ai.codex.login": {
+    "defaultMessage": "Đăng nhập bằng ChatGPT"
+  },
+  "@yovoice.ai.codex.install": {
+    "defaultMessage": "Cách cài Codex"
+  },
+  "@yovoice.ai.codex.hint": {
+    "defaultMessage": "Dùng gói ChatGPT của bạn qua Codex CLI trên máy này. yovoice không đọc hay lưu thông tin đăng nhập; mỗi yêu cầu chạy trong thư mục tạm trống với hộp cát chỉ đọc và được tính vào hạn mức của gói."
+  },
+  "@yovoice.error.codexMissing": {
+    "defaultMessage": "Không tìm thấy Codex CLI. Hãy cài Codex (npm i -g @openai/codex hoặc brew install codex), rồi chọn “Kiểm tra”."
+  },
+  "@yovoice.error.codexLoggedOut": {
+    "defaultMessage": "Codex chưa đăng nhập. Chọn “Đăng nhập bằng ChatGPT”, hoàn tất trong trình duyệt rồi thử lại."
+  },
+  "@yovoice.error.codexFailed": {
+    "defaultMessage": "Codex lỗi: {detail}"
+  },
+  "@yovoice.error.codexLimit": {
+    "defaultMessage": "Đã đạt hạn mức Codex của gói ChatGPT hoặc yêu cầu quá dày. Vui lòng thử lại sau."
   }
 }

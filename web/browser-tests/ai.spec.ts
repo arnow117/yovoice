@@ -121,3 +121,20 @@ test('OrcaRouter 一键连接：未配置时通过设置 AI 统一配置，默�
   await expect(composer).toContainText('OrcaRouter · orcarouter/free');
   await expect(composer.getByRole('textbox', { name: '描述想要的歌' })).toBeVisible();
 });
+
+test('ChatGPT 订阅（Codex）：单独分组，没有地址和密钥，显示本机 Codex CLI 状态', async ({ page }, testInfo) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('tab', { name: 'AI 服务', exact: true }).click();
+  const panel = page.getByRole('tabpanel', { name: 'AI 服务' });
+  await expect(panel.locator('.ai-nav-head', { hasText: '订阅' })).toBeVisible();
+  await panel.getByRole('button', { name: 'ChatGPT (Codex)', exact: true }).click();
+  await expect(panel.getByText('Codex CLI', { exact: true })).toBeVisible();
+  // 预览不能运行本机程序，显示为未安装并给出安装说明；不出现密钥和地址输入。
+  await expect(panel.getByRole('status').filter({ hasText: '未找到 Codex CLI' })).toBeVisible();
+  await expect(panel.getByRole('button', { name: '如何安装 Codex', exact: true })).toBeVisible();
+  await expect(panel.getByLabel('API 密钥')).toHaveCount(0);
+  await expect(panel.getByRole('textbox', { name: '服务地址' })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: '同步模型' })).toBeEnabled();
+  await page.screenshot({ path: testInfo.outputPath('codex-settings.png') });
+});

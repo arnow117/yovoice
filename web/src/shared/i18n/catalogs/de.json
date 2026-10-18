@@ -3607,5 +3607,50 @@
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "Kopieren"
+  },
+  "@yovoice.ai.group.subscription": {
+    "defaultMessage": "Abonnements"
+  },
+  "@yovoice.ai.codex.title": {
+    "defaultMessage": "Codex CLI"
+  },
+  "@yovoice.ai.codex.missing": {
+    "defaultMessage": "Codex CLI nicht gefunden"
+  },
+  "@yovoice.ai.codex.chatgpt": {
+    "defaultMessage": "Codex {version} · mit ChatGPT angemeldet"
+  },
+  "@yovoice.ai.codex.apiKey": {
+    "defaultMessage": "Codex {version} · mit API-Schlüssel angemeldet (nutzungsbasiert)"
+  },
+  "@yovoice.ai.codex.loggedOut": {
+    "defaultMessage": "Codex {version} · nicht angemeldet"
+  },
+  "@yovoice.ai.codex.checking": {
+    "defaultMessage": "Wird geprüft…"
+  },
+  "@yovoice.ai.codex.check": {
+    "defaultMessage": "Prüfen"
+  },
+  "@yovoice.ai.codex.login": {
+    "defaultMessage": "Mit ChatGPT anmelden"
+  },
+  "@yovoice.ai.codex.install": {
+    "defaultMessage": "Codex installieren"
+  },
+  "@yovoice.ai.codex.hint": {
+    "defaultMessage": "Nutzt dein ChatGPT-Abo über die Codex CLI auf diesem Computer. yovoice liest oder speichert deine Anmeldung nie; jede Anfrage läuft in einem leeren temporären Ordner mit schreibgeschützter Sandbox und zählt zu den Nutzungslimits deines Abos."
+  },
+  "@yovoice.error.codexMissing": {
+    "defaultMessage": "Codex CLI nicht gefunden. Installiere Codex (npm i -g @openai/codex oder brew install codex) und wähle dann „Prüfen“."
+  },
+  "@yovoice.error.codexLoggedOut": {
+    "defaultMessage": "Codex ist nicht angemeldet. Wähle „Mit ChatGPT anmelden“, schließe die Anmeldung im Browser ab und versuche es erneut."
+  },
+  "@yovoice.error.codexFailed": {
+    "defaultMessage": "Codex ist fehlgeschlagen: {detail}"
+  },
+  "@yovoice.error.codexLimit": {
+    "defaultMessage": "Das Codex-Nutzungslimit deines ChatGPT-Abos ist erreicht oder es gibt zu viele Anfragen. Versuche es später erneut."
   }
 }

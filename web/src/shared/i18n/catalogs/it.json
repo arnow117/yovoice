@@ -3607,5 +3607,50 @@
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "Copia"
+  },
+  "@yovoice.ai.group.subscription": {
+    "defaultMessage": "Abbonamenti"
+  },
+  "@yovoice.ai.codex.title": {
+    "defaultMessage": "Codex CLI"
+  },
+  "@yovoice.ai.codex.missing": {
+    "defaultMessage": "Codex CLI non trovata"
+  },
+  "@yovoice.ai.codex.chatgpt": {
+    "defaultMessage": "Codex {version} · accesso con ChatGPT"
+  },
+  "@yovoice.ai.codex.apiKey": {
+    "defaultMessage": "Codex {version} · accesso con chiave API (a consumo)"
+  },
+  "@yovoice.ai.codex.loggedOut": {
+    "defaultMessage": "Codex {version} · accesso non effettuato"
+  },
+  "@yovoice.ai.codex.checking": {
+    "defaultMessage": "Verifica…"
+  },
+  "@yovoice.ai.codex.check": {
+    "defaultMessage": "Verifica"
+  },
+  "@yovoice.ai.codex.login": {
+    "defaultMessage": "Accedi con ChatGPT"
+  },
+  "@yovoice.ai.codex.install": {
+    "defaultMessage": "Come installare Codex"
+  },
+  "@yovoice.ai.codex.hint": {
+    "defaultMessage": "Usa il tuo piano ChatGPT tramite la Codex CLI di questo computer. yovoice non legge né salva il tuo accesso; ogni richiesta viene eseguita in una cartella temporanea vuota con sandbox in sola lettura e rientra nei limiti di utilizzo del piano."
+  },
+  "@yovoice.error.codexMissing": {
+    "defaultMessage": "Codex CLI non trovata. Installa Codex (npm i -g @openai/codex o brew install codex), poi scegli «Verifica»."
+  },
+  "@yovoice.error.codexLoggedOut": {
+    "defaultMessage": "Codex non ha effettuato l’accesso. Scegli «Accedi con ChatGPT», completa nel browser e riprova."
+  },
+  "@yovoice.error.codexFailed": {
+    "defaultMessage": "Codex non riuscito: {detail}"
+  },
+  "@yovoice.error.codexLimit": {
+    "defaultMessage": "È stato raggiunto il limite di utilizzo Codex del tuo piano ChatGPT o le richieste sono troppo frequenti. Riprova più tardi."
   }
 }

@@ -38,6 +38,8 @@ type aiState struct {
 	secrets sync.Mutex
 	// connect 是进行中的 OrcaRouter 一键授权。
 	connect *connectSession
+	// codexLogin 结束进行中的 `codex login`。
+	codexLogin context.CancelFunc
 }
 
 // aiKeysPrivate 是状态库私有设置中保存 AI 服务密钥的键，值为服务 ID 到密钥的映射。
@@ -91,7 +93,12 @@ func (w *Workbench) SaveAIProvider(in AIProviderInput) (schema.AIProvider, error
 	if p.Name == "" {
 		p.Name = preset.Name
 	}
-	if !slices.Contains(llm.Formats, p.Format) || !validEndpoint(p.BaseURL) || schema.TextLen(p.Name) > 60 || len(p.Model) > 200 || len(p.ModelsPath) > 500 {
+	// Codex 订阅经本机 CLI 调用，没有地址和密钥。
+	cli := preset.Endpoint == "cli"
+	if cli && in.Key != nil && *in.Key != "" {
+		return schema.AIProvider{}, bad
+	}
+	if !cli && (!slices.Contains(llm.Formats, p.Format) || !validEndpoint(p.BaseURL)) || schema.TextLen(p.Name) > 60 || len(p.Model) > 200 || len(p.ModelsPath) > 500 {
 		return schema.AIProvider{}, bad
 	}
 	if in.Key != nil && len(*in.Key) > 4096 {
@@ -264,7 +271,7 @@ func (w *Workbench) complete(ctx context.Context, request llm.Request) (llm.Resu
 	if e != nil {
 		return llm.Result{}, e
 	}
-	if c.Model == "" {
+	if c.Model == "" && c.Format != llm.FormatCodex {
 		return llm.Result{}, msg.Err(msg.ErrAINotConfigured, nil)
 	}
 	timeout := aiTimeout(w.Store.Read().Preferences)
@@ -301,7 +308,7 @@ func (w *Workbench) startAI(kind, projectID, brief string, work func(context.Con
 	if e != nil {
 		return schema.AITask{}, e
 	}
-	if c.Model == "" {
+	if c.Model == "" && c.Format != llm.FormatCodex {
 		return schema.AITask{}, msg.Err(msg.ErrAINotConfigured, nil)
 	}
 	w.ai.mu.Lock()
@@ -406,6 +413,9 @@ func (w *Workbench) stopAI() {
 	}
 	w.ai.mu.Lock()
 	done := w.ai.done
+	if w.ai.codexLogin != nil {
+		w.ai.codexLogin()
+	}
 	if w.ai.cancel != nil {
 		w.ai.cancel()
 	}

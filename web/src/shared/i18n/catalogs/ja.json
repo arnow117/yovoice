@@ -3607,5 +3607,50 @@
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "コピー"
+  },
+  "@yovoice.ai.group.subscription": {
+    "defaultMessage": "サブスクリプション"
+  },
+  "@yovoice.ai.codex.title": {
+    "defaultMessage": "Codex CLI"
+  },
+  "@yovoice.ai.codex.missing": {
+    "defaultMessage": "Codex CLI が見つかりません"
+  },
+  "@yovoice.ai.codex.chatgpt": {
+    "defaultMessage": "Codex {version} · ChatGPT でサインイン済み"
+  },
+  "@yovoice.ai.codex.apiKey": {
+    "defaultMessage": "Codex {version} · API キーでサインイン済み（従量課金）"
+  },
+  "@yovoice.ai.codex.loggedOut": {
+    "defaultMessage": "Codex {version} · 未サインイン"
+  },
+  "@yovoice.ai.codex.checking": {
+    "defaultMessage": "確認中…"
+  },
+  "@yovoice.ai.codex.check": {
+    "defaultMessage": "確認"
+  },
+  "@yovoice.ai.codex.login": {
+    "defaultMessage": "ChatGPT でサインイン"
+  },
+  "@yovoice.ai.codex.install": {
+    "defaultMessage": "Codex のインストール方法"
+  },
+  "@yovoice.ai.codex.hint": {
+    "defaultMessage": "このコンピューターの Codex CLI を通じて ChatGPT プランを使います。yovoice はサインイン情報を読み取ったり保存したりしません。各リクエストは空の一時フォルダーで読み取り専用のサンドボックスとして実行され、プランの使用量に含まれます。"
+  },
+  "@yovoice.error.codexMissing": {
+    "defaultMessage": "Codex CLI が見つかりません。Codex をインストール（npm i -g @openai/codex または brew install codex）してから「確認」を選んでください。"
+  },
+  "@yovoice.error.codexLoggedOut": {
+    "defaultMessage": "Codex にサインインしていません。「ChatGPT でサインイン」を選び、ブラウザーで完了してから再試行してください。"
+  },
+  "@yovoice.error.codexFailed": {
+    "defaultMessage": "Codex の実行に失敗しました：{detail}"
+  },
+  "@yovoice.error.codexLimit": {
+    "defaultMessage": "ChatGPT プランの Codex 使用量の上限に達したか、リクエストが多すぎます。しばらくしてから再試行してください。"
   }
 }

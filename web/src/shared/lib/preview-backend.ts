@@ -76,6 +76,9 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
 async function dispatch<T>(method: string, data: unknown): Promise<T> {
   const state = preview();
   if (method === 'logs.export') return true as T;
+  // 预览不能运行本机程序：Codex 显示为未安装，登录需要桌面端。
+  if (method === 'ai.codex.status') return {} as T;
+  if (method === 'ai.codex.login') throw new CallError('@yovoice.error.previewDesktopOnly');
   if (method === 'state.get') return { state, catalog, engine: { version: '', minimum: '' }, desktop: false } as T;
   if (method === 'character.save') {
     const character = structuredClone(data as Character);

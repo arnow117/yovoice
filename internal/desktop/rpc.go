@@ -21,7 +21,7 @@ var audited = map[string]bool{
 	"voice.record": true, "timeline.import": true, "media.rename": true, "media.delete": true, "generation.lyricTimes": true,
 	"preferences.save": true, "storage.relocate": true, "storage.cleanup": true, "model.directory": true, "model.download": true,
 	"model.forget": true, "runtime.install": true, "ai.provider.save": true, "ai.provider.delete": true, "ai.provider.use": true,
-	"ai.test": true, "ai.connect": true, "melody.plan": true, "melody.cover": true, "melody.dismiss": true, "ai.dismiss": true,
+	"ai.test": true, "ai.connect": true, "ai.codex.login": true, "melody.plan": true, "melody.cover": true, "melody.dismiss": true, "ai.dismiss": true,
 	"operation.cancel": true, "model.cancel": true, "ai.cancel": true, "logs.export": true,
 }
 
@@ -177,6 +177,10 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.AIModels(ctx, p.ID)
 	case "ai.test":
 		return w.TestAIProvider(ctx, p.ID)
+	case "ai.codex.status":
+		return w.CodexStatus(ctx), nil
+	case "ai.codex.login":
+		return true, w.LoginCodex()
 	case "ai.connect":
 		authURL, e := w.ConnectOrcaRouter()
 		return map[string]string{"url": authURL}, e

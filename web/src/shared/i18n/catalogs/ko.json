@@ -3607,5 +3607,50 @@
   },
   "@yovoice.logs.copy": {
     "defaultMessage": "복사"
+  },
+  "@yovoice.ai.group.subscription": {
+    "defaultMessage": "구독"
+  },
+  "@yovoice.ai.codex.title": {
+    "defaultMessage": "Codex CLI"
+  },
+  "@yovoice.ai.codex.missing": {
+    "defaultMessage": "Codex CLI를 찾을 수 없음"
+  },
+  "@yovoice.ai.codex.chatgpt": {
+    "defaultMessage": "Codex {version} · ChatGPT로 로그인됨"
+  },
+  "@yovoice.ai.codex.apiKey": {
+    "defaultMessage": "Codex {version} · API 키로 로그인됨(사용량 과금)"
+  },
+  "@yovoice.ai.codex.loggedOut": {
+    "defaultMessage": "Codex {version} · 로그인 안 됨"
+  },
+  "@yovoice.ai.codex.checking": {
+    "defaultMessage": "확인 중…"
+  },
+  "@yovoice.ai.codex.check": {
+    "defaultMessage": "확인"
+  },
+  "@yovoice.ai.codex.login": {
+    "defaultMessage": "ChatGPT로 로그인"
+  },
+  "@yovoice.ai.codex.install": {
+    "defaultMessage": "Codex 설치 방법"
+  },
+  "@yovoice.ai.codex.hint": {
+    "defaultMessage": "이 컴퓨터의 Codex CLI를 통해 ChatGPT 요금제를 사용합니다. yovoice는 로그인 정보를 읽거나 저장하지 않으며, 각 요청은 빈 임시 폴더에서 읽기 전용 샌드박스로 실행되고 요금제 사용량에 포함됩니다."
+  },
+  "@yovoice.error.codexMissing": {
+    "defaultMessage": "Codex CLI를 찾을 수 없습니다. Codex를 설치(npm i -g @openai/codex 또는 brew install codex)한 뒤 ‘확인’을 선택하세요."
+  },
+  "@yovoice.error.codexLoggedOut": {
+    "defaultMessage": "Codex에 로그인되어 있지 않습니다. ‘ChatGPT로 로그인’을 선택하고 브라우저에서 완료한 뒤 다시 시도하세요."
+  },
+  "@yovoice.error.codexFailed": {
+    "defaultMessage": "Codex 실행 실패: {detail}"
+  },
+  "@yovoice.error.codexLimit": {
+    "defaultMessage": "ChatGPT 요금제의 Codex 사용 한도에 도달했거나 요청이 너무 잦습니다. 잠시 후 다시 시도하세요."
   }
 }
