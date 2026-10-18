@@ -11,9 +11,6 @@
   "@yovoice.error.proxyURL": {
     "defaultMessage": "有効なポートを含む HTTP、HTTPS、または SOCKS5 のプロキシ URL を入力してください（パスや認証情報は含めないでください）。"
   },
-  "@yovoice.action.apply": {
-    "defaultMessage": "適用"
-  },
   "@yovoice.action.cancel": {
     "defaultMessage": "キャンセル"
   },
@@ -85,9 +82,6 @@
   },
   "@yovoice.app.charCount": {
     "defaultMessage": "{count} 文字"
-  },
-  "@yovoice.app.collapseAudition": {
-    "defaultMessage": "{name} の試聴を閉じる"
   },
   "@yovoice.app.collapseSidebar": {
     "defaultMessage": "サイドバーを折りたたむ"
@@ -170,9 +164,6 @@
   "@yovoice.create.advanced": {
     "defaultMessage": "詳細設定"
   },
-  "@yovoice.create.backToScript": {
-    "defaultMessage": "本文に戻る"
-  },
   "@yovoice.create.cancelGenerate": {
     "defaultMessage": "生成をキャンセル"
   },
@@ -238,9 +229,6 @@
   },
   "@yovoice.create.modelInstalled": {
     "defaultMessage": "インストール済み"
-  },
-  "@yovoice.create.modelMissing": {
-    "defaultMessage": "未ダウンロード"
   },
   "@yovoice.create.moreEmotionPresets": {
     "defaultMessage": "その他の感情プリセット"
@@ -557,9 +545,6 @@
   "@yovoice.error.nameLength": {
     "defaultMessage": "名前は 1〜120 文字にしてください。"
   },
-  "@yovoice.error.needRuntime": {
-    "defaultMessage": "生成する前にモデルとランタイムをインストールしてください。"
-  },
   "@yovoice.error.paramsOutOfRange": {
     "defaultMessage": "生成パラメーターが範囲外です。"
   },
@@ -656,18 +641,6 @@
   "@yovoice.library.emptyVoicesTitle": {
     "defaultMessage": "参照音声はまだありません"
   },
-  "@yovoice.library.historyCount": {
-    "defaultMessage": "{count} 件の生成"
-  },
-  "@yovoice.library.historyTitle": {
-    "defaultMessage": "バージョン履歴"
-  },
-  "@yovoice.library.startCreating": {
-    "defaultMessage": "作成を始める"
-  },
-  "@yovoice.library.voiceCount": {
-    "defaultMessage": "{count} 件の声"
-  },
   "@yovoice.library.voicesTitle": {
     "defaultMessage": "サウンドライブラリ"
   },
@@ -710,20 +683,11 @@
   "@yovoice.media.saveName": {
     "defaultMessage": "名前を保存"
   },
-  "@yovoice.nav.create": {
-    "defaultMessage": "作成"
-  },
   "@yovoice.nav.deleteProject": {
     "defaultMessage": "作品を削除：{title}"
   },
-  "@yovoice.nav.history": {
-    "defaultMessage": "すべての生成音声"
-  },
   "@yovoice.nav.main": {
     "defaultMessage": "メインナビゲーション"
-  },
-  "@yovoice.nav.newProject": {
-    "defaultMessage": "新しい作品"
   },
   "@yovoice.nav.recent": {
     "defaultMessage": "最近"
@@ -734,20 +698,11 @@
   "@yovoice.nav.settings": {
     "defaultMessage": "設定"
   },
-  "@yovoice.nav.voices": {
-    "defaultMessage": "キャラクター"
-  },
   "@yovoice.player.audition": {
     "defaultMessage": "{name} を試聴"
   },
-  "@yovoice.player.emptyHint": {
-    "defaultMessage": "音声を生成または選択して試聴"
-  },
   "@yovoice.player.mute": {
     "defaultMessage": "ミュート"
-  },
-  "@yovoice.player.noAudio": {
-    "defaultMessage": "音声はまだありません"
   },
   "@yovoice.player.stop": {
     "defaultMessage": "停止"
@@ -838,9 +793,6 @@
   },
   "@yovoice.settings.downloadSource": {
     "defaultMessage": "ダウンロード元"
-  },
-  "@yovoice.settings.importDirectory": {
-    "defaultMessage": "フォルダーを選択"
   },
   "@yovoice.settings.inUse": {
     "defaultMessage": "使用中"
@@ -965,9 +917,6 @@
   "@yovoice.voice.defaultName": {
     "defaultMessage": "マイボイス"
   },
-  "@yovoice.voice.hint": {
-    "defaultMessage": "1〜60 秒のはっきりした話し声。BGM は避けてください。"
-  },
   "@yovoice.voice.import": {
     "defaultMessage": "参照音声をインポート"
   },
@@ -980,35 +929,20 @@
   "@yovoice.voice.recordName": {
     "defaultMessage": "録音の名前"
   },
-  "@yovoice.voice.recording": {
-    "defaultMessage": "録音中… 最大 60 秒"
-  },
   "@yovoice.voice.saveCrop": {
     "defaultMessage": "新しい声として保存"
   },
   "@yovoice.voice.startRecord": {
     "defaultMessage": "録音を開始"
   },
-  "@yovoice.voice.stopSave": {
-    "defaultMessage": "停止して保存"
-  },
   "@yovoice.vox.clone": {
     "defaultMessage": "ボイスクローン"
-  },
-  "@yovoice.vox.cloneHelp": {
-    "defaultMessage": "参照の声を複製し、演技スタイルを調整"
   },
   "@yovoice.vox.continuation": {
     "defaultMessage": "精密クローン"
   },
-  "@yovoice.vox.continuationHelp": {
-    "defaultMessage": "参照音声と書き起こしで演技の細部を保持"
-  },
   "@yovoice.vox.design": {
     "defaultMessage": "ボイスデザイン"
-  },
-  "@yovoice.vox.designHelp": {
-    "defaultMessage": "テキストから声をデザイン（参照音声は不要）"
   },
   "@yovoice.vox.generationMode": {
     "defaultMessage": "生成モード"
@@ -1460,9 +1394,6 @@
   "@yovoice.character.deleteConfirm": {
     "defaultMessage": "このキャラクターをライブラリから削除します。既存の作品は保存済みの設定をそのまま使います。"
   },
-  "@yovoice.character.missingModel": {
-    "defaultMessage": "モデルがインストールされていません。設定は保存でき、インストール後にデモを生成できます。"
-  },
   "@yovoice.character.missingVoice": {
     "defaultMessage": "参照ボイスが見つかりません。別のものを選択してください。"
   },
@@ -1471,9 +1402,6 @@
   },
   "@yovoice.character.listen": {
     "defaultMessage": "デモを再生"
-  },
-  "@yovoice.character.sourceDesign": {
-    "defaultMessage": "内蔵話者 / 声の説明"
   },
   "@yovoice.voice.save": {
     "defaultMessage": "参照音声として保存"
@@ -1486,12 +1414,6 @@
   },
   "@yovoice.voice.transcript": {
     "defaultMessage": "参照の書き起こし"
-  },
-  "@yovoice.voice.transcriptHelp": {
-    "defaultMessage": "音声で実際に話されている内容を入力してください。発音の注記や特殊な文字も確認してください。"
-  },
-  "@yovoice.voice.limit": {
-    "defaultMessage": "クリップ全体を 1〜60 秒、20 MB 以下にしてください。ここでは音声を切り取りません。"
   },
   "@yovoice.voice.sourceGeneration": {
     "defaultMessage": "生成された音声"
@@ -1511,35 +1433,14 @@
   "@yovoice.character.clearReferences": {
     "defaultMessage": "声の参照を解除"
   },
-  "@yovoice.character.help": {
-    "defaultMessage": "この音声設定を保存して、ほかの作品でも使えるようにします。試聴用セリフは作品の本文を置き換えません。"
-  },
-  "@yovoice.character.parameters": {
-    "defaultMessage": "音声設定"
-  },
-  "@yovoice.character.emptyDemo": {
-    "defaultMessage": "試聴用セリフを入力するとデモを生成できます。キャラクターだけ先に保存することもできます。"
-  },
-  "@yovoice.character.libraryHelp": {
-    "defaultMessage": "音声設定とデモを保存して、作成時にすぐ使えます。"
-  },
   "@yovoice.character.search": {
     "defaultMessage": "キャラクターを検索"
   },
   "@yovoice.character.noResults": {
     "defaultMessage": "一致するキャラクターはありません。別のキーワードを試してください。"
   },
-  "@yovoice.character.createFirst": {
-    "defaultMessage": "最初のキャラクターを保存"
-  },
   "@yovoice.character.nameLimit": {
     "defaultMessage": "キャラクター名は 120 文字以内にしてください。"
-  },
-  "@yovoice.character.applied": {
-    "defaultMessage": "キャラクターの設定を適用しました。作品の本文は変わりません。"
-  },
-  "@yovoice.character.saved": {
-    "defaultMessage": "キャラクターを保存しました。キャラクターライブラリで確認できます。"
   },
   "@yovoice.library.nameRequired": {
     "defaultMessage": "保存するには名前を入力してください。"
@@ -1552,9 +1453,6 @@
   },
   "@yovoice.voice.durationLimit": {
     "defaultMessage": "この音声は 1〜60 秒の範囲外です。別の履歴クリップを選んでください。"
-  },
-  "@yovoice.voice.saveSuccess": {
-    "defaultMessage": "声を保存しました。ボイスライブラリで確認できます。"
   },
   "@yovoice.library.searchVoices": {
     "defaultMessage": "参照音声を検索"
@@ -1583,9 +1481,6 @@
   "@yovoice.subtitle.speaker": {
     "defaultMessage": "話者 {n}"
   },
-  "@yovoice.subtitle.help": {
-    "defaultMessage": "会話の順に、各話者の声で個別のクリップを生成します。クリップは切り取り・削除・再生成でき、書き出し時に結合されます。元の字幕のタイミングには自動で合わせません。"
-  },
   "@yovoice.subtitle.currentSettings": {
     "defaultMessage": "既定の声"
   },
@@ -1613,20 +1508,11 @@
   "@yovoice.subtitle.addCue": {
     "defaultMessage": "行を追加"
   },
-  "@yovoice.subtitle.speakerHelp": {
-    "defaultMessage": "この話者のすべての行に設定が適用されます"
-  },
   "@yovoice.subtitle.customSettings": {
     "defaultMessage": "カスタムボイス"
   },
   "@yovoice.subtitle.settings": {
     "defaultMessage": "話者の設定"
-  },
-  "@yovoice.subtitle.speakers": {
-    "defaultMessage": "話者 · {count}"
-  },
-  "@yovoice.subtitle.instructions": {
-    "defaultMessage": "字幕の声について"
   },
   "@yovoice.subtitle.cues": {
     "defaultMessage": "字幕 · {count} キュー"
@@ -1636,12 +1522,6 @@
   },
   "@yovoice.subtitle.hideTimes": {
     "defaultMessage": "タイミングを隠す"
-  },
-  "@yovoice.subtitle.defaultVoice": {
-    "defaultMessage": "既定の声"
-  },
-  "@yovoice.subtitle.defaultVoiceHelp": {
-    "defaultMessage": "キャラクターが未設定の話者に使用されます"
   },
   "@yovoice.timeline.invalid": {
     "defaultMessage": "タイムラインが無効です。クリップの範囲を確認してください。最大 32 トラック、2000 クリップ、24 時間までです。"
@@ -1697,9 +1577,6 @@
   "@yovoice.timeline.fromHistory": {
     "defaultMessage": "バージョンから追加"
   },
-  "@yovoice.nav.projects": {
-    "defaultMessage": "作品"
-  },
   "@yovoice.nav.library": {
     "defaultMessage": "サウンドライブラリ"
   },
@@ -1742,9 +1619,6 @@
   "@yovoice.library.referencesTab": {
     "defaultMessage": "参照音声"
   },
-  "@yovoice.library.use": {
-    "defaultMessage": "キャラクターを使用"
-  },
   "@yovoice.library.target": {
     "defaultMessage": "適用先を選択"
   },
@@ -1763,9 +1637,6 @@
   "@yovoice.library.apply": {
     "defaultMessage": "キャラクターを適用"
   },
-  "@yovoice.library.noTarget": {
-    "defaultMessage": "作品とキャラクターを選択してください。ほかのキャラクターは変わりません。"
-  },
   "@yovoice.library.newVoice": {
     "defaultMessage": "無題のキャラクター"
   },
@@ -1778,26 +1649,11 @@
   "@yovoice.library.unsaved": {
     "defaultMessage": "キャラクターの変更を保存しますか？"
   },
-  "@yovoice.library.unsavedBody": {
-    "defaultMessage": "離れる前にキャラクターを保存するか、変更を破棄してください。"
-  },
   "@yovoice.library.discard": {
     "defaultMessage": "変更を破棄"
   },
   "@yovoice.library.continue": {
     "defaultMessage": "編集を続ける"
-  },
-  "@yovoice.library.clearSearch": {
-    "defaultMessage": "フィルターをクリア"
-  },
-  "@yovoice.history.source": {
-    "defaultMessage": "元の作品を開く"
-  },
-  "@yovoice.history.sourceMissing": {
-    "defaultMessage": "元の作品は削除されました"
-  },
-  "@yovoice.history.stale": {
-    "defaultMessage": "本文または設定が変更されました。音声は更新されていません"
   },
   "@yovoice.app.saveFailed": {
     "defaultMessage": "保存に失敗しました。再試行"
@@ -2090,15 +1946,6 @@
   "@yovoice.music.collapseElements": {
     "defaultMessage": "要素を折りたたむ"
   },
-  "@yovoice.music.selectedTags": {
-    "defaultMessage": "{count} 件選択"
-  },
-  "@yovoice.music.clearTags": {
-    "defaultMessage": "クリア"
-  },
-  "@yovoice.music.elements": {
-    "defaultMessage": "要素"
-  },
   "@yovoice.music.addTag": {
     "defaultMessage": "スタイルタグを追加"
   },
@@ -2137,9 +1984,6 @@
   },
   "@yovoice.music.generate": {
     "defaultMessage": "曲を生成"
-  },
-  "@yovoice.music.modelSize": {
-    "defaultMessage": "未インストール · {size}"
   },
   "@yovoice.music.duration": {
     "defaultMessage": "長さ"
@@ -2231,9 +2075,6 @@
   "@yovoice.score.bars": {
     "defaultMessage": "{start}〜{end} 小節"
   },
-  "@yovoice.score.copyPromptHint": {
-    "defaultMessage": "AI エージェントに楽譜 JSON を書かせ、ここに読み込むか CLI でレンダリングしてください。"
-  },
   "@yovoice.score.downloadSoundFont": {
     "defaultMessage": "ダウンロード"
   },
@@ -2275,9 +2116,6 @@
   },
   "@yovoice.score.meter": {
     "defaultMessage": "拍子"
-  },
-  "@yovoice.score.noteCount": {
-    "defaultMessage": "{count} 音符"
   },
   "@yovoice.score.playTrack": {
     "defaultMessage": "{name} を再生"
@@ -2345,9 +2183,6 @@
   "@yovoice.ai.intro": {
     "defaultMessage": "大規模言語モデルをつなぐと、内蔵の AI アシスタントがスコアで編曲を、音楽で歌詞を書き、結果をさらに修正できます。"
   },
-  "@yovoice.ai.addProvider": {
-    "defaultMessage": "サービスを追加"
-  },
   "@yovoice.ai.customProvider": {
     "defaultMessage": "カスタムサービス"
   },
@@ -2399,9 +2234,6 @@
   "@yovoice.ai.inUse": {
     "defaultMessage": "使用中"
   },
-  "@yovoice.ai.deleteNamed": {
-    "defaultMessage": "{name} を削除"
-  },
   "@yovoice.ai.deleteTitle": {
     "defaultMessage": "この AI サービスを削除しますか？"
   },
@@ -2452,12 +2284,6 @@
   },
   "@yovoice.error.aiResultInvalid": {
     "defaultMessage": "AI の結果を使用できませんでした：{detail}。もう一度試すか、言い換えてください。"
-  },
-  "@yovoice.music.allTags": {
-    "defaultMessage": "すべてのタグ"
-  },
-  "@yovoice.music.fewerTags": {
-    "defaultMessage": "タグを減らす"
   },
   "@yovoice.settings.tabSoundfonts": {
     "defaultMessage": "スコア用サウンドフォント"
@@ -2577,7 +2403,7 @@
     "defaultMessage": "{model} が形式を修正中"
   },
   "@yovoice.error.aiTimeout": {
-    "defaultMessage": "AI サービスが {seconds} 秒以内に完了しませんでした。設定 › 一般 で AI リクエストのタイムアウトを延ばすか、より速いモデルを選んでください。"
+    "defaultMessage": "AI サービスが {seconds} 秒以内に完了しませんでした。設定 › AI サービス で AI リクエストのタイムアウトを延ばすか、より速いモデルを選んでください。"
   },
   "@yovoice.music.lyricsMode": {
     "defaultMessage": "歌詞モード"

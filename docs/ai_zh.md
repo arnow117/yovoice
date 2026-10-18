@@ -10,7 +10,8 @@ yovoice 可以选择接入大模型。配置 AI 服务后，右下角的“创�
 
 | 服务 | 地址 | 密钥 |
 | --- | --- | --- |
-| DeepSeek、通义千问（百炼）、智谱 GLM、Kimi、豆包（火山方舟）、MiniMax、OpenAI、Anthropic、OpenRouter、OrcaRouter | 内置 | 需要；“从 … 获取 API 密钥”打开对应控制台 |
+| 按量 API：DeepSeek、通义千问（百炼）、智谱 GLM、Kimi、豆包（火山方舟）、MiniMax、OpenAI、Anthropic、OpenRouter、OrcaRouter | 内置 | 需要；“从 … 获取 API 密钥”打开对应控制台 |
+| 编程套餐：Kimi Code、智谱 GLM Coding Plan、百炼 Token Plan、MiniMax Token Plan、火山方舟 Coding Plan | 内置（套餐专用地址） | 需要套餐的密钥，与按量 API 的密钥不通用 |
 | Ollama、LM Studio | 默认本机（`127.0.0.1`），可修改 | 通常不需要 |
 | ChatGPT (Codex) | 本机的 Codex CLI | 不需要；通过 Codex 用 ChatGPT 登录 |
 | 自定义 | 任意兼容地址 | 可选 |
@@ -21,7 +22,7 @@ OrcaRouter 提供免费模型，而且不用复制密钥：点“免费连接 Or
 
 自定义服务可选择三种协议：OpenAI Chat Completions、OpenAI Responses 或 Anthropic Messages，并填写模型列表路径（如 `/models`；服务没有模型列表时留空，直接填写模型名）。
 
-填写模型名，或“同步模型列表”后从列表中点选；“添加服务”或“保存更改”后，“测试”会发送一条简短消息，检查地址、密钥和模型。第一个添加的服务自动启用；有多个服务时，打开想用那个的“用于 AI 功能”开关。已保存的密钥只显示掩码，可“更换密钥”或“清除密钥”。
+填写模型名，或“同步模型列表”后从列表中点选；“添加服务”或“保存更改”后，“测试”会发送一条简短消息，检查地址、密钥和模型。第一个添加的服务自动使用，在列表中标为“使用中”；有多个服务时，在写谱、写歌输入栏左下角的模型下拉里切换服务和模型。已保存的密钥只显示掩码，可“更换密钥”或“清除密钥”。
 
 ## 数据去向
 
