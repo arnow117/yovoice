@@ -3655,5 +3655,17 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex は画像を生成しませんでした：{detail}"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "言葉に声を、ひらめきを歌に。"
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "さっそく始める"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "オープニングアニメーション"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "もう一度再生"
   }
 }

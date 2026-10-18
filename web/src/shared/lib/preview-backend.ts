@@ -29,6 +29,8 @@ function load(): State {
     } catch { /* 主副本损坏时继续读取恢复备份。 */ }
   }
   state.characters ??= []; state.previews = []; delete state.aiTask; delete state.melody;
+  // 浏览器预览默认跳过首次启动的开场画面；需要查看时在状态里把 introSeen 设为 false。
+  state.preferences = { ...state.preferences, introSeen: state.preferences?.introSeen ?? true };
   if (!isUiLocale(state.preferences?.uiLocale)) {
     state = { ...state, preferences: { ...state.preferences, uiLocale: 'zh-CN' } };
   }

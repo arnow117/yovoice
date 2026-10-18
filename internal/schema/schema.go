@@ -255,6 +255,8 @@ type Preferences struct {
 	UiLocale       UiLocale `json:"uiLocale"`
 	// AITimeout 是单次 AI 请求的超时秒数，0 表示默认值。
 	AITimeout int `json:"aiTimeout,omitempty"`
+	// IntroSeen 表示已看过首次启动的开场画面，之后启动只显示简短的加载动画。
+	IntroSeen bool `json:"introSeen,omitempty"`
 }
 type State struct {
 	Characters     []Character        `json:"characters"`

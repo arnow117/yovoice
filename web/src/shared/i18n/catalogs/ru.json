@@ -3655,5 +3655,17 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex не создал изображение: {detail}"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "Дайте словам голос. Превратите идеи в песни."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "Начать знакомство"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "Приветственная анимация"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "Воспроизвести снова"
   }
 }

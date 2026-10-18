@@ -3655,5 +3655,17 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex 没有生成图片：{detail}"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "让文字发声，把灵感谱成歌"
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "开始探索"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "开场动画"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "重新播放"
   }
 }
