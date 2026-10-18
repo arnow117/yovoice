@@ -3790,5 +3790,17 @@
   },
   "@yovoice.assistant.askScore": {
     "defaultMessage": "Schreibe ein Arrangement für dieses Partiturwerk: {brief} (etwa {seconds} Sekunden)"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "Gib deinen Worten eine Stimme. Mach aus Ideen Songs."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "Jetzt entdecken"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "Begrüßungsanimation"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "Erneut abspielen"
   }
 }

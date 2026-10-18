@@ -3790,5 +3790,17 @@
   },
   "@yovoice.assistant.askScore": {
     "defaultMessage": "Напиши аранжировку для этой партитуры: {brief} (около {seconds} с)"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "Дайте словам голос. Превратите идеи в песни."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "Начать знакомство"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "Приветственная анимация"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "Воспроизвести снова"
   }
 }

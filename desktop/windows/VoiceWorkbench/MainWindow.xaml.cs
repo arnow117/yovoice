@@ -357,7 +357,7 @@ public partial class MainWindow : Window
         {
             await service.StartAsync();
             web?.Dispose(); Container.Children.Clear();
-            web = new WebView2CompositionControl(); Container.Children.Add(web); SyncWebVisibility();
+            web = new WebView2CompositionControl { DefaultBackgroundColor = System.Drawing.Color.FromArgb(247, 247, 247) }; Container.Children.Add(web); SyncWebVisibility();
             var environment = await CoreWebView2Environment.CreateAsync(null, Path.Combine(service.Root, "web-cache"));
             await web.EnsureCoreWebView2Async(environment);
             var core = web.CoreWebView2;

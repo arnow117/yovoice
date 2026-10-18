@@ -31,6 +31,8 @@ import { Selector } from '../shared/selector';
 import { ConfirmDelete } from '../shared/ui/app-dialog';
 import { call, isDesktop, mediaUrl, saveAudio } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
+import { dismissSplash } from '../shared/lib/splash';
+import { IntroScreen } from './intro-screen';
 import { formatNotice } from '../shared/i18n/format';
 import { isKokoroModel, isYuE, isVoiceModel, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
 import { AssistantPanel } from '../features/assistant/assistant-panel';
@@ -182,6 +184,25 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     setTrack(refresh); setPreviewTrack(refresh);
   }, [state.voices, state.history, ready, setDraft]);
   useEffect(() => { setPreviewTrack(null); setTrack(current => current ? { ...current, playRequest: undefined } : null); }, [page]);
+  // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来。
+  // 首次启动在界面就绪后显示开场画面；点击「开始探索」后记入偏好，以后只显示简短的加载动画。
+  // 设置里的「重新播放」只当场再看一次，不改动已保存的偏好。
+  const [introDone, setIntroDone] = useState(false);
+  const [introReplay, setIntroReplay] = useState(false);
+  useEffect(() => {
+    const replay = () => setIntroReplay(true);
+    window.addEventListener('workbench-show-intro', replay);
+    return () => window.removeEventListener('workbench-show-intro', replay);
+  }, []);
+  const showIntro = ready && !error && ((!state.preferences.introSeen && !introDone) || introReplay);
+  const finishIntro = () => {
+    setIntroReplay(false);
+    if (state.preferences.introSeen || introDone) return;
+    setIntroDone(true);
+    void call('preferences.save', { ...state.preferences, introSeen: true }).catch(e => setError(noticeMessage(e)));
+  };
+  // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来；开场画面与启动动画同一造型，直接接续。
+  useEffect(() => { if (error || showIntro) dismissSplash(true); else if (ready) dismissSplash(); }, [ready, error, showIntro]);
   useEffect(() => { if (ready) setDraft(current => Timeline.accept(normalizeDraft(current), state.history)); }, [state.history, draft.id, ready, setDraft]);
   // 生成前的准备清单：缺模型、推理引擎或参考音频时在创作区顶部就地补齐。
   const setup = setupSteps(draft, state, catalog, engine);
@@ -430,5 +451,6 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     {voiceEditor ? <VoiceEditor item={voiceEditor} close={() => setVoiceEditor(null)} /> : null}
     {voicePicker ? <Suspense fallback={<p role="status">{t('@yovoice.app.loadingVoicePicker')}</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={voice => { if ((activeSpeaker || draft.performance) && voicePicker !== 'add') { changeSpeaker(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); } else selectVoice(voice); }} /></Suspense> : null}
     {pronunciation ? <PronunciationDialog pronunciation={pronunciation} setPronunciation={setPronunciation} draft={draft} change={change} editor={editor} /> : null}
+    {showIntro ? <IntroScreen onStart={finishIntro} /> : null}
   </VStack>;
 }

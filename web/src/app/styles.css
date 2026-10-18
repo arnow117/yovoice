@@ -844,6 +844,80 @@
   .now-playing .now-playing-mark.astryx-button { background: var(--now-playing-ink); color: hsl(var(--now-playing-hue) 30% 10%); }
   .now-playing .now-playing-mark.astryx-button:hover:not(:disabled) { background: var(--now-playing-ink); filter: brightness(1.08); }
   @media (max-width: 760px) { .now-playing-stage { flex-direction: column; row-gap: var(--spacing-6); } .now-playing-side { width: min(70vw, 36vh); } }
+  /* 首次启动开场（约 8 秒）：深色舞台上粒子汇成声波条，文字随后依次出现。
+     这是品牌时刻，配色取自应用图标（深青、青色、米白），不随浅色主题变化。 */
+  .intro-screen { position: fixed; inset: 0; z-index: 1000; overflow: hidden; color: #fff; text-align: center;
+    background: radial-gradient(90% 70% at 50% 42%, #06272A 0%, #031416 45%, #000 100%); }
+  .intro-screen[data-leaving] { animation: intro-leave 800ms cubic-bezier(.2, .8, .2, 1) forwards; pointer-events: none; }
+  .intro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .intro-glow { position: absolute; left: 50%; top: 38%; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, rgb(25 195 205 / .2), rgb(25 195 205 / 0)); filter: blur(10px); opacity: 0; animation: intro-fade 2400ms ease 3400ms forwards; }
+  .intro-copy { position: absolute; inset-inline: var(--spacing-8); top: calc(38% + 150px); }
+  /* 名字：立体挤出。h1 本身是品牌青的侧面（矢量 text-shadow 逐层加深，转动时依然锐利），
+     ::after 是米白正面并叠一道掠过的高光。 */
+  .intro-word { position: relative; margin: 0 0 var(--spacing-3); font: 700 72px/1.05 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; letter-spacing: -.03em;
+    color: #0E8C93; text-shadow: 0 1px 0 #14A8B1, 0 2px 0 #0F969E, 0 3px 0 #0C848B, 0 4px 0 #0A7379, 0 5px 0 #086268, 0 6px 0 #065358, 0 7px 0 #05464A, 0 8px 0 #043A3D, 0 20px 26px rgb(0 0 0 / .55);
+    animation: intro-word-in 1600ms cubic-bezier(.16, 1.1, .3, 1) 4700ms both, intro-word-turn 7s ease-in-out 6300ms infinite; }
+  .intro-word::after { content: attr(data-text); position: absolute; inset: 0; text-shadow: none; color: transparent;
+    background: linear-gradient(110deg, transparent 42%, rgb(255 255 255 / .95) 50%, transparent 58%) 160% 0 / 260% 100% no-repeat, linear-gradient(180deg, #FFFFFF 0%, #F7F2EA 52%, #DCD2C2 100%);
+    -webkit-background-clip: text; background-clip: text; animation: intro-word-sheen 4.2s cubic-bezier(.45, 0, .2, 1) 6400ms infinite; }
+  /* 标语：提亮、减重，字距从很宽收拢到正常，同时由模糊变清晰。 */
+  .intro-tagline { margin: 0; font: 400 22px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Segoe UI", sans-serif; letter-spacing: .08em; color: rgb(226 242 242 / .86);
+    animation: intro-track 1400ms cubic-bezier(.2, .8, .2, 1) 5500ms both; }
+  /* 四种创作方式：玻璃质感胶囊，图标放进带青色光的小圆徽章，入场带一点 3D 翻转。 */
+  .intro-kinds { margin-top: var(--spacing-8); }
+  .intro-kind { padding: 6px var(--spacing-4) 6px 6px; border-radius: var(--radius-full); font: 500 14px/1 -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", sans-serif; letter-spacing: .02em; color: #E3F3F3;
+    background: linear-gradient(180deg, rgb(255 255 255 / .11), rgb(255 255 255 / .03)); border: 1px solid rgb(255 255 255 / .14);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .16), 0 10px 26px rgb(0 0 0 / .35); backdrop-filter: blur(16px) saturate(1.3);
+    animation: intro-kind-in 900ms cubic-bezier(.16, 1.1, .3, 1) both; }
+  .intro-kind-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: var(--radius-full); color: #A6F2F5;
+    background: radial-gradient(circle at 30% 25%, rgb(25 195 205 / .5), rgb(25 195 205 / .12) 70%); box-shadow: inset 0 0 0 1px rgb(25 195 205 / .4); }
+  .intro-kind:nth-child(1) { animation-delay: 6100ms; }
+  .intro-kind:nth-child(2) { animation-delay: 6250ms; }
+  .intro-kind:nth-child(3) { animation-delay: 6400ms; }
+  .intro-kind:nth-child(4) { animation-delay: 6550ms; }
+  /* 「开始探索」：发光的立体胶囊（顶部高光、底部内阴影、青色光晕），箭头随悬停前移，定期有一道光扫过。 */
+  .intro-cta { position: relative; overflow: hidden; isolation: isolate; height: 54px; margin-top: var(--spacing-8); padding: 0 26px 0 32px; gap: 10px; border: 0; border-radius: var(--radius-full);
+    font: 600 16px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Segoe UI", sans-serif; letter-spacing: .08em; color: #03292C;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F3FAF9 55%, #DCEEED 100%);
+    box-shadow: inset 0 1px 0 #FFFFFF, inset 0 -3px 6px rgb(0 70 75 / .16), 0 0 0 1px rgb(255 255 255 / .55), 0 14px 34px rgb(0 0 0 / .45), 0 0 46px rgb(25 195 205 / .32);
+    transition: transform 300ms cubic-bezier(.2, .8, .2, 1), box-shadow 300ms;
+    animation: intro-rise 900ms cubic-bezier(.16, 1.12, .3, 1) 7300ms backwards, intro-cta-glow 3.2s ease-in-out 8400ms infinite; }
+  /* 动画会盖过普通样式：悬停时只保留入场动画（同名同参数，不会重播），让悬停光晕和上浮生效。 */
+  .intro-cta:hover { animation: intro-rise 900ms cubic-bezier(.16, 1.12, .3, 1) 7300ms backwards; background: linear-gradient(180deg, #FFFFFF 0%, #F6FCFB 55%, #E3F3F2 100%); transform: translateY(-2px);
+    box-shadow: inset 0 1px 0 #FFFFFF, inset 0 -3px 6px rgb(0 70 75 / .14), 0 0 0 1px rgb(255 255 255 / .7), 0 18px 40px rgb(0 0 0 / .5), 0 0 64px rgb(25 195 205 / .55); }
+  .intro-cta:active { transform: translateY(0) scale(.98); }
+  /* 按钮出现时会自动获得焦点，焦点框一直可见，所以用细而淡的青色，不抢画面。 */
+  .intro-cta:focus, .intro-cta:focus-visible { outline: 1.5px solid rgb(120 232 238 / .55); outline-offset: 4px; }
+  /* Astryx 按钮内部包着文字的那层容器默认是块级并带溢出截断：改成横排，颜色直接写在文字与箭头上（容器自带颜色会盖过继承）。 */
+  .intro-cta span:has(> .intro-cta-label) { display: inline-flex; align-items: center; gap: 6px; overflow: visible; }
+  .intro-cta-label, .intro-cta-arrow { position: relative; z-index: 1; color: #03292C; }
+  .intro-cta-arrow { transition: transform 300ms cubic-bezier(.2, .8, .2, 1); }
+  .intro-cta:hover .intro-cta-arrow { transform: translateX(4px); }
+  .intro-cta-sheen { position: absolute; inset: 0; z-index: 0; pointer-events: none; transform: translateX(-130%);
+    background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / .95) 46%, rgb(160 238 242 / .55) 54%, transparent 68%); animation: intro-cta-sheen 3.6s cubic-bezier(.45, 0, .2, 1) 8200ms infinite; }
+  /* 矮窗口（最低 600px）：文字上移、字号和间距收紧，按钮不出画面。 */
+  @media (max-height: 760px) {
+    .intro-copy { top: calc(38% + 112px); }
+    .intro-word { font-size: 54px; }
+    .intro-kinds, .intro-cta { margin-top: var(--spacing-5); }
+  }
+  @keyframes intro-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes intro-rise { from { opacity: 0; transform: translateY(14px) scale(.97); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+  @keyframes intro-word-sheen { 0% { background-position: 160% 0, 0 0; } 55%, 100% { background-position: -60% 0, 0 0; } }
+  @keyframes intro-track { from { opacity: 0; letter-spacing: .5em; filter: blur(8px); } to { opacity: 1; letter-spacing: .08em; filter: none; } }
+  @keyframes intro-kind-in { from { opacity: 0; transform: translateY(16px) rotateX(-50deg); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+  @keyframes intro-cta-glow { 0%, 100% { box-shadow: inset 0 1px 0 #FFFFFF, inset 0 -3px 6px rgb(0 70 75 / .16), 0 0 0 1px rgb(255 255 255 / .55), 0 14px 34px rgb(0 0 0 / .45), 0 0 46px rgb(25 195 205 / .32); }
+    50% { box-shadow: inset 0 1px 0 #FFFFFF, inset 0 -3px 6px rgb(0 70 75 / .16), 0 0 0 1px rgb(255 255 255 / .6), 0 14px 34px rgb(0 0 0 / .45), 0 0 62px rgb(25 195 205 / .5); } }
+  @keyframes intro-cta-sheen { 0% { transform: translateX(-130%); } 45%, 100% { transform: translateX(130%); } }
+  @keyframes intro-word-in { from { opacity: 0; transform: translateZ(-400px) rotateX(40deg) rotateY(-25deg); } to { opacity: 1; transform: rotateX(8deg) rotateY(-10deg); } }
+  @keyframes intro-word-turn { 0%, 100% { transform: rotateX(8deg) rotateY(-10deg); } 50% { transform: rotateX(6deg) rotateY(10deg); } }
+  @keyframes intro-leave { to { opacity: 0; transform: scale(1.04); filter: blur(6px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .intro-glow, .intro-word, .intro-word::after, .intro-tagline, .intro-kind, .intro-cta, .intro-cta-sheen { animation: none; }
+    .intro-glow { opacity: 1; }
+    .intro-word { transform: rotateX(8deg) rotateY(-10deg); }
+  }
   @media (prefers-reduced-motion: reduce) {
     .now-playing, .now-playing[data-leaving], .now-playing-sync, .now-playing::before, .now-playing::after, .now-playing-line[data-instrumental][data-state="current"] { animation: none; }
     .now-playing-line { transition-delay: 0s; }

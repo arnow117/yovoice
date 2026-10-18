@@ -70,9 +70,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.center()
+        // 本地服务启动前的占位：与网页启动动画同底色，文字居中，避免先闪一下左下角的系统样式。
         let loading = NSTextField(labelWithString: HostL10n.t("loading"))
-        loading.frame = NSRect(x: 40, y: 40, width: 400, height: 30)
-        window.contentView?.addSubview(loading)
+        loading.textColor = .secondaryLabelColor
+        loading.alignment = .center
+        loading.translatesAutoresizingMaskIntoConstraints = false
+        if let content = window.contentView {
+            content.addSubview(loading)
+            NSLayoutConstraint.activate([loading.centerXAnchor.constraint(equalTo: content.centerXAnchor), loading.centerYAnchor.constraint(equalTo: content.centerYAnchor)])
+        }
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         do { try startService() } catch { showError(error) }

@@ -3790,5 +3790,17 @@
   },
   "@yovoice.assistant.askScore": {
     "defaultMessage": "给当前编曲作品写谱：{brief}（目标时长约 {seconds} 秒）"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "让文字发声，把灵感谱成歌"
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "开始探索"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "开场动画"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "重新播放"
   }
 }

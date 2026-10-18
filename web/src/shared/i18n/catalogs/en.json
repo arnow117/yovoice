@@ -3790,5 +3790,17 @@
   },
   "@yovoice.assistant.askScore": {
     "defaultMessage": "Write an arrangement for this score work: {brief} (about {seconds} seconds)"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "Give your words a voice. Compose your ideas into songs."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "Start exploring"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "Intro animation"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "Replay"
   }
 }

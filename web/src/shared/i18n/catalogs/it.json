@@ -3790,5 +3790,17 @@
   },
   "@yovoice.assistant.askScore": {
     "defaultMessage": "Scrivi un arrangiamento per questa partitura: {brief} (circa {seconds} secondi)"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "Dai voce alle tue parole. Trasforma le idee in canzoni."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "Inizia a esplorare"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "Animazione di benvenuto"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "Riproduci di nuovo"
   }
 }

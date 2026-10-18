@@ -3790,5 +3790,17 @@
   },
   "@yovoice.assistant.askScore": {
     "defaultMessage": "このスコア作品の編曲を書いて：{brief}（約 {seconds} 秒）"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "言葉に声を、ひらめきを歌に。"
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "さっそく始める"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "オープニングアニメーション"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "もう一度再生"
   }
 }

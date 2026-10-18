@@ -3790,5 +3790,17 @@
   },
   "@yovoice.assistant.askScore": {
     "defaultMessage": "Écris un arrangement pour cette partition : {brief} (environ {seconds} secondes)"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "Donnez une voix à vos mots. Faites de vos idées des chansons."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "Commencer l’exploration"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "Animation d’accueil"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "Rejouer"
   }
 }

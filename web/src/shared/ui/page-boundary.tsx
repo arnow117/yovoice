@@ -4,6 +4,7 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { CircleAlert } from 'lucide-react';
 import { reportDesktop } from '../lib/bridge';
+import { dismissSplash } from '../lib/splash';
 import { call } from '../lib/client';
 import { resolveInitialUiLocale } from '../i18n/locale';
 
@@ -27,6 +28,7 @@ class Boundary extends Component<BoundaryProps, BoundaryState> {
     return props.resetKey !== state.resetKey ? { error: null, resetKey: props.resetKey } : null;
   }
   componentDidCatch(error: Error, info: ErrorInfo) {
+    dismissSplash(true);
     reportDesktop('render', this.props.name, `${error.stack ?? String(error)}\n${info.componentStack ?? ''}`);
   }
   render() {
