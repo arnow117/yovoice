@@ -3175,5 +3175,89 @@
   },
   "@yovoice.music.tagHint.rap": {
     "defaultMessage": "Flow rap rapide et rythmé"
+  },
+  "@yovoice.book.import": {
+    "defaultMessage": "Importer un livre"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "Fichier du livre"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "Importer un livre"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "Titre"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "Tous les chapitres · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "{count} sélectionnés · {chars} caractères"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "Partie {n}"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "Suivant : distribuer les rôles"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "Retour"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "Rôles et voix"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "{chapters} chapitres · {roles} personnages · {lines} lignes"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "La narration et les dialogues sont séparés par les guillemets, et les locuteurs repérés grâce à des tournures comme « dit Alice ». Vous pourrez corriger chaque ligne dans le projet."
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "Distribuer avec l'IA"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model} distribue les rôles {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "La sortie de l'IA était inutilisable pour {count} passages ; ils gardent le résultat automatique."
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "Écouter {name}"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "Voix de {name}"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "{count} lignes"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "Dialogue sans locuteur"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "Masculine"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "Féminine"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "Créer {count} projets"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "Le fichier est trop volumineux. Les manuscrits texte sont limités à 16 Mo et les EPUB à 32 Mo."
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "Impossible de lire cet EPUB. Vérifiez qu'il n'est ni protégé par DRM ni endommagé."
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "Importez un livre au format TXT, Markdown ou EPUB."
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "L'IA distribue les rôles"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "L'IA a distribué les rôles"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "Échec de la distribution par l'IA"
   }
 }

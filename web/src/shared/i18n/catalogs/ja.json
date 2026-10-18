@@ -3175,5 +3175,89 @@
   },
   "@yovoice.music.tagHint.rap": {
     "defaultMessage": "速いリズムのラップ"
+  },
+  "@yovoice.book.import": {
+    "defaultMessage": "小説を取り込む"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "小説ファイル"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "小説を取り込む"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "書名"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "すべての章 · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "{count} 章を選択 · {chars} 文字"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "パート {n}"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "次へ：配役"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "戻る"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "配役とボイス"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "{chapters} 章 · {roles} 人の登場人物 · {lines} 行"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "引用符と「〇〇は言った」などの表現から、地の文とセリフを分け話者を判定しました。作成後に作品内で1行ずつ修正できます。"
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "AI で配役"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model} が配役中 {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "{count} 区間の AI 出力が使えなかったため、自動判定の結果を残しました。"
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "{name} を試聴"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "{name} のボイス"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "{count} 行"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "話者不明のセリフ"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "男性"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "女性"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "{count} 件の作品を作成"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "ファイルが大きすぎます。テキスト原稿は 16 MB、EPUB は 32 MB までです。"
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "この EPUB を読み込めません。DRM 保護や破損がないか確認してください。"
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "TXT、Markdown、EPUB 形式の小説を取り込んでください。"
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "AI が配役中"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "AI が配役しました"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "AI の配役に失敗しました"
   }
 }

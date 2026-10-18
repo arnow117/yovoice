@@ -3175,5 +3175,89 @@
   },
   "@yovoice.music.tagHint.rap": {
     "defaultMessage": "Быстрая ритмичная подача рэпа"
+  },
+  "@yovoice.book.import": {
+    "defaultMessage": "Импорт книги"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "Файл книги"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "Импорт книги"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "Название"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "Все главы · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "Выбрано: {count} · {chars} символов"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "Часть {n}"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "Далее: распределить роли"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "Назад"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "Роли и голоса"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "Глав: {chapters} · ролей: {roles} · реплик: {lines}"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "Повествование и диалог разделены по кавычкам, говорящие определены по оборотам вроде «сказала Алиса». Любую реплику можно исправить в проекте."
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "Распределить с ИИ"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model} распределяет роли {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "Ответ ИИ не подошёл для фрагментов: {count}; там сохранён автоматический результат."
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "Прослушать: {name}"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "Голос для {name}"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "Реплик: {count}"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "Диалог без говорящего"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "Мужской"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "Женский"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "Создать проекты: {count}"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "Файл слишком большой. Текстовая рукопись — до 16 МБ, EPUB — до 32 МБ."
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "Не удалось прочитать EPUB. Проверьте, что файл не защищён DRM и не повреждён."
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "Импортируйте книгу в формате TXT, Markdown или EPUB."
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "ИИ распределяет роли"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "ИИ распределил роли"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "ИИ не смог распределить роли"
   }
 }

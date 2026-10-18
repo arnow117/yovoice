@@ -8,6 +8,7 @@ import { useTranslator } from '@astryxdesign/core/i18n';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { PanelLeft, PanelRight, Check, Disc3, Download, History, Plus, LoaderCircle, MoreHorizontal, Save } from 'lucide-react';
 import { NewProject, Projects } from '../features/library/projects';
+import { BookImport } from '../features/library/book-import';
 import { VoiceTarget } from '../features/library/voice-target';
 import { MediaLibrary } from '../features/library/media-library';
 import { CharacterEditor, CharacterLibrary } from '../features/library/characters';
@@ -162,6 +163,11 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   async function newDraft(next: Draft) {
     if (draftPersisted) await persistDraft(draft); await persistDraft(next);
     setDraft(normalizeDraft(next)); setPage('create');
+  }
+  // 整本书导入的多个章节作品：倒序保存让第一章排在最前，最后打开第一章。
+  async function importBook(drafts: Draft[]) {
+    for (const item of drafts.slice(1).reverse()) await call('draft.save', item);
+    await newDraft(drafts[0]);
   }
   function selectDraft(item: Draft) { run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(normalizeDraft(item.id === draft.id ? draft : item)); setDraftPersisted(true); setPage('create'); }); }
   function selectVoice(voice: Voice) { if (voicePicker !== 'add') change(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); }
@@ -332,7 +338,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
         </Studio>
           </PageBoundary></VStack>
           {(['story', 'music', 'score'] as const).map(kind => <VStack key={kind} className="page-panel" gap={0} style={{ display: page === kind ? 'flex' : 'none' }}><PageBoundary name={`projects-${kind}`}>
-            <Projects onError={onError} kind={kind} drafts={projectList} open={selectDraft} history={openHistory} create={<NewProject kind={kind} locale={state.preferences.uiLocale} modelId={defaultModelId} create={newDraft} onError={onError} />} copy={item => run(() => newDraft({ ...structuredClone(item), id: crypto.randomUUID().replaceAll('-', ''), title: (item.title + t('@yovoice.draft.copySuffix')).slice(0, 120), createdAt: undefined, updatedAt: undefined }))} remove={setDeleteTarget} save={async next => { await persistDraft(draft); await persistDraft(next); if (next.id === draft.id) setDraft(next); }} />
+            <Projects onError={onError} kind={kind} drafts={projectList} open={selectDraft} history={openHistory} create={kind === 'story' ? <HStack gap={2} vAlign="center"><BookImport state={state} modelId={defaultModelId} configureAI={() => openSettings(defaultModelId, 'ai')} create={importBook} onError={onError} /><NewProject kind={kind} locale={state.preferences.uiLocale} modelId={defaultModelId} create={newDraft} onError={onError} /></HStack> : <NewProject kind={kind} locale={state.preferences.uiLocale} modelId={defaultModelId} create={newDraft} onError={onError} />} copy={item => run(() => newDraft({ ...structuredClone(item), id: crypto.randomUUID().replaceAll('-', ''), title: (item.title + t('@yovoice.draft.copySuffix')).slice(0, 120), createdAt: undefined, updatedAt: undefined }))} remove={setDeleteTarget} save={async next => { await persistDraft(draft); await persistDraft(next); if (next.id === draft.id) setDraft(next); }} />
           </PageBoundary></VStack>)}
           <VStack id="voice-library-panel" className="page-panel" gap={0} style={{ display: page === 'characters' ? 'flex' : 'none' }}><PageBoundary name="characters">
             <CharacterLibrary controls={libraryTabs} active={page === 'characters' && !voiceTarget && !characterActive} create={createVoice} state={state} catalog={catalog} edit={editCharacter} apply={setVoiceTarget} onError={onError} />

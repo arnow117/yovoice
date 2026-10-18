@@ -3175,5 +3175,89 @@
   },
   "@yovoice.music.tagHint.rap": {
     "defaultMessage": "Schneller, rhythmischer Rap"
+  },
+  "@yovoice.book.import": {
+    "defaultMessage": "Buch importieren"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "Buchdatei"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "Buch importieren"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "Titel"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "Alle Kapitel · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "{count} ausgewählt · {chars} Zeichen"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "Teil {n}"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "Weiter: Rollen besetzen"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "Zurück"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "Rollen und Stimmen"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "{chapters} Kapitel · {roles} Figuren · {lines} Zeilen"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "Erzähltext und Dialog werden anhand der Anführungszeichen getrennt, Sprecher an Wendungen wie „sagte Alice“ erkannt. Jede Zeile lässt sich danach im Projekt korrigieren."
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "Mit KI besetzen"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model} besetzt Rollen {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "Die KI-Ausgabe war für {count} Abschnitte unbrauchbar; dort bleibt das automatische Ergebnis."
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "{name} anhören"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "Stimme für {name}"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "{count} Zeilen"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "Dialog ohne Sprecher"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "Männlich"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "Weiblich"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "{count} Projekte erstellen"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "Die Datei ist zu groß. Textmanuskripte dürfen bis 16 MB, EPUB-Dateien bis 32 MB groß sein."
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "Diese EPUB-Datei kann nicht gelesen werden. Prüfen Sie, ob sie DRM-geschützt oder beschädigt ist."
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "Importieren Sie ein Buch als TXT, Markdown oder EPUB."
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "KI besetzt Rollen"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "KI hat die Rollen besetzt"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "KI-Besetzung fehlgeschlagen"
   }
 }

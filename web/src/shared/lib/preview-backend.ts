@@ -234,12 +234,12 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     return { url: '' } as T;
   }
   // 预览模拟 AI 后台任务的生命周期：开始后短暂运行，再以“仅桌面可用”结束，便于检查界面闭环。
-  if (method === 'ai.score' || method === 'ai.lyrics') {
-    const input = data as { projectId: string; brief: string };
+  if (method === 'ai.score' || method === 'ai.lyrics' || method === 'ai.cast') {
+    const input = method === 'ai.cast' ? { projectId: '', brief: (data as { title: string }).title } : data as { projectId: string; brief: string };
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
     if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
-    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.score' ? 'score' : method === 'ai.cast' ? 'cast' : 'lyrics', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
     state.aiTask = task; publish();
     setTimeout(() => {
       if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;

@@ -371,6 +371,21 @@ func (w *Workbench) setAIStage(stage string) {
 	}, false)
 }
 
+// setAIProgress 更新分段任务的进度。
+func (w *Workbench) setAIProgress(done, total int) {
+	w.ai.mu.Lock()
+	id := w.ai.task
+	w.ai.mu.Unlock()
+	if id == "" {
+		return
+	}
+	_ = w.Store.Update(func(s *schema.State) {
+		if s.AITask != nil && s.AITask.ID == id && s.AITask.Status == "running" {
+			s.AITask.Done, s.AITask.Total = done, total
+		}
+	}, false)
+}
+
 // CancelAI 取消正在进行的 AI 任务。
 func (w *Workbench) CancelAI() {
 	w.ai.mu.Lock()
