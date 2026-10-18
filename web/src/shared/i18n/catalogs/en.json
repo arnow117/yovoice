@@ -3041,9 +3041,6 @@
   "@yovoice.assistant.newChat": {
     "defaultMessage": "New chat"
   },
-  "@yovoice.assistant.newChatDivider": {
-    "defaultMessage": "New chat"
-  },
   "@yovoice.assistant.expand": {
     "defaultMessage": "Expand panel"
   },
@@ -3127,5 +3124,47 @@
   },
   "@yovoice.assistant.chip.dubPrompt": {
     "defaultMessage": "Start voice generation for this story"
+  },
+  "@yovoice.assistant.history": {
+    "defaultMessage": "History"
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "Back to chat"
+  },
+  "@yovoice.assistant.historyCount": {
+    "defaultMessage": "{count} chats"
+  },
+  "@yovoice.assistant.historyMeta": {
+    "defaultMessage": "{count} msgs · {time}"
+  },
+  "@yovoice.assistant.historyEmpty": {
+    "defaultMessage": "No chats yet."
+  },
+  "@yovoice.assistant.deleteChat": {
+    "defaultMessage": "Delete chat: {title}"
+  },
+  "@yovoice.assistant.deleteConfirm": {
+    "defaultMessage": "Delete"
+  },
+  "@yovoice.assistant.justNow": {
+    "defaultMessage": "just now"
+  },
+  "@yovoice.assistant.minutesAgo": {
+    "defaultMessage": "{count}m ago"
+  },
+  "@yovoice.assistant.hoursAgo": {
+    "defaultMessage": "{count}h ago"
+  },
+  "@yovoice.assistant.copy": {
+    "defaultMessage": "Copy"
+  },
+  "@yovoice.assistant.copied": {
+    "defaultMessage": "Copied"
+  },
+  "@yovoice.assistant.contextOn": {
+    "defaultMessage": "Includes current page and work. Click to stop attaching context."
+  },
+  "@yovoice.assistant.contextOff": {
+    "defaultMessage": "No context attached. Click to attach current page and work."
   }
 }

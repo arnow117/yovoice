@@ -170,8 +170,14 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "assistant.cancel":
 		w.CancelAssistant()
 		return true, nil
-	case "assistant.reset":
-		return true, w.ResetAssistant()
+	case "assistant.sessions":
+		return w.SessionsAssistant(), nil
+	case "assistant.open":
+		return true, w.OpenAssistantSession(p.ID)
+	case "assistant.new":
+		return w.NewAssistantSession()
+	case "assistant.delete":
+		return true, w.DeleteAssistantSession(p.ID)
 	case "diag.client":
 		// 界面侧的异常（桥接超时、未捕获错误）写入同一份服务日志，便于对照排查。
 		var input struct {

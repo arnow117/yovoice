@@ -236,8 +236,7 @@ func childEnv(root string, options Options, extra []string) []string {
 		}
 	}
 	env = append(env, options.ExtraEnv...)
-	env = append(env, extra...)
-	return append(env, "OCHO_CONFIG_DIR="+filepath.Join(root, "assistant", "config"))
+	return append(env, extra...)
 }
 
 func systemPromptPath(root string) string { return filepath.Join(root, "assistant", "system.md") }

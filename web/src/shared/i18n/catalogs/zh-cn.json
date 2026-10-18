@@ -3041,9 +3041,6 @@
   "@yovoice.assistant.newChat": {
     "defaultMessage": "新对话"
   },
-  "@yovoice.assistant.newChatDivider": {
-    "defaultMessage": "新对话"
-  },
   "@yovoice.assistant.expand": {
     "defaultMessage": "展开面板"
   },
@@ -3127,5 +3124,47 @@
   },
   "@yovoice.assistant.chip.dubPrompt": {
     "defaultMessage": "对当前故事作品发起配音生成"
+  },
+  "@yovoice.assistant.history": {
+    "defaultMessage": "历史"
+  },
+  "@yovoice.assistant.back": {
+    "defaultMessage": "返回对话"
+  },
+  "@yovoice.assistant.historyCount": {
+    "defaultMessage": "{count} 个会话"
+  },
+  "@yovoice.assistant.historyMeta": {
+    "defaultMessage": "{count} 条 · {time}"
+  },
+  "@yovoice.assistant.historyEmpty": {
+    "defaultMessage": "还没有历史会话。"
+  },
+  "@yovoice.assistant.deleteChat": {
+    "defaultMessage": "删除会话：{title}"
+  },
+  "@yovoice.assistant.deleteConfirm": {
+    "defaultMessage": "删除"
+  },
+  "@yovoice.assistant.justNow": {
+    "defaultMessage": "刚刚"
+  },
+  "@yovoice.assistant.minutesAgo": {
+    "defaultMessage": "{count} 分钟前"
+  },
+  "@yovoice.assistant.hoursAgo": {
+    "defaultMessage": "{count} 小时前"
+  },
+  "@yovoice.assistant.copy": {
+    "defaultMessage": "复制"
+  },
+  "@yovoice.assistant.copied": {
+    "defaultMessage": "已复制"
+  },
+  "@yovoice.assistant.contextOn": {
+    "defaultMessage": "附带当前页面与作品上下文，点击不再附带"
+  },
+  "@yovoice.assistant.contextOff": {
+    "defaultMessage": "不附带上下文，点击恢复"
   }
 }

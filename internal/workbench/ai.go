@@ -313,8 +313,9 @@ func proxyEnv(p schema.Preferences) []string {
 		"NO_PROXY=localhost,127.0.0.1,::1", "no_proxy=localhost,127.0.0.1,::1"}
 }
 
-// assistantConfig 由当前服务配置组装助手子进程配置；ocho 缺失与服务未配置分别报错。
-func (w *Workbench) assistantConfig() (assistant.Config, error) {
+// assistantConfig 由当前服务配置组装某个会话的助手子进程配置；ocho 缺失与服务未配置分别报错。
+// 每个会话有独立的 OCHO_CONFIG_DIR（切换会话即重启子进程），长期记忆目录所有会话共享。
+func (w *Workbench) assistantConfig(sessionID string) (assistant.Config, error) {
 	executable, err := platform.OchoExecutable()
 	if err != nil {
 		return assistant.Config{}, msg.Err(msg.ErrAssistantMissing, nil)
@@ -326,7 +327,13 @@ func (w *Workbench) assistantConfig() (assistant.Config, error) {
 	if c.Model == "" {
 		return assistant.Config{}, msg.Err(msg.ErrAINotConfigured, nil)
 	}
-	return assistant.Config{Executable: executable, Model: c.Model, Env: append(providerEnv(p, c), proxyEnv(w.Store.Read().Preferences)...)}, nil
+	// 会话目录预先建好：ocho 首次启动要往里写自己的配置。
+	if err = os.MkdirAll(assistantSessionDir(w.Store.Root, sessionID), 0700); err != nil {
+		return assistant.Config{}, err
+	}
+	env := append(providerEnv(p, c), proxyEnv(w.Store.Read().Preferences)...)
+	env = append(env, "OCHO_CONFIG_DIR="+assistantSessionDir(w.Store.Root, sessionID), "OCHO_MEMORY_DIR="+assistantMemoryDir(w.Store.Root))
+	return assistant.Config{Executable: executable, Model: c.Model, Env: env}, nil
 }
 
 // stopAI 取消进行中的一键授权，服务关闭时调用。

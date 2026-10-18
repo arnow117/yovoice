@@ -5,13 +5,12 @@ import (
 	"yovoice/internal/msg"
 )
 
-// 助手对话状态：消息列表持久化（面板重开可见），进行中的一轮与界面事件只随状态广播、不入库。
+// 助手对话状态：会话与消息持久化（面板重开可见），进行中的一轮与界面事件只随状态广播、不入库。
 
-// AssistantMessage 是助手对话中的一条消息：用户消息只有 Text；助手消息含文本与工具卡片；
-// Role 为 divider 时是新对话的分隔，正文为空。
+// AssistantMessage 是助手对话中的一条消息：用户消息只有 Text；助手消息含文本与工具卡片。
 type AssistantMessage struct {
 	ID          string              `json:"id"`
-	Role        string              `json:"role"` // user、assistant 或 divider
+	Role        string              `json:"role"` // user 或 assistant
 	Text        string              `json:"text,omitempty"`
 	Tools       []AssistantToolCard `json:"tools,omitempty"`
 	Status      string              `json:"status,omitempty"` // 助手消息的结束状态：completed、cancelled、failed
@@ -28,14 +27,27 @@ type AssistantToolCard struct {
 	State   string `json:"state,omitempty"` // running、done 或 error
 }
 
-// AssistantChat 是持久化的对话记录，SessionID 标识当前段对话，新对话后更换。
-type AssistantChat struct {
-	SessionID string             `json:"sessionId"`
+// AssistantSession 是一段助手对话：标题取首条用户消息，消息数量有上限；
+// 每个会话对应独立的助手子进程时间线（数据目录按会话区分）。
+type AssistantSession struct {
+	ID        string             `json:"id"`
+	Title     string             `json:"title"`
 	Messages  []AssistantMessage `json:"messages"`
+	UpdatedAt time.Time          `json:"updatedAt"`
 }
 
-// AssistantChatLimit 是对话记录的保存上限，超出时丢弃最旧的消息。
-const AssistantChatLimit = 200
+// AssistantSessions 是助手会话集合，CurrentID 指向面板当前打开的会话。
+type AssistantSessions struct {
+	CurrentID string             `json:"currentId"`
+	Sessions  []AssistantSession `json:"sessions"`
+}
+
+const (
+	// AssistantSessionLimit 是保留的会话数上限，超出时丢弃最旧的会话。
+	AssistantSessionLimit = 50
+	// AssistantChatLimit 是单个会话的消息上限，超出时丢弃最旧的消息。
+	AssistantChatLimit = 200
+)
 
 // AssistantTurn 是正在运行的一轮对话的实时状态：流式文本与工具卡片。
 type AssistantTurn struct {

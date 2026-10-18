@@ -65,12 +65,35 @@ test('助手对话：发送后流式回复，工具卡片联动编辑器与页�
   await panel.getByRole('button', { name: /停止|Stop/ }).click();
   await expect(panel.getByText('已停止')).toBeVisible();
   await expect(panel.getByRole('textbox')).toBeVisible();
-  // 新对话：出现分隔，之后的消息继续可用。
+  // 助手回复可复制。
+  await panel.getByRole('button', { name: '复制', exact: true }).first().click();
+  await expect(panel.getByRole('button', { name: '已复制', exact: true }).first()).toBeVisible();
+  // 上下文标签显示当前作品，可点掉不附带。
+  await expect(panel.locator('.assistant-context')).toContainText('示例小步舞曲');
+  await panel.locator('.assistant-context').click();
+  await expect(panel.locator('.assistant-context')).toHaveClass(/off/);
+  await panel.locator('.assistant-context').click();
+  // 新会话：面板清空，标题回默认。
   await panel.getByRole('button', { name: '新对话', exact: true }).click();
-  await expect(panel.getByText('新对话').last()).toBeVisible();
+  await expect(panel.getByText('用一句话让助手动手')).toBeVisible();
   await panel.getByRole('textbox').fill('你好');
   await panel.getByRole('textbox').press('Enter');
   await expect(panel.getByText('你好', { exact: true }).first()).toBeVisible();
+  await expect(panel.getByText('好的，我先看了作品列表。').first()).toBeVisible();
+  // 历史抽屉：两个会话按更新时间列出，可切换回旧会话、可删除。
+  await panel.getByTestId('assistant-history-toggle').click();
+  const history = page.getByTestId('assistant-history');
+  await expect(history).toContainText('2 个会话');
+  await expect(history).toContainText('帮我写四小节钢琴旋律');
+  await panel.screenshot({ path: `${shots}/assistant-history.png` });
+  await history.getByRole('button', { name: '帮我写四小节钢琴旋律', exact: true }).click();
+  await expect(panel.getByText('新建了《示例小步舞曲》').first()).toBeVisible();
+  await panel.getByTestId('assistant-history-toggle').click();
+  await history.getByRole('button', { name: /删除会话：你好/ }).click();
+  await history.getByRole('button', { name: '删除', exact: true }).click();
+  await expect(history).toContainText('1 个会话');
+  await history.getByRole('button', { name: '返回对话', exact: true }).click();
+  await expect(history).toHaveCount(0);
   // 展开/收起为右侧全高面板。
   await panel.getByRole('button', { name: '展开面板', exact: true }).click();
   await expect(panel).toHaveClass(/expanded/);
@@ -95,7 +118,7 @@ test('编辑器 AI 写作入口：提交即进助手对话，面板自动打开'
   // 需求作为一条消息进入面板，输入框清空。
   const panel = page.getByTestId('assistant-panel');
   await expect(panel).toBeVisible();
-  await expect(panel.getByText('给当前编曲作品写谱：温暖舒缓的钢琴', { exact: false })).toBeVisible();
+  await expect(panel.getByText('给当前编曲作品写谱：温暖舒缓的钢琴', { exact: false }).last()).toBeVisible();
   await expect(composer.getByRole('textbox', { name: '描述想要的配乐' })).toHaveValue('');
 });
 

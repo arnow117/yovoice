@@ -35,7 +35,7 @@ func TestChatStreamsTextAndToolCards(t *testing.T) {
 	streamed, ran := false, false
 	var lastLive *schema.AssistantLive
 	deadline := time.After(30 * time.Second)
-	for !(lastLive != nil && lastLive.Turn == nil && lastLive.Queued == 0 && len(w.Store.Read().AssistantChat.Messages) >= 2) {
+	for !(lastLive != nil && lastLive.Turn == nil && lastLive.Queued == 0 && len(currentMessages(w)) >= 2) {
 		select {
 		case <-changes:
 		case <-deadline:
@@ -53,7 +53,7 @@ func TestChatStreamsTextAndToolCards(t *testing.T) {
 	if !ran || !streamed {
 		t.Fatalf("应看到运行中的实时文本：ran=%v streamed=%v", ran, streamed)
 	}
-	messages := w.Store.Read().AssistantChat.Messages
+	messages := currentMessages(w)
 	reply := messages[len(messages)-1]
 	if reply.Role != "assistant" || reply.Status != "completed" || reply.Text != "你好，列表在此。" {
 		t.Fatalf("助手消息不对：%+v", reply)
@@ -84,9 +84,15 @@ func TestChatQueuesWhileRunning(t *testing.T) {
 	if len(messages) != 6 {
 		t.Fatalf("应有 6 条消息：%+v", messages)
 	}
+	// 用户消息发送即入库；三条回复按发送顺序在本轮结束后依次写入。
 	for i, want := range []string{"一", "二", "三"} {
-		if messages[i*2].Text != want || messages[i*2+1].Text != (map[int]string{0: "第一", 1: "第二", 2: "第二"}[i]) {
-			t.Fatalf("第 %d 轮顺序不对：%+v", i, messages)
+		if messages[i].Role != "user" || messages[i].Text != want {
+			t.Fatalf("用户消息顺序不对：%+v", messages)
+		}
+	}
+	for i, want := range []string{"第一", "第二", "第二"} {
+		if messages[3+i].Role != "assistant" || messages[3+i].Text != want {
+			t.Fatalf("回复顺序不对：%+v", messages)
 		}
 	}
 }
@@ -118,39 +124,98 @@ func TestChatCancel(t *testing.T) {
 	}
 }
 
-// 新对话：存一条分隔并换会话 ID，下一条消息带“新话题”前缀发给助手。
-func TestChatReset(t *testing.T) {
+// 多会话：标题取首条用户消息；切换会话用各自的助手配置目录（子进程随之重启）；
+// 新建、列表、删除都作用于状态与配置目录。
+func TestAssistantSessions(t *testing.T) {
 	echo := filepath.Join(t.TempDir(), "user-messages.txt")
 	w := aiWorkbench(t, fakeocho.Plan{EchoUser: echo, Turns: [][]fakeocho.Step{{
+		{Assistant: "第一段"},
 		{Result: "success"},
 	}, {
+		{Assistant: "第二段"},
 		{Result: "success"},
 	}}})
-	must(t, w.SendAssistant("第一个话题", AssistantContext{Page: "score", WorkID: "abc", WorkTitle: "示例", WorkKind: "score", Locale: schema.UiLocaleZhCN}))
-	waitChatIdle(t, w)
-	before := w.Store.Read().AssistantChat.SessionID
-	must(t, w.ResetAssistant())
-	after := w.Store.Read().AssistantChat
-	if after.SessionID == before {
-		t.Fatal("新对话应换会话 ID")
+	must(t, w.SendAssistant("第一个话题开头", AssistantContext{Page: "score", Locale: schema.UiLocaleZhCN}))
+	messages := waitChatIdle(t, w)
+	if len(messages) != 2 || messages[1].Text != "第一段" {
+		t.Fatalf("首轮消息不对：%+v", messages)
 	}
-	divider := after.Messages[len(after.Messages)-1]
-	if divider.Role != "divider" {
-		t.Fatalf("应存一条分隔：%+v", divider)
+	state := w.Store.Read().AssistantSessions
+	first := state.CurrentID
+	if session := assistantSessionByID(w.Store.Read(), first); session == nil || session.Title != "第一个话题开头" {
+		t.Fatalf("会话标题应取首条用户消息：%+v", state.Sessions)
+	}
+	// 新建并切换：新会话为空且成为当前，第二轮回复写入新会话。
+	created, err := w.NewAssistantSession()
+	must(t, err)
+	if w.Store.Read().AssistantSessions.CurrentID != created.ID {
+		t.Fatal("新会话应成为当前会话")
 	}
 	must(t, w.SendAssistant("第二个话题", AssistantContext{}))
-	waitChatIdle(t, w)
-	raw, err := os.ReadFile(echo)
+	messages = waitChatIdle(t, w)
+	if len(messages) != 2 || messages[1].Text != "第二段" {
+		t.Fatalf("新会话的消息不对：%+v", messages)
+	}
+	if session := assistantSessionByID(w.Store.Read(), first); len(session.Messages) != 2 {
+		t.Fatal("旧会话不应被新会话写入")
+	}
+	if sessions := w.SessionsAssistant(); len(sessions) != 2 || sessions[0].ID == first && sessions[0].UpdatedAt.Before(sessions[1].UpdatedAt) {
+		t.Fatalf("会话列表应按更新时间排序：%+v", sessions)
+	}
+	// 切换回旧会话：配置目录不变时复用子进程，切换即换目录重启。
+	must(t, w.OpenAssistantSession(first))
+	if w.Store.Read().AssistantSessions.CurrentID != first {
+		t.Fatal("应切回旧会话")
+	}
+	if err = w.OpenAssistantSession("missing"); err == nil {
+		t.Fatal("切换到不存在的会话应报错")
+	}
+	// 删除会话：状态与配置目录都移除，当前切到剩余会话。
+	second := created.ID
+	must(t, w.DeleteAssistantSession(second))
+	if assistantSessionByID(w.Store.Read(), second) != nil {
+		t.Fatal("会话应被删除")
+	}
+	if _, err = os.Stat(assistantSessionDir(w.Store.Root, second)); !os.IsNotExist(err) {
+		t.Fatal("会话配置目录应被删除")
+	}
+	if w.Store.Read().AssistantSessions.CurrentID != first {
+		t.Fatal("删除当前会话后应切到剩余会话")
+	}
+}
+
+// 会话切换重启助手子进程：每个会话独立的 OCHO_CONFIG_DIR 经子进程环境注入，长期记忆共享。
+func TestAssistantSessionRestartsChild(t *testing.T) {
+	dump := filepath.Join(t.TempDir(), "dump.txt")
+	turn := func() []fakeocho.Step { return []fakeocho.Step{{AssistantPID: true}, {Result: "success"}} }
+	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{turn(), turn(), turn()}}, fakeocho.DumpEnv+"="+dump)
+	pidFile := filepath.Join(w.Store.Root, "assistant", "ocho.pid")
+	ask := func() string {
+		t.Helper()
+		must(t, w.SendAssistant("写一段", AssistantContext{}))
+		waitChatIdle(t, w)
+		b, err := os.ReadFile(pidFile)
+		must(t, err)
+		return strings.TrimSpace(string(b))
+	}
+	first := ask()
+	if again := ask(); again != first {
+		t.Fatalf("同一会话应复用子进程：%s != %s", first, again)
+	}
+	created, err := w.NewAssistantSession()
 	must(t, err)
-	parts := strings.Split(strings.TrimSuffix(string(raw), "\n"), "\n--MSG--\n")
-	if len(parts) != 2 {
-		t.Fatalf("应收到两条用户消息：%q", raw)
+	_ = created
+	if restarted := ask(); restarted == first {
+		t.Fatal("切换会话应重启子进程")
 	}
-	if strings.Contains(parts[0], "新对话开始") || !strings.Contains(parts[0], "<ui_context>") || !strings.Contains(parts[0], "示例") || !strings.Contains(parts[0], "arrangement") {
-		t.Fatalf("首条消息应带界面上下文：%q", parts[0])
+	raw, err := os.ReadFile(dump)
+	must(t, err)
+	text := string(raw)
+	if !strings.Contains(text, "OCHO_CONFIG_DIR="+assistantSessionDir(w.Store.Root, w.Store.Read().AssistantSessions.CurrentID)) {
+		t.Fatal("子进程环境应包含当前会话的配置目录")
 	}
-	if !strings.Contains(parts[1], "新对话开始") {
-		t.Fatalf("新对话后的首条消息应带新话题前缀：%q", parts[1])
+	if !strings.Contains(text, "OCHO_MEMORY_DIR="+assistantMemoryDir(w.Store.Root)) {
+		t.Fatal("子进程环境应包含共享的长期记忆目录")
 	}
 }
 
@@ -181,20 +246,29 @@ func TestChatSendValidation(t *testing.T) {
 	}
 }
 
-// 会话记录有上限：超过 200 条时丢弃最旧的。
+// 单个会话的消息有上限：超过 200 条时丢弃最旧的；会话数量超过 50 个时丢弃最旧的会话。
 func TestChatHistoryLimit(t *testing.T) {
 	w, err := New(t.TempDir())
 	must(t, err)
 	defer w.Close()
+	created, err := w.NewAssistantSession()
+	must(t, err)
 	for i := range schema.AssistantChatLimit + 5 {
-		w.appendChat(schema.AssistantMessage{ID: string(rune('a' + i%26)), Role: "user", Text: strings.Repeat("x", i+1), CreatedAt: time.Now()})
+		w.appendChat(created.ID, schema.AssistantMessage{ID: string(rune('a' + i%26)), Role: "user", Text: strings.Repeat("x", i+1), CreatedAt: time.Now()})
 	}
-	messages := w.Store.Read().AssistantChat.Messages
+	messages := assistantSessionByID(w.Store.Read(), created.ID).Messages
 	if len(messages) != schema.AssistantChatLimit {
 		t.Fatalf("应截断到 %d 条，实际 %d", schema.AssistantChatLimit, len(messages))
 	}
 	if messages[0].Text != strings.Repeat("x", 6) {
 		t.Fatalf("应保留最新的消息：%+v", messages[0])
+	}
+	for range schema.AssistantSessionLimit + 2 {
+		_, err = w.NewAssistantSession()
+		must(t, err)
+	}
+	if sessions := w.Store.Read().AssistantSessions.Sessions; len(sessions) != schema.AssistantSessionLimit {
+		t.Fatalf("会话应截断到 %d 个，实际 %d", schema.AssistantSessionLimit, len(sessions))
 	}
 }
 
@@ -206,14 +280,11 @@ func TestChatMessagePrefix(t *testing.T) {
 	d := schema.DefaultDraft()
 	d.Title, d.Kind = "夜色钢琴", "score"
 	must(t, w.SaveDraft(d))
-	text := w.chatMessageText(chatMessage{text: "改一下", context: AssistantContext{Page: "score", WorkID: d.ID, WorkTitle: "旧标题", Locale: schema.UiLocaleZhCN}}, false)
+	text := w.chatMessageText(chatMessage{text: "改一下", context: AssistantContext{Page: "score", WorkID: d.ID, WorkTitle: "旧标题", Locale: schema.UiLocaleZhCN}})
 	if !strings.Contains(text, "page: arrangement") || !strings.Contains(text, `"夜色钢琴"`) || !strings.Contains(text, "kind score") || !strings.Contains(text, "ui_locale: zh-CN") || !strings.HasSuffix(text, "改一下") {
 		t.Fatalf("上下文前缀不对：%q", text)
 	}
-	fresh := w.chatMessageText(chatMessage{text: "新开始", context: AssistantContext{Locale: schema.UiLocaleEn}}, true)
-	if !strings.Contains(fresh, "新对话开始") || !strings.Contains(fresh, "ui_locale: en") || !strings.HasSuffix(fresh, "新开始") {
-		t.Fatalf("新话题前缀不对：%q", fresh)
-	}
+
 }
 
 // 作品工具的创建、读取与事件：create_work 落盘并发跳转事件，get_work 不带时间线。
@@ -421,6 +492,18 @@ func TestChatEndToEndCreateAndUpdate(t *testing.T) {
 	if live.Update == nil || live.Update.WorkID != id {
 		t.Fatalf("应发出作品刷新事件：%+v", live)
 	}
+}
+
+// currentMessages 返回当前会话的消息。
+func currentMessages(w *Workbench) []schema.AssistantMessage {
+	s := w.Store.Read()
+	if s.AssistantSessions == nil {
+		return nil
+	}
+	if session := assistantSessionByID(s, s.AssistantSessions.CurrentID); session != nil {
+		return session.Messages
+	}
+	return nil
 }
 
 // waitFor 轮询状态直到条件满足或超时。

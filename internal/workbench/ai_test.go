@@ -278,11 +278,14 @@ func waitChatIdle(t *testing.T, w *Workbench) []schema.AssistantMessage {
 		if live := s.AssistantLive; live != nil && (live.Turn != nil || live.Queued > 0) {
 			return nil
 		}
-		chat := s.AssistantChat
-		if chat == nil || len(chat.Messages) == 0 || chat.Messages[len(chat.Messages)-1].Role == "user" {
+		if s.AssistantSessions == nil {
 			return nil
 		}
-		return chat.Messages
+		session := assistantSessionByID(s, s.AssistantSessions.CurrentID)
+		if session == nil || len(session.Messages) == 0 || session.Messages[len(session.Messages)-1].Role == "user" {
+			return nil
+		}
+		return session.Messages
 	}
 	for {
 		if messages := idle(w.Store.Read()); messages != nil {

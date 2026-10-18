@@ -100,7 +100,7 @@ var settingFields = []setting{
 	{"activity", func(s *schema.State) any { return &s.Activity }},
 	{"modelActivity", func(s *schema.State) any { return &s.ModelActivity }},
 	{"aiProviderID", func(s *schema.State) any { return &s.AIProviderID }},
-	{"assistantChat", func(s *schema.State) any { return &s.AssistantChat }},
+	{"assistantSessions", func(s *schema.State) any { return &s.AssistantSessions }},
 }
 
 // sessionFields 只属于本次会话，不写入数据库。

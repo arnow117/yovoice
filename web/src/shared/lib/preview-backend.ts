@@ -1,6 +1,6 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AssistantLive, type AssistantToolCard, type AssistantToolCardState, type LocalAPIStatus } from '../workbench';
+import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AssistantLive, type AssistantSession, type AssistantToolCard, type AssistantToolCardState, type LocalAPIStatus } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 
@@ -44,6 +44,24 @@ function publish() {
 }
 
 export function subscribePreview(listener: (state: State) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; }
+
+
+// 预览的助手会话：与真实后端一致，当前会话由 currentId 指向，消息写入当前会话。
+function currentSession(state: State): AssistantSession | undefined {
+  return state.assistantSessions?.sessions.find(session => session.id === state.assistantSessions?.currentId);
+}
+
+function touchSession(state: State): AssistantSession {
+  const sessions = state.assistantSessions ?? { currentId: '', sessions: [] };
+  state.assistantSessions = sessions;
+  let session = currentSession(state);
+  if (!session) {
+    session = { id: crypto.randomUUID().replaceAll('-', ''), title: '', messages: [], updatedAt: new Date().toISOString() };
+    sessions.sessions.unshift(session);
+    sessions.currentId = session.id;
+  }
+  return session;
+}
 
 export async function previewCall<T>(method: string, data: unknown): Promise<T> {
   const state = preview();
@@ -240,9 +258,10 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!assistant.available) throw new CallError('@yovoice.error.assistantMissing');
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
-    const chat = state.assistantChat ?? { sessionId: crypto.randomUUID().replaceAll('-', ''), messages: [] };
+    const chat = touchSession(state);
     chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'user', text: input.text, createdAt: new Date().toISOString() });
-    state.assistantChat = chat;
+    if (!chat.title) chat.title = input.text.split('\n')[0].slice(0, 24);
+    chat.updatedAt = new Date().toISOString();
     const tools: AssistantToolCard[] = [];
     const live: AssistantLive = state.assistantLive ?? {};
     state.assistantLive = live;
@@ -293,7 +312,7 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     setTimeout(() => {
       if (!live.turn) return;
       chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn?.text ?? '', tools: [...tools], status: 'completed', createdAt: new Date().toISOString() });
-      state.assistantChat = { ...chat };
+      chat.updatedAt = new Date().toISOString();
       live.turn = undefined;
       live.queued = 0;
       publish();
@@ -303,20 +322,39 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
   if (method === 'assistant.cancel') {
     const live = state.assistantLive;
     if (live?.turn) {
-      const chat = state.assistantChat;
+      const chat = currentSession(state);
       chat?.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn.text ?? '', tools: live.turn.tools ?? [], status: 'cancelled', createdAt: new Date().toISOString() });
-      state.assistantChat = chat ? { ...chat } : undefined;
       live.turn = undefined;
       live.queued = 0;
       publish();
     }
     return true as T;
   }
-  if (method === 'assistant.reset') {
-    const chat = state.assistantChat ?? { sessionId: crypto.randomUUID().replaceAll('-', ''), messages: [] };
-    chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'divider', createdAt: new Date().toISOString() });
-    state.assistantChat = { ...chat, sessionId: crypto.randomUUID().replaceAll('-', '') };
+  if (method === 'assistant.sessions') {
+    return [...(state.assistantSessions?.sessions ?? [])].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) as T;
+  }
+  if (method === 'assistant.new') {
+    const sessions = state.assistantSessions ?? { currentId: '', sessions: [] };
+    const session: AssistantSession = { id: crypto.randomUUID().replaceAll('-', ''), title: '', messages: [], updatedAt: new Date().toISOString() };
+    sessions.sessions = [session, ...sessions.sessions];
+    sessions.currentId = session.id;
+    state.assistantSessions = sessions;
     if (state.assistantLive?.turn) { state.assistantLive.turn = undefined; state.assistantLive.queued = 0; }
+    publish();
+    return structuredClone(session) as T;
+  }
+  if (method === 'assistant.open') {
+    const id = (data as { id: string }).id;
+    if (!state.assistantSessions?.sessions.some(session => session.id === id)) throw new CallError('@yovoice.error.requestInvalid');
+    state.assistantSessions.currentId = id;
+    publish();
+    return true as T;
+  }
+  if (method === 'assistant.delete') {
+    const id = (data as { id: string }).id;
+    const sessions = (state.assistantSessions?.sessions ?? []).filter(session => session.id !== id);
+    const currentId = state.assistantSessions?.currentId === id ? sessions[0]?.id ?? '' : state.assistantSessions?.currentId ?? '';
+    state.assistantSessions = { currentId, sessions };
     publish();
     return true as T;
   }

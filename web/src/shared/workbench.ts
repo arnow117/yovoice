@@ -103,8 +103,8 @@ export interface State {
   characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
   aiProviders?: AIProvider[]; aiProviderID?: string;
-  /** 助手对话的持久化记录与仅广播的实时状态，与 Go 的 schema.AssistantChat/Live 一致。 */
-  assistantChat?: AssistantChat; assistantLive?: AssistantLive;
+  /** 助手会话的持久化记录与仅广播的实时状态，与 Go 的 schema.AssistantSessions/Live 一致。 */
+  assistantSessions?: AssistantSessions; assistantLive?: AssistantLive;
   /** state.get 附带的随包 AI 助手运行时可用性：缺失时 AI 写作入口禁用。 */
   assistantMissing?: boolean;
 }
@@ -114,15 +114,17 @@ export interface AITest { ok: boolean; code?: string; params?: Record<string, un
 export interface AIProvider { id: string; preset: string; name: string; format: string; baseURL: string; modelsPath: string; model: string; models?: string[]; keyMask?: string; lastTest?: AITest }
 export const aiTimeoutDefault = 600;
 
-// 助手对话记录与实时状态，与 Go 的 schema.Assistant* 一致。
-export type AssistantMessageRole = 'user' | 'assistant' | 'divider';
+// 助手会话记录与实时状态，与 Go 的 schema.Assistant* 一致。
+export type AssistantMessageRole = 'user' | 'assistant';
 export type AssistantToolCardState = 'running' | 'done' | 'error';
 export interface AssistantToolCard { tool: string; summary?: string; args?: string; state?: AssistantToolCardState }
 export interface AssistantMessage {
   id: string; role: AssistantMessageRole; text?: string; tools?: AssistantToolCard[];
   status?: 'completed' | 'cancelled' | 'failed'; errorCode?: MessageCode; errorParams?: MessageParams; createdAt: string;
 }
-export interface AssistantChat { sessionId: string; messages: AssistantMessage[] }
+/** 一段助手对话：每个会话对应独立的助手时间线。 */
+export interface AssistantSession { id: string; title: string; messages: AssistantMessage[]; updatedAt: string }
+export interface AssistantSessions { currentId: string; sessions: AssistantSession[] }
 export interface AssistantTurn { text?: string; tools?: AssistantToolCard[]; model?: string; startedAt: string }
 export interface AssistantNav { id: string; workId?: string; page?: string }
 export interface AssistantUpdate { id: string; workId: string }

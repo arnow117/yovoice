@@ -36,8 +36,14 @@ func TestSmokeAssistantChat(t *testing.T) {
 	must(t, w.SendAssistant("新建一个编曲作品，写四小节的钢琴旋律，直接写进作品里。", AssistantContext{Page: "score", Locale: schema.UiLocaleZhCN}))
 	deadline := time.After(10 * time.Minute)
 	for {
-		messages := w.Store.Read().AssistantChat
-		if messages != nil && len(messages.Messages) >= 2 && messages.Messages[len(messages.Messages)-1].Status != "" {
+		sessions := w.Store.Read().AssistantSessions
+		var last schema.AssistantMessage
+		if sessions != nil {
+			if session := assistantSessionByID(w.Store.Read(), sessions.CurrentID); session != nil && len(session.Messages) > 0 {
+				last = session.Messages[len(session.Messages)-1]
+			}
+		}
+		if last.Status != "" && last.Role == "assistant" {
 			break
 		}
 		select {
@@ -46,8 +52,9 @@ func TestSmokeAssistantChat(t *testing.T) {
 			t.Fatal("冒烟对话超时未结束")
 		}
 	}
-	reply := w.Store.Read().AssistantChat.Messages
-	last := reply[len(reply)-1]
+	sessions := w.Store.Read().AssistantSessions
+	messages := assistantSessionByID(w.Store.Read(), sessions.CurrentID).Messages
+	last := messages[len(messages)-1]
 	if last.Status != "completed" {
 		t.Fatalf("对话失败：%+v", last)
 	}

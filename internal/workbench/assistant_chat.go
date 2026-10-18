@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -13,8 +16,8 @@ import (
 	"yovoice/internal/schema"
 )
 
-// 助手对话：用户消息交给内置助手一轮一轮地跑，运行中再发的消息排队到本轮结束后；
-// 流式文本与工具卡片经状态广播给界面，会话记录持久化（有上限）。
+// 助手对话：多个会话（每个会话对应独立的助手子进程时间线），用户消息一轮一轮地跑，
+// 运行中再发的消息排队到本轮结束后；流式文本与工具卡片经状态广播给界面，会话记录持久化（有上限）。
 
 // AssistantContext 是界面随每条用户消息附带的上下文，后端拼成简短前缀发给助手，不展示给用户。
 type AssistantContext struct {
@@ -25,10 +28,11 @@ type AssistantContext struct {
 	Locale    schema.UiLocale `json:"locale,omitempty"`
 }
 
-// chatMessage 是排队中的一条用户消息。
+// chatMessage 是排队中的一条用户消息，sessionID 记录它属于哪个会话。
 type chatMessage struct {
-	text    string
-	context AssistantContext
+	sessionID string
+	text      string
+	context   AssistantContext
 }
 
 // chatState 管理对话循环与当前一轮。
@@ -38,7 +42,6 @@ type chatState struct {
 	stopped bool // 服务关闭后拒绝新消息
 	cancel  context.CancelFunc
 	queue   []chatMessage
-	fresh   bool // 新对话后的首条消息加“新话题”前缀
 	// turn 是当前一轮的实时数据；事件回调与工具处理器并发读写，由锁保护。
 	turn *chatTurn
 }
@@ -53,7 +56,17 @@ type chatTurn struct {
 	startedAt time.Time
 }
 
-// SendAssistant 接收一条用户消息：立即入库并开始（或排队）一轮助手回复。
+// assistantSessionDir 返回某个会话的助手子进程配置目录。
+func assistantSessionDir(root, sessionID string) string {
+	return filepath.Join(root, "assistant", "sessions", sessionID)
+}
+
+// assistantMemoryDir 返回所有会话共享的助手长期记忆目录。
+func assistantMemoryDir(root string) string {
+	return filepath.Join(root, "assistant", "memory")
+}
+
+// SendAssistant 接收一条用户消息：写入当前会话（没有则新建）并开始（或排队）一轮助手回复。
 func (w *Workbench) SendAssistant(text string, context AssistantContext) error {
 	text = strings.TrimSpace(text)
 	if text == "" || schema.TextLen(text) > 2000 {
@@ -64,12 +77,29 @@ func (w *Workbench) SendAssistant(text string, context AssistantContext) error {
 			context.Locale = ""
 		}
 	}
+	sessionID, err := w.ensureAssistantSession()
+	if err != nil {
+		return err
+	}
+	// 用户消息立即入库：标题取首条用户消息，会话时间随之更新。
+	now := time.Now().UTC()
+	_ = w.Store.Update(func(s *schema.State) {
+		session := assistantSessionByID(*s, sessionID)
+		if session == nil {
+			return
+		}
+		session.Messages = append(session.Messages, schema.AssistantMessage{ID: schema.NewID(), Role: "user", Text: text, CreatedAt: now})
+		session.UpdatedAt = now
+		if session.Title == "" {
+			session.Title = sessionTitle(text)
+		}
+	}, true)
 	w.chat.mu.Lock()
 	if w.chat.stopped {
 		w.chat.mu.Unlock()
 		return msg.Err(msg.ErrBusy, nil)
 	}
-	w.chat.queue = append(w.chat.queue, chatMessage{text: text, context: context})
+	w.chat.queue = append(w.chat.queue, chatMessage{sessionID: sessionID, text: text, context: context})
 	start := !w.chat.running
 	w.chat.running = true
 	w.chat.mu.Unlock()
@@ -96,19 +126,115 @@ func (w *Workbench) CancelAssistant() {
 	}
 }
 
-// ResetAssistant 开始新的一段对话：取消进行中的一轮、清空排队、存一条分隔并换会话 ID。
-// 助手的长期记忆不清；下一条消息会告知助手新话题开始。
-func (w *Workbench) ResetAssistant() error {
-	w.CancelAssistant()
-	w.chat.mu.Lock()
-	w.chat.fresh = true
-	w.chat.mu.Unlock()
-	w.appendChat(schema.AssistantMessage{ID: schema.NewID(), Role: "divider", CreatedAt: time.Now().UTC()})
-	return w.Store.Update(func(s *schema.State) {
-		if s.AssistantChat != nil {
-			s.AssistantChat.SessionID = schema.NewID()
+// SessionsAssistant 返回会话列表，按更新时间从新到旧。
+func (w *Workbench) SessionsAssistant() []schema.AssistantSession {
+	s := w.Store.Read().AssistantSessions
+	sessions := append([]schema.AssistantSession{}, s.Sessions...)
+	sort.SliceStable(sessions, func(i, j int) bool { return sessions[i].UpdatedAt.After(sessions[j].UpdatedAt) })
+	return sessions
+}
+
+// NewAssistantSession 新建空会话并设为当前；超过上限时删除最旧的会话及其配置目录。
+func (w *Workbench) NewAssistantSession() (schema.AssistantSession, error) {
+	session := schema.AssistantSession{ID: schema.NewID(), Messages: []schema.AssistantMessage{}, UpdatedAt: time.Now().UTC()}
+	var removed []string
+	err := w.Store.Update(func(s *schema.State) {
+		if s.AssistantSessions == nil {
+			s.AssistantSessions = &schema.AssistantSessions{}
+		}
+		s.AssistantSessions.Sessions = append([]schema.AssistantSession{session}, s.AssistantSessions.Sessions...)
+		s.AssistantSessions.CurrentID = session.ID
+		if excess := len(s.AssistantSessions.Sessions) - schema.AssistantSessionLimit; excess > 0 {
+			for _, old := range s.AssistantSessions.Sessions[len(s.AssistantSessions.Sessions)-excess:] {
+				removed = append(removed, old.ID)
+			}
+			s.AssistantSessions.Sessions = s.AssistantSessions.Sessions[:len(s.AssistantSessions.Sessions)-excess]
 		}
 	}, true)
+	for _, id := range removed {
+		_ = os.RemoveAll(assistantSessionDir(w.Store.Root, id))
+	}
+	return session, err
+}
+
+// OpenAssistantSession 切换到某个会话；下一轮对话用该会话的助手时间线（子进程按配置目录重启）。
+func (w *Workbench) OpenAssistantSession(id string) error {
+	if assistantSessionByID(w.Store.Read(), id) == nil {
+		return msg.Err(msg.ErrRequestInvalid, nil)
+	}
+	return w.Store.Update(func(s *schema.State) {
+		if s.AssistantSessions != nil {
+			s.AssistantSessions.CurrentID = id
+		}
+	}, true)
+}
+
+// DeleteAssistantSession 删除某个会话及其配置目录；删的是当前会话时切到最近更新的其余会话。
+func (w *Workbench) DeleteAssistantSession(id string) error {
+	found := false
+	err := w.Store.Update(func(s *schema.State) {
+		if s.AssistantSessions == nil {
+			return
+		}
+		sessions := make([]schema.AssistantSession, 0, len(s.AssistantSessions.Sessions))
+		for _, session := range s.AssistantSessions.Sessions {
+			if session.ID == id {
+				found = true
+				continue
+			}
+			sessions = append(sessions, session)
+		}
+		s.AssistantSessions.Sessions = sessions
+		if s.AssistantSessions.CurrentID == id {
+			s.AssistantSessions.CurrentID = ""
+			if len(sessions) > 0 {
+				current := sessions[0]
+				for _, session := range sessions {
+					if session.UpdatedAt.After(current.UpdatedAt) {
+						current = session
+					}
+				}
+				s.AssistantSessions.CurrentID = current.ID
+			}
+		}
+	}, true)
+	if !found {
+		return msg.Err(msg.ErrRequestInvalid, nil)
+	}
+	_ = os.RemoveAll(assistantSessionDir(w.Store.Root, id))
+	return err
+}
+
+// ensureAssistantSession 返回当前会话 ID；没有会话时新建一个。
+func (w *Workbench) ensureAssistantSession() (string, error) {
+	if s := w.Store.Read(); s.AssistantSessions != nil && assistantSessionByID(s, s.AssistantSessions.CurrentID) != nil {
+		return s.AssistantSessions.CurrentID, nil
+	}
+	session, err := w.NewAssistantSession()
+	return session.ID, err
+}
+
+// assistantSessionByID 在状态里查找会话。
+func assistantSessionByID(s schema.State, id string) *schema.AssistantSession {
+	if s.AssistantSessions == nil {
+		return nil
+	}
+	for i := range s.AssistantSessions.Sessions {
+		if s.AssistantSessions.Sessions[i].ID == id {
+			return &s.AssistantSessions.Sessions[i]
+		}
+	}
+	return nil
+}
+
+// sessionTitle 由首条用户消息生成会话标题：去掉换行后截取前 24 个字。
+func sessionTitle(text string) string {
+	first := strings.TrimSpace(strings.SplitN(text, "\n", 2)[0])
+	runes := []rune(first)
+	if len(runes) > 24 {
+		return string(runes[:24]) + "…"
+	}
+	return first
 }
 
 // stopChat 取消进行中的对话并等待循环结束，服务关闭时调用。
@@ -152,27 +278,24 @@ func (w *Workbench) chatLoop() {
 		}
 		next := w.chat.queue[0]
 		w.chat.queue = w.chat.queue[1:]
-		fresh := w.chat.fresh
-		w.chat.fresh = false
 		ctx, cancel := context.WithCancel(context.Background())
 		w.chat.cancel = cancel
 		w.chat.mu.Unlock()
-		w.runTurn(ctx, next, fresh)
+		w.runTurn(ctx, next)
 		cancel()
 	}
 }
 
-// runTurn 跑一轮：用户消息入库、启动助手、实时广播、结束时写入助手消息。
-func (w *Workbench) runTurn(parent context.Context, next chatMessage, fresh bool) {
-	w.appendChat(schema.AssistantMessage{ID: schema.NewID(), Role: "user", Text: next.text, CreatedAt: time.Now().UTC()})
-	cfg, err := w.assistantConfig()
+// runTurn 跑一轮：启动该会话的助手、实时广播、结束时把助手消息写回该会话。
+func (w *Workbench) runTurn(parent context.Context, next chatMessage) {
+	cfg, err := w.assistantConfig(next.sessionID)
 	if err != nil {
 		var ce *msg.CallError
 		code, params := msg.ErrUnknown, msg.Params{"detail": err.Error()}
 		if errors.As(err, &ce) {
 			code, params = ce.Code, ce.Params
 		}
-		w.appendChat(schema.AssistantMessage{ID: schema.NewID(), Role: "assistant", Status: "failed", ErrorCode: code, ErrorParams: params, CreatedAt: time.Now().UTC()})
+		w.appendChat(next.sessionID, schema.AssistantMessage{ID: schema.NewID(), Role: "assistant", Status: "failed", ErrorCode: code, ErrorParams: params, CreatedAt: time.Now().UTC()})
 		return
 	}
 	timeout := aiTimeout(w.Store.Read().Preferences)
@@ -186,7 +309,7 @@ func (w *Workbench) runTurn(parent context.Context, next chatMessage, fresh bool
 
 	// 流式增量广播合流：状态推送带完整状态，逐字广播太频繁，这里按最小间隔合并。
 	var lastDelta time.Time
-	_, err = w.assistant.Ask(ctx, cfg, w.chatMessageText(next, fresh), func(e assistant.Event) {
+	_, err = w.assistant.Ask(ctx, cfg, w.chatMessageText(next), func(e assistant.Event) {
 		w.chat.mu.Lock()
 		switch e.Kind {
 		case assistant.EventText:
@@ -232,9 +355,9 @@ func (w *Workbench) runTurn(parent context.Context, next chatMessage, fresh bool
 			reply.ErrorCode, reply.ErrorParams = msg.ErrUnknown, msg.Params{"detail": err.Error()}
 		}
 	}
-	diag.Log(w.Store.Root, "assistant.turn_finished", "status", reply.Status, "error", diag.Error(err))
+	diag.Log(w.Store.Root, "assistant.turn_finished", "status", reply.Status, "session_id", next.sessionID, "error", diag.Error(err))
 	// 先写入回复再清除实时状态：界面看到的“空闲”帧一定带着本轮的助手消息。
-	w.appendChat(reply)
+	w.appendChat(next.sessionID, reply)
 	w.publishLive(func(live *schema.AssistantLive) { live.Turn = nil })
 }
 
@@ -290,16 +413,19 @@ func (w *Workbench) publishLive(change func(*schema.AssistantLive)) {
 	}, false)
 }
 
-// appendChat 追加一条消息并持久化，超过上限时丢弃最旧的消息。
-func (w *Workbench) appendChat(m schema.AssistantMessage) {
+// appendChat 把一条消息追加进某个会话并持久化；会话已被删除时丢弃，超过上限时丢弃最旧的消息。
+func (w *Workbench) appendChat(sessionID string, m schema.AssistantMessage) {
+	now := time.Now().UTC()
 	_ = w.Store.Update(func(s *schema.State) {
-		if s.AssistantChat == nil {
-			s.AssistantChat = &schema.AssistantChat{SessionID: schema.NewID(), Messages: []schema.AssistantMessage{}}
+		session := assistantSessionByID(*s, sessionID)
+		if session == nil {
+			return
 		}
-		s.AssistantChat.Messages = append(s.AssistantChat.Messages, m)
-		if excess := len(s.AssistantChat.Messages) - schema.AssistantChatLimit; excess > 0 {
-			s.AssistantChat.Messages = s.AssistantChat.Messages[excess:]
+		session.Messages = append(session.Messages, m)
+		if excess := len(session.Messages) - schema.AssistantChatLimit; excess > 0 {
+			session.Messages = session.Messages[excess:]
 		}
+		session.UpdatedAt = now
 	}, true)
 }
 
@@ -358,12 +484,9 @@ var pageLabels = map[string]string{
 	"settings":   "settings（设置）",
 }
 
-// chatMessageText 组装发给助手的一条用户消息：新话题提示、界面上下文前缀与用户正文。
-func (w *Workbench) chatMessageText(next chatMessage, fresh bool) string {
+// chatMessageText 组装发给助手的一条用户消息：界面上下文前缀与用户正文。
+func (w *Workbench) chatMessageText(next chatMessage) string {
 	var b strings.Builder
-	if fresh {
-		b.WriteString("（新对话开始：请忽略之前对话里提到的作品与上下文。）\n\n")
-	}
 	context := next.context
 	b.WriteString("<ui_context>\n")
 	if label, ok := pageLabels[context.Page]; ok {
