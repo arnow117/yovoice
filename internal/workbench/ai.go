@@ -311,20 +311,27 @@ func (w *Workbench) startAI(kind, projectID, brief string, work func(context.Con
 	if c.Model == "" && c.Format != llm.FormatCodex {
 		return schema.AITask{}, msg.Err(msg.ErrAINotConfigured, nil)
 	}
+	task := schema.AITask{Kind: kind, ProjectID: projectID, Brief: brief, Stage: "writing", Provider: p.Name, Model: c.Model}
+	return w.runAI(task, p.ID, work)
+}
+
+// runAI 写入任务并在后台运行 work；同一时间只运行一个 AI 任务，结束后结果或错误写回状态。
+func (w *Workbench) runAI(task schema.AITask, providerID string, work func(context.Context) (any, error)) (schema.AITask, error) {
 	w.ai.mu.Lock()
 	defer w.ai.mu.Unlock()
 	if w.ai.cancel != nil {
 		return schema.AITask{}, msg.Err(msg.ErrBusy, nil)
 	}
-	task := schema.AITask{ID: schema.NewID(), Kind: kind, ProjectID: projectID, Brief: brief, Status: "running", Stage: "writing", Provider: p.Name, Model: c.Model,
-		Timeout: int(aiTimeout(w.Store.Read().Preferences).Seconds()), StartedAt: time.Now().UTC()}
-	if e = w.Store.Update(func(s *schema.State) { s.AITask = &task }, false); e != nil {
+	kind := task.Kind
+	task.ID, task.Status, task.StartedAt = schema.NewID(), "running", time.Now().UTC()
+	task.Timeout = int(aiTimeout(w.Store.Read().Preferences).Seconds())
+	if e := w.Store.Update(func(s *schema.State) { s.AITask = &task }, false); e != nil {
 		return schema.AITask{}, e
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan struct{})
 	w.ai.cancel, w.ai.task, w.ai.done = cancel, task.ID, done
-	diag.Log(w.Store.Root, "ai.task_started", "task_id", task.ID, "kind", kind, "project_id", projectID, "provider_id", p.ID, "model", c.Model, "timeout_s", task.Timeout)
+	diag.Log(w.Store.Root, "ai.task_started", "task_id", task.ID, "kind", kind, "project_id", task.ProjectID, "provider_id", providerID, "model", task.Model, "timeout_s", task.Timeout)
 	go func() {
 		defer close(done)
 		defer cancel()

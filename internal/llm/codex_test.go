@@ -12,7 +12,7 @@ import (
 	"yovoice/internal/msg"
 )
 
-// 假的 codex：按子命令输出固定内容；exec 记录参数和输入，按 FAKE_CODEX 模拟成功、未登录、额度用完或卡住。
+// 假的 codex：按子命令输出固定内容；exec 记录参数和输入，按 FAKE_CODEX 模拟成功、生图、未出图、未登录、额度用完或卡住。
 const fakeCodex = `#!/bin/sh
 case "$1" in
 --version) echo "codex-cli 9.9.9"; exit 0 ;;
@@ -27,6 +27,8 @@ exec)
   ok) echo '{"type":"turn.started"}'; printf '{"answer":"好"}' > "$out"; exit 0 ;;
   loggedout) echo '{"type":"error","message":"Not logged in. Run codex login."}'; exit 1 ;;
   limit) echo '{"type":"turn.failed","error":{"message":"You have hit your usage limit."}}'; exit 1 ;;
+  image) echo '{"type":"thread.started","thread_id":"t-1"}'; mkdir -p "$CODEX_HOME/generated_images/t-1"; printf 'PNGDATA' > "$CODEX_HOME/generated_images/t-1/exec-1.png"; exit 0 ;;
+  noimage) echo '{"type":"thread.started","thread_id":"t-2"}'; printf '图像生成工具不可用' > "$out"; exit 0 ;;
   hang) sleep 30 ;;
   esac
   echo "boom" >&2; exit 2 ;;

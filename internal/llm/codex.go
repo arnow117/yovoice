@@ -182,7 +182,7 @@ func codexComplete(ctx context.Context, c Config, r Request) (Result, error) {
 	}
 	defer os.RemoveAll(dir)
 	last := filepath.Join(dir, "last-message.txt")
-	args := []string{"exec", "--ignore-user-config", "--ignore-rules", "--skip-git-repo-check", "--ephemeral", "--sandbox", "read-only", "--cd", dir, "--output-last-message", last, "--json", "--color", "never"}
+	args := codexExecArgs(dir, last)
 	if model := strings.TrimSpace(c.Model); model != "" {
 		args = append(args, "--model", model)
 	}

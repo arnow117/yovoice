@@ -3652,5 +3652,8 @@
   },
   "@yovoice.error.codexLimit": {
     "defaultMessage": "Your ChatGPT plan's Codex usage limit was reached or requests are too frequent. Try again later."
+  },
+  "@yovoice.error.codexNoImage": {
+    "defaultMessage": "Codex did not generate an image: {detail}"
   }
 }

@@ -3652,5 +3652,8 @@
   },
   "@yovoice.error.codexLimit": {
     "defaultMessage": "ChatGPT 訂閱的 Codex 用量已達上限或請求過於頻繁，請稍後再試。"
+  },
+  "@yovoice.error.codexNoImage": {
+    "defaultMessage": "Codex 沒有產生圖片：{detail}"
   }
 }

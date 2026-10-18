@@ -3652,5 +3652,8 @@
   },
   "@yovoice.error.codexLimit": {
     "defaultMessage": "Đã đạt hạn mức Codex của gói ChatGPT hoặc yêu cầu quá dày. Vui lòng thử lại sau."
+  },
+  "@yovoice.error.codexNoImage": {
+    "defaultMessage": "Codex không tạo được hình ảnh: {detail}"
   }
 }

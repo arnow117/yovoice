@@ -3652,5 +3652,8 @@
   },
   "@yovoice.error.codexLimit": {
     "defaultMessage": "ChatGPT プランの Codex 使用量の上限に達したか、リクエストが多すぎます。しばらくしてから再試行してください。"
+  },
+  "@yovoice.error.codexNoImage": {
+    "defaultMessage": "Codex は画像を生成しませんでした：{detail}"
   }
 }

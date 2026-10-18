@@ -3652,5 +3652,8 @@
   },
   "@yovoice.error.codexLimit": {
     "defaultMessage": "Das Codex-Nutzungslimit deines ChatGPT-Abos ist erreicht oder es gibt zu viele Anfragen. Versuche es später erneut."
+  },
+  "@yovoice.error.codexNoImage": {
+    "defaultMessage": "Codex hat kein Bild erzeugt: {detail}"
   }
 }

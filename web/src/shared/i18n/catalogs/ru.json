@@ -3652,5 +3652,8 @@
   },
   "@yovoice.error.codexLimit": {
     "defaultMessage": "Достигнут лимит использования Codex в вашей подписке ChatGPT или запросы слишком частые. Повторите позже."
+  },
+  "@yovoice.error.codexNoImage": {
+    "defaultMessage": "Codex не создал изображение: {detail}"
   }
 }

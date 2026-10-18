@@ -129,11 +129,13 @@ const (
 	ErrAIModelsPath      Code = "@yovoice.error.aiModelsPath"
 	ErrAIResultInvalid   Code = "@yovoice.error.aiResultInvalid"
 	ErrAITimeout         Code = "@yovoice.error.aiTimeout"
-	// Codex CLI：未安装、未登录、运行失败。
+	// Codex CLI：未安装、未登录、运行失败、额度用完。
 	ErrCodexMissing   Code = "@yovoice.error.codexMissing"
 	ErrCodexLoggedOut Code = "@yovoice.error.codexLoggedOut"
 	ErrCodexFailed    Code = "@yovoice.error.codexFailed"
 	ErrCodexLimit     Code = "@yovoice.error.codexLimit"
+	// Codex 运行结束但没有生成图片（工具不可用或模型拒绝），detail 为模型的说明。
+	ErrCodexNoImage Code = "@yovoice.error.codexNoImage"
 	// OrcaRouter 免费模型的四种拒绝：窗口已满、通道繁忙、单次提示超长、账号未满足免费条件。
 	ErrAIFreeRate      Code = "@yovoice.error.aiFreeRate"
 	ErrAIFreeBusy      Code = "@yovoice.error.aiFreeBusy"
@@ -215,7 +217,7 @@ func All() []Code {
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
 		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired,
 		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout,
-		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess, ErrCodexMissing, ErrCodexLoggedOut, ErrCodexFailed, ErrCodexLimit,
+		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess, ErrCodexMissing, ErrCodexLoggedOut, ErrCodexFailed, ErrCodexLimit, ErrCodexNoImage,
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,
 		ErrStorageInsideApp, ErrStorageTargetNotEmpty, ErrStorageSame, ErrStorageInsideData, ErrStorageRestart, ErrDataRootMissing, ErrDiskFull,
 		ErrLegacyRestore, ErrUnknown,

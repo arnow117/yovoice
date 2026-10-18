@@ -202,6 +202,12 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			return nil, e
 		}
 		return w.StartCast(input)
+	case "ai.image":
+		var input workbench.ImageBrief
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		return w.StartImage(input)
 	case "ai.melody":
 		var input workbench.MelodyBrief
 		if e := json.Unmarshal(data, &input); e != nil {

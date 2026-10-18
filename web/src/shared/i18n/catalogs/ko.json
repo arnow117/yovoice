@@ -3652,5 +3652,8 @@
   },
   "@yovoice.error.codexLimit": {
     "defaultMessage": "ChatGPT 요금제의 Codex 사용 한도에 도달했거나 요청이 너무 잦습니다. 잠시 후 다시 시도하세요."
+  },
+  "@yovoice.error.codexNoImage": {
+    "defaultMessage": "Codex가 이미지를 생성하지 않았습니다: {detail}"
   }
 }
