@@ -843,32 +843,45 @@
   .now-playing .now-playing-mark.astryx-button { background: var(--now-playing-ink); color: hsl(var(--now-playing-hue) 30% 10%); }
   .now-playing .now-playing-mark.astryx-button:hover:not(:disabled) { background: var(--now-playing-ink); filter: brightness(1.08); }
   @media (max-width: 760px) { .now-playing-stage { flex-direction: column; row-gap: var(--spacing-6); } .now-playing-side { width: min(70vw, 36vh); } }
-  /* 首次启动开场：与 index.html 的启动动画同一位置、同一造型，接续后约 5 秒依次展开。
-     图标方块与声波条沿用应用图标的品牌色，其余颜色用设计令牌。 */
-  .intro-screen { position: fixed; inset: 0; z-index: 1000; background: var(--color-background-body); padding: var(--spacing-8); text-align: center; transition: opacity 400ms ease; }
-  .intro-screen[data-leaving] { opacity: 0; pointer-events: none; }
-  .intro-tile { width: 96px; height: 96px; border-radius: 22px; background: linear-gradient(160deg, #004B51, #003F43); box-shadow: 0 10px 28px rgb(0 63 67 / .22); display: flex; align-items: center; justify-content: center; gap: 5px; }
-  .intro-tile i { width: 10px; height: 44px; border-radius: 5px; background: #F3EEE6; box-shadow: inset -3px 0 0 #0098A2; animation: intro-wave 1100ms ease-in-out infinite; }
-  .intro-tile i:nth-child(1) { height: 24px; animation-delay: -880ms; }
-  .intro-tile i:nth-child(2) { height: 40px; animation-delay: -660ms; }
-  .intro-tile i:nth-child(3) { height: 58px; animation-delay: -440ms; }
-  .intro-tile i:nth-child(4) { height: 38px; animation-delay: -220ms; }
-  .intro-tile i:nth-child(5) { height: 26px; }
-  /* 名字与 index.html 启动动画的字样完全一致（同字体、字号、颜色），切换时不变样。 */
-  .intro-name { font: 600 15px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .14em; color: #6B6B6B; }
-  /* 启动动画中图标与名字整体居中，高约 131px；下方内容从其底边再往下 28px 开始。 */
-  .intro-body { position: absolute; top: calc(50% + 94px); inset-inline: var(--spacing-8); }
-  .intro-tagline { margin: 0; font-family: var(--app-title-font); font-size: var(--font-size-2xl); color: var(--app-ink); animation: intro-rise 700ms 1200ms cubic-bezier(.2, .8, .2, 1) both; }
-  .intro-kinds > * { animation: intro-rise 500ms cubic-bezier(.2, .8, .2, 1) both; }
-  .intro-kinds > :nth-child(1) { animation-delay: 2200ms; }
-  .intro-kinds > :nth-child(2) { animation-delay: 2600ms; }
-  .intro-kinds > :nth-child(3) { animation-delay: 3000ms; }
-  .intro-kinds > :nth-child(4) { animation-delay: 3400ms; }
-  .intro-start { margin-top: var(--spacing-4); animation: intro-rise 600ms 4400ms cubic-bezier(.2, .8, .2, 1) both; }
-  @keyframes intro-wave { 0%, 100% { transform: scaleY(.55); } 50% { transform: scaleY(1); } }
-  @keyframes intro-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  /* 首次启动开场（约 8 秒）：深色舞台上粒子汇成声波条，文字随后依次出现。
+     这是品牌时刻，配色取自应用图标（深青、青色、米白），不随浅色主题变化。 */
+  .intro-screen { position: fixed; inset: 0; z-index: 1000; overflow: hidden; color: #fff; text-align: center;
+    background: radial-gradient(90% 70% at 50% 42%, #06272A 0%, #031416 45%, #000 100%); animation: intro-fade 500ms ease both; }
+  .intro-screen[data-leaving] { animation: intro-leave 800ms cubic-bezier(.2, .8, .2, 1) forwards; pointer-events: none; }
+  .intro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .intro-glow { position: absolute; left: 50%; top: 38%; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, rgb(25 195 205 / .2), rgb(25 195 205 / 0)); filter: blur(10px); opacity: 0; animation: intro-fade 2400ms ease 3400ms forwards; }
+  .intro-copy { position: absolute; inset-inline: var(--spacing-8); top: calc(38% + 150px); }
+  .intro-word { margin: 0; font: 600 60px/1.05 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; letter-spacing: -.02em;
+    background: linear-gradient(100deg, #9FE8EC 0%, #FFFFFF 30%, #F6F1E9 45%, #6FD9DF 60%, #FFFFFF 80%, #9FE8EC 100%); background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: intro-rise 1100ms cubic-bezier(.2, .8, .2, 1) 4700ms both, intro-shimmer 6s linear 4700ms infinite; }
+  .intro-tagline { margin: var(--spacing-3) 0 0; font-size: var(--font-size-xl); font-weight: 500; color: rgb(235 245 245 / .62); animation: intro-rise 1000ms cubic-bezier(.2, .8, .2, 1) 5500ms both; }
+  .intro-kinds { margin-top: var(--spacing-8); }
+  .intro-kind { padding: var(--spacing-2) var(--spacing-4); border-radius: var(--radius-full); font-size: var(--font-size-sm); font-weight: 500; color: #E8F6F6;
+    background: rgb(255 255 255 / .06); border: 1px solid rgb(255 255 255 / .12); backdrop-filter: blur(16px); animation: intro-rise 900ms cubic-bezier(.16, 1.12, .3, 1) both; }
+  .intro-kind svg { color: #19C3CD; }
+  .intro-kind:nth-child(1) { animation-delay: 6100ms; }
+  .intro-kind:nth-child(2) { animation-delay: 6250ms; }
+  .intro-kind:nth-child(3) { animation-delay: 6400ms; }
+  .intro-kind:nth-child(4) { animation-delay: 6550ms; }
+  .intro-cta { margin-top: var(--spacing-8); padding-inline: var(--spacing-8); border-radius: var(--radius-full); border: 0; color: #031416;
+    background: linear-gradient(180deg, #FFFFFF, #E6F2F2); box-shadow: 0 0 0 1px rgb(255 255 255 / .4), 0 10px 40px rgb(25 195 205 / .35);
+    animation: intro-rise 900ms cubic-bezier(.16, 1.12, .3, 1) 7300ms both; }
+  .intro-cta:hover { background: linear-gradient(180deg, #FFFFFF, #F1F8F8); box-shadow: 0 0 0 1px rgb(255 255 255 / .5), 0 14px 50px rgb(25 195 205 / .5); }
+  /* 矮窗口（最低 600px）：文字上移、字号和间距收紧，按钮不出画面。 */
+  @media (max-height: 760px) {
+    .intro-copy { top: calc(38% + 112px); }
+    .intro-word { font-size: 46px; }
+    .intro-kinds, .intro-cta { margin-top: var(--spacing-5); }
+  }
+  @keyframes intro-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes intro-rise { from { opacity: 0; transform: translateY(14px) scale(.97); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+  @keyframes intro-shimmer { to { background-position: -220% 0; } }
+  @keyframes intro-leave { to { opacity: 0; transform: scale(1.04); filter: blur(6px); } }
   @media (prefers-reduced-motion: reduce) {
-    .intro-tile i, .intro-tagline, .intro-kinds > *, .intro-start { animation: none; }
+    .intro-screen, .intro-glow, .intro-word, .intro-tagline, .intro-kind, .intro-cta { animation: none; }
+    .intro-glow { opacity: 1; }
   }
   @media (prefers-reduced-motion: reduce) {
     .now-playing, .now-playing[data-leaving], .now-playing-sync, .now-playing::before, .now-playing::after, .now-playing-line[data-instrumental][data-state="current"] { animation: none; }

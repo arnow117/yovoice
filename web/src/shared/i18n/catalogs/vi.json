@@ -3661,5 +3661,11 @@
   },
   "@yovoice.intro.start": {
     "defaultMessage": "Bắt đầu khám phá"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "Hoạt ảnh mở đầu"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "Phát lại"
   }
 }

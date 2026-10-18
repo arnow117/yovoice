@@ -3661,5 +3661,11 @@
   },
   "@yovoice.intro.start": {
     "defaultMessage": "さっそく始める"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "オープニングアニメーション"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "もう一度再生"
   }
 }

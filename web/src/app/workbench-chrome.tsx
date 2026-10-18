@@ -133,9 +133,21 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   useEffect(() => { setPreviewTrack(null); setTrack(current => current ? { ...current, playRequest: undefined } : null); }, [page]);
   // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来。
   // 首次启动在界面就绪后显示开场画面；点击「开始探索」后记入偏好，以后只显示简短的加载动画。
+  // 设置里的「重新播放」只当场再看一次，不改动已保存的偏好。
   const [introDone, setIntroDone] = useState(false);
-  const showIntro = ready && !error && !state.preferences.introSeen && !introDone;
-  const finishIntro = () => { setIntroDone(true); void call('preferences.save', { ...state.preferences, introSeen: true }).catch(e => setError(noticeMessage(e))); };
+  const [introReplay, setIntroReplay] = useState(false);
+  useEffect(() => {
+    const replay = () => setIntroReplay(true);
+    window.addEventListener('workbench-show-intro', replay);
+    return () => window.removeEventListener('workbench-show-intro', replay);
+  }, []);
+  const showIntro = ready && !error && ((!state.preferences.introSeen && !introDone) || introReplay);
+  const finishIntro = () => {
+    setIntroReplay(false);
+    if (state.preferences.introSeen || introDone) return;
+    setIntroDone(true);
+    void call('preferences.save', { ...state.preferences, introSeen: true }).catch(e => setError(noticeMessage(e)));
+  };
   // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来；开场画面与启动动画同一造型，直接接续。
   useEffect(() => { if (error || showIntro) dismissSplash(true); else if (ready) dismissSplash(); }, [ready, error, showIntro]);
   useEffect(() => { if (ready) setDraft(current => Timeline.accept(normalizeDraft(current), state.history)); }, [state.history, draft.id, ready, setDraft]);

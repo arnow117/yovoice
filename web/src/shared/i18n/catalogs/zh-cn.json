@@ -3661,5 +3661,11 @@
   },
   "@yovoice.intro.start": {
     "defaultMessage": "开始探索"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "开场动画"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "重新播放"
   }
 }

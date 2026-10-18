@@ -3661,5 +3661,11 @@
   },
   "@yovoice.intro.start": {
     "defaultMessage": "Jetzt entdecken"
+  },
+  "@yovoice.settings.intro": {
+    "defaultMessage": "Begrüßungsanimation"
+  },
+  "@yovoice.settings.introReplay": {
+    "defaultMessage": "Erneut abspielen"
   }
 }

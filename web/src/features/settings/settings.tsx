@@ -70,6 +70,9 @@ export function Settings({ state, catalog, engine, draft, run, focus }: { focus?
           }} placeholder="http://127.0.0.1:7890" isDisabled={savingProxy} width="calc(var(--spacing-10) * 6)" />
           <Switch label={t('@yovoice.settings.proxyEnabled')} isLabelHidden value={proxyEnabled} isLoading={savingProxy} isDisabled={savingProxy || (!proxyEnabled && !proxyURL.trim())} onChange={enabled => saveProxy(enabled)} />
         </SettingsRow>
+        <SettingsRow label={t('@yovoice.settings.intro')}>
+          <Button size="sm" label={t('@yovoice.settings.introReplay')} onClick={() => window.dispatchEvent(new Event('workbench-show-intro'))} />
+        </SettingsRow>
       </SettingsGroup>
       <StorageSettings state={state} run={run} busy={busy || modelBusy} />
       <LocalAPISettings run={run} />

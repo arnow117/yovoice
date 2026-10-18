@@ -145,4 +145,12 @@ test('首次启动显示开场画面，点「开始探索」进入主界面并�
   await page.reload();
   await expect(page.getByTestId('nav-new')).toBeVisible();
   await expect(page.getByRole('dialog', { name: 'yovoice' })).toHaveCount(0);
+  // 设置里可以重新播放，看完不影响已记住的状态。
+  await page.getByTestId('nav-settings').click();
+  await page.getByRole('button', { name: '重新播放' }).click();
+  await page.getByRole('dialog', { name: 'yovoice' }).getByRole('button', { name: '开始探索' }).click();
+  await expect(page.getByRole('dialog', { name: 'yovoice' })).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId('nav-new')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'yovoice' })).toHaveCount(0);
 });
