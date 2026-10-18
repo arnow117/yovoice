@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "ボーカル行と伴奏行の拍子または単位音価が異なります。"
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "ログ"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "ログを表示"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "時刻"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "レベル"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "情報"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "警告"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "エラー"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "イベント"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "概要"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "詳細"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "モジュール"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "すべてのレベル"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "警告以上"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "エラーのみ"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "すべてのモジュール"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "期間"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "すべての期間"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "過去 1 時間"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "過去 24 時間"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "過去 7 日間"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "検索"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "イベント、作品 ID、エラー"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "更新"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "診断パッケージを書き出し"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "ログには操作、ID、所要時間、エラーのみを記録し、本文・歌詞・キーは含みません。診断パッケージには推論エンジンの生の出力を含みません。"
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "条件に一致するログはありません。"
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "ログのページ"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "コピー"
   }
 }

@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "les lignes de voix et d’accompagnement utilisent des mesures ou des unités de note différentes."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "Journaux"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "Voir les journaux"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "Heure"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "Niveau"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "Info"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "Avertissement"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "Erreur"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "Événement"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "Résumé"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "Détails"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "Module"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "Tous les niveaux"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "Avertissements et erreurs"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "Erreurs uniquement"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "Tous les modules"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "Période"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "Toute la période"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "Dernière heure"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "Dernières 24 heures"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "7 derniers jours"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "Rechercher"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "Événement, ID de projet ou erreur"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "Actualiser"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "Exporter le diagnostic"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "Les journaux enregistrent les actions, ID, durées et erreurs, jamais les textes, paroles ou clés. Le diagnostic n’inclut pas la sortie brute du moteur d’inférence."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "Aucun journal correspondant."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "Pages du journal"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "Copier"
   }
 }

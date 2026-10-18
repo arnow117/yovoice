@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "as linhas de voz e de acompanhamento usam fórmulas de compasso ou unidades de nota diferentes."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "Logs"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "Ver logs"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "Horário"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "Nível"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "Info"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "Aviso"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "Erro"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "Evento"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "Resumo"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "Detalhes"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "Módulo"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "Todos os níveis"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "Avisos e erros"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "Somente erros"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "Todos os módulos"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "Período"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "Todo o período"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "Última hora"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "Últimas 24 horas"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "Últimos 7 dias"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "Pesquisar"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "Evento, ID do projeto ou erro"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "Atualizar"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "Exportar diagnóstico"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "Os logs registram ações, IDs, durações e erros, nunca textos, letras ou chaves. O diagnóstico não inclui a saída bruta do mecanismo de inferência."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "Nenhum log correspondente."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "Páginas do log"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "Copiar"
   }
 }

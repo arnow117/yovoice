@@ -1,9 +1,10 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type LocalAPIStatus, type MelodyInspection, type ScoreNote, aiTimeoutDefault } from '../workbench';
+import { performanceSettings, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 import { isUiLocale } from '../i18n/locale';
+import { auditedMethods, encodeError, previewExportLogs, previewLog, previewQueryLogs } from './preview-logs';
 
 // 浏览器预览的本地后端：只保存编辑和音频数据，不模拟桌面推理或模型安装。
 // 作品状态存于 localStorage（主副本加恢复备份），音频存于 IndexedDB。
@@ -46,8 +47,35 @@ function publish() {
 
 export function subscribePreview(listener: (state: State) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; }
 
+// 关键操作与桌面端一样记入日志；日志页的查询、导出和界面事件在这里直接处理。
 export async function previewCall<T>(method: string, data: unknown): Promise<T> {
+  if (method === 'logs.query') return previewQueryLogs((data ?? {}) as LogFilter) as T;
+  if (method === 'diag.client') {
+    const { event, method: source, detail } = data as { event: string; method?: string; detail?: string };
+    previewLog(`client.${event.slice(0, 40)}`, { method: source, detail: detail?.slice(0, 2000) });
+    return true as T;
+  }
+  if (method === 'logs.export') {
+    const url = URL.createObjectURL(new Blob([previewExportLogs()], { type: 'application/x-ndjson' }));
+    const link = document.createElement('a'); link.href = url; link.download = 'yovoice-preview-logs.jsonl'; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  if (!auditedMethods.has(method)) return dispatch<T>(method, data);
+  const started = performance.now(), input = (data ?? {}) as { id?: unknown; kind?: unknown; model?: unknown };
+  const fields = { id: input.id, kind: input.kind, model: input.model };
+  try {
+    const result = await dispatch<T>(method, data);
+    previewLog(method, { elapsed_ms: Math.round(performance.now() - started), ...fields });
+    return result;
+  } catch (error) {
+    previewLog(method, { elapsed_ms: Math.round(performance.now() - started), error: encodeError(error), ...fields });
+    throw error;
+  }
+}
+
+async function dispatch<T>(method: string, data: unknown): Promise<T> {
   const state = preview();
+  if (method === 'logs.export') return true as T;
   if (method === 'state.get') return { state, catalog, engine: { version: '', minimum: '' }, desktop: false } as T;
   if (method === 'character.save') {
     const character = structuredClone(data as Character);

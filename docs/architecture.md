@@ -134,7 +134,7 @@ The default location is `~/.yovoice`. It can be moved in Settings › Storage, a
 | `models/` | Installed model packages and sound fonts |
 | `runtime/` | Installed audio.cpp runtimes and `engine.pid` |
 | `downloads/` | Partial downloads and temporary conversions, cleaned on startup |
-| `logs/` | `engine.log` and service diagnostics |
+| `logs/` | Structured service log `service.log` (viewable and exportable in Settings › Logs), host logs and the raw inference output `engine.log` |
 | `host-preferences.json` | UI language for the native host, derived from the database |
 | `service.lock` | Held by the running service |
 

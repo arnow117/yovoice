@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
@@ -29,10 +30,12 @@ import (
 
 // Engine 可被并发调用：同一时间只运行一个推理请求，停止会等待当前请求结束。
 type Engine struct {
-	mu            sync.Mutex
-	root          string
-	process       *exec.Cmd
-	done          chan error
+	mu      sync.Mutex
+	root    string
+	process *exec.Cmd
+	done    chan error
+	// stopping 标记当前进程是被主动结束的，退出日志据此区分正常停止与意外退出。
+	stopping      *atomic.Bool
 	endpoint, key string
 	client        *http.Client
 }
@@ -74,6 +77,7 @@ func (e *Engine) Stop() {
 // stop 要求调用方持有 mu。
 func (e *Engine) stop() {
 	if e.process != nil {
+		e.stopping.Store(true)
 		platform.KillProcess(e.process)
 		<-e.done
 		e.process = nil
@@ -177,8 +181,24 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 	_ = os.WriteFile(pidPath(e.root), []byte(strconv.Itoa(c.Process.Pid)), 0600)
 	e.process = c
 	e.done = make(chan error, 1)
-	done := e.done
-	go func() { done <- c.Wait(); close(done) }()
+	e.stopping = new(atomic.Bool)
+	done, stopping, pid, launched := e.done, e.stopping, c.Process.Pid, time.Now()
+	diag.Log(e.root, "engine.started", "family", family, "task", task, "backend", backend, "pid", pid)
+	go func() {
+		err := c.Wait()
+		event := "engine.exited"
+		if stopping.Load() {
+			event = "engine.stopped"
+		}
+		exit := ""
+		if err != nil {
+			exit = err.Error()
+		}
+		// 意外退出时 engine.log 里有推理进程自己的错误输出。
+		diag.Log(e.root, event, "family", family, "pid", pid, "uptime_s", int(time.Since(launched).Seconds()), "exit", exit)
+		done <- err
+		close(done)
+	}()
 	e.endpoint = fmt.Sprintf("http://127.0.0.1:%d/", port)
 	attempts := 120
 	if family == "kokoro_tts" {
@@ -192,6 +212,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		select {
 		case <-e.done:
 			e.process = nil
+			diag.Log(e.root, "engine.start_failed", "family", family, "pid", pid)
 			return msg.Err(msg.ErrEngineStartFailed, nil)
 		default:
 		}
@@ -205,6 +226,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		cancel()
 		if healthy {
 			e.key = key
+			diag.Log(e.root, "engine.ready", "family", family, "pid", pid, "startup_ms", time.Since(launched).Milliseconds())
 			return nil
 		}
 		select {
@@ -213,6 +235,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		case <-time.After(250 * time.Millisecond):
 		}
 	}
+	diag.Log(e.root, "engine.start_timeout", "family", family, "pid", pid, "attempts", attempts)
 	return msg.Err(msg.ErrEngineStartTimeout, nil)
 }
 

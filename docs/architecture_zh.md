@@ -134,7 +134,7 @@ sequenceDiagram
 | `models/` | 已安装的模型包和音色库 |
 | `runtime/` | 已安装的 audio.cpp 运行时和 `engine.pid` |
 | `downloads/` | 未完成的下载和临时转换文件，启动时清理 |
-| `logs/` | `engine.log` 与服务诊断日志 |
+| `logs/` | 结构化服务日志 `service.log`（可在设置 › 日志中查看和导出诊断包）、宿主日志与推理进程原始输出 `engine.log` |
 | `host-preferences.json` | 供原生宿主读取的界面语言，由数据库派生 |
 | `service.lock` | 由运行中的服务持有 |
 

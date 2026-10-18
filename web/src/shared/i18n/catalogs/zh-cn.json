@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "人声与伴奏两行的拍号或时值单位不一致。"
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "日志"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "查看日志"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "时间"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "级别"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "信息"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "警告"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "错误"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "事件"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "摘要"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "详情"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "模块"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "全部级别"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "警告及以上"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "仅错误"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "全部模块"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "时间范围"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "全部时间"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "最近 1 小时"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "最近 24 小时"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "最近 7 天"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "搜索"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "事件、作品 ID 或错误"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "刷新"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "导出诊断包"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "日志只记录操作、ID、耗时和错误，不含正文、歌词和密钥；诊断包不包含推理进程的原始输出。"
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "没有符合条件的日志。"
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "日志分页"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "复制"
   }
 }

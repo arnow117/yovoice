@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "Gesangs- und Begleitzeile verwenden unterschiedliche Taktarten oder Notenwerte."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "Protokolle"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "Protokolle anzeigen"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "Zeit"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "Stufe"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "Info"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "Warnung"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "Fehler"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "Ereignis"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "Zusammenfassung"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "Details"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "Modul"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "Alle Stufen"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "Warnungen und Fehler"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "Nur Fehler"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "Alle Module"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "Zeitraum"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "Gesamter Zeitraum"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "Letzte Stunde"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "Letzte 24 Stunden"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "Letzte 7 Tage"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "Suchen"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "Ereignis, Projekt-ID oder Fehler"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "Aktualisieren"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "Diagnosepaket exportieren"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "Protokolle erfassen Aktionen, IDs, Dauer und Fehler, aber nie Texte, Liedtexte oder Schlüssel. Das Diagnosepaket enthält keine Rohausgabe der Inferenz-Engine."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "Keine passenden Protokolle."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "Protokollseiten"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "Kopieren"
   }
 }

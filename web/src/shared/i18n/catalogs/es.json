@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "las líneas de voz y acompañamiento usan compases o unidades de nota distintos."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "Registros"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "Ver registros"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "Hora"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "Nivel"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "Información"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "Advertencia"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "Error"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "Evento"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "Resumen"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "Detalles"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "Módulo"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "Todos los niveles"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "Advertencias y errores"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "Solo errores"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "Todos los módulos"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "Periodo"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "Todo el periodo"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "Última hora"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "Últimas 24 horas"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "Últimos 7 días"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "Buscar"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "Evento, ID de proyecto o error"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "Actualizar"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "Exportar diagnóstico"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "Los registros guardan acciones, ID, duraciones y errores, nunca textos, letras ni claves. El diagnóstico no incluye la salida sin procesar del motor de inferencia."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "No hay registros que coincidan."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "Páginas del registro"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "Copiar"
   }
 }

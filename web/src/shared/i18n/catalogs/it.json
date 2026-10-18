@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "le righe di voce e accompagnamento usano tempi o unità di nota diversi."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "Log"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "Visualizza log"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "Ora"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "Livello"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "Info"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "Avviso"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "Errore"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "Evento"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "Riepilogo"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "Dettagli"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "Modulo"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "Tutti i livelli"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "Avvisi ed errori"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "Solo errori"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "Tutti i moduli"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "Periodo"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "Tutto il periodo"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "Ultima ora"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "Ultime 24 ore"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "Ultimi 7 giorni"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "Cerca"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "Evento, ID progetto o errore"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "Aggiorna"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "Esporta diagnostica"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "I log registrano azioni, ID, durate ed errori, mai testi, liriche o chiavi. La diagnostica non include l’output grezzo del motore di inferenza."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "Nessun log corrispondente."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "Pagine del log"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "Copia"
   }
 }

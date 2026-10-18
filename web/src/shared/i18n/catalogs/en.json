@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "the vocal and accompaniment lines use different meters or note units."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "Logs"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "View logs"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "Time"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "Level"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "Info"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "Warning"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "Error"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "Event"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "Summary"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "Details"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "Module"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "All levels"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "Warnings and errors"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "Errors only"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "All modules"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "Time range"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "All time"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "Last hour"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "Last 24 hours"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "Last 7 days"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "Search"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "Event, project ID or error"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "Refresh"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "Export diagnostics"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "Logs record actions, IDs, durations and errors, never text, lyrics or keys. Diagnostics don't include raw inference engine output."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "No matching logs."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "Log pages"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "Copy"
   }
 }

@@ -426,6 +426,10 @@ public partial class MainWindow : Window
                 case "project.export":
                     var projectSave = new SaveFileDialog { Filter = HostL10n.T("Yovoice 工程", "Yovoice Project") + "|*.yovoice", DefaultExt = ".yovoice", FileName = Path.GetFileName(data.GetProperty("name").GetString() ?? "project"), OverwritePrompt = true };
                     result = projectSave.ShowDialog(this) == true ? await service.CallAsync(method, new { id = data.GetProperty("id").GetString(), path = projectSave.FileName }) : false; break;
+                case "logs.export":
+                    // 诊断包由本地服务打包写入，宿主只负责选择保存位置。
+                    var logsSave = new SaveFileDialog { Filter = HostL10n.T("诊断包", "Diagnostics") + "|*.zip", DefaultExt = ".zip", FileName = "yovoice-diagnostics-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".zip", OverwritePrompt = true };
+                    result = logsSave.ShowDialog(this) == true ? await service.CallAsync(method, new { path = logsSave.FileName, version = data.TryGetProperty("version", out var logsVersion) ? logsVersion.GetString() : "" }) : false; break;
                 case "project.import":
                     var projectOpen = new OpenFileDialog { Filter = HostL10n.T("Yovoice 工程", "Yovoice Project") + "|*.yovoice" };
                     result = projectOpen.ShowDialog(this) == true ? await service.CallAsync(method, new { path = projectOpen.FileName }) : null; break;

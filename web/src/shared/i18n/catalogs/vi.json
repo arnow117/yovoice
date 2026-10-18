@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "dòng giọng hát và dòng đệm dùng số chỉ nhịp hoặc đơn vị nốt khác nhau."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "Nhật ký"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "Xem nhật ký"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "Thời gian"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "Mức"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "Thông tin"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "Cảnh báo"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "Lỗi"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "Sự kiện"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "Tóm tắt"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "Chi tiết"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "Mô-đun"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "Mọi mức"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "Cảnh báo trở lên"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "Chỉ lỗi"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "Mọi mô-đun"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "Khoảng thời gian"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "Toàn bộ"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "1 giờ qua"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "24 giờ qua"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "7 ngày qua"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "Tìm kiếm"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "Sự kiện, ID tác phẩm hoặc lỗi"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "Làm mới"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "Xuất gói chẩn đoán"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "Nhật ký chỉ ghi thao tác, ID, thời lượng và lỗi, không ghi nội dung, lời bài hát hay khóa. Gói chẩn đoán không gồm đầu ra thô của bộ suy luận."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "Không có nhật ký phù hợp."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "Trang nhật ký"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "Sao chép"
   }
 }

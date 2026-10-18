@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "у вокальной строки и аккомпанемента разные размеры или единицы длительности."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "Журнал"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "Открыть журнал"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "Время"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "Уровень"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "Инфо"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "Предупреждение"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "Ошибка"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "Событие"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "Сводка"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "Подробности"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "Модуль"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "Все уровни"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "Предупреждения и ошибки"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "Только ошибки"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "Все модули"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "Период"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "За всё время"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "Последний час"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "Последние 24 часа"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "Последние 7 дней"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "Поиск"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "Событие, ID проекта или ошибка"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "Обновить"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "Экспорт диагностики"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "В журнал записываются действия, ID, длительность и ошибки, но не тексты, слова песен и ключи. Пакет диагностики не содержит необработанный вывод движка вывода."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "Нет подходящих записей."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "Страницы журнала"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "Копировать"
   }
 }

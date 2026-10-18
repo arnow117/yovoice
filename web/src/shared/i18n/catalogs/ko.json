@@ -3523,5 +3523,89 @@
   },
   "@yovoice.melody.issue.grid": {
     "defaultMessage": "보컬 줄과 반주 줄의 박자나 단위 음표가 다릅니다."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "로그"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "로그 보기"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "시간"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "수준"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "정보"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "경고"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "오류"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "이벤트"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "요약"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "세부 정보"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "모듈"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "모든 수준"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "경고 이상"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "오류만"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "모든 모듈"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "기간"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "전체 기간"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "최근 1시간"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "최근 24시간"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "최근 7일"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "검색"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "이벤트, 작품 ID 또는 오류"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "새로 고침"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "진단 패키지 내보내기"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "로그에는 작업, ID, 소요 시간, 오류만 기록되며 본문, 가사, 키는 포함되지 않습니다. 진단 패키지에는 추론 엔진의 원시 출력이 포함되지 않습니다."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "조건에 맞는 로그가 없습니다."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "로그 페이지"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "복사"
   }
 }

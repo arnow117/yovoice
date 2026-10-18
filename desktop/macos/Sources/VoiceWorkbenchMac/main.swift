@@ -358,6 +358,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             data["path"] = url.path
             message["data"] = data
         }
+        if method == "logs.export" {
+            // 诊断包由本地服务打包写入，宿主只负责选择保存位置。
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [.zip]
+            let stamp = DateFormatter()
+            stamp.dateFormat = "yyyyMMdd-HHmmss"
+            panel.nameFieldStringValue = "yovoice-diagnostics-" + stamp.string(from: Date()) + ".zip"
+            let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": false] }
+            data["path"] = url.path
+            message["data"] = data
+        }
         if method == "score.export" {
             // 编曲导出 MIDI 或乐谱 JSON，扩展名由界面指定，写文件交给本地服务。
             let format = (data["format"] as? String) == "json" ? "json" : "mid"
