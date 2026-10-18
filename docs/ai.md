@@ -2,7 +2,7 @@
 
 **English** | [简体中文](ai_zh.md)
 
-yovoice can optionally connect to a large language model. With an AI service set up, the built-in AI assistant handles both **AI compose** in Score projects (a whole arrangement) and **AI lyrics** in Music projects (style, lyrics and title), and results can be revised further after applying them. Everything else works without it.
+yovoice can optionally connect to a large language model. With an AI service set up, the **assistant panel** in the bottom-right corner chats about your work and acts on it: it creates works, writes arrangements and lyrics, edits text, assigns voices and starts generation, with every change applied in the app immediately. Everything else works without it.
 
 ## Set up a service
 
@@ -26,16 +26,18 @@ Type a model name, or **Sync model list** and pick one. After **Add service** or
 - Keys are stored in a private table of the data folder's database (`yovoice.db`, owner-only permissions `0600`). They are never included in the state sent to the interface. The settings page only shows a masked key. Deleting a service removes its key.
 - What is sent is the request you type plus a fixed instruction describing the score or lyrics format. Error messages are cleaned of keys before they are shown or logged.
 
-## AI compose
+## Assistant panel
 
-In a Score project, **AI compose** asks for a description and a length (10–600 seconds). The built-in AI assistant writes an arrangement in the [score format](score.md#format) and submits it for validation, correcting anything the checks reject (for example a note outside its bar). The result replaces the current arrangement, so you can then adjust tracks and render as usual; after applying it, the **keep revising** input at the top lets the assistant continue on the current arrangement. Larger models give noticeably better arrangements; small local models may fail the check.
+Open the panel with the assistant button in the title bar or **⌘J / Ctrl+J**. Type what you want — “create a score work and write a four-bar piano melody”, “assign a voice to each character in this story”, “generate the narration” — and the assistant does it in the app: works are created and opened, editors update as it writes, and generation starts through the same commands the app uses. Tool calls show up as cards in the conversation; generated audio can be played right there. Messages sent while a turn is running are queued; **New chat** starts a fresh topic and the conversation history stays in the panel.
 
-## AI lyrics
+Each message carries where you are (page, open work, interface language) so the assistant acts on the right target. It has no delete, download, import or settings tools — when a model is missing it tells you where to install it.
 
-In a Music project, **AI lyrics** asks for a theme and fills in the style description, lyrics with section markers and the singing language. With Instrumental on, it writes only the style. The title is replaced only while it is still the default. Applied results can likewise be revised from the input at the top.
+## AI compose and AI lyrics
+
+In Score and Music projects, the **AI compose** / **AI lyrics** bar at the top sends your description into the same conversation and opens the panel: the assistant reads the work, writes the arrangement (validated like a hand-written one, with self-correction) or the style, lyrics and title, and applies it to the work directly — ask for changes in the panel to keep revising. Larger models give noticeably better arrangements; small local models may fail the check.
 
 ## Limits
 
-- One AI request runs at a time and can be cancelled; a request stops after 10 minutes by default, adjustable in settings.
-- The browser preview can edit the service list but does not call models.
+- One conversation turn runs at a time and can be stopped; a turn stops after 10 minutes by default, adjustable in settings. The panel keeps the most recent messages across restarts.
+- The browser preview simulates the conversation; real model calls need the desktop app.
 - AI features have not been verified against every listed provider; if a service rejects a request, the error shows its HTTP status and message.

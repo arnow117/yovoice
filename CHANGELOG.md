@@ -6,15 +6,11 @@
 
 ### English
 
-- AI composing and lyric writing now run through the built-in AI assistant: it reads the task, submits results through validation and corrects them itself when checks fail, and it only exposes the minimal score and lyrics tools.
-- Results can be revised: after applying a score or lyrics, describe what to change and the assistant continues on the current content.
-- The assistant follows the configured AI service and the proxy in preferences.
+- New AI assistant panel in the bottom-right corner (⌘J / Ctrl+J): chat to create and edit works, pick voices, adjust parameters, and start voice, music or score generation — every action is applied in the app right away. AI score and lyric writing from the editors now go through the same conversation, so progress and follow-up questions live in one place.
 
 ### 简体中文
 
-- AI 写谱与写词改由内置 AI 助手完成：结果先经校验再交付，不通过时按具体错误自行修正；助手只开放写谱写词所需的最小工具集。
-- 支持在结果上继续修改：应用写好的乐谱或歌词后，写下修改意见即可让助手在当前内容上继续调整。
-- 助手沿用已配置的 AI 服务与偏好设置里的代理。
+- 新增右下角 AI 助手面板（⌘J / Ctrl+J）：用对话新建和修改作品、挑音色、调参数、发起语音/音乐/配乐生成，操作即时反映到界面。编辑器里的 AI 写谱写词也并入同一对话，进度与继续追问都在面板里完成。
 
 ## [0.2.1] - 2026-10-16
 
