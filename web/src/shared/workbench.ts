@@ -1,4 +1,5 @@
 import { draftCopy } from './i18n/draft-copy';
+import { seedLocale, type UiLocale } from './i18n/locale';
 
 export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
 export interface SynthesisSettings {
@@ -64,7 +65,7 @@ export interface InstalledModel { id: string; path: string; managed: boolean }
 export interface GenerationSegment { cueId: string; speakerId: string; speakerName: string; batchId: string; index: number; targetClipId?: string; placement?: 'ripple' | 'preserve' }
 export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[] }
 /** UI chrome locale. Distinct from Draft.language (TTS). */
-export type UiLocale = 'zh-CN' | 'en';
+export type { UiLocale };
 /** Stable product message key. Catalogs and Go constants share this spelling. */
 export type MessageCode = `@yovoice.${string}`;
 export type MessageParams = Record<string, unknown>;
@@ -132,7 +133,7 @@ export interface AIProvider { id: string; preset: string; name: string; format: 
 export const isUntitled = (title: string) => !title.trim() || Object.values(draftCopy).some(copy => copy.untitled === title.trim());
 
 export const createDraft = (example = false, locale: UiLocale = 'zh-CN', modelId = 'index-2.5-q8'): Draft => {
-  const copy = draftCopy[locale];
+  const copy = draftCopy[seedLocale(locale)];
   return {
   id: crypto.randomUUID().replaceAll('-', ''),
   title: example ? copy.exampleTitle : copy.untitled,

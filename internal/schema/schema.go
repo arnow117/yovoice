@@ -223,13 +223,27 @@ const (
 	UiLocaleEn   UiLocale = "en"
 )
 
+// UiLocaleNames 列出支持的界面语言及其英文名（写进 AI 提示词），与 web/src/shared/i18n/locale.ts 一致。
+var UiLocaleNames = map[UiLocale]string{
+	UiLocaleZhCN: "Simplified Chinese",
+	"zh-TW":      "Traditional Chinese",
+	UiLocaleEn:   "English",
+	"ja":         "Japanese",
+	"ko":         "Korean",
+	"es":         "Spanish",
+	"fr":         "French",
+	"de":         "German",
+	"pt-BR":      "Brazilian Portuguese",
+	"ru":         "Russian",
+	"it":         "Italian",
+	"vi":         "Vietnamese",
+}
+
 func ParseUiLocale(raw string) (UiLocale, error) {
-	switch UiLocale(raw) {
-	case UiLocaleZhCN, UiLocaleEn:
-		return UiLocale(raw), nil
-	default:
+	if _, ok := UiLocaleNames[UiLocale(raw)]; !ok {
 		return "", fmt.Errorf("unsupported uiLocale %q", raw)
 	}
+	return UiLocale(raw), nil
 }
 
 type Preferences struct {

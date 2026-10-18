@@ -42,8 +42,8 @@ Rules:
 - Write the title, section and track names in %s.`
 
 func scoreLanguage(locale schema.UiLocale) string {
-	if locale == schema.UiLocaleZhCN {
-		return "Simplified Chinese"
+	if name, ok := schema.UiLocaleNames[locale]; ok {
+		return name
 	}
 	return "English"
 }

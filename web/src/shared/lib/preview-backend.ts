@@ -3,6 +3,7 @@ import aiPresets from './ai-presets.json';
 import { performanceSettings, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type LocalAPIStatus, type MelodyInspection, type ScoreNote, aiTimeoutDefault } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
+import { isUiLocale } from '../i18n/locale';
 
 // 浏览器预览的本地后端：只保存编辑和音频数据，不模拟桌面推理或模型安装。
 // 作品状态存于 localStorage（主副本加恢复备份），音频存于 IndexedDB。
@@ -27,7 +28,7 @@ function load(): State {
     } catch { /* 主副本损坏时继续读取恢复备份。 */ }
   }
   state.characters ??= []; state.previews = []; delete state.aiTask; delete state.melody;
-  if (!['zh-CN', 'en'].includes(state.preferences?.uiLocale)) {
+  if (!isUiLocale(state.preferences?.uiLocale)) {
     state = { ...state, preferences: { ...state.preferences, uiLocale: 'zh-CN' } };
   }
   return state;

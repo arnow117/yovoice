@@ -14,4 +14,11 @@ export const draftCopy = {
     emotionText: '温柔、平静，像是在和熟悉的人说话。',
     language: 'zh',
   },
+  'zh-TW': {
+    untitled: '未命名作品',
+    exampleTitle: '清晨旁白',
+    exampleText: '清晨的陽光穿過窗簾，\n房間漸漸明亮起來。\n\n給自己倒一杯熱茶，\n讓思緒在片刻的安靜裡慢下來。\n\n今天，我們從一個好聲音開始。',
+    emotionText: '溫柔、平靜，像是在和熟悉的人說話。',
+    language: 'zh',
+  },
 } as const;

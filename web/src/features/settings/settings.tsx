@@ -11,6 +11,7 @@ import { FolderOpen, FolderCog, ArrowUpRight } from 'lucide-react';
 import { call, isMac } from '../../shared/lib/client';
 import { runtimeStatus, type EngineInfo, type ModelPackage, type State, type Draft, type UiLocale } from '../../shared/workbench';
 import { CallError } from '../../shared/lib/call-error';
+import { uiLocales } from '../../shared/i18n/locale';
 import { AISettings } from './ai-settings';
 import { ModelGroups } from './model-list';
 import { SettingsGroup, SettingsRow } from '../../shared/ui/settings-group';
@@ -56,7 +57,7 @@ export function Settings({ state, catalog, engine, draft, run, focus }: { focus?
       <SettingsGroup title={t('@yovoice.settings.preferences')}>
         <SettingsRow label={t('@yovoice.settings.uiLocale')} hint={t('@yovoice.settings.uiLocaleHint')}>
           <Selector data-testid="ui-locale" size="sm" label={t('@yovoice.settings.uiLocale')} isLabelHidden value={preferences.uiLocale}
-            options={[{ value: 'zh-CN', label: t('@yovoice.settings.uiLocale.zhCN') }, { value: 'en', label: t('@yovoice.settings.uiLocale.en') }]}
+            options={uiLocales.map(locale => ({ value: locale.id, label: locale.name }))}
             onChange={uiLocale => run(() => call('preferences.save', { ...preferences, uiLocale: uiLocale as UiLocale }))} width="calc(var(--spacing-10) * 5)" />
         </SettingsRow>
         <SettingsRow label={t('@yovoice.settings.proxy')} hint={t('@yovoice.settings.proxyHint')}>
