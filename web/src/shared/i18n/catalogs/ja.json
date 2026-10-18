@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "ピーク"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "形式"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "WAV 音声"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "SRT 字幕"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "WebVTT 字幕"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "字幕を書き出し"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "話者名を含める"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "吹き替えクリップごとに 1 つの字幕。時間はタイムライン上の実際の位置に合わせます。"
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "書き出し範囲にセリフ付きの吹き替えクリップがありません。"
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "音量"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "同期をクリア"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "歌詞を書き出し（LRC）"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "歌詞のタイミングはボーカルから配置しました。同期で微調整できます"

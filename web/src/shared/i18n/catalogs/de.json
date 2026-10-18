@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "Spitzenpegel"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "Format"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "WAV-Audio"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "SRT-Untertitel"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "WebVTT-Untertitel"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "Untertitel exportieren"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "Sprechernamen einfügen"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "Ein Untertitel pro vertontem Clip, getimt nach seiner Position auf der Zeitleiste."
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "Im Exportbereich gibt es keine vertonten Clips mit Text."
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "Lautstärke"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "Synchronisierung löschen"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "Liedtext exportieren (LRC)"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Songtext-Timing aus dem Gesang ermittelt; zum Verfeinern synchronisieren"

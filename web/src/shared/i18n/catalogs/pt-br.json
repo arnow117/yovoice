@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "Pico"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "Formato"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "Áudio WAV"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "Legendas SRT"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "Legendas WebVTT"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "Exportar legendas"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "Incluir nomes dos falantes"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "Uma legenda por clipe dublado, sincronizada com a posição dele na linha do tempo."
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "Não há clipes dublados com falas neste intervalo de exportação."
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "Volume"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "Limpar sincronização"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "Exportar letra (LRC)"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Tempo da letra posicionado pelos vocais; sincronize para refinar"

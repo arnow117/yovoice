@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "峰值"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "格式"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "WAV 音訊"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "SRT 字幕"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "WebVTT 字幕"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "匯出字幕"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "字幕包含說話者"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "每個配音片段一條字幕，時間依片段在時間軸上的實際位置。"
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "匯出範圍內沒有帶台詞的配音片段。"
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "音量"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "清除校準"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "匯出歌詞（LRC）"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "歌詞時間已依人聲自動定位，可再校準"

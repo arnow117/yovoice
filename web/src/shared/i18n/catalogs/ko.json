@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "피크"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "형식"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "WAV 오디오"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "SRT 자막"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "WebVTT 자막"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "자막 내보내기"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "화자 이름 포함"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "더빙 클립마다 자막 하나, 시간은 타임라인의 실제 위치를 따릅니다."
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "내보내기 범위에 대사가 있는 더빙 클립이 없습니다."
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "볼륨"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "싱크 지우기"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "가사 내보내기(LRC)"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "보컬을 분석해 가사 타이밍을 배치했습니다. 싱크로 더 정확하게 맞출 수 있습니다"

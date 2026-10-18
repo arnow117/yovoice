@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "Picco"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "Formato"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "Audio WAV"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "Sottotitoli SRT"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "Sottotitoli WebVTT"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "Esporta sottotitoli"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "Includi i nomi dei parlanti"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "Un sottotitolo per ogni clip doppiata, sincronizzato con la sua posizione nella timeline."
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "Nessuna clip doppiata con testo in questo intervallo di esportazione."
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "Volume"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "Cancella sincronizzazione"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "Esporta testo (LRC)"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Tempi del testo posizionati in base alla voce; sincronizza per perfezionarli"

@@ -3,12 +3,12 @@ import { Button } from '@astryxdesign/core/Button';
 import { Dialog } from '@astryxdesign/core/Dialog';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowDown, ChevronDown, FastForward, Maximize, Minimize, Pause, Play, Rewind } from 'lucide-react';
-import { call, mediaUrl } from '../../shared/lib/client';
+import { ArrowDown, ChevronDown, Download, FastForward, Maximize, Minimize, Pause, Play, Rewind } from 'lucide-react';
+import { call, mediaUrl, saveText } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, type Generation } from '../../shared/workbench';
 import { alignLyrics, vocalActivity, type VocalActivity } from './lyric-align';
-import { activeLyric, lyricRows, lyricTimeline, type LyricLine } from './lyric-timing';
+import { activeLyric, lyricRows, lyricTimeline, lyricsToLrc, type LyricLine } from './lyric-timing';
 import { splitTags } from './music-draft';
 import { coverPalette, SongCover } from './song-cover';
 
@@ -126,6 +126,8 @@ export function NowPlaying({ item, title, close, onError }: { item: Generation; 
     if (next.length < rows.length) { setSync(next); return; }
     setSync(null); save(next);
   };
+  // 按当前显示的歌词时间（校准、自动定位或估算）导出 LRC。
+  const exportLrc = () => { void saveText(lyricsToLrc(timeline, title), title, 'lrc').catch((error: unknown) => onError(noticeMessage(error))); };
   const undo = () => {
     if (!sync?.length) return;
     const last = sync.at(-1)!;
@@ -239,6 +241,7 @@ export function NowPlaying({ item, title, close, onError }: { item: Generation; 
         <small>{t(times ? '@yovoice.music.lyricsSynced' : auto ? '@yovoice.music.lyricsAnalyzed' : '@yovoice.music.lyricsEstimated')}</small>
         <Button className="now-playing-glass" size="sm" variant="ghost" label={t(times ? '@yovoice.music.resyncLyrics' : '@yovoice.music.syncLyrics')} isDisabled={!url} onClick={startSync} />
         {times ? <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.syncReset')} onClick={() => save(undefined)} /> : null}
+        <Button className="now-playing-glass" size="sm" variant="ghost" icon={<Download />} label={t('@yovoice.music.exportLrc')} isDisabled={!timeline.length} onClick={exportLrc} />
       </HStack> : null}
     </VStack>
   </Dialog>;

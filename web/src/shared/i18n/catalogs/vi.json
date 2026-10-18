@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "Đỉnh"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "Định dạng"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "Âm thanh WAV"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "Phụ đề SRT"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "Phụ đề WebVTT"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "Xuất phụ đề"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "Kèm tên người nói"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "Mỗi đoạn lồng tiếng một phụ đề, thời gian theo vị trí thực trên dòng thời gian."
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "Không có đoạn lồng tiếng nào có lời thoại trong phạm vi xuất."
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "Âm lượng"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "Xóa đồng bộ"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "Xuất lời bài hát (LRC)"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Thời gian lời được đặt theo giọng hát; hãy đồng bộ để tinh chỉnh"

@@ -39,11 +39,27 @@ export async function mediaUrl(kind: 'voices' | 'outputs', file: string): Promis
   return isDesktop ? desktopMediaUrl(kind, file) : previewMediaUrl(file);
 }
 
-export async function saveAudio(blob: Blob, name: string): Promise<boolean> {
-  const fileName = `${name.replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || 'yovoice'}.wav`;
-  if (isDesktop) return call<boolean>('audio.export', { name: fileName, base64: await toBase64(blob) });
+const exportName = (name: string, fallback = 'yovoice') => name.replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || fallback;
+
+// 浏览器预览没有保存对话框，直接交给浏览器下载。
+function download(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a'); link.href = url; link.download = fileName; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export async function saveAudio(blob: Blob, name: string): Promise<boolean> {
+  const fileName = `${exportName(name)}.wav`;
+  if (isDesktop) return call<boolean>('audio.export', { name: fileName, base64: await toBase64(blob) });
+  download(blob, fileName);
+  return true;
+}
+
+// 字幕与歌词等 UTF-8 文本：桌面端由宿主弹出保存对话框并写文件，用户取消时返回 false。
+export type TextExportFormat = 'srt' | 'vtt' | 'lrc';
+export async function saveText(text: string, name: string, format: TextExportFormat): Promise<boolean> {
+  const fileName = `${exportName(name)}.${format}`;
+  if (isDesktop) return call<boolean>('text.export', { name: fileName, format, text });
+  download(new Blob([text], { type: format === 'vtt' ? 'text/vtt' : 'text/plain' }), fileName);
   return true;
 }

@@ -400,6 +400,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             try audio.write(to: url, options: .atomic)
             return ["id": message["id"]!, "result": true]
         }
+        if method == "text.export" {
+            // 字幕（SRT/VTT）与歌词（LRC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
+            let format = data["format"] as? String ?? ""
+            guard ["srt", "vtt", "lrc"].contains(format), let text = data["text"] as? String, text.utf8.count <= 20_000_000 else { throw failure(HostL10n.t("err.textExportInvalid")) }
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [UTType(filenameExtension: format) ?? .plainText]
+            panel.nameFieldStringValue = (data["name"] as? String ?? "yovoice." + format)
+            let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": false] }
+            try Data(text.utf8).write(to: url, options: .atomic)
+            return ["id": message["id"]!, "result": true]
+        }
         if method == "media.reveal" {
             let response = try await request("api/call", body: ["id": "media-path", "method": "media.path", "data": data])
             guard let path = response["result"] as? String else { throw failure(Self.hostErrorMessage(response["error"]) ?? HostL10n.t("err.audioPath")) }

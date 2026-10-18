@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "Crête"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "Format"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "Audio WAV"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "Sous-titres SRT"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "Sous-titres WebVTT"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "Exporter les sous-titres"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "Inclure le nom des intervenants"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "Un sous-titre par clip doublé, calé sur sa position dans la timeline."
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "Aucun clip doublé avec texte dans cette plage d’export."
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "Volume"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "Effacer la synchronisation"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "Exporter les paroles (LRC)"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Minutage des paroles placé d’après le chant ; synchronisez pour l’affiner"

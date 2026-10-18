@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "Пик"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "Формат"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "Аудио WAV"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "Субтитры SRT"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "Субтитры WebVTT"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "Экспорт субтитров"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "Добавить имена говорящих"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "Один субтитр на каждый озвученный фрагмент, по его положению на таймлайне."
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "В диапазоне экспорта нет озвученных фрагментов с репликами."
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "Громкость"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "Сбросить синхронизацию"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "Экспорт текста песни (LRC)"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Тайминг текста расставлен по вокалу; синхронизируйте для уточнения"

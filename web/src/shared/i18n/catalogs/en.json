@@ -1955,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "Peak"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "Format"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "WAV audio"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "SRT subtitles"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "WebVTT subtitles"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "Export subtitles"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "Include speaker names"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "One subtitle per voiced clip, timed to where it plays on the timeline."
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "No voiced clips with lines in this export range."
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "Volume"
   },
@@ -3052,6 +3076,9 @@
   },
   "@yovoice.music.syncReset": {
     "defaultMessage": "Clear sync"
+  },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "Export lyrics (LRC)"
   },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Lyric timing placed from the vocals; sync to refine"
