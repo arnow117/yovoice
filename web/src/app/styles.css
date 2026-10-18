@@ -827,7 +827,7 @@
   }
 }
   /* 助手面板：右下角浮动卡片，可展开为右侧全高；出入场与消息出现只用轻微的位移淡入。 */
-  .assistant-panel { position: fixed; right: var(--spacing-5); bottom: calc(var(--app-player) + var(--spacing-5)); z-index: 450; width: min(calc(var(--spacing-8) * 11), calc(100vw - var(--spacing-8))); height: min(calc(var(--spacing-10) * 13), calc(100dvh - var(--app-titlebar) - var(--app-player) - var(--spacing-8))); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); box-shadow: var(--shadow-med); overflow: hidden; animation: assistant-pop var(--duration-medium, 410ms) var(--ease-out, cubic-bezier(0, 0, 0, 1)); }
+  .assistant-panel { position: fixed; right: var(--spacing-5); bottom: calc(var(--app-player) + var(--spacing-5)); z-index: 450; width: min(calc(var(--spacing-8) * 11), calc(100vw - var(--spacing-8))); height: min(calc(var(--spacing-10) * 13), calc(100dvh - var(--app-titlebar) - var(--app-player) - var(--spacing-8))); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); box-shadow: var(--shadow-med); overflow: hidden; animation: assistant-pop var(--duration-medium, 410ms) var(--ease-standard); }
   .assistant-panel.expanded { right: 0; bottom: 0; top: 0; height: auto; width: min(calc(var(--spacing-8) * 18), 44vw); border-radius: 0; border-width: 0 0 0 var(--border-width); animation: none; }
   /* 预览模式下标题栏在页面内，展开面板从标题栏下方开始。 */
   .workbench.preview .assistant-panel.expanded { top: var(--app-titlebar); }
@@ -843,3 +843,21 @@
   .assistant-empty { padding: var(--spacing-8) var(--spacing-4); color: var(--app-muted); text-align: center; }
   @keyframes assistant-pop { from { opacity: 0; transform: translateY(var(--spacing-2)) scale(.98); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .assistant-panel { animation: none; } }
+  /* 助手历史抽屉：面板内从顶部展开的会话列表。 */
+  .assistant-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--app-ui-font); }
+  .assistant-history { flex: 1; min-height: 0; padding: var(--spacing-2) var(--spacing-3) var(--spacing-3); border-bottom: var(--border-width) solid var(--app-line); background: var(--app-paper); }
+  .assistant-history-bar { padding-bottom: var(--spacing-2); }
+  .assistant-history-list { flex: 1; min-height: 0; overflow: auto; }
+  .assistant-history-empty { padding: var(--spacing-4); text-align: center; }
+  .assistant-history-item { border-radius: var(--radius-element); padding-inline: var(--spacing-1); }
+  .assistant-history-item.current { background: var(--app-line); }
+  .assistant-history-item small { flex-shrink: 0; }
+  .assistant-history-link { min-width: 0; justify-content: start; }
+  .assistant-history-link .astryx-button-label, .assistant-history-link { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .assistant-history-delete { opacity: 0; }
+  .assistant-history-item:hover .assistant-history-delete, .assistant-history-item:focus-within .assistant-history-delete { opacity: 1; }
+  /* 助手消息操作与上下文标签。 */
+  .assistant-actions { padding-inline: var(--spacing-2); }
+  .assistant-context { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--app-muted); }
+  .assistant-context .astryx-icon, .assistant-context svg { flex-shrink: 0; }
+  .assistant-context.off { opacity: .55; }
