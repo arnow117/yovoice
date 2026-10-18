@@ -292,13 +292,11 @@ func (w *Workbench) complete(ctx context.Context, request llm.Request) (llm.Resu
 	return result, e
 }
 
-// logAIOutput 记录无法使用的模型输出的开头和结尾，便于排查格式问题。
+// logAIOutput 记录无法使用的模型输出的形态，便于排查格式问题；不记录输出内容，其中可能有 AI 写的歌词。
 func (w *Workbench) logAIOutput(kind, issue, text string) {
-	head, tail := text, ""
-	if r := []rune(text); len(r) > 600 {
-		head, tail = string(r[:400]), string(r[len(r)-200:])
-	}
-	diag.Log(w.Store.Root, "ai.output_invalid", "kind", kind, "issue", issue, "chars", len(text), "head", head, "tail", tail)
+	trimmed := strings.TrimSpace(text)
+	diag.Log(w.Store.Root, "ai.output_invalid", "kind", kind, "issue", issue, "chars", len(text), "lines", strings.Count(trimmed, "\n")+1,
+		"fenced", strings.Contains(text, "```"), "json", json.Valid([]byte(trimmed)))
 }
 
 // startAI 在后台运行一次 AI 写作任务并立即返回任务；同一时间只运行一个，CancelAI 可中止。
