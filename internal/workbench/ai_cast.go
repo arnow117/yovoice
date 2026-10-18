@@ -85,13 +85,6 @@ Return ONLY one JSON object, no prose, no Markdown: {"cast":{"@narrator":"<voice
 - Use only the voice ids given. Give the main characters (listed first) different voices; minor characters may share. Leave a character out when no voice fits at all.
 - "@narrator" reads all narration: prefer a calm, clear voice.`
 
-func castLanguage(locale schema.UiLocale) string {
-	if locale == "en" {
-		return "English"
-	}
-	return "Simplified Chinese"
-}
-
 func (in CastBrief) valid() bool {
 	total, lines := 0, 0
 	for _, c := range in.Chapters {
@@ -266,7 +259,7 @@ func (w *Workbench) castChunk(ctx context.Context, in CastBrief, chunk []castRef
 			fmt.Fprintf(&b, "[%d] Q: %s => %s\n", i+1, text, guess)
 		}
 	}
-	request := llm.Request{System: fmt.Sprintf(castPrompt, castLanguage(in.Locale)), Messages: []llm.Message{{Role: "user", Content: b.String()}}, MaxTokens: 8000, Temperature: 0.2}
+	request := llm.Request{System: fmt.Sprintf(castPrompt, scoreLanguage(in.Locale)), Messages: []llm.Message{{Role: "user", Content: b.String()}}, MaxTokens: 8000, Temperature: 0.2}
 	var issue string
 	for attempt := 0; attempt < 2; attempt++ {
 		result, e := w.complete(ctx, request)
