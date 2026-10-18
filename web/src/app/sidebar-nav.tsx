@@ -1,14 +1,15 @@
 import { useState, type ReactNode } from 'react';
 import { ResizeHandle, type ResizableProps } from '@astryxdesign/core/Resizable';
 import { Button } from '@astryxdesign/core/Button';
+import { Kbd } from '@astryxdesign/core/Kbd';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { AudioLines, ChevronRight, Mic, Music, Pencil, Settings2, Trash2, HardDrive } from 'lucide-react';
+import { AudioLines, ChevronRight, MessageSquareText, Mic, Music, Pencil, Settings2, Trash2, HardDrive } from 'lucide-react';
 import { projectKind, type Draft, type State } from '../shared/workbench';
 import { overflowTitle } from '../shared/ui/overflow-title';
 import { UpdateSidebarCard } from '../features/update/update-notice';
 
-// 侧栏：新建入口、作品类型、声音库、最近作品与设置。
+// 侧栏：新建入口、作品类型、声音库、最近作品、创作助手与设置。
 export function SidebarNav(props: {
   page: string;
   setPage: (id: string) => void;
@@ -18,9 +19,11 @@ export function SidebarNav(props: {
   selectDraft: (item: Draft) => void;
   removeDraft: (item: Draft) => void;
   resizable: ResizableProps;
+  assistantOpen: boolean;
+  toggleAssistant: () => void;
 }) {
   const t = useTranslator();
-  const { page, setPage, newDraft, state, draft, selectDraft, removeDraft, resizable } = props;
+  const { page, setPage, newDraft, state, draft, selectDraft, removeDraft, resizable, assistantOpen, toggleAssistant } = props;
   const [recentOpen, setRecentOpen] = useState(() => localStorage.getItem('yovoice-recent-open') !== 'false');
   const projectActive = page === 'create' || page === 'history';
   return <VStack as="nav" className="sidebar" aria-label={t('@yovoice.nav.main')} gap={6} data-testid="sidebar">
@@ -42,7 +45,11 @@ export function SidebarNav(props: {
         <Button className="project-quick-delete" label={t('@yovoice.nav.deleteProject', { title: item.id === draft.id ? draft.title : item.title })} icon={<Trash2 />} isIconOnly size="sm" variant="ghost" onClick={() => removeDraft(item.id === draft.id ? draft : item)} />
       </HStack>)}</VStack>
     </details>
-    <VStack className="sidebar-bottom" gap={3}><UpdateSidebarCard /><Button data-testid="nav-settings" label={t('@yovoice.nav.settings')} icon={<Settings2 size={18} />} variant="ghost" className={`nav-item ${page === 'settings' ? 'selected' : ''}`} onClick={() => setPage('settings')} /></VStack>
+    <VStack className="sidebar-bottom" gap={3}><UpdateSidebarCard />
+      {/* 创作助手入口做成输入框的样子：一眼能看出“在这里说一句话”，快捷键常驻提示。 */}
+      <Button data-testid="assistant-toggle" label={t('@yovoice.assistant.launch')} variant="ghost" icon={<MessageSquareText />} endContent={<Kbd keys="mod+J" />}
+        className={`assistant-launch${assistantOpen ? ' open' : ''}`} aria-expanded={assistantOpen} aria-keyshortcuts="Control+J" onClick={toggleAssistant} />
+      <Button data-testid="nav-settings" label={t('@yovoice.nav.settings')} icon={<Settings2 size={18} />} variant="ghost" className={`nav-item ${page === 'settings' ? 'selected' : ''}`} onClick={() => setPage('settings')} /></VStack>
     <ResizeHandle label={t('@yovoice.nav.resize')} direction="horizontal" position="overlay" pillPlacement="center" resizable={resizable} isAlwaysVisible={false} />
   </VStack>;
 }

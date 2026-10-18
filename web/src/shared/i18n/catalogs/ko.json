@@ -2243,24 +2243,6 @@
   "@yovoice.ai.configure": {
     "defaultMessage": "AI 설정"
   },
-  "@yovoice.ai.notConfigured": {
-    "defaultMessage": "이 기능에는 언어 모델이 필요합니다. 먼저 설정 › AI 서비스에서 서비스를 추가하고 모델을 선택하세요."
-  },
-  "@yovoice.ai.scorePlaceholder": {
-    "defaultMessage": "원하는 음악을 한 문장으로 설명하면 AI가 전체 편곡을 작성합니다. 예: 여행 브이로그 인트로용 따뜻하고 느린 피아노곡, 나중에 부드러운 현악기가 합류"
-  },
-  "@yovoice.ai.scoreSeconds": {
-    "defaultMessage": "길이"
-  },
-  "@yovoice.ai.scoreSubmit": {
-    "defaultMessage": "작곡"
-  },
-  "@yovoice.ai.lyricsPlaceholder": {
-    "defaultMessage": "노래를 한 문장으로 설명하면 AI가 스타일, 가사, 제목을 작성합니다. 예: 바닷가를 달리는 여름밤 드라이브에 관한 시티팝"
-  },
-  "@yovoice.ai.lyricsSubmit": {
-    "defaultMessage": "작사"
-  },
   "@yovoice.error.aiProviderInvalid": {
     "defaultMessage": "AI 서비스 설정이 잘못되었습니다. 주소, 이름, 모델을 확인하세요."
   },
@@ -2354,53 +2336,11 @@
   "@yovoice.library.duration": {
     "defaultMessage": "길이"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "적용"
-  },
   "@yovoice.ai.discard": {
     "defaultMessage": "취소"
   },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "다시 시도"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "로그 보기"
-  },
   "@yovoice.ai.openProject": {
     "defaultMessage": "프로젝트 열기"
-  },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "백그라운드에서 작성 중입니다. 계속 편집하거나 다른 작업을 해도 됩니다. 완료되면 알려 드립니다."
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "다른 AI 작업이 실행 중입니다. 완료된 후 시작하세요."
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "{time} 후 · {model}"
-  },
-  "@yovoice.ai.lyricsPlaceholderInstrumental": {
-    "defaultMessage": "연주곡을 한 문장으로 설명하면 AI가 스타일과 섹션을 작성합니다. 예: 늦은 밤 도시를 천천히 달리는 드라이브용 로파이"
-  },
-  "@yovoice.ai.scoreLength": {
-    "defaultMessage": "약 {time}"
-  },
-  "@yovoice.ai.brief.score": {
-    "defaultMessage": "원하는 음악을 설명하세요"
-  },
-  "@yovoice.ai.brief.lyrics": {
-    "defaultMessage": "원하는 노래를 설명하세요"
-  },
-  "@yovoice.ai.setup.score": {
-    "defaultMessage": "언어 모델을 연결하면 AI가 한 문장으로 전체 편곡을 작성합니다."
-  },
-  "@yovoice.ai.setup.lyrics": {
-    "defaultMessage": "언어 모델을 연결하면 AI가 한 문장으로 스타일과 가사를 작성합니다."
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} 작성 중"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} 형식 수정 중"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "AI 서비스가 {seconds}초 안에 완료하지 못했습니다. 설정 › AI 서비스에서 AI 요청 시간 제한을 늘리거나 더 빠른 모델을 선택하세요."
@@ -3110,30 +3050,6 @@
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "멜로디 악보로 생성"
   },
-  "@yovoice.ai.brief.melody": {
-    "defaultMessage": "악보를 어떻게 바꿀지 설명"
-  },
-  "@yovoice.ai.setup.melody": {
-    "defaultMessage": "언어 모델을 연결하면 한 문장으로 AI가 멜로디, 코드, 스타일을 고치게 할 수 있습니다."
-  },
-  "@yovoice.ai.task.running.melody": {
-    "defaultMessage": "AI가 악보를 수정하는 중"
-  },
-  "@yovoice.ai.task.done.melody": {
-    "defaultMessage": "AI가 악보 수정을 마쳤습니다"
-  },
-  "@yovoice.ai.task.failed.melody": {
-    "defaultMessage": "AI가 악보를 수정하지 못했습니다"
-  },
-  "@yovoice.ai.task.replace.melody": {
-    "defaultMessage": "적용하면 현재 악보가 바뀌고, AI가 스타일을 바꿨다면 스타일도 바뀝니다."
-  },
-  "@yovoice.ai.melodyPlaceholder": {
-    "defaultMessage": "악보를 어떻게 바꿀지 적어 주세요. 예: 후렴을 온음 올리기, 9–12마디를 더 경쾌하게, 코드를 재즈풍으로"
-  },
-  "@yovoice.ai.melodySubmit": {
-    "defaultMessage": "악보 수정"
-  },
   "@yovoice.melody.title": {
     "defaultMessage": "멜로디 악보"
   },
@@ -3215,38 +3131,11 @@
   "@yovoice.melody.replace": {
     "defaultMessage": "바꾸기"
   },
-  "@yovoice.melody.edited": {
-    "defaultMessage": "AI가 악보를 수정했습니다"
-  },
   "@yovoice.melody.notice.truncated": {
     "defaultMessage": "악보가 YuE2가 부를 수 있는 길이를 넘어 한도에서 잘랐습니다. 끝부분을 살리려면 가사를 줄이거나 구간을 덜어 내세요."
   },
   "@yovoice.melody.notice.cover": {
     "defaultMessage": "멜로디를 추출했습니다. 원곡 코드를 뺐으므로 YuE2가 내 스타일로 다시 편곡합니다."
-  },
-  "@yovoice.melody.changed": {
-    "defaultMessage": "변경: {changes}"
-  },
-  "@yovoice.melody.changedVocal": {
-    "defaultMessage": "멜로디 {bars}마디"
-  },
-  "@yovoice.melody.changedChords": {
-    "defaultMessage": "코드 {bars}마디"
-  },
-  "@yovoice.melody.changedIns": {
-    "defaultMessage": "반주 {bars}마디"
-  },
-  "@yovoice.melody.changedTempo": {
-    "defaultMessage": "템포"
-  },
-  "@yovoice.melody.changedKey": {
-    "defaultMessage": "조성"
-  },
-  "@yovoice.melody.changedBars": {
-    "defaultMessage": "길이 {before} → {after}마디"
-  },
-  "@yovoice.melody.listSeparator": {
-    "defaultMessage": ", "
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2가 아직 이 악보를 부를 수 없습니다"
@@ -3467,9 +3356,6 @@
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "현재 AI 서비스(ChatGPT 구독)는 어시스턴트에서 사용할 수 없습니다. 설정에서 API 방식 서비스로 바꾸세요."
   },
-  "@yovoice.assistant.toggle": {
-    "defaultMessage": "어시스턴트 열기"
-  },
   "@yovoice.assistant.title": {
     "defaultMessage": "어시스턴트"
   },
@@ -3489,13 +3375,10 @@
     "defaultMessage": "대본, 작사, 작곡, 생성을 어시스턴트에게 맡기세요…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "한 문장이면 됩니다: 대본이나 가사 쓰기, 곡 만들기, 목소리 고르기, 바로 생성하기."
+    "defaultMessage": "무엇을 만들어 볼까요?"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "대기 {count}개"
-  },
-  "@yovoice.assistant.hideChips": {
-    "defaultMessage": "빠른 작업 숨기기"
   },
   "@yovoice.assistant.cancelled": {
     "defaultMessage": "중지됨"
@@ -3563,15 +3446,6 @@
   "@yovoice.assistant.history": {
     "defaultMessage": "기록"
   },
-  "@yovoice.assistant.back": {
-    "defaultMessage": "대화로 돌아가기"
-  },
-  "@yovoice.assistant.historyCount": {
-    "defaultMessage": "대화 {count}개"
-  },
-  "@yovoice.assistant.historyMeta": {
-    "defaultMessage": "{count}개 · {time}"
-  },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "아직 대화 기록이 없습니다."
   },
@@ -3607,15 +3481,6 @@
   },
   "@yovoice.assistant.contextOff": {
     "defaultMessage": "정보를 함께 보내지 않습니다. 클릭하면 다시 보냅니다"
-  },
-  "@yovoice.assistant.askLyrics": {
-    "defaultMessage": "현재 음악 작품의 가사를 써 줘: {brief}"
-  },
-  "@yovoice.assistant.askLyricsInstrumental": {
-    "defaultMessage": "현재 음악 작품의 가사를 써 줘: {brief} (연주곡: 스타일과 구성만)"
-  },
-  "@yovoice.assistant.askScore": {
-    "defaultMessage": "현재 편곡 작품의 악보를 써 줘: {brief} (약 {seconds}초)"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "글에 목소리를, 영감을 노래로."
@@ -3817,5 +3682,20 @@
   },
   "@yovoice.assets.sourceMissing": {
     "defaultMessage": "원본 프로젝트가 삭제됨"
+  },
+  "@yovoice.assistant.launch": {
+    "defaultMessage": "어시스턴트에게 묻기"
+  },
+  "@yovoice.assistant.thinking": {
+    "defaultMessage": "생각하는 중"
+  },
+  "@yovoice.assistant.thought": {
+    "defaultMessage": "생각 과정"
+  },
+  "@yovoice.assistant.steps": {
+    "defaultMessage": "{count}단계 실행"
+  },
+  "@yovoice.assistant.toolDone": {
+    "defaultMessage": "완료"
   }
 }

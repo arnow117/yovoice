@@ -32,13 +32,13 @@ Type a model name, or **Sync model list** and pick one. After **Add service** or
 
 ## Assistant panel
 
-Open the panel with the assistant button in the title bar or **⌘J / Ctrl+J**. Type what you want — “create a score work and write a four-bar piano melody”, “assign a voice to each character in this story”, “generate the narration” — and the assistant does it in the app: works are created and opened, editors update as it writes, and generation starts through the same commands the app uses. Tool calls show up as cards in the conversation; generated audio can be played right there and replies can be copied. Messages sent while a turn is running are queued. **History** organizes chats into sessions you can create, switch between and delete — each session keeps its own context, up to 50 sessions of 200 messages.
+Open the panel with **Ask the assistant** at the bottom of the sidebar, the assistant button in the title bar, or **⌘J / Ctrl+J**. It floats at the bottom right, and stays floating when enlarged. Type what you want — “create a score work and write a four-bar piano melody”, “assign a voice to each character in this story”, “generate the narration” — and the assistant does it in the app: works are created and opened, editors update as it writes, and generation starts through the same commands the app uses. Replies stream in as they are written; the thinking and each step sit in a one-line process above the reply that stays open while running and collapses when done. Generated audio can be played right there and replies can be copied. Messages sent while a turn is running are queued. Click the panel title to switch between sessions you can create, switch between and delete — each session keeps its own context, up to 50 sessions of 200 messages.
 
 Each message carries where you are (page, open work, interface language) so the assistant acts on the right target. It has no delete, download, import or settings tools — when a model is missing it tells you where to install it.
 
-## AI compose and AI lyrics
+## AI compose, lyrics and melody scores
 
-In Score and Music projects, the **AI compose** / **AI lyrics** bar at the top sends your description into the same conversation and opens the panel: the assistant reads the work, writes the arrangement (validated like a hand-written one, with self-correction) or the style, lyrics and title, and applies it to the work directly — ask for changes in the panel to keep revising. Larger models give noticeably better arrangements; small local models may fail the check.
+All AI writing goes through the assistant; editors no longer have a separate writing bar. Open the assistant in a Score or Music project and describe what you want: it reads the work and writes the arrangement (validated like a hand-written one, with self-correction), the style, lyrics and title, or a YuE2 melody score (validated against YuE2's ABC dialect, fixed bar by bar on errors), and applies it to the work directly — ask for changes in the panel to keep revising. Larger models give noticeably better arrangements; small local models may fail the check.
 
 ## Limits
 

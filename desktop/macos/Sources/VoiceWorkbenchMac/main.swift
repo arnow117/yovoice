@@ -57,7 +57,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         inspectorButton.toolTip = HostL10n.t("inspector.tooltip")
         inspectorButton.frame = NSRect(x: 0, y: 0, width: 32, height: 28)
         // 助手按钮常驻：面板开关状态由前端统一管理。
-        let assistantButton = NSButton(image: NSImage(systemSymbolName: "sparkles", accessibilityDescription: HostL10n.t("assistant.toggle"))!, target: self, action: #selector(toggleAssistant))
+        let assistantButton = NSButton(image: NSImage(systemSymbolName: "text.bubble", accessibilityDescription: HostL10n.t("assistant.toggle"))!, target: self, action: #selector(toggleAssistant))
         assistantButton.isBordered = false
         assistantButton.toolTip = HostL10n.t("assistant.tooltip")
         assistantButton.frame = NSRect(x: 0, y: 0, width: 32, height: 28)

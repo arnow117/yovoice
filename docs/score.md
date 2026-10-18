@@ -38,7 +38,7 @@ Scores do not need the inference engine or a GPU.
 4. The inspector edits tempo, meter and key, and lists when each section starts and ends so you can line them up with narration.
 5. Render music to create a mixed WAV, kept as a version of the project that you can play and export.
 6. Export saves MIDI or score JSON. To have an Agent write the score, give it the [format](#format) below or the tools in [CLI and Agents](#cli-and-agents).
-7. With an [AI service](ai.md) set up, AI compose writes a whole arrangement from a description and a length, and keeps revising applied results on request.
+7. With an [AI service](ai.md) set up, ask the assistant to write a whole arrangement from a description and a length, and keep revising it in the conversation.
 
 ## Format
 

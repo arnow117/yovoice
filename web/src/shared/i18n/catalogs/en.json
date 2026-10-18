@@ -2243,24 +2243,6 @@
   "@yovoice.ai.configure": {
     "defaultMessage": "Set up AI"
   },
-  "@yovoice.ai.notConfigured": {
-    "defaultMessage": "This feature needs a language model. Add a service and choose a model in Settings › AI services first."
-  },
-  "@yovoice.ai.scorePlaceholder": {
-    "defaultMessage": "Describe the music in a sentence and AI writes the whole arrangement, e.g. a warm, slow piano piece for a travel vlog intro, with soft strings joining later"
-  },
-  "@yovoice.ai.scoreSeconds": {
-    "defaultMessage": "Length"
-  },
-  "@yovoice.ai.scoreSubmit": {
-    "defaultMessage": "Compose"
-  },
-  "@yovoice.ai.lyricsPlaceholder": {
-    "defaultMessage": "Describe the song in a sentence and AI writes the style, lyrics and title, e.g. a city pop song about a summer night drive by the sea"
-  },
-  "@yovoice.ai.lyricsSubmit": {
-    "defaultMessage": "Write"
-  },
   "@yovoice.error.aiProviderInvalid": {
     "defaultMessage": "The AI service settings are invalid. Check the address, name and model."
   },
@@ -2354,53 +2336,11 @@
   "@yovoice.library.duration": {
     "defaultMessage": "length"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "Apply"
-  },
   "@yovoice.ai.discard": {
     "defaultMessage": "Discard"
   },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "Try again"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "View logs"
-  },
   "@yovoice.ai.openProject": {
     "defaultMessage": "Open project"
-  },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "Writing in the background. Keep editing or move on; you'll be told when it's done."
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "Another AI task is running. Start this one after it finishes."
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "After {time} · {model}"
-  },
-  "@yovoice.ai.lyricsPlaceholderInstrumental": {
-    "defaultMessage": "Describe the instrumental in a sentence and AI writes the style and sections, e.g. lo-fi for a slow late-night drive through the city"
-  },
-  "@yovoice.ai.scoreLength": {
-    "defaultMessage": "About {time}"
-  },
-  "@yovoice.ai.brief.score": {
-    "defaultMessage": "Describe the music you want"
-  },
-  "@yovoice.ai.brief.lyrics": {
-    "defaultMessage": "Describe the song you want"
-  },
-  "@yovoice.ai.setup.score": {
-    "defaultMessage": "Connect a language model to let AI write a whole arrangement from one sentence."
-  },
-  "@yovoice.ai.setup.lyrics": {
-    "defaultMessage": "Connect a language model to let AI write the style and lyrics from one sentence."
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} is writing"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} is fixing the format"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "The AI service didn't finish within {seconds} seconds. Increase the AI request timeout in Settings › AI services, or pick a faster model."
@@ -3110,30 +3050,6 @@
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Generate from score"
   },
-  "@yovoice.ai.brief.melody": {
-    "defaultMessage": "Describe how to change the score"
-  },
-  "@yovoice.ai.setup.melody": {
-    "defaultMessage": "Connect a language model to let AI rewrite the melody, chords and style from one sentence."
-  },
-  "@yovoice.ai.task.running.melody": {
-    "defaultMessage": "AI is editing the score"
-  },
-  "@yovoice.ai.task.done.melody": {
-    "defaultMessage": "AI finished editing the score"
-  },
-  "@yovoice.ai.task.failed.melody": {
-    "defaultMessage": "AI couldn't edit the score"
-  },
-  "@yovoice.ai.task.replace.melody": {
-    "defaultMessage": "Applying replaces the current score, and the style if AI changed it."
-  },
-  "@yovoice.ai.melodyPlaceholder": {
-    "defaultMessage": "Say how to change the score, e.g. raise the chorus a whole step, make bars 9–12 bouncier, switch to jazz chords"
-  },
-  "@yovoice.ai.melodySubmit": {
-    "defaultMessage": "Edit score"
-  },
   "@yovoice.melody.title": {
     "defaultMessage": "Melody score"
   },
@@ -3215,38 +3131,11 @@
   "@yovoice.melody.replace": {
     "defaultMessage": "Replace"
   },
-  "@yovoice.melody.edited": {
-    "defaultMessage": "AI edited the score"
-  },
   "@yovoice.melody.notice.truncated": {
     "defaultMessage": "The score was longer than YuE2 can sing, so it was cut at the limit. Shorten the lyrics or trim sections to keep the ending."
   },
   "@yovoice.melody.notice.cover": {
     "defaultMessage": "Melody extracted. The original chords were removed so YuE2 rearranges the song in your style."
-  },
-  "@yovoice.melody.changed": {
-    "defaultMessage": "Changed: {changes}"
-  },
-  "@yovoice.melody.changedVocal": {
-    "defaultMessage": "melody in bars {bars}"
-  },
-  "@yovoice.melody.changedChords": {
-    "defaultMessage": "chords in bars {bars}"
-  },
-  "@yovoice.melody.changedIns": {
-    "defaultMessage": "accompaniment in bars {bars}"
-  },
-  "@yovoice.melody.changedTempo": {
-    "defaultMessage": "tempo"
-  },
-  "@yovoice.melody.changedKey": {
-    "defaultMessage": "key"
-  },
-  "@yovoice.melody.changedBars": {
-    "defaultMessage": "length {before} → {after} bars"
-  },
-  "@yovoice.melody.listSeparator": {
-    "defaultMessage": ", "
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 can't sing this score yet"
@@ -3464,9 +3353,6 @@
   "@yovoice.error.assistantMissing": {
     "defaultMessage": "This build does not include the AI assistant runtime, so AI composing and lyric writing are unavailable."
   },
-  "@yovoice.assistant.toggle": {
-    "defaultMessage": "Toggle assistant"
-  },
   "@yovoice.assistant.title": {
     "defaultMessage": "Assistant"
   },
@@ -3486,13 +3372,10 @@
     "defaultMessage": "Ask the assistant to write, edit or generate…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "One sentence is enough: write lines or lyrics, score a piece, pick a voice, or generate."
+    "defaultMessage": "What shall we make?"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "{count} queued"
-  },
-  "@yovoice.assistant.hideChips": {
-    "defaultMessage": "Hide quick actions"
   },
   "@yovoice.assistant.cancelled": {
     "defaultMessage": "Stopped"
@@ -3560,15 +3443,6 @@
   "@yovoice.assistant.history": {
     "defaultMessage": "History"
   },
-  "@yovoice.assistant.back": {
-    "defaultMessage": "Back to chat"
-  },
-  "@yovoice.assistant.historyCount": {
-    "defaultMessage": "{count} chats"
-  },
-  "@yovoice.assistant.historyMeta": {
-    "defaultMessage": "{count} msgs · {time}"
-  },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "No chats yet."
   },
@@ -3607,15 +3481,6 @@
   },
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "The current AI service (ChatGPT subscription) can't be used by the assistant. Switch to an API-based service in Settings."
-  },
-  "@yovoice.assistant.askLyrics": {
-    "defaultMessage": "Write a song for this music work: {brief}"
-  },
-  "@yovoice.assistant.askLyricsInstrumental": {
-    "defaultMessage": "Write a song for this music work: {brief} (instrumental: style and sections only)"
-  },
-  "@yovoice.assistant.askScore": {
-    "defaultMessage": "Write an arrangement for this score work: {brief} (about {seconds} seconds)"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Give your words a voice. Compose your ideas into songs."
@@ -3817,5 +3682,20 @@
   },
   "@yovoice.assets.sourceMissing": {
     "defaultMessage": "Source project deleted"
+  },
+  "@yovoice.assistant.launch": {
+    "defaultMessage": "Ask the assistant"
+  },
+  "@yovoice.assistant.thinking": {
+    "defaultMessage": "Thinking"
+  },
+  "@yovoice.assistant.thought": {
+    "defaultMessage": "Thought process"
+  },
+  "@yovoice.assistant.steps": {
+    "defaultMessage": "{count} steps"
+  },
+  "@yovoice.assistant.toolDone": {
+    "defaultMessage": "Done"
   }
 }

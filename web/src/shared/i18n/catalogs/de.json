@@ -2243,24 +2243,6 @@
   "@yovoice.ai.configure": {
     "defaultMessage": "KI einrichten"
   },
-  "@yovoice.ai.notConfigured": {
-    "defaultMessage": "Diese Funktion benötigt ein Sprachmodell. Fügen Sie zuerst unter Einstellungen › KI-Dienste einen Dienst hinzu und wählen Sie ein Modell."
-  },
-  "@yovoice.ai.scorePlaceholder": {
-    "defaultMessage": "Beschreiben Sie die Musik in einem Satz und die KI schreibt das ganze Arrangement, z. B. ein warmes, langsames Klavierstück als Intro für ein Reisevlog, später mit sanften Streichern"
-  },
-  "@yovoice.ai.scoreSeconds": {
-    "defaultMessage": "Länge"
-  },
-  "@yovoice.ai.scoreSubmit": {
-    "defaultMessage": "Komponieren"
-  },
-  "@yovoice.ai.lyricsPlaceholder": {
-    "defaultMessage": "Beschreiben Sie den Song in einem Satz und die KI schreibt Stil, Text und Titel, z. B. ein City-Pop-Song über eine nächtliche Sommerfahrt am Meer"
-  },
-  "@yovoice.ai.lyricsSubmit": {
-    "defaultMessage": "Schreiben"
-  },
   "@yovoice.error.aiProviderInvalid": {
     "defaultMessage": "Die Einstellungen des KI-Dienstes sind ungültig. Prüfen Sie Adresse, Name und Modell."
   },
@@ -2354,53 +2336,11 @@
   "@yovoice.library.duration": {
     "defaultMessage": "Länge"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "Übernehmen"
-  },
   "@yovoice.ai.discard": {
     "defaultMessage": "Verwerfen"
   },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "Erneut versuchen"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "Logs anzeigen"
-  },
   "@yovoice.ai.openProject": {
     "defaultMessage": "Projekt öffnen"
-  },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "Wird im Hintergrund geschrieben. Arbeiten Sie ruhig weiter – Sie werden benachrichtigt, wenn es fertig ist."
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "Eine andere KI-Aufgabe läuft. Starten Sie diese, wenn sie fertig ist."
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "Nach {time} · {model}"
-  },
-  "@yovoice.ai.lyricsPlaceholderInstrumental": {
-    "defaultMessage": "Beschreiben Sie das Instrumental in einem Satz und die KI schreibt Stil und Abschnitte, z. B. Lo-Fi für eine langsame nächtliche Fahrt durch die Stadt"
-  },
-  "@yovoice.ai.scoreLength": {
-    "defaultMessage": "Etwa {time}"
-  },
-  "@yovoice.ai.brief.score": {
-    "defaultMessage": "Beschreiben Sie die gewünschte Musik"
-  },
-  "@yovoice.ai.brief.lyrics": {
-    "defaultMessage": "Beschreiben Sie den gewünschten Song"
-  },
-  "@yovoice.ai.setup.score": {
-    "defaultMessage": "Verbinden Sie ein Sprachmodell, damit die KI aus einem Satz ein ganzes Arrangement schreibt."
-  },
-  "@yovoice.ai.setup.lyrics": {
-    "defaultMessage": "Verbinden Sie ein Sprachmodell, damit die KI aus einem Satz Stil und Songtext schreibt."
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} schreibt"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} korrigiert das Format"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "Der KI-Dienst ist nicht innerhalb von {seconds} Sekunden fertig geworden. Erhöhen Sie das KI-Zeitlimit unter Einstellungen › KI-Dienste oder wählen Sie ein schnelleres Modell."
@@ -3110,30 +3050,6 @@
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Aus Melodienoten erzeugen"
   },
-  "@yovoice.ai.brief.melody": {
-    "defaultMessage": "Beschreibe, wie die Noten geändert werden sollen"
-  },
-  "@yovoice.ai.setup.melody": {
-    "defaultMessage": "Verbinde ein Sprachmodell, damit die KI Melodie, Akkorde und Stil mit einem Satz umschreibt."
-  },
-  "@yovoice.ai.task.running.melody": {
-    "defaultMessage": "KI bearbeitet die Noten"
-  },
-  "@yovoice.ai.task.done.melody": {
-    "defaultMessage": "KI hat die Noten bearbeitet"
-  },
-  "@yovoice.ai.task.failed.melody": {
-    "defaultMessage": "KI konnte die Noten nicht bearbeiten"
-  },
-  "@yovoice.ai.task.replace.melody": {
-    "defaultMessage": "Übernehmen ersetzt die aktuellen Noten und den Stil, falls die KI ihn geändert hat."
-  },
-  "@yovoice.ai.melodyPlaceholder": {
-    "defaultMessage": "Sag, wie die Noten geändert werden sollen, z. B. Refrain einen Ganzton höher, Takte 9–12 beschwingter, Jazz-Akkorde"
-  },
-  "@yovoice.ai.melodySubmit": {
-    "defaultMessage": "Noten bearbeiten"
-  },
   "@yovoice.melody.title": {
     "defaultMessage": "Melodienoten"
   },
@@ -3215,38 +3131,11 @@
   "@yovoice.melody.replace": {
     "defaultMessage": "Ersetzen"
   },
-  "@yovoice.melody.edited": {
-    "defaultMessage": "KI hat die Noten bearbeitet"
-  },
   "@yovoice.melody.notice.truncated": {
     "defaultMessage": "Die Noten waren länger, als YuE2 singen kann, und wurden an der Grenze gekürzt. Kürze den Text oder entferne Abschnitte, um das Ende zu behalten."
   },
   "@yovoice.melody.notice.cover": {
     "defaultMessage": "Melodie extrahiert. Die Originalakkorde wurden entfernt, damit YuE2 den Song in deinem Stil neu arrangiert."
-  },
-  "@yovoice.melody.changed": {
-    "defaultMessage": "Geändert: {changes}"
-  },
-  "@yovoice.melody.changedVocal": {
-    "defaultMessage": "Melodie in Takt {bars}"
-  },
-  "@yovoice.melody.changedChords": {
-    "defaultMessage": "Akkorde in Takt {bars}"
-  },
-  "@yovoice.melody.changedIns": {
-    "defaultMessage": "Begleitung in Takt {bars}"
-  },
-  "@yovoice.melody.changedTempo": {
-    "defaultMessage": "Tempo"
-  },
-  "@yovoice.melody.changedKey": {
-    "defaultMessage": "Tonart"
-  },
-  "@yovoice.melody.changedBars": {
-    "defaultMessage": "Länge {before} → {after} Takte"
-  },
-  "@yovoice.melody.listSeparator": {
-    "defaultMessage": ", "
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 kann diese Noten noch nicht singen"
@@ -3467,9 +3356,6 @@
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "Der aktuelle KI-Dienst (ChatGPT-Abo) kann vom Assistenten nicht genutzt werden. Wechsle in den Einstellungen zu einem API-Dienst."
   },
-  "@yovoice.assistant.toggle": {
-    "defaultMessage": "Assistent öffnen"
-  },
   "@yovoice.assistant.title": {
     "defaultMessage": "Assistent"
   },
@@ -3489,13 +3375,10 @@
     "defaultMessage": "Bitte den Assistenten zu schreiben, zu bearbeiten oder zu generieren…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "Ein Satz genügt: Texte oder Songtexte schreiben, komponieren, eine Stimme wählen oder generieren."
+    "defaultMessage": "Was machen wir?"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "{count} in der Warteschlange"
-  },
-  "@yovoice.assistant.hideChips": {
-    "defaultMessage": "Schnellaktionen ausblenden"
   },
   "@yovoice.assistant.cancelled": {
     "defaultMessage": "Gestoppt"
@@ -3563,15 +3446,6 @@
   "@yovoice.assistant.history": {
     "defaultMessage": "Verlauf"
   },
-  "@yovoice.assistant.back": {
-    "defaultMessage": "Zurück zum Chat"
-  },
-  "@yovoice.assistant.historyCount": {
-    "defaultMessage": "{count} Chats"
-  },
-  "@yovoice.assistant.historyMeta": {
-    "defaultMessage": "{count} Nachr. · {time}"
-  },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "Noch keine Chats."
   },
@@ -3607,15 +3481,6 @@
   },
   "@yovoice.assistant.contextOff": {
     "defaultMessage": "Kein Kontext angehängt. Klicken, um aktuelle Seite und Werk mitzusenden."
-  },
-  "@yovoice.assistant.askLyrics": {
-    "defaultMessage": "Schreibe den Songtext für dieses Musikwerk: {brief}"
-  },
-  "@yovoice.assistant.askLyricsInstrumental": {
-    "defaultMessage": "Schreibe für dieses Musikwerk: {brief} (instrumental: nur Stil und Abschnitte)"
-  },
-  "@yovoice.assistant.askScore": {
-    "defaultMessage": "Schreibe ein Arrangement für dieses Partiturwerk: {brief} (etwa {seconds} Sekunden)"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Gib deinen Worten eine Stimme. Mach aus Ideen Songs."
@@ -3817,5 +3682,20 @@
   },
   "@yovoice.assets.sourceMissing": {
     "defaultMessage": "Quellprojekt gelöscht"
+  },
+  "@yovoice.assistant.launch": {
+    "defaultMessage": "Assistent fragen"
+  },
+  "@yovoice.assistant.thinking": {
+    "defaultMessage": "Denkt nach"
+  },
+  "@yovoice.assistant.thought": {
+    "defaultMessage": "Denkprozess"
+  },
+  "@yovoice.assistant.steps": {
+    "defaultMessage": "{count} Schritte"
+  },
+  "@yovoice.assistant.toolDone": {
+    "defaultMessage": "Erledigt"
   }
 }

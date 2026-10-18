@@ -127,12 +127,11 @@ export interface MelodyResult { id: string; projectId: string; source: 'plan' | 
 /** 后端解析旋律谱的结果；issue 指出第一处问题所在的小节与声部。 */
 export interface MelodyIssue { code: string; line?: number; bar?: number; voice?: string; detail?: string }
 export interface MelodyInspection { issue?: MelodyIssue; tempo?: number; meter?: [number, number]; key?: string; bars?: number; seconds?: number; chords?: boolean; score?: Score }
-export interface MelodyChanges { tempo?: boolean; key?: boolean; vocal?: number[]; ins?: number[]; chords?: number[]; bars: [number, number] }
 
 // 可选的大模型服务，与 Go 的 schema.AIProvider 一致；密钥不在状态中，只有掩码。
 export interface AITest { ok: boolean; code?: string; params?: Record<string, unknown>; at: string }
 // 后台 AI 写作任务，与 Go 的 schema.AITask 一致；只在本次会话有效。
-export type AITaskKind = 'cast' | 'melody' | 'image';
+export type AITaskKind = 'cast' | 'image';
 export interface AITask {
   id: string; kind: AITaskKind; projectId: string; brief: string; status: 'running' | 'completed' | 'failed' | 'cancelled'; stage: 'writing' | 'repairing'; done?: number; total?: number;
   provider: string; model: string; timeout: number; startedAt: string; finishedAt?: string; result?: unknown; errorCode?: string; errorParams?: Record<string, unknown>;
@@ -144,14 +143,19 @@ export interface AIProvider { id: string; preset: string; name: string; format: 
 export type AssistantMessageRole = 'user' | 'assistant';
 export type AssistantToolCardState = 'running' | 'done' | 'error';
 export interface AssistantToolCard { tool: string; summary?: string; args?: string; state?: AssistantToolCardState }
+/** 助手消息里按出现顺序排列的一块：文本、思考或一次工具调用。 */
+export interface AssistantBlock { kind: 'text' | 'thinking' | 'tool'; text?: string; card?: AssistantToolCard }
+/** 助手消息：blocks 为按顺序的内容块，text 为文本块拼接；tools 只出现在旧版本记录里。 */
 export interface AssistantMessage {
-  id: string; role: AssistantMessageRole; text?: string; tools?: AssistantToolCard[];
+  id: string; role: AssistantMessageRole; text?: string; blocks?: AssistantBlock[]; tools?: AssistantToolCard[];
   status?: 'completed' | 'cancelled' | 'failed'; errorCode?: MessageCode; errorParams?: MessageParams; createdAt: string;
 }
+/** 拼接内容块里的文本块，段与段之间空一行，与 Go 的 blocksText 一致。 */
+export const blocksText = (blocks: AssistantBlock[]) => blocks.filter(block => block.kind === 'text' && block.text?.trim()).map(block => block.text!.trim()).join('\n\n');
 /** 一段助手对话：每个会话对应独立的助手时间线。 */
 export interface AssistantSession { id: string; title: string; messages: AssistantMessage[]; updatedAt: string }
 export interface AssistantSessions { currentId: string; sessions: AssistantSession[] }
-export interface AssistantTurn { text?: string; tools?: AssistantToolCard[]; model?: string; startedAt: string }
+export interface AssistantTurn { blocks?: AssistantBlock[]; model?: string; startedAt: string }
 export interface AssistantNav { id: string; workId?: string; page?: string }
 export interface AssistantUpdate { id: string; workId: string }
 export interface AssistantLive { turn?: AssistantTurn | null; queued?: number; nav?: AssistantNav | null; update?: AssistantUpdate | null }

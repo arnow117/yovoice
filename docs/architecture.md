@@ -119,7 +119,7 @@ The engine process stays loaded between generations of the same model, which mak
 
 ## AI service
 
-`internal/llm` sends prompts to the provider configured in Settings: an OpenAI-compatible API, Anthropic, or Ollama, using the presets in `presets.json`. `workbench` uses it to write scores and lyrics and checks the replies against `schema` before saving. Keys are stored in a private table of the local database that is never broadcast to the UI, and no other part of yovoice talks to the network except model and runtime downloads. See [AI service](ai.md).
+`internal/llm` sends prompts to the provider configured in Settings: an OpenAI-compatible API, Anthropic, or Ollama, using the presets in `presets.json`. `workbench` uses it for background tasks such as casting imported novels and checks the replies before saving; scores, lyrics and melody scores are written by the built-in assistant (`internal/assistant`), whose tools validate every change. Keys are stored in a private table of the local database that is never broadcast to the UI, and no other part of yovoice talks to the network except model and runtime downloads. See [AI service](ai.md).
 
 ## Data directory
 

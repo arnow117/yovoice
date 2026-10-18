@@ -7,11 +7,13 @@ import (
 
 // 助手对话状态：会话与消息持久化（面板重开可见），进行中的一轮与界面事件只随状态广播、不入库。
 
-// AssistantMessage 是助手对话中的一条消息：用户消息只有 Text；助手消息含文本与工具卡片。
+// AssistantMessage 是助手对话中的一条消息：用户消息只有 Text；助手消息含按顺序的内容块，
+// Text 为其中文本块的拼接（复制用）。Tools 只出现在旧版本记录里，新消息的工具卡片在 Blocks 中。
 type AssistantMessage struct {
 	ID          string              `json:"id"`
 	Role        string              `json:"role"` // user 或 assistant
 	Text        string              `json:"text,omitempty"`
+	Blocks      []AssistantBlock    `json:"blocks,omitempty"`
 	Tools       []AssistantToolCard `json:"tools,omitempty"`
 	Status      string              `json:"status,omitempty"` // 助手消息的结束状态：completed、cancelled、failed
 	ErrorCode   msg.Code            `json:"errorCode,omitempty"`
@@ -25,6 +27,13 @@ type AssistantToolCard struct {
 	Summary string `json:"summary,omitempty"` // 动作摘要，如“修改了《示例小步舞曲》的乐谱”
 	Args    string `json:"args,omitempty"`
 	State   string `json:"state,omitempty"` // running、done 或 error
+}
+
+// AssistantBlock 是助手消息里按出现顺序排列的一块：文本、思考，或一次工具调用（Card）。
+type AssistantBlock struct {
+	Kind string             `json:"kind"` // text、thinking 或 tool
+	Text string             `json:"text,omitempty"`
+	Card *AssistantToolCard `json:"card,omitempty"`
 }
 
 // AssistantSession 是一段助手对话：标题取首条用户消息，消息数量有上限；
@@ -49,12 +58,11 @@ const (
 	AssistantChatLimit = 200
 )
 
-// AssistantTurn 是正在运行的一轮对话的实时状态：流式文本与工具卡片。
+// AssistantTurn 是正在运行的一轮对话的实时状态：按顺序的内容块（含尚未定稿的流式增量）。
 type AssistantTurn struct {
-	Text      string              `json:"text,omitempty"`
-	Tools     []AssistantToolCard `json:"tools,omitempty"`
-	Model     string              `json:"model,omitempty"`
-	StartedAt time.Time           `json:"startedAt"`
+	Blocks    []AssistantBlock `json:"blocks,omitempty"`
+	Model     string           `json:"model,omitempty"`
+	StartedAt time.Time        `json:"startedAt"`
 }
 
 // AssistantNav 是助手要求界面跳转的一次事件，ID 变化即为新事件；WorkID 与 Page 二选一。

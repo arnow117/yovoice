@@ -2243,24 +2243,6 @@
   "@yovoice.ai.configure": {
     "defaultMessage": "Thiết lập AI"
   },
-  "@yovoice.ai.notConfigured": {
-    "defaultMessage": "Tính năng này cần mô hình ngôn ngữ. Hãy thêm dịch vụ và chọn mô hình trong Cài đặt › Dịch vụ AI trước."
-  },
-  "@yovoice.ai.scorePlaceholder": {
-    "defaultMessage": "Mô tả bản nhạc trong một câu và AI sẽ viết toàn bộ bản phối, VD: một bản piano chậm, ấm áp cho đoạn mở đầu vlog du lịch, tiếng dây nhẹ nhàng vào sau"
-  },
-  "@yovoice.ai.scoreSeconds": {
-    "defaultMessage": "Độ dài"
-  },
-  "@yovoice.ai.scoreSubmit": {
-    "defaultMessage": "Soạn nhạc"
-  },
-  "@yovoice.ai.lyricsPlaceholder": {
-    "defaultMessage": "Mô tả bài hát trong một câu và AI sẽ viết phong cách, lời và tên bài, VD: một bài city pop về chuyến lái xe đêm hè dọc bờ biển"
-  },
-  "@yovoice.ai.lyricsSubmit": {
-    "defaultMessage": "Viết"
-  },
   "@yovoice.error.aiProviderInvalid": {
     "defaultMessage": "Cài đặt dịch vụ AI không hợp lệ. Kiểm tra địa chỉ, tên và mô hình."
   },
@@ -2354,53 +2336,11 @@
   "@yovoice.library.duration": {
     "defaultMessage": "độ dài"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "Áp dụng"
-  },
   "@yovoice.ai.discard": {
     "defaultMessage": "Bỏ qua"
   },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "Thử lại"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "Xem nhật ký"
-  },
   "@yovoice.ai.openProject": {
     "defaultMessage": "Mở dự án"
-  },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "Đang viết trong nền. Bạn cứ tiếp tục chỉnh sửa hoặc làm việc khác; sẽ có thông báo khi xong."
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "Một tác vụ AI khác đang chạy. Hãy bắt đầu tác vụ này sau khi nó hoàn tất."
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "Sau {time} · {model}"
-  },
-  "@yovoice.ai.lyricsPlaceholderInstrumental": {
-    "defaultMessage": "Mô tả bản không lời trong một câu và AI sẽ viết phong cách và các đoạn, VD: lo-fi cho chuyến lái xe chậm rãi qua thành phố về khuya"
-  },
-  "@yovoice.ai.scoreLength": {
-    "defaultMessage": "Khoảng {time}"
-  },
-  "@yovoice.ai.brief.score": {
-    "defaultMessage": "Mô tả bản nhạc bạn muốn"
-  },
-  "@yovoice.ai.brief.lyrics": {
-    "defaultMessage": "Mô tả bài hát bạn muốn"
-  },
-  "@yovoice.ai.setup.score": {
-    "defaultMessage": "Kết nối mô hình ngôn ngữ để AI viết toàn bộ bản phối chỉ từ một câu."
-  },
-  "@yovoice.ai.setup.lyrics": {
-    "defaultMessage": "Kết nối mô hình ngôn ngữ để AI viết phong cách và lời chỉ từ một câu."
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} đang viết"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} đang sửa định dạng"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "Dịch vụ AI không hoàn tất trong {seconds} giây. Hãy tăng thời gian chờ yêu cầu AI trong Cài đặt › Dịch vụ AI, hoặc chọn mô hình nhanh hơn."
@@ -3110,30 +3050,6 @@
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Tạo theo bản nhạc"
   },
-  "@yovoice.ai.brief.melody": {
-    "defaultMessage": "Mô tả cách sửa bản nhạc"
-  },
-  "@yovoice.ai.setup.melody": {
-    "defaultMessage": "Kết nối mô hình ngôn ngữ để AI viết lại giai điệu, hợp âm và phong cách chỉ bằng một câu."
-  },
-  "@yovoice.ai.task.running.melody": {
-    "defaultMessage": "AI đang sửa bản nhạc"
-  },
-  "@yovoice.ai.task.done.melody": {
-    "defaultMessage": "AI đã sửa xong bản nhạc"
-  },
-  "@yovoice.ai.task.failed.melody": {
-    "defaultMessage": "AI không sửa được bản nhạc"
-  },
-  "@yovoice.ai.task.replace.melody": {
-    "defaultMessage": "Áp dụng sẽ thay bản nhạc hiện tại, và cả phong cách nếu AI đã đổi."
-  },
-  "@yovoice.ai.melodyPlaceholder": {
-    "defaultMessage": "Nói cách sửa bản nhạc, ví dụ: nâng điệp khúc lên một cung, cho ô nhịp 9–12 nảy hơn, đổi sang hợp âm jazz"
-  },
-  "@yovoice.ai.melodySubmit": {
-    "defaultMessage": "Sửa bản nhạc"
-  },
   "@yovoice.melody.title": {
     "defaultMessage": "Bản nhạc giai điệu"
   },
@@ -3215,38 +3131,11 @@
   "@yovoice.melody.replace": {
     "defaultMessage": "Thay thế"
   },
-  "@yovoice.melody.edited": {
-    "defaultMessage": "AI đã sửa bản nhạc"
-  },
   "@yovoice.melody.notice.truncated": {
     "defaultMessage": "Bản nhạc dài hơn mức YuE2 hát được nên đã bị cắt ở giới hạn. Rút ngắn lời hoặc bớt đoạn để giữ phần kết."
   },
   "@yovoice.melody.notice.cover": {
     "defaultMessage": "Đã trích giai điệu. Hợp âm gốc đã bị bỏ để YuE2 phối lại bài theo phong cách của bạn."
-  },
-  "@yovoice.melody.changed": {
-    "defaultMessage": "Thay đổi: {changes}"
-  },
-  "@yovoice.melody.changedVocal": {
-    "defaultMessage": "giai điệu ở ô nhịp {bars}"
-  },
-  "@yovoice.melody.changedChords": {
-    "defaultMessage": "hợp âm ở ô nhịp {bars}"
-  },
-  "@yovoice.melody.changedIns": {
-    "defaultMessage": "đệm ở ô nhịp {bars}"
-  },
-  "@yovoice.melody.changedTempo": {
-    "defaultMessage": "nhịp độ"
-  },
-  "@yovoice.melody.changedKey": {
-    "defaultMessage": "giọng"
-  },
-  "@yovoice.melody.changedBars": {
-    "defaultMessage": "độ dài {before} → {after} ô nhịp"
-  },
-  "@yovoice.melody.listSeparator": {
-    "defaultMessage": ", "
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 chưa thể hát bản nhạc này"
@@ -3467,9 +3356,6 @@
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "Dịch vụ AI hiện tại (gói ChatGPT) không dùng được cho trợ lý. Hãy chuyển sang dịch vụ dạng API trong Cài đặt."
   },
-  "@yovoice.assistant.toggle": {
-    "defaultMessage": "Mở trợ lý"
-  },
   "@yovoice.assistant.title": {
     "defaultMessage": "Trợ lý"
   },
@@ -3489,13 +3375,10 @@
     "defaultMessage": "Nhờ trợ lý viết, chỉnh sửa hoặc tạo…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "Chỉ cần một câu: viết lời thoại hay lời bài hát, soạn nhạc, chọn giọng hoặc tạo ngay."
+    "defaultMessage": "Mình làm gì nhé?"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "{count} đang chờ"
-  },
-  "@yovoice.assistant.hideChips": {
-    "defaultMessage": "Ẩn thao tác nhanh"
   },
   "@yovoice.assistant.cancelled": {
     "defaultMessage": "Đã dừng"
@@ -3563,15 +3446,6 @@
   "@yovoice.assistant.history": {
     "defaultMessage": "Lịch sử"
   },
-  "@yovoice.assistant.back": {
-    "defaultMessage": "Quay lại trò chuyện"
-  },
-  "@yovoice.assistant.historyCount": {
-    "defaultMessage": "{count} cuộc trò chuyện"
-  },
-  "@yovoice.assistant.historyMeta": {
-    "defaultMessage": "{count} tin · {time}"
-  },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "Chưa có cuộc trò chuyện nào."
   },
@@ -3607,15 +3481,6 @@
   },
   "@yovoice.assistant.contextOff": {
     "defaultMessage": "Không đính kèm ngữ cảnh. Nhấn để đính kèm trang và tác phẩm hiện tại."
-  },
-  "@yovoice.assistant.askLyrics": {
-    "defaultMessage": "Viết lời cho tác phẩm âm nhạc này: {brief}"
-  },
-  "@yovoice.assistant.askLyricsInstrumental": {
-    "defaultMessage": "Viết cho tác phẩm âm nhạc này: {brief} (nhạc không lời: chỉ phong cách và các đoạn)"
-  },
-  "@yovoice.assistant.askScore": {
-    "defaultMessage": "Viết hòa âm cho tác phẩm này: {brief} (khoảng {seconds} giây)"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Cho lời nói của bạn một giọng nói. Biến ý tưởng thành bài hát."
@@ -3817,5 +3682,20 @@
   },
   "@yovoice.assets.sourceMissing": {
     "defaultMessage": "Dự án nguồn đã bị xóa"
+  },
+  "@yovoice.assistant.launch": {
+    "defaultMessage": "Hỏi trợ lý"
+  },
+  "@yovoice.assistant.thinking": {
+    "defaultMessage": "Đang suy nghĩ"
+  },
+  "@yovoice.assistant.thought": {
+    "defaultMessage": "Quá trình suy nghĩ"
+  },
+  "@yovoice.assistant.steps": {
+    "defaultMessage": "{count} bước"
+  },
+  "@yovoice.assistant.toolDone": {
+    "defaultMessage": "Xong"
   }
 }

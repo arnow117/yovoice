@@ -33,7 +33,7 @@ func TestFrontendTypesMatchSchema(t *testing.T) {
 		schema.GenerationSegment{}, schema.Activity{}, schema.Preferences{}, schema.State{}, catalog.ModelPackage{},
 		schema.Score{}, schema.ScoreSection{}, schema.ScoreTrack{}, schema.Humanize{}, schema.ScoreRamp{}, schema.ScoreNote{},
 		schema.AIProvider{}, schema.AITest{}, schema.AITask{}, schema.MelodyResult{},
-		schema.AssistantMessage{}, schema.AssistantToolCard{}, schema.AssistantSession{}, schema.AssistantSessions{}, schema.AssistantTurn{}, schema.AssistantNav{}, schema.AssistantUpdate{}, schema.AssistantLive{},
+		schema.AssistantMessage{}, schema.AssistantBlock{}, schema.AssistantToolCard{}, schema.AssistantSession{}, schema.AssistantSessions{}, schema.AssistantTurn{}, schema.AssistantNav{}, schema.AssistantUpdate{}, schema.AssistantLive{},
 	} {
 		typ := reflect.TypeOf(value)
 		ts, ok := interfaces[typ.Name()]

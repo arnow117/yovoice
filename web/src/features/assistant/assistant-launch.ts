@@ -1,11 +1,6 @@
 import type { TranslatorFn } from '@astryxdesign/core/i18n';
 import type { QuickAction } from './assistant-panel';
 
-// 助手面板的打开请求经窗口事件发出（编辑器里的 AI 写作栏），
-// 应用层（workbench-chrome）监听后打开面板并记住状态。
-
-export const assistantOpenEvent = 'workbench-open-assistant';
-
 // 随当前页面变化的快捷胶囊：点了即发送一条自然语言指令。
 export function quickActions(t: TranslatorFn, page: string): QuickAction[] {
   const actions: Record<string, { label: string; prompt: string }[]> = {

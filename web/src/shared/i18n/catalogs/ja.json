@@ -2243,24 +2243,6 @@
   "@yovoice.ai.configure": {
     "defaultMessage": "AI を設定"
   },
-  "@yovoice.ai.notConfigured": {
-    "defaultMessage": "この機能には言語モデルが必要です。まず 設定 › AI サービス でサービスを追加し、モデルを選択してください。"
-  },
-  "@yovoice.ai.scorePlaceholder": {
-    "defaultMessage": "音楽を一文で説明すると、AI が編曲全体を書きます。例：旅行 vlog のオープニング向けの温かくゆったりしたピアノ曲、後半にやわらかなストリングスが加わる"
-  },
-  "@yovoice.ai.scoreSeconds": {
-    "defaultMessage": "長さ"
-  },
-  "@yovoice.ai.scoreSubmit": {
-    "defaultMessage": "作曲"
-  },
-  "@yovoice.ai.lyricsPlaceholder": {
-    "defaultMessage": "曲を一文で説明すると、AI がスタイル、歌詞、タイトルを書きます。例：夏の夜に海辺をドライブするシティポップ"
-  },
-  "@yovoice.ai.lyricsSubmit": {
-    "defaultMessage": "作詞"
-  },
   "@yovoice.error.aiProviderInvalid": {
     "defaultMessage": "AI サービスの設定が無効です。アドレス、名前、モデルを確認してください。"
   },
@@ -2354,53 +2336,11 @@
   "@yovoice.library.duration": {
     "defaultMessage": "長さ"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "適用"
-  },
   "@yovoice.ai.discard": {
     "defaultMessage": "破棄"
   },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "再試行"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "ログを表示"
-  },
   "@yovoice.ai.openProject": {
     "defaultMessage": "作品を開く"
-  },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "バックグラウンドで作成中です。編集を続けたり、ほかのページに移動したりできます。完了したらお知らせします。"
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "別の AI タスクが実行中です。終了してから開始してください。"
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "{time} 後 · {model}"
-  },
-  "@yovoice.ai.lyricsPlaceholderInstrumental": {
-    "defaultMessage": "インストを一文で説明すると、AI がスタイルとセクションを書きます。例：深夜の街をゆっくりドライブする lo-fi"
-  },
-  "@yovoice.ai.scoreLength": {
-    "defaultMessage": "約 {time}"
-  },
-  "@yovoice.ai.brief.score": {
-    "defaultMessage": "どんな音楽が欲しいか説明"
-  },
-  "@yovoice.ai.brief.lyrics": {
-    "defaultMessage": "どんな曲が欲しいか説明"
-  },
-  "@yovoice.ai.setup.score": {
-    "defaultMessage": "言語モデルを接続すると、一文から AI が編曲全体を書けます。"
-  },
-  "@yovoice.ai.setup.lyrics": {
-    "defaultMessage": "言語モデルを接続すると、一文から AI がスタイルと歌詞を書けます。"
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} が作成中"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} が形式を修正中"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "AI サービスが {seconds} 秒以内に完了しませんでした。設定 › AI サービス で AI リクエストのタイムアウトを延ばすか、より速いモデルを選んでください。"
@@ -3110,30 +3050,6 @@
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "メロディ譜から生成"
   },
-  "@yovoice.ai.brief.melody": {
-    "defaultMessage": "譜面をどう変えたいか説明"
-  },
-  "@yovoice.ai.setup.melody": {
-    "defaultMessage": "言語モデルを接続すると、ひとことでメロディ・コード・スタイルを AI に書き換えさせられます。"
-  },
-  "@yovoice.ai.task.running.melody": {
-    "defaultMessage": "AI が譜面を編集中"
-  },
-  "@yovoice.ai.task.done.melody": {
-    "defaultMessage": "AI が譜面の編集を終えました"
-  },
-  "@yovoice.ai.task.failed.melody": {
-    "defaultMessage": "AI は譜面を編集できませんでした"
-  },
-  "@yovoice.ai.task.replace.melody": {
-    "defaultMessage": "適用すると現在の譜面が置き換わり、AI がスタイルを変えた場合はスタイルも置き換わります。"
-  },
-  "@yovoice.ai.melodyPlaceholder": {
-    "defaultMessage": "譜面の変え方を書いてください。例：サビを全音上げる、9–12 小節をもっと跳ねるリズムに、コードをジャズ風に"
-  },
-  "@yovoice.ai.melodySubmit": {
-    "defaultMessage": "譜面を編集"
-  },
   "@yovoice.melody.title": {
     "defaultMessage": "メロディ譜"
   },
@@ -3215,38 +3131,11 @@
   "@yovoice.melody.replace": {
     "defaultMessage": "置き換える"
   },
-  "@yovoice.melody.edited": {
-    "defaultMessage": "AI が譜面を編集しました"
-  },
   "@yovoice.melody.notice.truncated": {
     "defaultMessage": "譜面が YuE2 で歌える長さを超えたため、上限で切り詰めました。最後まで残すには歌詞を短くするかセクションを減らしてください。"
   },
   "@yovoice.melody.notice.cover": {
     "defaultMessage": "メロディを抽出しました。元のコードは外したので、YuE2 があなたのスタイルでアレンジし直します。"
-  },
-  "@yovoice.melody.changed": {
-    "defaultMessage": "変更：{changes}"
-  },
-  "@yovoice.melody.changedVocal": {
-    "defaultMessage": "メロディ {bars} 小節"
-  },
-  "@yovoice.melody.changedChords": {
-    "defaultMessage": "コード {bars} 小節"
-  },
-  "@yovoice.melody.changedIns": {
-    "defaultMessage": "伴奏 {bars} 小節"
-  },
-  "@yovoice.melody.changedTempo": {
-    "defaultMessage": "テンポ"
-  },
-  "@yovoice.melody.changedKey": {
-    "defaultMessage": "調"
-  },
-  "@yovoice.melody.changedBars": {
-    "defaultMessage": "長さ {before} → {after} 小節"
-  },
-  "@yovoice.melody.listSeparator": {
-    "defaultMessage": "、"
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 はまだこの譜面を歌えません"
@@ -3467,9 +3356,6 @@
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "現在の AI サービス（ChatGPT サブスクリプション）はアシスタントで使えません。設定で API 型のサービスに切り替えてください。"
   },
-  "@yovoice.assistant.toggle": {
-    "defaultMessage": "アシスタントを開く"
-  },
   "@yovoice.assistant.title": {
     "defaultMessage": "アシスタント"
   },
@@ -3489,13 +3375,10 @@
     "defaultMessage": "台本、作詞、作曲、生成をアシスタントに頼む…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "ひと言で頼めます：台本や歌詞を書く、曲を作る、声を選ぶ、そのまま生成する。"
+    "defaultMessage": "何を作りましょう？"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "{count} 件待機中"
-  },
-  "@yovoice.assistant.hideChips": {
-    "defaultMessage": "クイック操作を隠す"
   },
   "@yovoice.assistant.cancelled": {
     "defaultMessage": "停止しました"
@@ -3563,15 +3446,6 @@
   "@yovoice.assistant.history": {
     "defaultMessage": "履歴"
   },
-  "@yovoice.assistant.back": {
-    "defaultMessage": "チャットに戻る"
-  },
-  "@yovoice.assistant.historyCount": {
-    "defaultMessage": "{count} 件のチャット"
-  },
-  "@yovoice.assistant.historyMeta": {
-    "defaultMessage": "{count} 件 · {time}"
-  },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "チャット履歴はまだありません。"
   },
@@ -3607,15 +3481,6 @@
   },
   "@yovoice.assistant.contextOff": {
     "defaultMessage": "情報を添付していません。クリックで再開"
-  },
-  "@yovoice.assistant.askLyrics": {
-    "defaultMessage": "この音楽作品の歌詞を書いて：{brief}"
-  },
-  "@yovoice.assistant.askLyricsInstrumental": {
-    "defaultMessage": "この音楽作品の歌詞を書いて：{brief}（インスト曲：スタイルと構成のみ）"
-  },
-  "@yovoice.assistant.askScore": {
-    "defaultMessage": "このスコア作品の編曲を書いて：{brief}（約 {seconds} 秒）"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "言葉に声を、ひらめきを歌に。"
@@ -3817,5 +3682,20 @@
   },
   "@yovoice.assets.sourceMissing": {
     "defaultMessage": "元の作品は削除されました"
+  },
+  "@yovoice.assistant.launch": {
+    "defaultMessage": "アシスタントに相談"
+  },
+  "@yovoice.assistant.thinking": {
+    "defaultMessage": "考え中"
+  },
+  "@yovoice.assistant.thought": {
+    "defaultMessage": "思考の過程"
+  },
+  "@yovoice.assistant.steps": {
+    "defaultMessage": "{count} ステップを実行"
+  },
+  "@yovoice.assistant.toolDone": {
+    "defaultMessage": "完了"
   }
 }

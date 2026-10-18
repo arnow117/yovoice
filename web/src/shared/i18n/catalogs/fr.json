@@ -2243,24 +2243,6 @@
   "@yovoice.ai.configure": {
     "defaultMessage": "Configurer l’IA"
   },
-  "@yovoice.ai.notConfigured": {
-    "defaultMessage": "Cette fonction nécessite un modèle de langage. Ajoutez d’abord un service et choisissez un modèle dans Paramètres › Services d’IA."
-  },
-  "@yovoice.ai.scorePlaceholder": {
-    "defaultMessage": "Décrivez la musique en une phrase et l’IA écrit tout l’arrangement, p. ex. un morceau de piano lent et chaleureux pour l’intro d’un vlog de voyage, rejoint plus tard par des cordes douces"
-  },
-  "@yovoice.ai.scoreSeconds": {
-    "defaultMessage": "Durée"
-  },
-  "@yovoice.ai.scoreSubmit": {
-    "defaultMessage": "Composer"
-  },
-  "@yovoice.ai.lyricsPlaceholder": {
-    "defaultMessage": "Décrivez la chanson en une phrase et l’IA écrit le style, les paroles et le titre, p. ex. une chanson city pop sur une virée nocturne d’été au bord de la mer"
-  },
-  "@yovoice.ai.lyricsSubmit": {
-    "defaultMessage": "Écrire"
-  },
   "@yovoice.error.aiProviderInvalid": {
     "defaultMessage": "Les réglages du service d’IA ne sont pas valides. Vérifiez l’adresse, le nom et le modèle."
   },
@@ -2354,53 +2336,11 @@
   "@yovoice.library.duration": {
     "defaultMessage": "durée"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "Appliquer"
-  },
   "@yovoice.ai.discard": {
     "defaultMessage": "Abandonner"
   },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "Réessayer"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "Voir les journaux"
-  },
   "@yovoice.ai.openProject": {
     "defaultMessage": "Ouvrir le projet"
-  },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "Écriture en arrière-plan. Continuez à modifier ou passez à autre chose ; vous serez averti une fois terminé."
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "Une autre tâche d’IA est en cours. Lancez celle-ci une fois qu’elle sera terminée."
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "Après {time} · {model}"
-  },
-  "@yovoice.ai.lyricsPlaceholderInstrumental": {
-    "defaultMessage": "Décrivez le morceau instrumental en une phrase et l’IA écrit le style et les sections, p. ex. du lo-fi pour une lente balade nocturne en ville"
-  },
-  "@yovoice.ai.scoreLength": {
-    "defaultMessage": "Environ {time}"
-  },
-  "@yovoice.ai.brief.score": {
-    "defaultMessage": "Décrivez la musique souhaitée"
-  },
-  "@yovoice.ai.brief.lyrics": {
-    "defaultMessage": "Décrivez la chanson souhaitée"
-  },
-  "@yovoice.ai.setup.score": {
-    "defaultMessage": "Connectez un modèle de langage pour que l’IA écrive tout un arrangement à partir d’une seule phrase."
-  },
-  "@yovoice.ai.setup.lyrics": {
-    "defaultMessage": "Connectez un modèle de langage pour que l’IA écrive le style et les paroles à partir d’une seule phrase."
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} écrit"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} corrige le format"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "Le service d’IA n’a pas terminé en {seconds} secondes. Augmentez le délai d’expiration des requêtes d’IA dans Paramètres › Services d’IA, ou choisissez un modèle plus rapide."
@@ -3110,30 +3050,6 @@
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Générer depuis la partition"
   },
-  "@yovoice.ai.brief.melody": {
-    "defaultMessage": "Décrivez comment modifier la partition"
-  },
-  "@yovoice.ai.setup.melody": {
-    "defaultMessage": "Connectez un modèle de langage pour que l’IA réécrive la mélodie, les accords et le style en une phrase."
-  },
-  "@yovoice.ai.task.running.melody": {
-    "defaultMessage": "L’IA modifie la partition"
-  },
-  "@yovoice.ai.task.done.melody": {
-    "defaultMessage": "L’IA a fini de modifier la partition"
-  },
-  "@yovoice.ai.task.failed.melody": {
-    "defaultMessage": "L’IA n’a pas pu modifier la partition"
-  },
-  "@yovoice.ai.task.replace.melody": {
-    "defaultMessage": "Appliquer remplace la partition actuelle, et le style si l’IA l’a changé."
-  },
-  "@yovoice.ai.melodyPlaceholder": {
-    "defaultMessage": "Dites comment modifier la partition, p. ex. monter le refrain d’un ton, rendre les mesures 9–12 plus sautillantes, passer à des accords jazz"
-  },
-  "@yovoice.ai.melodySubmit": {
-    "defaultMessage": "Modifier la partition"
-  },
   "@yovoice.melody.title": {
     "defaultMessage": "Partition mélodique"
   },
@@ -3215,38 +3131,11 @@
   "@yovoice.melody.replace": {
     "defaultMessage": "Remplacer"
   },
-  "@yovoice.melody.edited": {
-    "defaultMessage": "L’IA a modifié la partition"
-  },
   "@yovoice.melody.notice.truncated": {
     "defaultMessage": "La partition dépassait ce que YuE2 peut chanter et a été coupée à la limite. Raccourcissez les paroles ou retirez des sections pour garder la fin."
   },
   "@yovoice.melody.notice.cover": {
     "defaultMessage": "Mélodie extraite. Les accords d’origine ont été retirés pour que YuE2 réarrange le morceau dans votre style."
-  },
-  "@yovoice.melody.changed": {
-    "defaultMessage": "Modifié : {changes}"
-  },
-  "@yovoice.melody.changedVocal": {
-    "defaultMessage": "mélodie aux mesures {bars}"
-  },
-  "@yovoice.melody.changedChords": {
-    "defaultMessage": "accords aux mesures {bars}"
-  },
-  "@yovoice.melody.changedIns": {
-    "defaultMessage": "accompagnement aux mesures {bars}"
-  },
-  "@yovoice.melody.changedTempo": {
-    "defaultMessage": "tempo"
-  },
-  "@yovoice.melody.changedKey": {
-    "defaultMessage": "tonalité"
-  },
-  "@yovoice.melody.changedBars": {
-    "defaultMessage": "durée {before} → {after} mesures"
-  },
-  "@yovoice.melody.listSeparator": {
-    "defaultMessage": ", "
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 ne peut pas encore chanter cette partition"
@@ -3467,9 +3356,6 @@
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "Le service d’IA actuel (abonnement ChatGPT) ne peut pas être utilisé par l’assistant. Choisissez un service par API dans les réglages."
   },
-  "@yovoice.assistant.toggle": {
-    "defaultMessage": "Ouvrir l’assistant"
-  },
   "@yovoice.assistant.title": {
     "defaultMessage": "Assistant"
   },
@@ -3489,13 +3375,10 @@
     "defaultMessage": "Demandez à l’assistant d’écrire, de modifier ou de générer…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "Une phrase suffit : écrire un texte ou des paroles, composer, choisir une voix ou générer."
+    "defaultMessage": "Que créons-nous ?"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "{count} en attente"
-  },
-  "@yovoice.assistant.hideChips": {
-    "defaultMessage": "Masquer les actions rapides"
   },
   "@yovoice.assistant.cancelled": {
     "defaultMessage": "Arrêté"
@@ -3563,15 +3446,6 @@
   "@yovoice.assistant.history": {
     "defaultMessage": "Historique"
   },
-  "@yovoice.assistant.back": {
-    "defaultMessage": "Retour à la discussion"
-  },
-  "@yovoice.assistant.historyCount": {
-    "defaultMessage": "{count} discussions"
-  },
-  "@yovoice.assistant.historyMeta": {
-    "defaultMessage": "{count} messages · {time}"
-  },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "Aucune discussion pour l’instant."
   },
@@ -3607,15 +3481,6 @@
   },
   "@yovoice.assistant.contextOff": {
     "defaultMessage": "Aucun contexte joint. Cliquez pour joindre la page et l’œuvre actuelles."
-  },
-  "@yovoice.assistant.askLyrics": {
-    "defaultMessage": "Écris les paroles de cette œuvre musicale : {brief}"
-  },
-  "@yovoice.assistant.askLyricsInstrumental": {
-    "defaultMessage": "Écris pour cette œuvre musicale : {brief} (instrumental : style et sections uniquement)"
-  },
-  "@yovoice.assistant.askScore": {
-    "defaultMessage": "Écris un arrangement pour cette partition : {brief} (environ {seconds} secondes)"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Donnez une voix à vos mots. Faites de vos idées des chansons."
@@ -3817,5 +3682,20 @@
   },
   "@yovoice.assets.sourceMissing": {
     "defaultMessage": "Projet source supprimé"
+  },
+  "@yovoice.assistant.launch": {
+    "defaultMessage": "Demander à l'assistant"
+  },
+  "@yovoice.assistant.thinking": {
+    "defaultMessage": "Réflexion"
+  },
+  "@yovoice.assistant.thought": {
+    "defaultMessage": "Raisonnement"
+  },
+  "@yovoice.assistant.steps": {
+    "defaultMessage": "{count} étapes"
+  },
+  "@yovoice.assistant.toolDone": {
+    "defaultMessage": "Terminé"
   }
 }

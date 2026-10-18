@@ -20,9 +20,10 @@ import (
 // 工具校验大多直接调用处理器：返回 error 即被拒绝；端到端流程另用假 ocho 驱动。
 var toolReq = &mcp.CallToolRequest{}
 
-// 一轮对话：流式增量与完整文本进入实时状态，工具卡片随调用更新，结束后写入消息记录。
+// 一轮对话：思考与文本增量按顺序进入实时状态，工具卡片随调用更新，结束后按出现顺序写入消息记录。
 func TestChatStreamsTextAndToolCards(t *testing.T) {
 	w := assistantWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
+		{Thinking: "先列出作品"},
 		{Delta: "你"},
 		{Delta: "好"},
 		{Assistant: "你好，列表在此。"},
@@ -45,8 +46,10 @@ func TestChatStreamsTextAndToolCards(t *testing.T) {
 		lastLive = state.AssistantLive
 		if live := state.AssistantLive; live != nil && live.Turn != nil {
 			ran = true
-			if strings.Contains(live.Turn.Text, "你好") {
-				streamed = true
+			for _, block := range live.Turn.Blocks {
+				if block.Kind == "text" && strings.Contains(block.Text, "你好") {
+					streamed = true
+				}
 			}
 		}
 	}
@@ -58,12 +61,31 @@ func TestChatStreamsTextAndToolCards(t *testing.T) {
 	if reply.Role != "assistant" || reply.Status != "completed" || reply.Text != "你好，列表在此。" {
 		t.Fatalf("助手消息不对：%+v", reply)
 	}
-	if len(reply.Tools) != 1 || reply.Tools[0].Tool != "list_works" || reply.Tools[0].State != "done" || reply.Tools[0].Summary == "" {
-		t.Fatalf("工具卡片不对：%+v", reply.Tools)
+	kinds := []string{}
+	for _, block := range reply.Blocks {
+		kinds = append(kinds, block.Kind)
+	}
+	if strings.Join(kinds, ",") != "thinking,text,tool" || reply.Blocks[0].Text != "先列出作品" {
+		t.Fatalf("内容块顺序不对：%v", kinds)
+	}
+	cards := replyCards(reply)
+	if len(cards) != 1 || cards[0].Tool != "list_works" || cards[0].State != "done" || cards[0].Summary == "" {
+		t.Fatalf("工具卡片不对：%+v", cards)
 	}
 	if messages[0].Role != "user" || messages[0].Text != "有哪些作品？" {
 		t.Fatalf("用户消息不对：%+v", messages[0])
 	}
+}
+
+// replyCards 按顺序取出助手消息里的工具卡片。
+func replyCards(m schema.AssistantMessage) []schema.AssistantToolCard {
+	var cards []schema.AssistantToolCard
+	for _, block := range m.Blocks {
+		if block.Card != nil {
+			cards = append(cards, *block.Card)
+		}
+	}
+	return cards
 }
 
 // 运行中再发的消息排队，本轮结束后按顺序处理。
@@ -108,7 +130,7 @@ func TestChatCancel(t *testing.T) {
 	must(t, w.SendAssistant("慢慢写", AssistantContext{}))
 	waitFor(t, func() bool {
 		live := w.Store.Read().AssistantLive
-		return live != nil && live.Turn != nil && strings.Contains(live.Turn.Text, "写到一半")
+		return live != nil && live.Turn != nil && strings.Contains(blocksText(live.Turn.Blocks), "写到一半")
 	})
 	must(t, w.SendAssistant("排队的", AssistantContext{}))
 	waitFor(t, func() bool { return w.Store.Read().AssistantLive != nil && w.Store.Read().AssistantLive.Queued == 1 })
@@ -485,8 +507,8 @@ func TestChatEndToEndCreateAndUpdate(t *testing.T) {
 	if len(notes) != 2 {
 		t.Fatalf("乐谱未写入：%+v", notes)
 	}
-	if len(reply.Tools) != 3 || reply.Tools[2].Tool != "update_work" || reply.Tools[2].State != "done" {
-		t.Fatalf("工具卡片不对：%+v", reply.Tools)
+	if cards := replyCards(reply); len(cards) != 3 || cards[2].Tool != "update_work" || cards[2].State != "done" {
+		t.Fatalf("工具卡片不对：%+v", cards)
 	}
 	live := w.Store.Read().AssistantLive
 	if live.Update == nil || live.Update.WorkID != id {

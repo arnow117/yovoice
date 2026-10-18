@@ -3,17 +3,13 @@ package workbench
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"os"
-	"regexp"
 	"slices"
-	"strings"
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
 	"yovoice/internal/diag"
-	"yovoice/internal/llm"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 	"yovoice/internal/score"
@@ -223,139 +219,4 @@ func (w *Workbench) DismissMelody(id string) error {
 			s.Melody = nil
 		}
 	}, false)
-}
-
-// MelodyBrief 是“AI 改谱”的输入：当前谱（为空时按歌词写一份）、风格与歌词，以及一句话要求。
-type MelodyBrief struct {
-	ProjectID string          `json:"projectId"`
-	Brief     string          `json:"brief"`
-	Abc       string          `json:"abc"`
-	Style     string          `json:"style"`
-	Lyrics    string          `json:"lyrics"`
-	Locale    schema.UiLocale `json:"locale"`
-}
-
-// MelodyEdit 是 AI 改谱的结果：完整的新谱、需要时一并调整的风格、一句改动说明和按小节比较的改动。
-type MelodyEdit struct {
-	Abc     string            `json:"abc"`
-	Style   string            `json:"style,omitempty"`
-	Summary string            `json:"summary,omitempty"`
-	Changes *score.ABCChanges `json:"changes,omitempty"`
-}
-
-// melodyPrompt 沿用 YuE2 官方 yue2-music skill（Apache-2.0）的改谱约束：保持原生方言、先定不变量、按音符而非字符修改。
-const melodyPrompt = `You edit melody scores for YuE2, a song model that sings lyrics over a score written in a strict native ABC dialect.
-
-Native dialect, all required:
-- Header lines exactly in this order: X:1 / T: (blank) / M:<n>/<d> / L:1/<power of two> (keep the source value, usually 1/32) / Q:1/4=<integer BPM> / V: Vocal clef=treble name="Vocal Melody" snm="Vocal" / V: Ins clef=treble name="Ins Melody" snm="Inst." / K:<major or minor key such as G, Bb, F#m>.
-- Music is written in groups of 1 to 4 measures: a "V: Vocal" line and its music line, then a "V: Ins" line and its music line with the same number of measures. Each music line ends with "|".
-- Sections are comment lines such as "%% verse", "%% chorus", "%% bridge", "%% interlude" before a group.
-- Both voices are monophonic melodies. Ins carries instrumental themes or solos and rests while the vocal sings; it is not a chord staff.
-- Chord symbols are quoted and only in Vocal, also while Vocal rests: "C", "Am7", "F#m7/C#". Allowed qualities: major (no suffix), m, dim, aug, 7, maj7, m7, dim7, m7b5, sus4, sus2, 6, m6, 7sus4, m(maj7); optional /bass.
-- With L:1/32 a 4/4 measure holds exactly 32 units (3/4 and 6/8 hold 24). Duration multipliers are only 1,2,3,4,6,8,12,16,24,32,48; write other lengths as tied notes like C8-C2. z is a rest; Z, Z2, Z3, Z4 are whole resting measures.
-- c is an octave above C, c' above c, C, below C. ^ sharp, _ flat, = natural; accidentals last to the barline and apply to the same letter in every octave. Key signature applies to unmarked notes.
-- A tie (-) joins equal pitches; a chord change inside a held note splits it with a tie: "C"E16-"Am7"E16. A tie never enters a rest and the score never ends on a tie.
-- Not allowed: lyric w: lines, tuplets, grace notes, bracketed note stacks, slurs, repeat signs, decorations, %%%% directives, extra voices.
-
-How to edit:
-- Change only what the request asks for and keep everything else note for note: other sections, the other voice, chords, tempo, key and meter. Keep section comments and bar grouping.
-- Keep the vocal phrases singable for the lyrics: roughly one note per syllable, held notes on long vowels, rests where lines breathe.
-- Check that every measure adds up to the meter before answering.
-- When the request changes the arrangement feel (genre, instruments, tempo, vocal character), also return an updated style line in English tags; otherwise leave the style unchanged.
-
-Answer in exactly this shape and nothing else:
-SUMMARY: <one short sentence in %s describing what changed>
-STYLE: <updated style tags, or the word unchanged>
-` + "```abc\n<the complete score>\n```"
-
-var abcFence = regexp.MustCompile("(?s)```(?:abc)?\\s*\\n(.*?)```")
-
-// decodeMelody 取出模型回答中的谱、风格与改动说明，谱面不合方言时返回具体问题。
-func decodeMelody(text string) (MelodyEdit, error) {
-	m := abcFence.FindStringSubmatch(text)
-	if m == nil {
-		return MelodyEdit{}, errors.New("no ```abc fenced score found")
-	}
-	edit := MelodyEdit{Abc: strings.TrimSpace(m[1]) + "\n"}
-	for _, line := range strings.Split(text[:strings.Index(text, m[0])], "\n") {
-		line = strings.TrimSpace(line)
-		if v, ok := strings.CutPrefix(line, "SUMMARY:"); ok {
-			edit.Summary = truncateRunes(strings.TrimSpace(v), 200)
-		} else if v, ok := strings.CutPrefix(line, "STYLE:"); ok {
-			if v = strings.TrimSpace(v); !strings.EqualFold(v, "unchanged") && v != "" {
-				edit.Style = truncateRunes(v, 512)
-			}
-		}
-	}
-	if _, e := score.ParseABC(edit.Abc); e != nil {
-		return MelodyEdit{}, e
-	}
-	return edit, nil
-}
-
-func (in MelodyBrief) valid() bool {
-	brief := strings.TrimSpace(in.Brief)
-	return brief != "" && schema.TextLen(brief) <= 2000 && len(in.Abc) <= score.ABCMaxLength && schema.TextLen(in.Lyrics) <= 4000 && schema.TextLen(in.Style) <= 512
-}
-
-// StartMelodyEdit 在后台改谱，立即返回任务。
-func (w *Workbench) StartMelodyEdit(in MelodyBrief) (schema.AITask, error) {
-	if !in.valid() {
-		return schema.AITask{}, msg.Err(msg.ErrRequestInvalid, nil)
-	}
-	if strings.TrimSpace(in.Abc) != "" {
-		if _, e := score.ParseABC(in.Abc); e != nil {
-			return schema.AITask{}, melodyIssue(e)
-		}
-	}
-	return w.startAI("melody", in.ProjectID, strings.TrimSpace(in.Brief), func(ctx context.Context) (any, error) { return w.EditMelody(ctx, in) })
-}
-
-// EditMelody 让模型按要求改谱（没有谱时按歌词写一份），校验不过时把具体小节的问题发回修正，最多两轮。
-func (w *Workbench) EditMelody(ctx context.Context, in MelodyBrief) (MelodyEdit, error) {
-	if !in.valid() {
-		return MelodyEdit{}, msg.Err(msg.ErrRequestInvalid, nil)
-	}
-	var before *score.ABCScore
-	ask := fmt.Sprintf("Style: %s\n\nLyrics:\n%s\n\n", strings.TrimSpace(in.Style), strings.TrimSpace(in.Lyrics))
-	if strings.TrimSpace(in.Abc) != "" {
-		var e error
-		if before, e = score.ParseABC(in.Abc); e != nil {
-			return MelodyEdit{}, melodyIssue(e)
-		}
-		ask += "Current score:\n```abc\n" + strings.TrimSpace(in.Abc) + "\n```\n\nRequest: " + strings.TrimSpace(in.Brief)
-	} else {
-		ask += "There is no score yet. Write a complete score for these lyrics: one section comment per lyric section, a singable vocal line with chords, and short instrumental themes in Ins between vocal phrases.\n\nRequest: " + strings.TrimSpace(in.Brief)
-	}
-	request := llm.Request{System: fmt.Sprintf(melodyPrompt, scoreLanguage(in.Locale)), Messages: []llm.Message{{Role: "user", Content: ask}}, MaxTokens: 16000, Temperature: 0.4}
-	var issue string
-	for attempt := 0; attempt < 3; attempt++ {
-		result, e := w.complete(ctx, request)
-		if e != nil {
-			return MelodyEdit{}, e
-		}
-		var edit MelodyEdit
-		if result.Truncated {
-			e = errors.New("output was cut off by the length limit")
-		} else {
-			edit, e = decodeMelody(result.Text)
-		}
-		if e == nil {
-			if before != nil {
-				after, _ := score.ParseABC(edit.Abc)
-				changes := score.CompareABC(before, after)
-				edit.Changes = &changes
-			}
-			return edit, nil
-		}
-		issue = e.Error()
-		w.logAIOutput("melody", issue, result.Text)
-		w.setAIStage("repairing")
-		fix := "The score is invalid: " + issue + ". Fix it and answer again in the same shape with the complete score."
-		if result.Truncated {
-			fix = "Your answer was cut off. Answer again with the complete score and nothing else besides SUMMARY and STYLE."
-		}
-		request.Messages = append(request.Messages, llm.Message{Role: "assistant", Content: result.Text}, llm.Message{Role: "user", Content: fix})
-	}
-	return MelodyEdit{}, msg.Err(msg.ErrAIResultInvalid, msg.Params{"detail": issue})
 }

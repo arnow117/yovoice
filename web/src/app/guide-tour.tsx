@@ -12,7 +12,6 @@ const steps = [
   { id: 'voices', target: 'nav-characters', title: '@yovoice.nav.characters' },
   { id: 'assets', target: 'nav-assets', title: '@yovoice.nav.assets' },
   { id: 'settings', target: 'nav-settings', title: '@yovoice.nav.settings' },
-  // 桌面端助手按钮在原生标题栏里，网页找不到它时卡片居中。
   { id: 'assistant', target: 'assistant-toggle', title: '@yovoice.guide.assistantTitle' },
 ] as const;
 // 高亮框比目标外扩的距离与卡片间距，单位 px，需要按目标位置实时计算。

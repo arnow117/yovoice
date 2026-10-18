@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-// 助手面板：打开与快捷键、发送与流式回复、工具卡片联动编辑器、停止、新对话、运行时缺失。
+// 助手面板：侧栏入口与快捷键、发送与流式回复、过程与回答分开、工具联动编辑器、停止、新对话、运行时缺失。
 // 验收截图：设置 YOVOICE_SHOTS 目录时才保存，默认不落盘。
 const shot = (name: string) => process.env.YOVOICE_SHOTS ? `${process.env.YOVOICE_SHOTS}/${name}` : undefined;
 
@@ -15,7 +15,7 @@ async function configureAI(page: Page) {
   await expect(page.locator('.ai-nav').getByLabel('使用中')).toHaveCount(1);
 }
 
-test('助手面板：⌘J 开关、空状态引导与快捷胶囊，状态跨刷新记住', async ({ page }) => {
+test('助手面板：侧栏入口与 ⌘J 开关、空状态建议，状态跨刷新记住', async ({ page }) => {
   await page.goto('/');
   await configureAI(page);
   // 默认收起，不遮挡工作区；⌘J 打开。
@@ -23,11 +23,18 @@ test('助手面板：⌘J 开关、空状态引导与快捷胶囊，状态跨刷
   await expect(panel).toHaveCount(0);
   await page.keyboard.press('ControlOrMeta+j');
   await expect(panel).toBeVisible();
-  await expect(panel.getByText('用一句话让助手动手')).toBeVisible();
-  // 语音页的快捷胶囊：空状态展示。
+  await expect(panel.getByText('想做点什么？')).toBeVisible();
+  // 语音页的建议：空状态展示，点了即发送。
   await expect(panel.getByRole('button', { name: '帮我挑个音色', exact: true })).toBeVisible();
   await panel.screenshot({ path: shot('assistant-empty.png') });
   await page.keyboard.press('ControlOrMeta+j');
+  await expect(panel).toHaveCount(0);
+  // 侧栏入口同样开关面板，并标出展开状态。
+  const launch = page.getByTestId('assistant-toggle');
+  await launch.click();
+  await expect(panel).toBeVisible();
+  await expect(launch).toHaveAttribute('aria-expanded', 'true');
+  await launch.click();
   await expect(panel).toHaveCount(0);
   // 开关状态记住：打开后刷新仍打开，收起后刷新仍收起。
   await page.keyboard.press('ControlOrMeta+j');
@@ -49,20 +56,29 @@ test('助手对话：发送后流式回复，工具卡片联动编辑器与页�
   const input = panel.getByRole('textbox');
   await input.fill('帮我写四小节钢琴旋律');
   await input.press('Enter');
-  // 运行中：发送变为停止，流式文本逐步出现。
+  // 运行中：发送变为停止；过程展开，状态行跟随当前步骤，工具只显示友好文案。
   await expect(panel.getByRole('button', { name: /停止|Stop/ })).toBeVisible();
-  await expect(panel.locator('.assistant-reply')).toContainText(/写好了|钢琴/);
-  // 工具卡片：新建作品并写入乐谱。
-  await expect(panel.getByText('新建了《示例小步舞曲》').first()).toBeVisible();
-  await expect(panel.getByText(/修改了《示例小步舞曲》的乐谱/).first()).toBeVisible();
-  // 工具卡片只显示友好文案，不暴露内部工具名。
+  await expect(panel.locator('.assistant-status[role="status"]')).toBeVisible();
+  await expect(panel.locator('.assistant-steps').getByText('新建了《示例小步舞曲》')).toBeVisible();
+  await panel.screenshot({ path: shot('assistant-running.png') });
+  // 满载时截图较慢，回答可能已开始流出、过程已收起，这里只断言步骤存在。
+  await expect(panel.locator('.assistant-steps').getByText(/修改了《示例小步舞曲》的乐谱/)).toHaveCount(1);
   await expect(panel.getByText(/create_work|update_work/)).toHaveCount(0);
+  // 回答逐字流出：中途只有一部分，结束后完整，过程收起成一行。
+  const answer = panel.locator('.assistant-answer').last();
+  await expect(answer).toContainText('写好了');
+  await expect(answer).toContainText('可以直接渲染试听');
+  await expect(panel.getByRole('button', { name: /停止|Stop/ })).toHaveCount(0);
+  await expect(panel.locator('.assistant-process').last()).toContainText('执行了 2 步');
+  await expect(panel.locator('.assistant-steps').last()).toBeHidden();
   await panel.screenshot({ path: shot('assistant-chat.png') });
+  // 点开过程能看到思考与每一步。
+  await panel.locator('.assistant-process').last().getByRole('button').first().click();
+  await expect(panel.locator('.assistant-steps').getByText('先新建编曲作品')).toBeVisible();
   // 界面被助手接管：跳到新作品，编辑器里出现乐谱。
   await expect(page.getByLabel('作品名称')).toHaveValue('示例小步舞曲');
   await expect(page.locator('.score-summary')).toContainText('小节');
   // 本轮结束后回到输入态；追问一条，随即停止。
-  await expect(panel.getByRole('button', { name: /停止|Stop/ })).toHaveCount(0);
   await expect(panel.getByRole('textbox')).toBeVisible();
   await panel.getByRole('textbox').fill('再快一点');
   await panel.getByRole('textbox').press('Enter');
@@ -72,7 +88,7 @@ test('助手对话：发送后流式回复，工具卡片联动编辑器与页�
   // 停止后立即再问：上一轮残留的输出不得混进这一轮。
   await panel.getByRole('textbox').fill('看看作品');
   await panel.getByRole('textbox').press('Enter');
-  const latest = panel.locator('.assistant-reply').last();
+  const latest = panel.locator('.assistant-turn').last();
   await expect(latest).toContainText('好的，我先看了作品列表。想让我做什么？');
   await expect(panel.getByRole('textbox')).toBeVisible();
   await expect(latest).not.toContainText('写好了');
@@ -86,7 +102,7 @@ test('助手对话：发送后流式回复，工具卡片联动编辑器与页�
   await panel.locator('.assistant-context').click();
   // 新会话：面板清空，标题回默认。
   await panel.getByRole('button', { name: '新对话', exact: true }).click();
-  await expect(panel.getByText('用一句话让助手动手')).toBeVisible();
+  await expect(panel.getByText('想做点什么？')).toBeVisible();
   await panel.getByRole('textbox').fill('你好');
   await panel.getByRole('textbox').press('Enter');
   await expect(panel.getByText('你好', { exact: true }).first()).toBeVisible();
@@ -94,24 +110,27 @@ test('助手对话：发送后流式回复，工具卡片联动编辑器与页�
   // 历史抽屉：两个会话按更新时间列出，可切换回旧会话、可删除。
   await panel.getByTestId('assistant-history-toggle').click();
   const history = page.getByTestId('assistant-history');
-  await expect(history).toContainText('2 个会话');
+  await expect(history.locator('.assistant-history-item')).toHaveCount(2);
   await expect(history).toContainText('帮我写四小节钢琴旋律');
   await panel.screenshot({ path: shot('assistant-history.png') });
   await history.getByRole('button', { name: '帮我写四小节钢琴旋律', exact: true }).click();
-  await expect(panel.getByText('新建了《示例小步舞曲》').first()).toBeVisible();
+  await expect(panel.getByText('帮我写四小节钢琴旋律').first()).toBeVisible();
   await panel.getByTestId('assistant-history-toggle').click();
   await history.getByRole('button', { name: /删除会话：你好/ }).click();
   await history.getByRole('button', { name: '删除', exact: true }).click();
-  await expect(history).toContainText('1 个会话');
-  await history.getByRole('button', { name: '返回对话', exact: true }).click();
+  await expect(history.locator('.assistant-history-item')).toHaveCount(1);
+  await panel.getByTestId('assistant-history-toggle').click();
   await expect(history).toHaveCount(0);
-  // 展开/收起为右侧全高面板。
+  // 放大后仍浮在工作区上：更宽更高，工作区不收窄。
+  const small = await panel.boundingBox();
+  const shellWidth = (await page.locator('.workbench > .astryx-app-shell').boundingBox())!.width;
   await panel.getByRole('button', { name: '展开面板', exact: true }).click();
   await expect(panel).toHaveClass(/expanded/);
-  // 展开后停靠在右侧，工作区收窄让位，不被覆盖。
-  const shellBox = await page.locator('.workbench-main > .astryx-app-shell').boundingBox();
+  await expect.poll(async () => (await panel.boundingBox())!.width).toBeGreaterThan(small!.width + 100);
   const panelBox = await panel.boundingBox();
-  expect(shellBox!.x + shellBox!.width).toBeLessThanOrEqual(panelBox!.x + 1);
+  expect(panelBox!.height).toBeGreaterThan(small!.height);
+  expect((await page.locator('.workbench > .astryx-app-shell').boundingBox())!.width).toBe(shellWidth);
+  expect(await panel.evaluate(element => getComputedStyle(element).position)).toBe('fixed');
   await panel.screenshot({ path: shot('assistant-expanded.png') });
   await page.screenshot({ path: shot('assistant-expanded-page.png') });
   // 深色系统偏好下的外观（应用为浅色主题，仅验证不破版）。
@@ -119,22 +138,17 @@ test('助手对话：发送后流式回复，工具卡片联动编辑器与页�
   await panel.screenshot({ path: shot('assistant-dark.png') });
 });
 
-test('编辑器 AI 写作入口：提交即进助手对话，面板自动打开', async ({ page }) => {
+test('编辑器不再有单独的 AI 写作栏，AI 统一走助手', async ({ page }) => {
   await page.goto('/');
   await configureAI(page);
-  await page.keyboard.press('ControlOrMeta+j');
-  await page.getByTestId('assistant-panel').getByRole('button', { name: '关闭', exact: true }).click();
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '编曲生成', exact: true }).click();
-  const composer = page.locator('.ai-composer');
-  await expect(composer).toContainText('Ollama · qwen3');
-  await composer.getByRole('textbox', { name: '描述想要的配乐' }).fill('温暖舒缓的钢琴');
-  await composer.getByRole('button', { name: '写谱', exact: true }).click();
-  // 需求作为一条消息进入面板，输入框清空。
-  const panel = page.getByTestId('assistant-panel');
-  await expect(panel).toBeVisible();
-  await expect(panel.getByText('给当前编曲作品写谱：温暖舒缓的钢琴', { exact: false }).last()).toBeVisible();
-  await expect(composer.getByRole('textbox', { name: '描述想要的配乐' })).toHaveValue('');
+  await expect(page.locator('.score-editor')).toBeVisible();
+  await expect(page.locator('.ai-composer')).toHaveCount(0);
+  await page.getByTestId('nav-new').click();
+  await page.getByRole('menuitem', { name: '音乐生成', exact: true }).click();
+  await expect(page.locator('.music-editor')).toBeVisible();
+  await expect(page.locator('.ai-composer')).toHaveCount(0);
 });
 
 test('未配置 AI 服务：面板引导去设置，配置后即可用', async ({ page }) => {

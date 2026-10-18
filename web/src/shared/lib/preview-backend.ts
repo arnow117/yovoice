@@ -1,6 +1,6 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantToolCard, type AssistantToolCardState, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind } from '../workbench';
+import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantBlock, type AssistantToolCardState, blocksText, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault, type Asset, type AssetKind, type AssetResult, projectKind } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
 import { isUiLocale } from '../i18n/locale';
@@ -338,12 +338,12 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (state.melody?.id === (data as { id: string }).id) { delete state.melody; publish(); }
     return true as T;
   }
-  if (method === 'ai.cast' || method === 'ai.melody') {
-    const input = method === 'ai.cast' ? { projectId: '', brief: (data as { title: string }).title } : data as { projectId: string; brief: string };
+  if (method === 'ai.cast') {
+    const input = { projectId: '', brief: (data as { title: string }).title };
     const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
     if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
     if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
-    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.cast' ? 'cast' : 'melody', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: 'cast', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
     state.aiTask = task; publish();
     setTimeout(() => {
       if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;
@@ -375,29 +375,40 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'user', text: input.text, createdAt: new Date().toISOString() });
     if (!chat.title) chat.title = input.text.split('\n')[0].slice(0, 24);
     chat.updatedAt = new Date().toISOString();
-    const tools: AssistantToolCard[] = [];
+    const blocks: AssistantBlock[] = [];
     const live: AssistantLive = state.assistantLive ?? {};
     state.assistantLive = live;
     // 每轮一个序号：停止或新一轮开始后，旧一轮尚未触发的定时器全部失效，不会写进下一轮。
     const seq = ++assistantTurnSeq;
     const alive = () => Boolean(live.turn) && seq === assistantTurnSeq;
-    // 模拟流式增量：分两段写入。
-    const stream = (at: number, chunk: string) => setTimeout(() => { if (alive() && live.turn) { live.turn = { ...live.turn, text: (live.turn.text ?? '') + chunk }; publish(); } }, at);
+    const commit = () => { if (live.turn) { live.turn = { ...live.turn, blocks: blocks.map(block => ({ ...block, card: block.card ? { ...block.card } : undefined })) }; publish(); } };
+    // 模拟逐字流式：把一段文字拆成小块，与上一块同类时接上，否则开新的一块。
+    const stream = (at: number, kind: 'text' | 'thinking', text: string) => {
+      for (let i = 0; i < text.length; i += 3) {
+        const chunk = text.slice(i, i + 3);
+        setTimeout(() => {
+          if (!alive()) return;
+          const last = blocks[blocks.length - 1];
+          if (last?.kind === kind) last.text = (last.text ?? '') + chunk; else blocks.push({ kind, text: chunk });
+          commit();
+        }, at + i * 12);
+      }
+    };
     const card = (at: number, tool: string, summary: string, cardState: AssistantToolCardState) => setTimeout(() => {
       if (!alive()) return;
-      const existing = tools.findIndex(item => item.tool === tool);
-      const next = { tool, summary, state: cardState };
-      if (existing >= 0) tools[existing] = next; else tools.push(next);
-      publish();
+      const existing = blocks.find(block => block.card?.tool === tool && block.card.state === 'running');
+      if (existing?.card) Object.assign(existing.card, { summary, state: cardState }); else blocks.push({ kind: 'tool', card: { tool, summary, state: cardState } });
+      commit();
     }, at);
     const timer = (at: number, run: () => void) => setTimeout(() => { if (alive()) run(); }, at);
-    live.turn = { text: '', tools, model: provider.model, startedAt: new Date().toISOString() };
+    live.turn = { blocks: [], model: provider.model, startedAt: new Date().toISOString() };
     publish();
     const wantsScore = /钢琴|旋律|编曲|配乐|score|piano/i.test(input.text);
     const wantsSong = /写词|写歌|歌词|歌|lyric|song/i.test(input.text);
     let draftID = '';
+    stream(100, 'thinking', wantsScore ? '用户要一段钢琴旋律，先新建编曲作品，再写四小节。' : '先看看现在有哪些作品。');
     if (wantsScore || wantsSong) {
-      card(300, 'create_work', wantsScore ? '新建了《示例小步舞曲》' : '新建了《夏夜兜风》', 'running');
+      card(600, 'create_work', wantsScore ? '新建了《示例小步舞曲》' : '新建了《夏夜兜风》', 'running');
       timer(700, () => {
         draftID = crypto.randomUUID().replaceAll('-', '');
         const draft: Draft = wantsScore
@@ -421,13 +432,12 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
         card(1900, 'update_work', '修改了《示例小步舞曲》的乐谱', 'done');
       }
     } else {
-      card(300, 'list_works', `查看了作品列表（${state.drafts.length} 个）`, 'done');
+      card(600, 'list_works', `查看了作品列表（${state.drafts.length} 个）`, 'done');
     }
-    stream(2200, wantsScore ? '写好了：' : '好的，');
-    stream(2600, wantsScore ? '四小节钢琴旋律已经写进《示例小步舞曲》，可以直接渲染试听。' : '我先看了作品列表。想让我做什么？');
+    stream(2200, 'text', wantsScore ? '写好了：四小节钢琴旋律已经写进《示例小步舞曲》，可以直接**渲染**试听。' : '好的，我先看了作品列表。想让我做什么？');
     setTimeout(() => {
       if (!alive()) return;
-      chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn?.text ?? '', tools: [...tools], status: 'completed', createdAt: new Date().toISOString() });
+      chat.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: blocksText(blocks), blocks: live.turn?.blocks ?? [], status: 'completed', createdAt: new Date().toISOString() });
       chat.updatedAt = new Date().toISOString();
       live.turn = undefined;
       const next = assistantQueue.shift();
@@ -443,7 +453,7 @@ async function dispatch<T>(method: string, data: unknown): Promise<T> {
     if (live?.turn) {
       assistantTurnSeq++;
       const chat = currentSession(state);
-      chat?.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: live.turn.text ?? '', tools: [...(live.turn.tools ?? [])], status: 'cancelled', createdAt: new Date().toISOString() });
+      chat?.messages.push({ id: crypto.randomUUID().replaceAll('-', ''), role: 'assistant', text: blocksText(live.turn.blocks ?? []), blocks: live.turn.blocks ?? [], status: 'cancelled', createdAt: new Date().toISOString() });
       live.turn = undefined;
       live.queued = 0;
       publish();

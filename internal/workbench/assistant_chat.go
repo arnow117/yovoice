@@ -46,11 +46,11 @@ type chatState struct {
 	turn *chatTurn
 }
 
-// chatTurn 是一轮对话的实时状态。
+// chatTurn 是一轮对话的实时状态：blocks 为已定稿的内容块，pending 为尚未定稿的流式增量
+// （收到对应的定稿消息时整体替换）。
 type chatTurn struct {
-	text      strings.Builder // 已完成的助手消息文本
-	delta     strings.Builder // 当前消息的流式增量
-	cards     []schema.AssistantToolCard
+	blocks    []schema.AssistantBlock
+	pending   []schema.AssistantBlock
 	locale    schema.UiLocale // 界面语言，工具卡片摘要据此选择
 	model     string
 	startedAt time.Time
@@ -317,18 +317,18 @@ func (w *Workbench) runTurn(parent context.Context, next chatMessage) {
 			return
 		}
 		switch e.Kind {
-		case assistant.EventText:
-			turn.text.WriteString(e.Text)
-			turn.delta.Reset()
+		case assistant.EventMessage:
+			turn.commit(e.Parts)
 		case assistant.EventTextDelta:
-			turn.delta.WriteString(e.Text)
-		case assistant.EventToolStart:
-			turn.startCard(e.Tool, e.Args)
+			turn.stream("text", e.Text)
+		case assistant.EventThinkingDelta:
+			turn.stream("thinking", e.Text)
 		case assistant.EventToolResult:
 			turn.settleCard(e.Tool, e.ToolError)
 		}
 		snapshot := turn.snapshot()
-		coalesced := time.Since(lastDelta) >= 100*time.Millisecond || e.Kind != assistant.EventTextDelta
+		streaming := e.Kind == assistant.EventTextDelta || e.Kind == assistant.EventThinkingDelta
+		coalesced := !streaming || time.Since(lastDelta) >= 60*time.Millisecond
 		if coalesced {
 			lastDelta = time.Now()
 		}
@@ -342,7 +342,7 @@ func (w *Workbench) runTurn(parent context.Context, next chatMessage) {
 	w.chat.turn = nil
 	w.chat.mu.Unlock()
 
-	reply := schema.AssistantMessage{ID: schema.NewID(), Role: "assistant", Text: final.Text, Tools: final.Tools, CreatedAt: time.Now().UTC()}
+	reply := schema.AssistantMessage{ID: schema.NewID(), Role: "assistant", Text: blocksText(final.Blocks), Blocks: final.Blocks, CreatedAt: time.Now().UTC()}
 	switch {
 	case err == nil:
 		reply.Status = "completed"
@@ -434,47 +434,96 @@ func (w *Workbench) appendChat(sessionID string, m schema.AssistantMessage) {
 	}, true)
 }
 
-// snapshot 返回可安全广播的实时状态副本；调用方持有 chat.mu。
+// snapshot 返回可安全广播的实时状态副本（定稿块在前、流式增量在后）；调用方持有 chat.mu。
 func (t *chatTurn) snapshot() *schema.AssistantTurn {
-	turn := &schema.AssistantTurn{Text: t.text.String() + t.delta.String(), Model: t.model, StartedAt: t.startedAt}
-	if len(t.cards) > 0 {
-		turn.Tools = append([]schema.AssistantToolCard{}, t.cards...)
+	turn := &schema.AssistantTurn{Model: t.model, StartedAt: t.startedAt}
+	for _, list := range [][]schema.AssistantBlock{t.blocks, t.pending} {
+		for _, block := range list {
+			if block.Card != nil {
+				card := *block.Card
+				block.Card = &card
+			}
+			turn.Blocks = append(turn.Blocks, block)
+		}
 	}
 	return turn
 }
 
-// startCard 登记一次工具调用开始；调用方持有 chat.mu。
-func (t *chatTurn) startCard(tool, args string) {
-	for i := range t.cards {
-		if t.cards[i].Tool == tool && t.cards[i].State == "running" {
-			return
+// stream 追加一段流式增量：与上一段同类时接上，否则开新的一块；调用方持有 chat.mu。
+func (t *chatTurn) stream(kind, text string) {
+	if n := len(t.pending); n > 0 && t.pending[n-1].Kind == kind {
+		t.pending[n-1].Text += text
+		return
+	}
+	t.pending = append(t.pending, schema.AssistantBlock{Kind: kind, Text: text})
+}
+
+// commit 收到定稿的消息内容：丢弃对应的流式增量，按顺序追加文本、思考与工具卡片；调用方持有 chat.mu。
+// 相邻的同类文本块合并，界面上就是连续的一段。
+func (t *chatTurn) commit(parts []assistant.Part) {
+	t.pending = nil
+	for _, part := range parts {
+		switch part.Kind {
+		case assistant.PartTool:
+			t.startCard(part.Tool, part.Args)
+		case assistant.PartText, assistant.PartThinking:
+			kind := string(part.Kind)
+			if n := len(t.blocks); n > 0 && t.blocks[n-1].Kind == kind {
+				t.blocks[n-1].Text += part.Text
+				continue
+			}
+			t.blocks = append(t.blocks, schema.AssistantBlock{Kind: kind, Text: part.Text})
 		}
 	}
-	t.cards = append(t.cards, schema.AssistantToolCard{Tool: tool, Args: args, State: "running"})
+}
+
+// runningCard 返回仍在运行的同名工具卡片；调用方持有 chat.mu。
+func (t *chatTurn) runningCard(tool string) *schema.AssistantToolCard {
+	for i := range t.blocks {
+		if card := t.blocks[i].Card; card != nil && card.Tool == tool && card.State == "running" {
+			return card
+		}
+	}
+	return nil
+}
+
+// startCard 登记一次工具调用开始；调用方持有 chat.mu。
+func (t *chatTurn) startCard(tool, args string) {
+	if t.runningCard(tool) != nil {
+		return
+	}
+	t.blocks = append(t.blocks, schema.AssistantBlock{Kind: "tool", Card: &schema.AssistantToolCard{Tool: tool, Args: args, State: "running"}})
 }
 
 // noteCard 由工具处理器登记或更新自己的卡片；调用方持有 chat.mu。
 func (t *chatTurn) noteCard(tool, summary, state string) {
-	for i := range t.cards {
-		if t.cards[i].Tool == tool && t.cards[i].State == "running" {
-			t.cards[i].Summary, t.cards[i].State = summary, state
-			return
-		}
+	if card := t.runningCard(tool); card != nil {
+		card.Summary, card.State = summary, state
+		return
 	}
-	t.cards = append(t.cards, schema.AssistantToolCard{Tool: tool, Summary: summary, State: state})
+	t.blocks = append(t.blocks, schema.AssistantBlock{Kind: "tool", Card: &schema.AssistantToolCard{Tool: tool, Summary: summary, State: state}})
 }
 
 // settleCard 在工具结果事件到达时收尾仍为 running 的同名卡片；调用方持有 chat.mu。
 func (t *chatTurn) settleCard(tool string, failed bool) {
-	for i := range t.cards {
-		if t.cards[i].Tool == tool && t.cards[i].State == "running" {
-			if failed {
-				t.cards[i].State = "error"
-			} else {
-				t.cards[i].State = "done"
-			}
+	for card := t.runningCard(tool); card != nil; card = t.runningCard(tool) {
+		if failed {
+			card.State = "error"
+		} else {
+			card.State = "done"
 		}
 	}
+}
+
+// blocksText 拼接内容块里的文本块，段与段之间空一行。
+func blocksText(blocks []schema.AssistantBlock) string {
+	var parts []string
+	for _, block := range blocks {
+		if block.Kind == "text" && strings.TrimSpace(block.Text) != "" {
+			parts = append(parts, strings.TrimSpace(block.Text))
+		}
+	}
+	return strings.Join(parts, "\n\n")
 }
 
 // pageLabels 是界面页面在上下文前缀里的描述。

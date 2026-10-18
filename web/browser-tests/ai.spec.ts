@@ -1,15 +1,16 @@
 import { test, expect } from '@playwright/test';
 
-// AI 服务设置与写作入口的基础行为；对话面板的完整流程见 assistant.spec.ts。
+// AI 服务设置与助手入口的基础行为；对话面板的完整流程见 assistant.spec.ts。
 
 test('AI 服务：未配置时引导到设置，左侧选服务、右侧直接编辑，切换和删除', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('nav-new').click();
-  await page.getByRole('menuitem', { name: '编曲生成', exact: true }).click();
-  const notConfigured = page.locator('.ai-composer');
-  await expect(notConfigured).toContainText('接入大模型后，可以用一句话让 AI 写出完整编曲');
+  await page.getByTestId('assistant-toggle').click();
+  const notConfigured = page.getByTestId('assistant-panel');
+  await expect(notConfigured).toContainText('还没有可用的 AI 服务');
   await notConfigured.getByRole('button', { name: '设置 AI', exact: true }).click();
   await expect(page.getByRole('tab', { name: 'AI 服务', selected: true })).toBeVisible();
+  // 浮动面板会盖住设置页右下角的按钮，配置时先收起。
+  await page.keyboard.press('ControlOrMeta+j');
   const panel = page.getByRole('tabpanel', { name: 'AI 服务' });
 
   // 请求超时对所有服务生效，和服务配置放在同一页，修改后写入偏好设置。
@@ -55,7 +56,7 @@ test('AI 服务：未配置时引导到设置，左侧选服务、右侧直接�
   await expect(panel.locator('.ai-nav').getByLabel('使用中')).toHaveCount(1);
 });
 
-test('安装包缺少 AI 助手运行时：写作入口与助手面板禁用并说明原因，不影响其他功能', async ({ page }) => {
+test('安装包缺少 AI 助手运行时：助手面板禁用并说明原因，不影响其他功能', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.setItem('yovoice-preview-no-ocho', '1'));
   await page.reload();
@@ -66,11 +67,8 @@ test('安装包缺少 AI 助手运行时：写作入口与助手面板禁用并�
   await page.getByRole('button', { name: '添加服务', exact: true }).click();
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '编曲生成', exact: true }).click();
-  const composer = page.locator('.ai-composer');
-  await expect(composer).toContainText('当前安装包未包含 AI 助手运行时');
-  await composer.getByRole('textbox', { name: '描述想要的配乐' }).fill('温暖的钢琴小品');
-  await expect(composer.getByRole('button', { name: '写谱', exact: true })).toBeDisabled();
-  // 助手面板同样说明原因，输入不可用。
+  // 编辑器里不再有单独的 AI 写作栏，AI 统一走助手；助手面板说明原因，输入不可用。
+  await expect(page.locator('.ai-composer')).toHaveCount(0);
   await page.keyboard.press('ControlOrMeta+j');
   await expect(page.getByTestId('assistant-panel')).toContainText('当前安装包未包含 AI 助手运行时');
   await expect(page.getByTestId('assistant-panel').getByRole('textbox')).toHaveCount(0);
@@ -80,13 +78,13 @@ test('安装包缺少 AI 助手运行时：写作入口与助手面板禁用并�
 
 test('OrcaRouter 一键连接：未配置时通过设置 AI 统一配置，设置页授权后切到新服务', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('nav-new').click();
-  await page.getByRole('menuitem', { name: '音乐生成', exact: true }).click();
-  const composer = page.locator('.ai-composer');
-  await composer.screenshot({ path: testInfoPath('orca-setup.png') });
-  // 写作栏没有快捷连接按钮，统一从“设置 AI”去配置。
-  await expect(composer.getByRole('button', { name: '免费连接 OrcaRouter', exact: true })).toHaveCount(0);
-  await composer.getByRole('button', { name: '设置 AI', exact: true }).click();
+  await page.getByTestId('assistant-toggle').click();
+  const assistant = page.getByTestId('assistant-panel');
+  await assistant.screenshot({ path: testInfoPath('orca-setup.png') });
+  // 助手面板没有快捷连接按钮，统一从“设置 AI”去配置。
+  await expect(assistant.getByRole('button', { name: '免费连接 OrcaRouter', exact: true })).toHaveCount(0);
+  await assistant.getByRole('button', { name: '设置 AI', exact: true }).click();
+  await page.keyboard.press('ControlOrMeta+j');
 
   // 打开 AI 设置，默认打开 provider 列表的第一个（OrcaRouter）。
   const panel = page.getByRole('tabpanel', { name: 'AI 服务' });
@@ -100,11 +98,9 @@ test('OrcaRouter 一键连接：未配置时通过设置 AI 统一配置，设�
   await expect(panel.locator('.ai-nav').getByLabel('使用中')).toHaveCount(1);
   await page.screenshot({ path: testInfoPath('orca-settings.png') });
 
-  // 切回音乐生成，写作栏随即可用。
-  await page.getByTestId('nav-new').click();
-  await page.getByRole('menuitem', { name: '音乐生成', exact: true }).click();
-  await expect(composer).toContainText('OrcaRouter · orcarouter/free');
-  await expect(composer.getByRole('textbox', { name: '描述想要的歌' })).toBeVisible();
+  // 打开助手，输入框随即可用。
+  await page.getByTestId('assistant-toggle').click();
+  await expect(assistant.getByRole('textbox')).toBeVisible();
 });
 
 test('ChatGPT 订阅（Codex）：单独分组，没有地址和密钥，显示本机 Codex CLI 状态', async ({ page }, testInfo) => {

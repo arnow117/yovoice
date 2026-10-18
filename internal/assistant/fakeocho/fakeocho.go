@@ -27,6 +27,7 @@ type Step struct {
 	Args          json.RawMessage `json:"args,omitempty"`
 	Assistant     string          `json:"assistant,omitempty"`    // 发一条助手文本
 	Delta         string          `json:"delta,omitempty"`        // 发一条流式文本增量
+	Thinking      string          `json:"thinking,omitempty"`     // 发一条流式思考增量，再发定稿的思考块
 	AssistantPID  bool            `json:"assistantPid,omitempty"` // 发一条内容为本进程 PID 的助手文本
 	SleepMS       int             `json:"sleepMs,omitempty"`
 	Result        string          `json:"result,omitempty"`        // 结束本轮（success 或 error_*）
@@ -246,6 +247,9 @@ func main(planPath string) int {
 					write(map[string]any{"type": "assistant", "message": map[string]any{"role": "assistant", "content": []any{map[string]any{"type": "text", "text": text}}}})
 				case step.Delta != "":
 					write(map[string]any{"type": "stream_event", "event": map[string]any{"type": "content_block_delta", "index": 0, "delta": map[string]any{"type": "text_delta", "text": step.Delta}}})
+				case step.Thinking != "":
+					write(map[string]any{"type": "stream_event", "event": map[string]any{"type": "content_block_delta", "index": 0, "delta": map[string]any{"type": "thinking_delta", "thinking": step.Thinking}}})
+					write(map[string]any{"type": "assistant", "message": map[string]any{"role": "assistant", "content": []any{map[string]any{"type": "thinking", "thinking": step.Thinking}}}})
 				case step.SleepMS > 0:
 					time.Sleep(time.Duration(step.SleepMS) * time.Millisecond)
 				case step.BadLine != "":

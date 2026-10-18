@@ -2243,24 +2243,6 @@
   "@yovoice.ai.configure": {
     "defaultMessage": "设置 AI"
   },
-  "@yovoice.ai.notConfigured": {
-    "defaultMessage": "这个功能需要大模型。请先在“设置 › AI 服务”中添加服务并选择模型。"
-  },
-  "@yovoice.ai.scorePlaceholder": {
-    "defaultMessage": "用一句话描述配乐，AI 写出完整编曲，例如：旅行 vlog 片头，温暖舒缓的钢琴，后半段加入柔和的弦乐"
-  },
-  "@yovoice.ai.scoreSeconds": {
-    "defaultMessage": "配乐时长"
-  },
-  "@yovoice.ai.scoreSubmit": {
-    "defaultMessage": "写谱"
-  },
-  "@yovoice.ai.lyricsPlaceholder": {
-    "defaultMessage": "用一句话描述这首歌，AI 写出风格、歌词和标题，例如：一首关于夏夜海边兜风的城市流行"
-  },
-  "@yovoice.ai.lyricsSubmit": {
-    "defaultMessage": "写歌"
-  },
   "@yovoice.error.aiProviderInvalid": {
     "defaultMessage": "AI 服务配置无效，请检查地址、名称和模型。"
   },
@@ -2354,53 +2336,11 @@
   "@yovoice.library.duration": {
     "defaultMessage": "时长"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "应用"
-  },
   "@yovoice.ai.discard": {
     "defaultMessage": "放弃"
   },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "重试"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "查看日志"
-  },
   "@yovoice.ai.openProject": {
     "defaultMessage": "打开作品"
-  },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "在后台写作，可以继续编辑或去别的页面，写好后会提示你。"
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "另一个 AI 任务正在进行，结束后才能开始。"
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "用时 {time} · {model}"
-  },
-  "@yovoice.ai.lyricsPlaceholderInstrumental": {
-    "defaultMessage": "用一句话描述这段纯音乐，AI 写出风格和段落，例如：深夜城市里慢慢开车的 lo-fi"
-  },
-  "@yovoice.ai.scoreLength": {
-    "defaultMessage": "约 {time}"
-  },
-  "@yovoice.ai.brief.score": {
-    "defaultMessage": "描述想要的配乐"
-  },
-  "@yovoice.ai.brief.lyrics": {
-    "defaultMessage": "描述想要的歌"
-  },
-  "@yovoice.ai.setup.score": {
-    "defaultMessage": "接入大模型后，可以用一句话让 AI 写出完整编曲。"
-  },
-  "@yovoice.ai.setup.lyrics": {
-    "defaultMessage": "接入大模型后，可以用一句话让 AI 写出风格和歌词。"
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} 正在写"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} 正在修正格式"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "AI 服务在 {seconds} 秒内没有写完。可以在“设置 › AI 服务”里延长 AI 请求超时，或换一个更快的模型。"
@@ -3110,30 +3050,6 @@
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "按旋律谱生成"
   },
-  "@yovoice.ai.brief.melody": {
-    "defaultMessage": "描述想怎么改谱"
-  },
-  "@yovoice.ai.setup.melody": {
-    "defaultMessage": "接入大模型后，可以用一句话让 AI 改旋律、和弦与风格。"
-  },
-  "@yovoice.ai.task.running.melody": {
-    "defaultMessage": "AI 正在改谱"
-  },
-  "@yovoice.ai.task.done.melody": {
-    "defaultMessage": "AI 改好了旋律谱"
-  },
-  "@yovoice.ai.task.failed.melody": {
-    "defaultMessage": "AI 改谱没有成功"
-  },
-  "@yovoice.ai.task.replace.melody": {
-    "defaultMessage": "应用后会替换当前的旋律谱；如果 AI 改了风格，也一并替换。"
-  },
-  "@yovoice.ai.melodyPlaceholder": {
-    "defaultMessage": "说说想怎么改谱，例如：副歌升高一个全音，第 9–12 小节节奏更跳跃，和弦换成爵士味"
-  },
-  "@yovoice.ai.melodySubmit": {
-    "defaultMessage": "改谱"
-  },
   "@yovoice.melody.title": {
     "defaultMessage": "旋律谱"
   },
@@ -3215,38 +3131,11 @@
   "@yovoice.melody.replace": {
     "defaultMessage": "替换"
   },
-  "@yovoice.melody.edited": {
-    "defaultMessage": "AI 改好了谱"
-  },
   "@yovoice.melody.notice.truncated": {
     "defaultMessage": "谱面超出了 YuE2 的长度上限，已在上限处截断；想保留结尾可以精简歌词或删减段落。"
   },
   "@yovoice.melody.notice.cover": {
     "defaultMessage": "已提取旋律并去掉原曲和弦，YuE2 会按你写的风格重新编配。"
-  },
-  "@yovoice.melody.changed": {
-    "defaultMessage": "改动：{changes}"
-  },
-  "@yovoice.melody.changedVocal": {
-    "defaultMessage": "旋律第 {bars} 小节"
-  },
-  "@yovoice.melody.changedChords": {
-    "defaultMessage": "和弦第 {bars} 小节"
-  },
-  "@yovoice.melody.changedIns": {
-    "defaultMessage": "伴奏第 {bars} 小节"
-  },
-  "@yovoice.melody.changedTempo": {
-    "defaultMessage": "速度"
-  },
-  "@yovoice.melody.changedKey": {
-    "defaultMessage": "调号"
-  },
-  "@yovoice.melody.changedBars": {
-    "defaultMessage": "长度 {before} → {after} 小节"
-  },
-  "@yovoice.melody.listSeparator": {
-    "defaultMessage": "、"
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 还不能按这份谱演唱"
@@ -3464,9 +3353,6 @@
   "@yovoice.error.assistantMissing": {
     "defaultMessage": "当前安装包未包含 AI 助手运行时，AI 写谱与写词暂不可用。"
   },
-  "@yovoice.assistant.toggle": {
-    "defaultMessage": "打开创作助手"
-  },
   "@yovoice.assistant.title": {
     "defaultMessage": "创作助手"
   },
@@ -3486,13 +3372,10 @@
     "defaultMessage": "让助手帮你写台词、写歌、配乐或直接生成…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "用一句话让助手动手：写台词、写歌、配乐、选音色或直接生成。"
+    "defaultMessage": "想做点什么？"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "排队 {count} 条"
-  },
-  "@yovoice.assistant.hideChips": {
-    "defaultMessage": "隐藏快捷操作"
   },
   "@yovoice.assistant.cancelled": {
     "defaultMessage": "已停止"
@@ -3560,15 +3443,6 @@
   "@yovoice.assistant.history": {
     "defaultMessage": "历史"
   },
-  "@yovoice.assistant.back": {
-    "defaultMessage": "返回对话"
-  },
-  "@yovoice.assistant.historyCount": {
-    "defaultMessage": "{count} 个会话"
-  },
-  "@yovoice.assistant.historyMeta": {
-    "defaultMessage": "{count} 条 · {time}"
-  },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "还没有历史会话。"
   },
@@ -3607,15 +3481,6 @@
   },
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "当前 AI 服务（ChatGPT 订阅）不能用于助手，请在设置里换用接口类服务。"
-  },
-  "@yovoice.assistant.askLyrics": {
-    "defaultMessage": "给当前音乐作品写词：{brief}"
-  },
-  "@yovoice.assistant.askLyricsInstrumental": {
-    "defaultMessage": "给当前音乐作品写词：{brief}（纯音乐，只写风格与段落）"
-  },
-  "@yovoice.assistant.askScore": {
-    "defaultMessage": "给当前编曲作品写谱：{brief}（目标时长约 {seconds} 秒）"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "让文字发声，把灵感谱成歌"
@@ -3817,5 +3682,20 @@
   },
   "@yovoice.assets.sourceMissing": {
     "defaultMessage": "来源作品已删除"
+  },
+  "@yovoice.assistant.launch": {
+    "defaultMessage": "问问创作助手"
+  },
+  "@yovoice.assistant.thinking": {
+    "defaultMessage": "正在思考"
+  },
+  "@yovoice.assistant.thought": {
+    "defaultMessage": "思考过程"
+  },
+  "@yovoice.assistant.steps": {
+    "defaultMessage": "执行了 {count} 步"
+  },
+  "@yovoice.assistant.toolDone": {
+    "defaultMessage": "已完成"
   }
 }

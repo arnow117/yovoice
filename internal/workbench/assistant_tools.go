@@ -8,6 +8,7 @@ import (
 	"yovoice/internal/catalog"
 	"yovoice/internal/diag"
 	"yovoice/internal/schema"
+	"yovoice/internal/score"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -30,7 +31,7 @@ func (w *Workbench) newAssistantServer() *mcp.Server {
 	mcp.AddTool(server, &mcp.Tool{Name: "list_works", Description: "列出作品（id、类型、标题、更新时间），可按类型过滤。类型：text（语音）、story（故事配音）、music（音乐）、score（编曲）。"}, w.listWorksTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "get_work", Description: "读取一个作品的完整可编辑内容：台词或风格、歌词、角色与音色分配、模型与参数、乐谱等。修改作品前先调用。"}, w.getWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "create_work", Description: "按类型新建作品并返回 id，界面随即打开它。新作品为空内容，随后用 update_work 填写。"}, w.createWorkTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "update_work", Description: "按字段补丁修改作品：标题、台词/文本、歌词与纯音乐、演唱语言、模型与参数、故事配音的角色台词与音色分配、乐谱（与写谱同一套校验）。返回修改后的摘要。"}, w.updateWorkTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "update_work", Description: "按字段补丁修改作品：标题、台词/文本、歌词与纯音乐、演唱语言、模型与参数、故事配音的角色台词与音色分配、乐谱（与写谱同一套校验）、YuE2 旋律谱 abc。返回修改后的摘要。"}, w.updateWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "generate_work", Description: "对一个作品发起生成（语音、音乐或编曲渲染），立即返回；生成前先用 list_models 确认模型已安装。进度与结果用 get_generation_status 查询。"}, w.generateWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "get_generation_status", Description: "查询作品当前的生成进度与最近一次生成的结果（时长与是否完成）。"}, w.getGenerationStatusTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "open_work", Description: "让界面打开某个作品。"}, w.openWorkTool)
@@ -75,7 +76,7 @@ func (w *Workbench) listWorksTool(ctx context.Context, req *mcp.CallToolRequest,
 func workContent(d schema.Draft) map[string]any {
 	out := map[string]any{"id": d.ID, "kind": workKindOf(d), "title": d.Title, "text": d.Text, "updatedAt": d.UpdatedAt}
 	settings := map[string]any{"modelId": d.ModelID, "mode": d.Mode, "language": d.Language, "speed": d.Speed}
-	for name, value := range map[string]any{"voiceId": d.VoiceID, "emotionVoiceId": d.EmotionVoiceID, "speaker": d.Speaker, "voiceMode": d.VoiceMode, "voiceDescription": d.VoiceDescription, "referenceText": d.ReferenceText, "lyrics": d.Lyrics, "instrumental": d.Instrumental, "synthesisLanguage": d.SynthesisLanguage, "seed": d.Seed, "temperature": d.Temperature} {
+	for name, value := range map[string]any{"voiceId": d.VoiceID, "emotionVoiceId": d.EmotionVoiceID, "speaker": d.Speaker, "voiceMode": d.VoiceMode, "voiceDescription": d.VoiceDescription, "referenceText": d.ReferenceText, "lyrics": d.Lyrics, "instrumental": d.Instrumental, "synthesisLanguage": d.SynthesisLanguage, "abc": d.Abc, "seed": d.Seed, "temperature": d.Temperature} {
 		if value != nil && value != "" && value != false {
 			settings[name] = value
 		}
@@ -195,6 +196,7 @@ type updateWorkInput struct {
 	Subtitles     *workSubtitles     `json:"subtitles,omitempty" jsonschema:"故事配音的角色与台词，整体替换"`
 	SpeakerVoices []workSpeakerVoice `json:"speakerVoices,omitempty" jsonschema:"按角色分配参考音色"`
 	Score         *scoreInput        `json:"score,omitempty" jsonschema:"完整乐谱（编曲），与写谱任务同一套校验"`
+	Abc           *string            `json:"abc,omitempty" jsonschema:"YuE2 音乐作品的旋律谱（原生 ABC 方言，见 yovoice-melody），整体替换；空字符串清除"`
 }
 
 type workSubtitles struct {
@@ -224,6 +226,7 @@ func (w *Workbench) updateWorkTool(ctx context.Context, req *mcp.CallToolRequest
 	}
 	kind := workKindOf(d)
 	var changed []string
+	var melodyChanges *score.ABCChanges
 	patch := func(name string) { changed = append(changed, name) }
 	if in.Title != nil {
 		d.Title = truncateRunes(strings.TrimSpace(*in.Title), 120)
@@ -319,6 +322,31 @@ func (w *Workbench) updateWorkTool(ctx context.Context, req *mcp.CallToolRequest
 		d.Score = &score
 		patch("乐谱")
 	}
+	if in.Abc != nil {
+		if kind != "music" {
+			return nil, nil, fmt.Errorf("abc 只适用于音乐作品，这个作品是 %s", kind)
+		}
+		abc := strings.TrimSpace(*in.Abc)
+		before, _ := score.ParseABC(d.Abc)
+		if abc != "" {
+			if len(abc) > score.ABCMaxLength {
+				return nil, nil, fmt.Errorf("旋律谱超过 %d 字节上限", score.ABCMaxLength)
+			}
+			// 与界面导入同一套方言校验：不合法时把具体小节的问题交回助手修正。
+			after, e := score.ParseABC(abc)
+			if e != nil {
+				return nil, nil, fmt.Errorf("invalid ABC score: %v", e)
+			}
+			abc += "\n"
+			// 改谱时按小节比较前后两版，供助手如实说明改了哪些小节。
+			if before != nil && strings.TrimSpace(d.Abc) != "" {
+				changes := score.CompareABC(before, after)
+				melodyChanges = &changes
+			}
+		}
+		d.Abc = abc
+		patch("旋律谱")
+	}
 	if len(changed) == 0 {
 		return nil, nil, fmt.Errorf("没有要修改的字段")
 	}
@@ -337,6 +365,9 @@ func (w *Workbench) updateWorkTool(ctx context.Context, req *mcp.CallToolRequest
 			notes += len(track.Notes)
 		}
 		summary["tracks"], summary["notes"] = len(d.Score.Tracks), notes
+	}
+	if melodyChanges != nil {
+		summary["melodyChanges"] = melodyChanges
 	}
 	return nil, summary, nil
 }

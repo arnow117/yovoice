@@ -5,30 +5,15 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, Sparkles } from 'lucide-react';
+import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2 } from 'lucide-react';
 import { call, CallError, coverMelodyFile } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatMelodyIssue } from '../../shared/i18n/format';
-import { AITaskComposer } from '../../shared/ui/ai-task-composer';
-import { formatTime, type Draft, type MelodyChanges, type MelodyInspection, type MelodyResult, type State, type UiLocale } from '../../shared/workbench';
+import { formatTime, type Draft, type MelodyInspection, type MelodyResult, type State } from '../../shared/workbench';
 import { ScoreArrangement } from '../score/score-arrangement';
 
 const maxLength = 64 << 10;
 
-// AI 改谱的结果，与 Go 的 workbench.MelodyEdit 一致。
-interface MelodyEdit { abc: string; style?: string; summary?: string; changes?: MelodyChanges }
-type Notice = { kind: 'truncated' | 'cover' } | { kind: 'edit'; summary?: string; changes?: MelodyChanges };
-
-/** 把小节号压成区间：3、4、5、9 → 3–5、9。 */
-export function barRanges(bars: number[], separator: string) {
-  const out: string[] = [];
-  for (let i = 0; i < bars.length; i++) {
-    let j = i;
-    while (j + 1 < bars.length && bars[j + 1] === bars[j] + 1) j++;
-    out.push(j > i ? `${bars[i]}–${bars[j]}` : String(bars[i]));
-    i = j;
-  }
-  return out.join(separator);
-}
+type Notice = { kind: 'truncated' | 'cover' };
 
 // 谱面校验与换算只在 Go 里做一份：编辑稍停后请后端检查，返回概要、问题位置和换算出的轨道。
 function useInspection(abc: string) {
@@ -44,10 +29,10 @@ function useInspection(abc: string) {
   return inspection;
 }
 
-// 旋律谱：YuE2 先按歌词写出旋律与和弦（或从一首歌提取旋律做翻唱），在这里看轨道、改谱面或交给 AI 改，
+// 旋律谱：YuE2 先按歌词写出旋律与和弦（或从一首歌提取旋律做翻唱），在这里看轨道、改谱面或让创作助手改，
 // 然后按谱生成整首歌。参照 YuE 官方的 ABC 方言：人声行带和弦、伴奏行写配器动机，两行成组。
-export function MelodyScore({ draft, state, change, locale, configureAI }: {
-  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale; configureAI: () => void;
+export function MelodyScore({ draft, state, change }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void;
 }) {
   const t = useTranslator();
   const abc = draft.abc ?? '';
@@ -82,23 +67,8 @@ export function MelodyScore({ draft, state, change, locale, configureAI }: {
   const commitTempo = () => { const value = Number(tempo); if (inspection?.tempo && value && value !== inspection.tempo) void transform('tempo', value); else setTempo(inspection?.tempo ? String(inspection.tempo) : ''); };
   const plan = () => attempt(() => call('melody.plan', draft));
   const canPlan = !busy && !!draft.text.trim() && !!draft.lyrics?.trim();
-  const applyEdit = (result: unknown) => {
-    const edit = result as MelodyEdit;
-    if (!edit?.abc) return;
-    change({ abc: edit.abc, ...(edit.style ? { text: edit.style.slice(0, 512) } : {}) });
-    setNotice({ kind: 'edit', summary: edit.summary, changes: edit.changes });
-  };
   const summary = inspection && !inspection.issue ? [inspection.key, `${inspection.tempo} BPM`, inspection.meter?.join('/'), t('@yovoice.score.barCount', { count: inspection.bars ?? 0 }), formatTime(inspection.seconds ?? 0), t(inspection.chords ? '@yovoice.melody.withChords' : '@yovoice.melody.melodyOnly')].filter(Boolean).join(' · ') : '';
   const score = inspection?.score ? { ...inspection.score, tracks: inspection.score.tracks.map(track => ({ ...track, name: t(`@yovoice.melody.track.${track.id}`) })) } : undefined;
-  const changes = notice?.kind === 'edit' ? notice.changes : undefined;
-  const sep = t('@yovoice.melody.listSeparator');
-  const changeText = changes ? [
-    changes.vocal?.length ? t('@yovoice.melody.changedVocal', { bars: barRanges(changes.vocal, sep) }) : '',
-    changes.chords?.length ? t('@yovoice.melody.changedChords', { bars: barRanges(changes.chords, sep) }) : '',
-    changes.ins?.length ? t('@yovoice.melody.changedIns', { bars: barRanges(changes.ins, sep) }) : '',
-    changes.tempo ? t('@yovoice.melody.changedTempo') : '', changes.key ? t('@yovoice.melody.changedKey') : '',
-    changes.bars[0] !== changes.bars[1] ? t('@yovoice.melody.changedBars', { before: changes.bars[0], after: changes.bars[1] }) : '',
-  ].filter(Boolean).join(sep) : '';
 
   const pickers = <>
     <input ref={audio} hidden type="file" accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus" aria-label={t('@yovoice.melody.coverFile')} onChange={event => {
@@ -144,15 +114,10 @@ export function MelodyScore({ draft, state, change, locale, configureAI }: {
     </HStack>
 
     {pending && abc.trim() ? <HStack className="melody-notice" data-tone="info" gap={3} vAlign="center" wrap="wrap" role="status">
-      <Sparkles size={16} aria-hidden="true" />
       <VStack className="grow" gap={0}><b>{t(pending.source === 'cover' ? '@yovoice.melody.readyCover' : '@yovoice.melody.readyPlan')}</b><small>{t('@yovoice.melody.readyReplace')}</small></VStack>
       <Button size="sm" variant="ghost" label={t('@yovoice.ai.discard')} onClick={() => void call('melody.dismiss', { id: pending.id })} />
       <Button size="sm" variant="primary" label={t('@yovoice.melody.replace')} onClick={() => apply(pending)} />
     </HStack> : null}
-
-    {abc.trim() ? <AITaskComposer kind="melody" projectId={draft.id} state={state} overwrite configure={configureAI} apply={applyEdit}
-      placeholder={t('@yovoice.ai.melodyPlaceholder')} submitLabel={t('@yovoice.ai.melodySubmit')}
-      start={brief => call('ai.melody', { projectId: draft.id, brief, abc, style: draft.text, lyrics: draft.lyrics ?? '', locale })} /> : null}
 
     {progress}
     {error ? <HStack className="melody-notice" data-tone="danger" gap={2} vAlign="start" role="alert"><CircleAlert size={16} aria-hidden="true" /><small className="grow">{error}</small></HStack> : null}
@@ -168,8 +133,7 @@ export function MelodyScore({ draft, state, change, locale, configureAI }: {
     </VStack> : <>
       {notice ? <HStack className="melody-notice" data-tone={notice.kind === 'truncated' ? 'warning' : 'info'} gap={2} vAlign="start" role="status">
         <VStack className="grow" gap={0}>
-          <small>{notice.kind === 'edit' ? notice.summary || t('@yovoice.melody.edited') : t(`@yovoice.melody.notice.${notice.kind}`)}</small>
-          {changeText ? <small className="melody-changes">{t('@yovoice.melody.changed', { changes: changeText })}</small> : null}
+          <small>{t(`@yovoice.melody.notice.${notice.kind}`)}</small>
         </VStack>
         <Button size="sm" variant="ghost" label={t('@yovoice.action.closeNotice')} onClick={() => setNotice(null)} />
       </HStack> : null}

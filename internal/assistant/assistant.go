@@ -49,19 +49,37 @@ func (c Config) key() string {
 type EventKind int
 
 const (
-	EventText EventKind = iota
+	// EventMessage 是一段定稿的助手消息内容：按顺序的文本、思考与工具调用块，
+	// 覆盖此前同一段的流式增量。
+	EventMessage EventKind = iota
 	EventTextDelta
-	EventToolStart
+	EventThinkingDelta
 	EventToolResult
 )
 
-// Event 是助手运行中的一段进展：完整的助手文本、流式文本增量、工具调用开始（含参数摘要）、
-// 工具结果（是否出错）。
+// PartKind 标记助手消息内容块的种类。
+type PartKind string
+
+const (
+	PartText     PartKind = "text"
+	PartThinking PartKind = "thinking"
+	PartTool     PartKind = "tool"
+)
+
+// Part 是定稿的助手消息里的一块：文本、思考，或一次工具调用（工具名与截断的参数摘要）。
+type Part struct {
+	Kind PartKind
+	Text string
+	Tool string
+	Args string
+}
+
+// Event 是助手运行中的一段进展：定稿的消息内容块、流式文本或思考增量、工具结果（是否出错）。
 type Event struct {
 	Kind      EventKind
+	Parts     []Part
 	Text      string
 	Tool      string
-	Args      string
 	ToolError bool
 }
 
@@ -495,13 +513,16 @@ func (p *process) readLoop(stdout io.ReadCloser) {
 			}
 		case "assistant":
 			if head.Message != nil {
-				p.emit(Event{Kind: EventText, Text: chatText(head.Message.Content)})
-				p.noteToolUses(head.Message.Content)
+				if parts := p.messageParts(head.Message.Content); len(parts) > 0 {
+					p.emit(Event{Kind: EventMessage, Parts: parts})
+				}
 			}
 		case "stream_event":
-			if text := streamDelta(head.Event); text != "" {
-				p.emit(Event{Kind: EventTextDelta, Text: text})
+			if kind, text := streamDelta(head.Event); text != "" {
+				p.emit(Event{Kind: kind, Text: text})
 			}
+		case "tool_progress", "system":
+			// 工具进度与系统事件不影响对话内容。
 		case "user":
 			if head.Message != nil {
 				p.noteToolResults(head.Message.Content)
@@ -547,8 +568,10 @@ func (p *process) emit(e Event) {
 	state := p.turn
 	var onEvent func(Event)
 	if state != nil {
-		if e.Kind == EventText {
-			state.text.WriteString(e.Text)
+		for _, part := range e.Parts {
+			if part.Kind == PartText {
+				state.text.WriteString(part.Text)
+			}
 		}
 		onEvent = state.onEvent
 	}
@@ -558,66 +581,78 @@ func (p *process) emit(e Event) {
 	}
 }
 
-// chatText 取出聊天消息 content 里的文本（content 为字符串或内容块数组）。
-func chatText(content json.RawMessage) string {
-	var text string
-	if json.Unmarshal(content, &text) == nil {
-		return text
-	}
-	var blocks []struct {
-		Type string `json:"type"`
-		Text string `json:"text"`
-	}
-	if json.Unmarshal(content, &blocks) != nil {
-		return ""
-	}
-	var b strings.Builder
-	for _, block := range blocks {
-		if block.Type == "text" {
-			b.WriteString(block.Text)
-		}
-	}
-	return b.String()
+// contentBlock 是聊天消息 content 数组里的一块。
+type contentBlock struct {
+	Type     string          `json:"type"`
+	Text     string          `json:"text"`
+	Thinking string          `json:"thinking"`
+	ID       string          `json:"id"`
+	Name     string          `json:"name"`
+	Input    json.RawMessage `json:"input"`
 }
 
-// streamRawEvent 是 --include-partial-messages 输出的原始增量事件；这里只关心文本增量。
+func contentBlocks(content json.RawMessage) []contentBlock {
+	var blocks []contentBlock
+	if json.Unmarshal(content, &blocks) != nil {
+		return nil
+	}
+	return blocks
+}
+
+// streamRawEvent 是 --include-partial-messages 输出的原始增量事件；这里只关心文本与思考增量。
 type streamRawEvent struct {
 	Type  string `json:"type"`
 	Delta *struct {
-		Type string `json:"type"`
-		Text string `json:"text"`
+		Type     string `json:"type"`
+		Text     string `json:"text"`
+		Thinking string `json:"thinking"`
 	} `json:"delta"`
 }
 
-// streamDelta 从流式事件里取出文本增量；其余事件返回空串。
-func streamDelta(event *streamRawEvent) string {
-	if event == nil || event.Type != "content_block_delta" || event.Delta == nil || event.Delta.Type != "text_delta" {
-		return ""
+// streamDelta 从流式事件里取出文本或思考增量；其余事件返回空串。
+func streamDelta(event *streamRawEvent) (EventKind, string) {
+	if event == nil || event.Type != "content_block_delta" || event.Delta == nil {
+		return 0, ""
 	}
-	return event.Delta.Text
+	switch event.Delta.Type {
+	case "text_delta":
+		return EventTextDelta, event.Delta.Text
+	case "thinking_delta":
+		return EventThinkingDelta, event.Delta.Thinking
+	}
+	return 0, ""
 }
 
-// noteToolUses 记录 tool_use 块并对外通知工具调用开始，附上截断的参数摘要。
-func (p *process) noteToolUses(content json.RawMessage) {
-	var blocks []struct {
-		Type  string          `json:"type"`
-		ID    string          `json:"id"`
-		Name  string          `json:"name"`
-		Input json.RawMessage `json:"input"`
-	}
-	if json.Unmarshal(content, &blocks) != nil {
-		return
-	}
-	for _, block := range blocks {
-		if block.Type != "tool_use" {
-			continue
+// messageParts 把一条助手消息的 content 转成按顺序的内容块，并记录 tool_use 的 ID 供结果对应。
+// content 为纯字符串时视为一段文本。
+func (p *process) messageParts(content json.RawMessage) []Part {
+	var text string
+	if json.Unmarshal(content, &text) == nil {
+		if text == "" {
+			return nil
 		}
-		name := strings.TrimPrefix(block.Name, "mcp__yovoice__")
-		p.toolsMu.Lock()
-		p.toolIDs[block.ID] = name
-		p.toolsMu.Unlock()
-		p.emit(Event{Kind: EventToolStart, Tool: name, Args: clipJSON(block.Input, 600)})
+		return []Part{{Kind: PartText, Text: text}}
 	}
+	var parts []Part
+	for _, block := range contentBlocks(content) {
+		switch block.Type {
+		case "text":
+			if block.Text != "" {
+				parts = append(parts, Part{Kind: PartText, Text: block.Text})
+			}
+		case "thinking":
+			if block.Thinking != "" {
+				parts = append(parts, Part{Kind: PartThinking, Text: block.Thinking})
+			}
+		case "tool_use":
+			name := strings.TrimPrefix(block.Name, "mcp__yovoice__")
+			p.toolsMu.Lock()
+			p.toolIDs[block.ID] = name
+			p.toolsMu.Unlock()
+			parts = append(parts, Part{Kind: PartTool, Tool: name, Args: clipJSON(block.Input, 600)})
+		}
+	}
+	return parts
 }
 
 // clipJSON 压缩并截断一段 JSON，超长时保留前缀并标注省略。

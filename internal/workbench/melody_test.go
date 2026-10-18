@@ -2,6 +2,7 @@ package workbench
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -110,21 +111,26 @@ func TestInspectAndTransformMelody(t *testing.T) {
 	}
 }
 
-func TestDecodeMelody(t *testing.T) {
-	answer := "SUMMARY: 副歌升高了一个全音\nSTYLE: unchanged\n```abc\n" + testkit.ABC + "```\n"
-	edit, err := decodeMelody(answer)
-	if err != nil || edit.Summary != "副歌升高了一个全音" || edit.Style != "" || edit.Abc != testkit.ABC {
-		t.Fatalf("%+v %v", edit, err)
+// 助手经 update_work 写旋律谱：与界面导入同一套方言校验，出错时指出小节；只适用于音乐作品。
+func TestAssistantWritesMelody(t *testing.T) {
+	wb, d := yueWorkbench(t)
+	must(t, wb.saveDraft(d))
+	bad := strings.Replace(testkit.ABC, "c16|", "c8|", 1)
+	if _, _, err := wb.updateWorkTool(context.Background(), toolReq, updateWorkInput{ID: d.ID, Abc: &bad}); err == nil || !strings.Contains(err.Error(), "invalid ABC") {
+		t.Fatalf("非法谱应被拒绝：%v", err)
 	}
-	edit, err = decodeMelody(strings.Replace(answer, "unchanged", "jazz, upright bass, 88 BPM", 1))
-	if err != nil || edit.Style != "jazz, upright bass, 88 BPM" {
-		t.Fatal(edit, err)
-	}
-	var issue *score.ABCIssue
-	if _, err = decodeMelody(strings.Replace(answer, "c16|", "c8|", 1)); !errors.As(err, &issue) || issue.Bar != 1 {
+	abc := testkit.ABC
+	if _, _, err := wb.updateWorkTool(context.Background(), toolReq, updateWorkInput{ID: d.ID, Abc: &abc}); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = decodeMelody("no score"); err == nil {
-		t.Fatal("缺少谱应失败")
+	saved, err := wb.assistantWork(d.ID)
+	must(t, err)
+	if saved.Abc != strings.TrimSpace(testkit.ABC)+"\n" {
+		t.Fatalf("旋律谱未写入：%q", saved.Abc)
+	}
+	text := schema.DefaultDraft()
+	must(t, wb.saveDraft(text))
+	if _, _, err = wb.updateWorkTool(context.Background(), toolReq, updateWorkInput{ID: text.ID, Abc: &abc}); err == nil {
+		t.Fatal("非音乐作品不应接受旋律谱")
 	}
 }

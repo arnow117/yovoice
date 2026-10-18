@@ -119,7 +119,7 @@ sequenceDiagram
 
 ## AI 服务
 
-`internal/llm` 按设置中选择的服务商发送提示词，支持 OpenAI 兼容接口、Anthropic 和 Ollama，预设见 `presets.json`。`workbench` 用它写谱和写歌词，回复按 `schema` 校验通过后才保存。密钥保存在本地数据库的私有表中，不会广播给界面。除模型和运行时下载外，yovoice 的其他部分都不联网。见 [AI 服务](ai_zh.md)。
+`internal/llm` 按设置中选择的服务商发送提示词，支持 OpenAI 兼容接口、Anthropic 和 Ollama，预设见 `presets.json`。`workbench` 用它做导入小说选角等后台任务，回复校验通过后才保存；写谱、写词与改旋律谱由内置创作助手（`internal/assistant`）完成，每次修改都经工具校验。密钥保存在本地数据库的私有表中，不会广播给界面。除模型和运行时下载外，yovoice 的其他部分都不联网。见 [AI 服务](ai_zh.md)。
 
 ## 数据目录
 

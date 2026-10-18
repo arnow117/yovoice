@@ -74,8 +74,12 @@ func TestSmokeAssistantChat(t *testing.T) {
 		t.Fatalf("作品未被创建或乐谱为空：notes=%d drafts=%d", notes, len(w.Store.Read().Drafts))
 	}
 	t.Logf("冒烟完成：作品 %q tempo=%g %d 声部 %d 音符，回复 %q", scoreDraft.Title, scoreDraft.Score.Tempo, len(scoreDraft.Score.Tracks), notes, clipRunes(last.Text, 120))
-	for _, card := range last.Tools {
-		t.Logf("工具卡片：%s %s %s", card.Tool, card.Summary, card.State)
+	for _, block := range last.Blocks {
+		if block.Card != nil {
+			t.Logf("工具卡片：%s %s %s", block.Card.Tool, block.Card.Summary, block.Card.State)
+		} else {
+			t.Logf("%s：%s", block.Kind, clipRunes(block.Text, 80))
+		}
 	}
 
 	// 冒烟结束后保留日志便于排查：打印助手子进程日志的尾部。

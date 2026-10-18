@@ -2243,24 +2243,6 @@
   "@yovoice.ai.configure": {
     "defaultMessage": "Настроить ИИ"
   },
-  "@yovoice.ai.notConfigured": {
-    "defaultMessage": "Для этой функции нужна языковая модель. Сначала добавьте сервис и выберите модель в разделе «Настройки › ИИ-сервисы»."
-  },
-  "@yovoice.ai.scorePlaceholder": {
-    "defaultMessage": "Опишите музыку одним предложением, и ИИ напишет всю аранжировку, например: тёплая неспешная фортепианная пьеса для начала тревел-влога, позже вступают мягкие струнные"
-  },
-  "@yovoice.ai.scoreSeconds": {
-    "defaultMessage": "Длительность"
-  },
-  "@yovoice.ai.scoreSubmit": {
-    "defaultMessage": "Сочинить"
-  },
-  "@yovoice.ai.lyricsPlaceholder": {
-    "defaultMessage": "Опишите песню одним предложением, и ИИ напишет стиль, текст и название, например: city pop о летней ночной поездке вдоль моря"
-  },
-  "@yovoice.ai.lyricsSubmit": {
-    "defaultMessage": "Написать"
-  },
   "@yovoice.error.aiProviderInvalid": {
     "defaultMessage": "Неверные настройки ИИ-сервиса. Проверьте адрес, название и модель."
   },
@@ -2354,53 +2336,11 @@
   "@yovoice.library.duration": {
     "defaultMessage": "длительность"
   },
-  "@yovoice.ai.apply": {
-    "defaultMessage": "Применить"
-  },
   "@yovoice.ai.discard": {
     "defaultMessage": "Отклонить"
   },
-  "@yovoice.ai.retry": {
-    "defaultMessage": "Повторить"
-  },
-  "@yovoice.ai.openLogs": {
-    "defaultMessage": "Открыть журналы"
-  },
   "@yovoice.ai.openProject": {
     "defaultMessage": "Открыть проект"
-  },
-  "@yovoice.ai.backgroundHint": {
-    "defaultMessage": "ИИ работает в фоне. Продолжайте редактировать или переходите к другому — мы сообщим, когда всё будет готово."
-  },
-  "@yovoice.ai.busyElsewhere": {
-    "defaultMessage": "Уже выполняется другая задача ИИ. Запустите эту после её завершения."
-  },
-  "@yovoice.ai.failedMeta": {
-    "defaultMessage": "Через {time} · {model}"
-  },
-  "@yovoice.ai.lyricsPlaceholderInstrumental": {
-    "defaultMessage": "Опишите инструментал одним предложением, и ИИ напишет стиль и структуру, например: lo-fi для неспешной ночной поездки по городу"
-  },
-  "@yovoice.ai.scoreLength": {
-    "defaultMessage": "Около {time}"
-  },
-  "@yovoice.ai.brief.score": {
-    "defaultMessage": "Опишите нужную музыку"
-  },
-  "@yovoice.ai.brief.lyrics": {
-    "defaultMessage": "Опишите нужную песню"
-  },
-  "@yovoice.ai.setup.score": {
-    "defaultMessage": "Подключите языковую модель, чтобы ИИ писал целую аранжировку по одному предложению."
-  },
-  "@yovoice.ai.setup.lyrics": {
-    "defaultMessage": "Подключите языковую модель, чтобы ИИ писал стиль и текст песни по одному предложению."
-  },
-  "@yovoice.ai.stage.writing": {
-    "defaultMessage": "{model} пишет"
-  },
-  "@yovoice.ai.stage.repairing": {
-    "defaultMessage": "{model} исправляет формат"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "ИИ-сервис не ответил за {seconds} с. Увеличьте тайм-аут запросов ИИ в разделе «Настройки › ИИ-сервисы» или выберите более быструю модель."
@@ -3110,30 +3050,6 @@
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Создать по нотам"
   },
-  "@yovoice.ai.brief.melody": {
-    "defaultMessage": "Опишите, как изменить ноты"
-  },
-  "@yovoice.ai.setup.melody": {
-    "defaultMessage": "Подключите языковую модель, чтобы ИИ переписывал мелодию, аккорды и стиль по одной фразе."
-  },
-  "@yovoice.ai.task.running.melody": {
-    "defaultMessage": "ИИ редактирует ноты"
-  },
-  "@yovoice.ai.task.done.melody": {
-    "defaultMessage": "ИИ закончил редактировать ноты"
-  },
-  "@yovoice.ai.task.failed.melody": {
-    "defaultMessage": "ИИ не смог отредактировать ноты"
-  },
-  "@yovoice.ai.task.replace.melody": {
-    "defaultMessage": "При применении текущие ноты заменятся, а также стиль, если ИИ его изменил."
-  },
-  "@yovoice.ai.melodyPlaceholder": {
-    "defaultMessage": "Скажите, как изменить ноты, например: поднять припев на тон, сделать такты 9–12 упругее, перейти на джазовые аккорды"
-  },
-  "@yovoice.ai.melodySubmit": {
-    "defaultMessage": "Изменить ноты"
-  },
   "@yovoice.melody.title": {
     "defaultMessage": "Ноты мелодии"
   },
@@ -3215,38 +3131,11 @@
   "@yovoice.melody.replace": {
     "defaultMessage": "Заменить"
   },
-  "@yovoice.melody.edited": {
-    "defaultMessage": "ИИ изменил ноты"
-  },
   "@yovoice.melody.notice.truncated": {
     "defaultMessage": "Ноты оказались длиннее, чем может спеть YuE2, и обрезаны по пределу. Сократите текст или уберите разделы, чтобы сохранить концовку."
   },
   "@yovoice.melody.notice.cover": {
     "defaultMessage": "Мелодия извлечена. Исходные аккорды удалены, чтобы YuE2 заново аранжировал песню в вашем стиле."
-  },
-  "@yovoice.melody.changed": {
-    "defaultMessage": "Изменено: {changes}"
-  },
-  "@yovoice.melody.changedVocal": {
-    "defaultMessage": "мелодия в тактах {bars}"
-  },
-  "@yovoice.melody.changedChords": {
-    "defaultMessage": "аккорды в тактах {bars}"
-  },
-  "@yovoice.melody.changedIns": {
-    "defaultMessage": "аккомпанемент в тактах {bars}"
-  },
-  "@yovoice.melody.changedTempo": {
-    "defaultMessage": "темп"
-  },
-  "@yovoice.melody.changedKey": {
-    "defaultMessage": "тональность"
-  },
-  "@yovoice.melody.changedBars": {
-    "defaultMessage": "длина {before} → {after} тактов"
-  },
-  "@yovoice.melody.listSeparator": {
-    "defaultMessage": ", "
   },
   "@yovoice.melody.invalid": {
     "defaultMessage": "YuE2 пока не может спеть эти ноты"
@@ -3467,9 +3356,6 @@
   "@yovoice.error.assistantProvider": {
     "defaultMessage": "Текущий ИИ-сервис (подписка ChatGPT) нельзя использовать в ассистенте. Выберите сервис с API в настройках."
   },
-  "@yovoice.assistant.toggle": {
-    "defaultMessage": "Открыть ассистента"
-  },
   "@yovoice.assistant.title": {
     "defaultMessage": "Ассистент"
   },
@@ -3489,13 +3375,10 @@
     "defaultMessage": "Попросите ассистента написать, изменить или сгенерировать…"
   },
   "@yovoice.assistant.empty": {
-    "defaultMessage": "Достаточно одной фразы: написать текст или стихи, сочинить музыку, выбрать голос или сгенерировать."
+    "defaultMessage": "Что создадим?"
   },
   "@yovoice.assistant.queued": {
     "defaultMessage": "В очереди: {count}"
-  },
-  "@yovoice.assistant.hideChips": {
-    "defaultMessage": "Скрыть быстрые действия"
   },
   "@yovoice.assistant.cancelled": {
     "defaultMessage": "Остановлено"
@@ -3563,15 +3446,6 @@
   "@yovoice.assistant.history": {
     "defaultMessage": "История"
   },
-  "@yovoice.assistant.back": {
-    "defaultMessage": "Назад к чату"
-  },
-  "@yovoice.assistant.historyCount": {
-    "defaultMessage": "Чатов: {count}"
-  },
-  "@yovoice.assistant.historyMeta": {
-    "defaultMessage": "Сообщений: {count} · {time}"
-  },
   "@yovoice.assistant.historyEmpty": {
     "defaultMessage": "Чатов пока нет."
   },
@@ -3607,15 +3481,6 @@
   },
   "@yovoice.assistant.contextOff": {
     "defaultMessage": "Контекст не прикладывается. Нажмите, чтобы приложить текущую страницу и работу."
-  },
-  "@yovoice.assistant.askLyrics": {
-    "defaultMessage": "Напиши текст песни для этой музыкальной работы: {brief}"
-  },
-  "@yovoice.assistant.askLyricsInstrumental": {
-    "defaultMessage": "Напиши для этой музыкальной работы: {brief} (инструментал: только стиль и разделы)"
-  },
-  "@yovoice.assistant.askScore": {
-    "defaultMessage": "Напиши аранжировку для этой партитуры: {brief} (около {seconds} с)"
   },
   "@yovoice.intro.tagline": {
     "defaultMessage": "Дайте словам голос. Превратите идеи в песни."
@@ -3817,5 +3682,20 @@
   },
   "@yovoice.assets.sourceMissing": {
     "defaultMessage": "Исходный проект удалён"
+  },
+  "@yovoice.assistant.launch": {
+    "defaultMessage": "Спросить ассистента"
+  },
+  "@yovoice.assistant.thinking": {
+    "defaultMessage": "Думает"
+  },
+  "@yovoice.assistant.thought": {
+    "defaultMessage": "Ход мыслей"
+  },
+  "@yovoice.assistant.steps": {
+    "defaultMessage": "Шагов: {count}"
+  },
+  "@yovoice.assistant.toolDone": {
+    "defaultMessage": "Готово"
   }
 }

@@ -223,12 +223,6 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			return nil, e
 		}
 		return w.StartImage(input)
-	case "ai.melody":
-		var input workbench.MelodyBrief
-		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
-		}
-		return w.StartMelodyEdit(input)
 	case "melody.plan":
 		d := schema.DefaultDraft()
 		if e := json.Unmarshal(data, &d); e != nil {
