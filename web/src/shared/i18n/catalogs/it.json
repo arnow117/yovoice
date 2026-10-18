@@ -3655,5 +3655,11 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex non ha generato alcuna immagine: {detail}"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "Dai voce alle tue parole. Trasforma le idee in canzoni."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "Inizia a esplorare"
   }
 }

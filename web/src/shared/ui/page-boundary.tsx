@@ -28,7 +28,7 @@ class Boundary extends Component<BoundaryProps, BoundaryState> {
     return props.resetKey !== state.resetKey ? { error: null, resetKey: props.resetKey } : null;
   }
   componentDidCatch(error: Error, info: ErrorInfo) {
-    dismissSplash();
+    dismissSplash(true);
     reportDesktop('render', this.props.name, `${error.stack ?? String(error)}\n${info.componentStack ?? ''}`);
   }
   render() {

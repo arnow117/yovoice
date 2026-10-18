@@ -3655,5 +3655,11 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex hat kein Bild erzeugt: {detail}"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "Gib deinen Worten eine Stimme. Mach aus Ideen Songs."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "Jetzt entdecken"
   }
 }

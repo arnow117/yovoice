@@ -3655,5 +3655,11 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex가 이미지를 생성하지 않았습니다: {detail}"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "글에 목소리를, 영감을 노래로."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "둘러보기 시작"
   }
 }

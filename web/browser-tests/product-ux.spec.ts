@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { seedState } from './seed';
+import { emptyState } from '../src/shared/workbench';
 
 test('新建四种作品、取消导入、卡片菜单与重命名独立保存', async ({ page }, testInfo) => {
   await page.goto('/');
@@ -124,4 +126,23 @@ test('启动动画在脚本加载前显示，界面就绪后移除，不挡住�
   await expect(page.locator('#splash')).toHaveCount(0);
   await page.getByTestId('nav-new').click();
   await expect(page.getByRole('menuitem').first()).toBeVisible();
+});
+
+test('首次启动显示开场画面，点「开始探索」进入主界面并记住，再次打开不再显示', async ({ page }) => {
+  const state = emptyState();
+  await seedState(page, { ...state, preferences: { ...state.preferences, introSeen: false } });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const intro = page.getByRole('dialog', { name: 'yovoice' });
+  await expect(intro.getByText('让文字发声，把灵感谱成歌')).toBeVisible();
+  await expect(intro.getByText('故事配音')).toBeVisible();
+  const start = intro.getByRole('button', { name: '开始探索' });
+  await expect(start).toBeFocused();
+  await start.press('Enter');
+  await expect(intro).toHaveCount(0);
+  await page.getByTestId('nav-new').click();
+  await expect(page.getByRole('menuitem').first()).toBeVisible();
+  await page.reload();
+  await expect(page.getByTestId('nav-new')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'yovoice' })).toHaveCount(0);
 });

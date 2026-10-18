@@ -3655,5 +3655,11 @@
   },
   "@yovoice.error.codexNoImage": {
     "defaultMessage": "Codex không tạo được hình ảnh: {detail}"
+  },
+  "@yovoice.intro.tagline": {
+    "defaultMessage": "Cho lời nói của bạn một giọng nói. Biến ý tưởng thành bài hát."
+  },
+  "@yovoice.intro.start": {
+    "defaultMessage": "Bắt đầu khám phá"
   }
 }
