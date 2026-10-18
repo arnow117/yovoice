@@ -7,6 +7,7 @@ import (
 	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
+	"yovoice/internal/score"
 )
 
 func (w *Workbench) SaveDraft(d schema.Draft) error {
@@ -39,7 +40,7 @@ func (w *Workbench) saveDraft(d schema.Draft) (err error) {
 		return err
 	}
 	stage = "validate_limits"
-	if !schema.ValidID(d.ID) || schema.TextLen(d.Text) > 12000 || schema.TextLen(d.Title) > 120 || schema.TextLen(d.EmotionText) > 500 || schema.TextLen(d.VoiceDescription) > 500 || schema.TextLen(d.ReferenceText) > 2000 || schema.TextLen(d.Lyrics) > 4000 || !schema.ScoreWithinLimits(d.Score) {
+	if !schema.ValidID(d.ID) || schema.TextLen(d.Text) > 12000 || schema.TextLen(d.Title) > 120 || schema.TextLen(d.EmotionText) > 500 || schema.TextLen(d.VoiceDescription) > 500 || schema.TextLen(d.ReferenceText) > 2000 || schema.TextLen(d.Lyrics) > 4000 || len(d.Abc) > score.ABCMaxLength || !schema.ScoreWithinLimits(d.Score) {
 		return msg.Err(msg.ErrDraftLimits, nil)
 	}
 	// 内容未变化时直接返回、不写盘：打开作品或界面补存都会触发保存，

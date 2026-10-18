@@ -139,6 +139,8 @@ test('编辑器 AI 写作入口：提交即进助手对话，面板自动打开'
 
 test('未配置 AI 服务：面板引导去设置，配置后即可用', async ({ page }) => {
   await page.goto('/');
+  // 等界面就绪再按快捷键，满载并行时首屏较慢。
+  await page.getByTestId('assistant-toggle').waitFor({ state: 'visible' });
   await page.keyboard.press('ControlOrMeta+j');
   const panel = page.getByTestId('assistant-panel');
   await expect(panel).toContainText('还没有可用的 AI 服务');

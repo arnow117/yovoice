@@ -23,7 +23,11 @@ func TestPresetsMatchWeb(t *testing.T) {
 		t.Fatal("internal/llm/presets.json 与 web/src/shared/lib/ai-presets.json 不一致")
 	}
 	for _, p := range Presets {
-		if p.Key == "" || p.Name == "" || (p.Endpoint != "custom" && !strings.HasPrefix(p.BaseURL, "http")) {
+		// 经 CLI 调用的订阅没有地址，只能使用 Codex 协议。
+		if p.Endpoint == "cli" && (p.Format != FormatCodex || p.BaseURL != "") {
+			t.Errorf("CLI 预设 %+v 配置错误", p)
+		}
+		if p.Key == "" || p.Name == "" || (p.Endpoint != "custom" && p.Endpoint != "cli" && !strings.HasPrefix(p.BaseURL, "http")) {
 			t.Errorf("预设 %+v 不完整", p)
 		}
 	}
@@ -43,29 +47,29 @@ func TestJoin(t *testing.T) {
 	}
 }
 
-// 三种协议的路径、鉴权头、请求体与回复解析（连通测试）。
-func TestPingProtocols(t *testing.T) {
+// 三种协议的路径、鉴权头、请求体与回复解析。
+func TestCompleteProtocols(t *testing.T) {
 	cases := []struct {
 		format, path, reply string
 		check               func(*http.Request, map[string]any) error
 	}{
-		{FormatChat, "/v1/chat/completions", `{"choices":[{"message":{"content":"OK"},"finish_reason":"stop"}]}`, func(r *http.Request, body map[string]any) error {
+		{FormatChat, "/v1/chat/completions", `{"choices":[{"message":{"content":"<think>想一想</think>你好"},"finish_reason":"stop"}]}`, func(r *http.Request, body map[string]any) error {
 			if r.Header.Get("Authorization") != "Bearer sk-test-key-1234567" || r.Header.Get("x-api-key") != "" {
 				return errors.New("chat 鉴权头不对")
 			}
-			if messages := body["messages"].([]any); len(messages) != 2 || messages[0].(map[string]any)["role"] != "system" || body["max_tokens"] != float64(256) {
+			if messages := body["messages"].([]any); len(messages) != 2 || messages[0].(map[string]any)["role"] != "system" || body["max_tokens"] != float64(50) {
 				return errors.New("chat 请求体不对")
 			}
 			return nil
 		}},
-		{FormatAnthropic, "/v1/messages", `{"content":[{"type":"thinking","thinking":"x"},{"type":"text","text":"OK"}],"stop_reason":"end_turn"}`, func(r *http.Request, body map[string]any) error {
-			if r.Header.Get("x-api-key") != "sk-test-key-1234567" || r.Header.Get("anthropic-version") == "" || body["system"] != "Reply with OK." {
+		{FormatAnthropic, "/v1/messages", `{"content":[{"type":"thinking","thinking":"x"},{"type":"text","text":"你好"}],"stop_reason":"end_turn"}`, func(r *http.Request, body map[string]any) error {
+			if r.Header.Get("x-api-key") != "sk-test-key-1234567" || r.Header.Get("anthropic-version") == "" || body["system"] != "sys" {
 				return errors.New("anthropic 请求不对")
 			}
 			return nil
 		}},
-		{FormatResponses, "/v1/responses", `{"status":"completed","output":[{"content":[{"type":"output_text","text":"OK"}]}]}`, func(r *http.Request, body map[string]any) error {
-			if body["instructions"] != "Reply with OK." || body["store"] != false {
+		{FormatResponses, "/v1/responses", `{"status":"completed","output":[{"content":[{"type":"output_text","text":"你好"}]}]}`, func(r *http.Request, body map[string]any) error {
+			if body["instructions"] != "sys" || body["max_output_tokens"] != float64(50) || body["store"] != false {
 				return errors.New("responses 请求体不对")
 			}
 			return nil
@@ -88,10 +92,10 @@ func TestPingProtocols(t *testing.T) {
 		if c.format == FormatAnthropic {
 			base = server.URL
 		}
-		err := Ping(context.Background(), server.Client(), Config{Format: c.format, BaseURL: base, Key: "sk-test-key-1234567", Model: "m"})
+		result, err := Complete(context.Background(), server.Client(), Config{Format: c.format, BaseURL: base, Key: "sk-test-key-1234567", Model: "m"}, Request{System: "sys", Messages: []Message{{Role: "user", Content: "hi"}}, MaxTokens: 50})
 		server.Close()
-		if err != nil {
-			t.Errorf("%s: %v", c.format, err)
+		if err != nil || result.Text != "你好" || result.Truncated {
+			t.Errorf("%s: %+v %v", c.format, result, err)
 		}
 	}
 }
@@ -115,7 +119,7 @@ func TestFreeTierRejections(t *testing.T) {
 			w.WriteHeader(c.status)
 			_, _ = w.Write([]byte(c.body))
 		}))
-		err := Ping(context.Background(), server.Client(), Config{Format: FormatChat, BaseURL: server.URL, Key: "k", Model: "orcarouter/free"})
+		_, err := Complete(context.Background(), server.Client(), Config{Format: FormatChat, BaseURL: server.URL, Key: "k", Model: "orcarouter/free"}, Request{Messages: []Message{{Role: "user", Content: "hi"}}})
 		server.Close()
 		var ce *msg.CallError
 		if !errors.As(err, &ce) || ce.Code != c.code || (c.params != nil && ce.Params["seconds"] != c.params["seconds"]) {
@@ -132,7 +136,7 @@ func TestErrorsAreClassifiedAndSanitized(t *testing.T) {
 			w.WriteHeader(status)
 			_, _ = w.Write([]byte(`{"error":{"message":"bad key ` + key + ` Bearer ` + key + `"}}`))
 		}))
-		err := Ping(context.Background(), server.Client(), Config{Format: FormatChat, BaseURL: server.URL, Key: key, Model: "m"})
+		_, err := Complete(context.Background(), server.Client(), Config{Format: FormatChat, BaseURL: server.URL, Key: key, Model: "m"}, Request{Messages: []Message{{Role: "user", Content: "hi"}}})
 		server.Close()
 		var ce *msg.CallError
 		if !errors.As(err, &ce) || ce.Code != code {
@@ -143,23 +147,27 @@ func TestErrorsAreClassifiedAndSanitized(t *testing.T) {
 			t.Errorf("%d 错误详情泄露密钥：%s", status, raw)
 		}
 	}
-	err := Ping(context.Background(), http.DefaultClient, Config{Format: FormatChat, BaseURL: "http://127.0.0.1:1", Model: "m"})
+	_, err := Complete(context.Background(), http.DefaultClient, Config{Format: FormatChat, BaseURL: "http://127.0.0.1:1", Model: "m"}, Request{Messages: []Message{{Role: "user", Content: "hi"}}})
 	var ce *msg.CallError
 	if !errors.As(err, &ce) || ce.Code != msg.ErrAINetwork {
 		t.Fatal("连接失败应返回 aiNetwork", err)
 	}
 }
 
-func TestModels(t *testing.T) {
+func TestTruncatedAndModels(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			_, _ = w.Write([]byte(`{"data":[{"id":"b"},{"id":"a"},{"id":"a"},{"name":"c"}]}`))
 			return
 		}
-		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"OK"}}]}`))
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"{\"x\":"},"finish_reason":"length"}]}`))
 	}))
 	defer server.Close()
 	c := Config{Format: FormatChat, BaseURL: server.URL, ModelsPath: "/models", Model: "m"}
+	result, err := Complete(context.Background(), server.Client(), c, Request{Messages: []Message{{Role: "user", Content: "hi"}}})
+	if err != nil || !result.Truncated {
+		t.Fatal("应标记截断", result, err)
+	}
 	models, err := Models(context.Background(), server.Client(), c)
 	if err != nil || strings.Join(models, ",") != "a,b,c" {
 		t.Fatal(models, err)
@@ -170,8 +178,11 @@ func TestModels(t *testing.T) {
 	}
 }
 
-func TestMask(t *testing.T) {
+func TestMaskAndExtract(t *testing.T) {
 	if Mask("sk-abcdefghijklmnop") != "sk-a••••••••mnop" || Mask("short") != "•••••" || Mask("") != "" {
 		t.Fatal(Mask("sk-abcdefghijklmnop"))
+	}
+	if ExtractJSON("好的：\n```json\n{\"a\":{\"b\":1}}\n```") != `{"a":{"b":1}}` || ExtractJSON("没有") != "" {
+		t.Fatal("ExtractJSON")
 	}
 }

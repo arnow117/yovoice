@@ -54,6 +54,7 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 - **Music** — write a style and lyrics with section markers, then generate songs or instrumentals with ACE-Step 1.5, or vocal songs with YuE2; the playback page syncs lyrics to the vocals.
 - **Score** — write parts by bar and beat, import MIDI or let an Agent compose, render with a General MIDI sound font, and export MIDI and stems. See [Score](docs/score.md).
 - **Optional AI service** — the built-in assistant panel chats with DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API and acts on your works: it writes arrangements and lyrics, edits text, assigns voices and starts generation; keys stay on this computer. See [AI service](docs/ai.md).
+- **12 interface languages** — English, 简体中文, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português (Brasil), Русский, Italiano and Tiếng Việt; switch anytime in Settings, no restart needed.
 
 ---
 
@@ -119,7 +120,7 @@ make install
 make app-run
 ```
 
-See the [development guide](docs/development.md) for prerequisites. It also covers browser preview, tests, and project structure.
+See the [development guide](docs/development.md) for prerequisites. It also covers browser preview, tests, and project structure. For how the processes and packages fit together, see [Architecture](docs/architecture.md).
 
 ---
 

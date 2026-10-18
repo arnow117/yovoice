@@ -4,13 +4,16 @@
 
 ## [Unreleased]
 
-### English
-
-- New AI assistant panel in the bottom-right corner (⌘J / Ctrl+J): chat to create and edit works, pick voices, adjust parameters, and start voice, music or score generation — every action is applied in the app right away. Chats are organized into sessions with a history drawer; AI score and lyric writing from the editors goes through the same conversation.
-
-### 简体中文
-
-- 新增右下角 AI 助手面板（⌘J / Ctrl+J）：用对话新建和修改作品、挑音色、调参数、发起语音/音乐/配乐生成，操作即时反映到界面。对话按会话组织并带历史抽屉；编辑器里的 AI 写谱写词也并入同一对话。
+- 界面新增繁體中文、日本語、한국어、Español、Français、Deutsch、Português (Brasil)、Русский、Italiano 和 Tiếng Việt，可在设置中随时切换，首次启动按系统语言自动选择；缺少的文案回退为英文。原生菜单与对话框在中文以外的语言中显示英文。
+- `yovoice serve` 与桌面本机接口在 `/docs/` 提供交互式 API 文档（Swagger UI），可填入令牌后直接试调用；新增架构说明文档。
+- 故事配音新增“导入小说”：支持 TXT、Markdown 和 EPUB，按章节生成故事作品，自动拆分旁白与对白、识别说话人并从声音库选角；配置 AI 服务后可让 AI 补全说话人和角色特征。
+- YuE2 歌曲可以先写旋律谱：按歌词写出人声旋律与和弦，在轨道视图或 ABC 谱面里查看和修改，调速度、只保留旋律、导入 `.abc`，或用一句话让 AI 改谱，再按谱生成整首歌；每个版本保存所用的谱，复用时一并恢复。
+- 新增翻唱：用 SheetSage2 从一首歌提取旋律（去掉原曲和弦），由 YuE2 按新的风格和歌词重新演唱。
+- AI 为 YuE2 写歌词时，风格描述按 YuE2 的写法给出演唱语言和速度。
+- AI 服务新增“ChatGPT (Codex)”：通过本机官方 Codex CLI 使用 ChatGPT 订阅额度，设置页可检测安装与登录状态、一键用 ChatGPT 登录并读取模型列表；yovoice 不读取或保存登录凭证，请求在临时目录的只读沙箱中运行。
+- 设置新增“日志”页：按级别、模块、时间和关键词查看服务日志，点开查看完整字段，并可导出诊断包（不含推理进程原始输出）用于反馈问题；导入导出、音色与素材、模型与运行时、AI 服务、推理进程启停、本机 API 请求和界面导出等关键操作都会留痕，日志不记录正文、歌词（包括 AI 输出）和密钥，用户主目录显示为 `~`。
+- 故事配音的“导出音轨”可选择导出 SRT 或 WebVTT 字幕：每个配音片段一条字幕，时间按片段在时间轴上的实际位置（含裁剪），支持全部、所选范围、单条音轨或某位说话人，可附带说话人名；音乐播放页新增“导出歌词（LRC）”，按校准、自动定位或估算的歌词时间输出。
+- 新增右下角 AI 助手面板（⌘J / Ctrl+J）：用对话新建和修改作品、挑音色、调参数、发起语音/音乐/配乐生成，操作即时反映到界面；展开后停靠为右侧一栏。对话按会话组织并带历史抽屉；编辑器里的 AI 写谱写词也并入同一对话。助手需要接口类 AI 服务，暂不支持 ChatGPT (Codex) 订阅。
 
 ## [0.2.1] - 2026-10-16
 

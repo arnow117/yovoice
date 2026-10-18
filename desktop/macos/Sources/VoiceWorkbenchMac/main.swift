@@ -371,6 +371,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             data["path"] = url.path
             message["data"] = data
         }
+        if method == "logs.export" {
+            // 诊断包由本地服务打包写入，宿主只负责选择保存位置。
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [.zip]
+            let stamp = DateFormatter()
+            stamp.dateFormat = "yyyyMMdd-HHmmss"
+            panel.nameFieldStringValue = "yovoice-diagnostics-" + stamp.string(from: Date()) + ".zip"
+            let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": false] }
+            data["path"] = url.path
+            message["data"] = data
+        }
         if method == "score.export" {
             // 编曲导出 MIDI 或乐谱 JSON，扩展名由界面指定，写文件交给本地服务。
             let format = (data["format"] as? String) == "json" ? "json" : "mid"
@@ -411,6 +423,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
             guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": false] }
             try audio.write(to: url, options: .atomic)
+            return ["id": message["id"]!, "result": true]
+        }
+        if method == "text.export" {
+            // 字幕（SRT/VTT）与歌词（LRC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
+            let format = data["format"] as? String ?? ""
+            guard ["srt", "vtt", "lrc"].contains(format), let text = data["text"] as? String, text.utf8.count <= 20_000_000 else { throw failure(HostL10n.t("err.textExportInvalid")) }
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [UTType(filenameExtension: format) ?? .plainText]
+            panel.nameFieldStringValue = (data["name"] as? String ?? "yovoice." + format)
+            let response = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard response == .OK, let url = panel.url else { return ["id": message["id"]!, "result": false] }
+            try Data(text.utf8).write(to: url, options: .atomic)
             return ["id": message["id"]!, "result": true]
         }
         if method == "media.reveal" {

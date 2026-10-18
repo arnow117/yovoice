@@ -1,8 +1,10 @@
 import catalog from './catalog.json';
 import aiPresets from './ai-presets.json';
-import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AssistantLive, type AssistantSession, type AssistantToolCard, type AssistantToolCardState, type LocalAPIStatus } from '../workbench';
+import { performanceSettings, createDraft, emptyState, type AudioAsset, type Draft, type State, type Voice, type Preferences, type Character, type SynthesisSettings, type AIProvider, type AITask, type AssistantLive, type AssistantSession, type AssistantToolCard, type AssistantToolCardState, type LocalAPIStatus, type LogFilter, type MelodyInspection, type ScoreNote, aiTimeoutDefault } from '../workbench';
 import { encodeWav } from './sound';
 import { CallError } from './call-error';
+import { isUiLocale } from '../i18n/locale';
+import { auditedMethods, encodeError, previewExportLogs, previewLog, previewQueryLogs } from './preview-logs';
 
 // 浏览器预览的本地后端：只保存编辑和音频数据，不模拟桌面推理或模型安装。
 // 作品状态存于 localStorage（主副本加恢复备份），音频存于 IndexedDB。
@@ -29,8 +31,8 @@ function load(): State {
       state = value; break;
     } catch { /* 主副本损坏时继续读取恢复备份。 */ }
   }
-  state.characters ??= []; state.previews = []; state.assistantLive = undefined;
-  if (!['zh-CN', 'en'].includes(state.preferences?.uiLocale)) {
+  state.characters ??= []; state.previews = []; delete state.aiTask; delete state.melody; state.assistantLive = undefined;
+  if (!isUiLocale(state.preferences?.uiLocale)) {
     state = { ...state, preferences: { ...state.preferences, uiLocale: 'zh-CN' } };
   }
   return state;
@@ -66,10 +68,40 @@ function touchSession(state: State): AssistantSession {
   return session;
 }
 
+// 关键操作与桌面端一样记入日志；日志页的查询、导出和界面事件在这里直接处理。
 export async function previewCall<T>(method: string, data: unknown): Promise<T> {
+  if (method === 'logs.query') return previewQueryLogs((data ?? {}) as LogFilter) as T;
+  if (method === 'diag.client') {
+    const { event, method: source, detail } = data as { event: string; method?: string; detail?: string };
+    previewLog(`client.${event.slice(0, 40)}`, { method: source, detail: detail?.slice(0, 2000) });
+    return true as T;
+  }
+  if (method === 'logs.export') {
+    const url = URL.createObjectURL(new Blob([previewExportLogs()], { type: 'application/x-ndjson' }));
+    const link = document.createElement('a'); link.href = url; link.download = 'yovoice-preview-logs.jsonl'; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  if (!auditedMethods.has(method)) return dispatch<T>(method, data);
+  const started = performance.now(), input = (data ?? {}) as { id?: unknown; kind?: unknown; model?: unknown };
+  const fields = { id: input.id, kind: input.kind, model: input.model };
+  try {
+    const result = await dispatch<T>(method, data);
+    previewLog(method, { elapsed_ms: Math.round(performance.now() - started), ...fields });
+    return result;
+  } catch (error) {
+    previewLog(method, { elapsed_ms: Math.round(performance.now() - started), error: encodeError(error), ...fields });
+    throw error;
+  }
+}
+
+async function dispatch<T>(method: string, data: unknown): Promise<T> {
   const state = preview();
   // 预览默认带上助手运行时；测试可用 yovoice-preview-no-ocho 模拟安装包缺失的情形。
   const assistant = { available: !localStorage.getItem('yovoice-preview-no-ocho') };
+  if (method === 'logs.export') return true as T;
+  // 预览不能运行本机程序：Codex 显示为未安装，登录需要桌面端。
+  if (method === 'ai.codex.status') return {} as T;
+  if (method === 'ai.codex.login') throw new CallError('@yovoice.error.previewDesktopOnly');
   if (method === 'state.get') return { state, catalog, engine: { version: '', minimum: '' }, desktop: false, assistant } as T;
   if (method === 'character.save') {
     const character = structuredClone(data as Character);
@@ -255,6 +287,40 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     }, 300);
     return { url: '' } as T;
   }
+  // 预览模拟 AI 后台任务的生命周期：开始后短暂运行，再以“仅桌面可用”结束，便于检查界面闭环。
+  // 旋律谱的完整校验在 Go 中；预览只读出谱头与人声旋律，便于查看导入的谱。
+  if (method === 'melody.inspect') return previewInspectMelody((data as { abc: string }).abc) as T;
+  if (method === 'melody.transform') {
+    const { abc, op, tempo } = data as { abc: string; op: string; tempo: number };
+    if (op === 'stripChords') return abc.split('\n').map(line => /^[A-Za-z]:|^%/.test(line) ? line : line.replace(/"[^"]*"/g, '')).join('\n') as T;
+    if (op === 'tempo' && tempo >= 30 && tempo <= 300) return abc.replace(/^Q:.*$/m, `Q:1/4=${tempo}`) as T;
+    throw new CallError('@yovoice.error.requestInvalid');
+  }
+  if (method === 'melody.dismiss') {
+    if (state.melody?.id === (data as { id: string }).id) { delete state.melody; publish(); }
+    return true as T;
+  }
+  if (method === 'ai.cast' || method === 'ai.melody') {
+    const input = method === 'ai.cast' ? { projectId: '', brief: (data as { title: string }).title } : data as { projectId: string; brief: string };
+    const provider = state.aiProviders?.find(p => p.id === state.aiProviderID);
+    if (!provider?.model) throw new CallError('@yovoice.error.aiNotConfigured');
+    if (state.aiTask?.status === 'running') throw new CallError('@yovoice.error.busy');
+    const task: AITask = { id: crypto.randomUUID().replaceAll('-', ''), kind: method === 'ai.cast' ? 'cast' : 'melody', projectId: input.projectId, brief: input.brief, status: 'running', stage: 'writing', provider: provider.name, model: provider.model, timeout: state.preferences.aiTimeout || aiTimeoutDefault, startedAt: new Date().toISOString() };
+    state.aiTask = task; publish();
+    setTimeout(() => {
+      if (state.aiTask?.id !== task.id || state.aiTask.status !== 'running') return;
+      state.aiTask = { ...state.aiTask, status: 'failed', finishedAt: new Date().toISOString(), errorCode: '@yovoice.error.previewDesktopOnly' }; publish();
+    }, 1500);
+    return task as T;
+  }
+  if (method === 'ai.cancel') {
+    if (state.aiTask?.status === 'running') { state.aiTask = { ...state.aiTask, status: 'cancelled', finishedAt: new Date().toISOString() }; publish(); }
+    return true as T;
+  }
+  if (method === 'ai.dismiss') {
+    if (state.aiTask?.id === (data as { id: string }).id && state.aiTask.status !== 'running') { delete state.aiTask; publish(); }
+    return true as T;
+  }
   // 预览模拟助手对话：流式文本、工具卡片与界面事件都按真实路径写进状态，编辑器内容与页面随之变化。
   if (method === 'assistant.send') {
     const input = data as { text: string; context?: { page?: string; workId?: string } };
@@ -375,6 +441,34 @@ export async function previewCall<T>(method: string, data: unknown): Promise<T> 
     return true as T;
   }
   throw new CallError('@yovoice.error.previewDesktopOnly');
+}
+
+function previewInspectMelody(abc: string): MelodyInspection {
+  const header = (field: string) => new RegExp(`^${field}:\\s*(.+)$`, 'm').exec(abc)?.[1].trim() ?? '';
+  const tempo = Number(/=(\d+)/.exec(header('Q'))?.[1]), meter = header('M').split('/').map(Number), unit = Number(header('L').split('/')[1]);
+  if (!(tempo > 0) || meter.length !== 2 || !(unit > 0)) return { issue: { code: 'header', detail: '' } };
+  const lines = abc.split('\n'), notes: ScoreNote[] = [];
+  const steps: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }, beatUnits = unit / meter[1];
+  let bars = 0, chords = false, position = 0;
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^V:\s*Vocal\s*$/.test(lines[i]) || !lines[i + 1]) continue;
+    const music = lines[i + 1];
+    chords ||= music.includes('"');
+    for (const m of music.replace(/"[^"]*"/g, '').matchAll(/(\|)|([_^=]*)([A-Ga-gzZ])([,']*)(\d*)/g)) {
+      if (m[1]) { bars++; position = bars * meter[0]; continue; }
+      const length = (Number(m[5]) || 1) / beatUnits;
+      if (m[3] === 'Z') { bars += (Number(m[5]) || 1) - 1; continue; }
+      if (m[3] !== 'z') {
+        const accidental = m[2].includes('^') ? 1 : m[2].includes('_') ? -1 : 0;
+        const pitch = 60 + steps[m[3].toUpperCase()] + accidental + (m[3] === m[3].toLowerCase() ? 12 : 0) + [...m[4]].reduce((n, c) => n + (c === ',' ? -12 : 12), 0);
+        notes.push({ bar: Math.floor(position / meter[0]) + 1, beat: position % meter[0] + 1, length, pitch, velocity: 90 });
+      }
+      position += length;
+    }
+  }
+  if (!bars) return { issue: { code: 'group', detail: '' } };
+  const score = { tempo, timeSignature: [meter[0], meter[1]] as [number, number], tracks: [{ id: 'vocal', name: 'Vocal', role: 'melody' as const, program: 53, notes }] };
+  return { tempo, meter: [meter[0], meter[1]], key: header('K'), bars, seconds: bars * meter[0] * 60 / tempo, chords, score };
 }
 
 export function assertUploadSize(file: Blob) {

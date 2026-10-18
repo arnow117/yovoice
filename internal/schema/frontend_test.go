@@ -32,7 +32,7 @@ func TestFrontendTypesMatchSchema(t *testing.T) {
 		schema.CharacterPreview{}, schema.Character{}, schema.Voice{}, schema.InstalledModel{}, schema.Generation{},
 		schema.GenerationSegment{}, schema.Activity{}, schema.Preferences{}, schema.State{}, catalog.ModelPackage{},
 		schema.Score{}, schema.ScoreSection{}, schema.ScoreTrack{}, schema.Humanize{}, schema.ScoreRamp{}, schema.ScoreNote{},
-		schema.AIProvider{}, schema.AITest{},
+		schema.AIProvider{}, schema.AITest{}, schema.AITask{}, schema.MelodyResult{},
 		schema.AssistantMessage{}, schema.AssistantToolCard{}, schema.AssistantSession{}, schema.AssistantSessions{}, schema.AssistantTurn{}, schema.AssistantNav{}, schema.AssistantUpdate{}, schema.AssistantLive{},
 	} {
 		typ := reflect.TypeOf(value)
@@ -110,4 +110,28 @@ func tsInterfaces(source string) map[string][]string {
 		result[name] = fields
 	}
 	return result
+}
+
+// 界面语言清单在 web/src/shared/i18n/locale.ts 与 UiLocaleNames 各写一份，并且每种语言都要有翻译目录。
+func TestUiLocalesMatchFrontend(t *testing.T) {
+	source, err := os.ReadFile(testkit.RepoFile(t, "web", "src", "shared", "i18n", "locale.ts"))
+	testkit.Must(t, err)
+	var ids []string
+	for _, match := range regexp.MustCompile(`\{ id: '([^']+)', name: `).FindAllStringSubmatch(string(source), -1) {
+		ids = append(ids, match[1])
+	}
+	var names []string
+	for locale := range schema.UiLocaleNames {
+		names = append(names, string(locale))
+	}
+	slices.Sort(ids)
+	slices.Sort(names)
+	if !slices.Equal(ids, names) {
+		t.Fatalf("locale.ts %v 与 UiLocaleNames %v 不一致", ids, names)
+	}
+	for _, id := range ids {
+		if _, err := os.Stat(testkit.RepoFile(t, "web", "src", "shared", "i18n", "catalogs", strings.ToLower(id)+".json")); err != nil {
+			t.Errorf("缺少 %s 的翻译目录", id)
+		}
+	}
 }

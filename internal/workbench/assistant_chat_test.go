@@ -22,7 +22,7 @@ var toolReq = &mcp.CallToolRequest{}
 
 // 一轮对话：流式增量与完整文本进入实时状态，工具卡片随调用更新，结束后写入消息记录。
 func TestChatStreamsTextAndToolCards(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
+	w := assistantWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
 		{Delta: "你"},
 		{Delta: "好"},
 		{Assistant: "你好，列表在此。"},
@@ -68,7 +68,7 @@ func TestChatStreamsTextAndToolCards(t *testing.T) {
 
 // 运行中再发的消息排队，本轮结束后按顺序处理。
 func TestChatQueuesWhileRunning(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
+	w := assistantWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
 		{SleepMS: 300},
 		{Assistant: "第一"},
 		{Result: "success"},
@@ -99,7 +99,7 @@ func TestChatQueuesWhileRunning(t *testing.T) {
 
 // 取消：正在运行的一轮停止（保留已生成的部分），排队消息清空，之后能继续对话。
 func TestChatCancel(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
+	w := assistantWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
 		{Assistant: "写到一半"},
 		{WaitInterrupt: true},
 	}, {
@@ -128,7 +128,7 @@ func TestChatCancel(t *testing.T) {
 // 新建、列表、删除都作用于状态与配置目录。
 func TestAssistantSessions(t *testing.T) {
 	echo := filepath.Join(t.TempDir(), "user-messages.txt")
-	w := aiWorkbench(t, fakeocho.Plan{EchoUser: echo, Turns: [][]fakeocho.Step{{
+	w := assistantWorkbench(t, fakeocho.Plan{EchoUser: echo, Turns: [][]fakeocho.Step{{
 		{Assistant: "第一段"},
 		{Result: "success"},
 	}, {
@@ -188,7 +188,7 @@ func TestAssistantSessions(t *testing.T) {
 func TestAssistantSessionRestartsChild(t *testing.T) {
 	dump := filepath.Join(t.TempDir(), "dump.txt")
 	turn := func() []fakeocho.Step { return []fakeocho.Step{{AssistantPID: true}, {Result: "success"}} }
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{turn(), turn(), turn()}}, fakeocho.DumpEnv+"="+dump)
+	w := assistantWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{turn(), turn(), turn()}}, fakeocho.DumpEnv+"="+dump)
 	pidFile := filepath.Join(w.Store.Root, "assistant", "ocho.pid")
 	ask := func() string {
 		t.Helper()
@@ -289,7 +289,7 @@ func TestChatMessagePrefix(t *testing.T) {
 
 // 作品工具的创建、读取与事件：create_work 落盘并发跳转事件，get_work 不带时间线。
 func TestChatWorkTools(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{})
+	w := assistantWorkbench(t, fakeocho.Plan{})
 	_, _, err := w.createWorkTool(context.Background(), toolReq, createWorkInput{Kind: "编曲错误"})
 	if err == nil || !strings.Contains(err.Error(), "kind") {
 		t.Fatal("无效类型应报错", err)
@@ -331,7 +331,7 @@ func TestChatWorkTools(t *testing.T) {
 
 // update_work：乐谱走同一套校验、错误信息具体；成功后作品更新并发刷新事件。
 func TestChatUpdateWorkScore(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{})
+	w := assistantWorkbench(t, fakeocho.Plan{})
 	_, created, err := w.createWorkTool(context.Background(), toolReq, createWorkInput{Kind: "score", Title: "示例小步舞曲"})
 	must(t, err)
 	id := created.(map[string]any)["id"].(string)
@@ -363,7 +363,7 @@ func TestChatUpdateWorkScore(t *testing.T) {
 
 // update_work 的其余字段：歌词纯音乐规则、演唱语言、模型与音色检查、故事配音的角色台词与音色分配。
 func TestChatUpdateWorkFields(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{})
+	w := assistantWorkbench(t, fakeocho.Plan{})
 	_, created, err := w.createWorkTool(context.Background(), toolReq, createWorkInput{Kind: "music", Title: "夏夜"})
 	must(t, err)
 	id := created.(map[string]any)["id"].(string)
@@ -422,7 +422,7 @@ func TestChatUpdateWorkFields(t *testing.T) {
 
 // generate_work 在缺少推理内核时返回明确错误；open_page 发出页面跳转事件。
 func TestChatGenerateAndOpenPage(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{})
+	w := assistantWorkbench(t, fakeocho.Plan{})
 	_, created, err := w.createWorkTool(context.Background(), toolReq, createWorkInput{Kind: "text", Title: "旁白"})
 	must(t, err)
 	id := created.(map[string]any)["id"].(string)
@@ -447,7 +447,7 @@ func TestChatGenerateAndOpenPage(t *testing.T) {
 
 // 端到端：假 ocho 在对话里先新建编曲作品、再按已知 id 写入乐谱，界面事件与消息卡片齐全。
 func TestChatEndToEndCreateAndUpdate(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{})
+	w := assistantWorkbench(t, fakeocho.Plan{})
 	// 先直接建好一个编曲作品，拿到 id 写进计划（假 ocho 的计划在启动前固定）。
 	_, created, err := w.createWorkTool(context.Background(), toolReq, createWorkInput{Kind: "score", Title: "示例小步舞曲"})
 	must(t, err)

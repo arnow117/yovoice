@@ -1,9 +1,12 @@
 import { draftCopy } from './i18n/draft-copy';
+import { seedLocale, type UiLocale } from './i18n/locale';
 
 export type Mode = 'speaker' | 'reference' | 'vector' | 'text';
 export interface SynthesisSettings {
   modelOptions?: Record<string, Record<string, string | number | boolean>>; speaker?: string; synthesisLanguage?: string; omniSpeed?: number;
   lyrics?: string; instrumental?: boolean;
+  // YuE2 的 ABC 旋律谱：带和弦按谱编曲，只有旋律时按旋律填配器。
+  abc?: string;
   voiceMode?: 'design' | 'clone';
   voxMode?: 'design' | 'clone' | 'continuation'; voiceDescription?: string; referenceText?: string; guidanceScale?: number; inferenceSteps?: number;
   modelId: string; voiceId: string | null;
@@ -60,9 +63,16 @@ export interface ModelFile { path: string; size: number; sha256: string }
 export interface ModelPackage { voices?: string[]; variant?: string; loadOptions?: Record<string, string>; sessionOptions?: Record<string, string>; files?: ModelFile[]; directory?: string; task?: string; engineMinimum?: string; family: string; id: string; name: string; version: string; precision: string; remotePath: string; size: number; sha256: string }
 export interface InstalledModel { id: string; path: string; managed: boolean }
 export interface GenerationSegment { cueId: string; speakerId: string; speakerName: string; batchId: string; index: number; targetClipId?: string; placement?: 'ripple' | 'preserve' }
+// 本机 Codex CLI 的检测结果：path 为空表示未安装，login 为 chatgpt、apikey 或空（未登录）。
+export interface CodexInfo { path?: string; version?: string; login?: 'chatgpt' | 'apikey' }
+// 服务日志的一条记录与查询：级别是下限，模块是事件名第一段；结果新的在前。
+export type LogLevel = 'INFO' | 'WARN' | 'ERROR';
+export interface LogEntry { time: string; level: LogLevel; event: string; fields?: Record<string, unknown> }
+export interface LogFilter { level?: string; module?: string; text?: string; since?: string; offset?: number; limit?: number }
+export interface LogPage { entries: LogEntry[]; total: number; modules: string[] }
 export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[] }
 /** UI chrome locale. Distinct from Draft.language (TTS). */
-export type UiLocale = 'zh-CN' | 'en';
+export type { UiLocale };
 /** Stable product message key. Catalogs and Go constants share this spelling. */
 export type MessageCode = `@yovoice.${string}`;
 export type MessageParams = Record<string, unknown>;
@@ -74,6 +84,8 @@ export interface Activity {
   startedAt?: string | null;
   modelId?: string | null;
   kind: string;
+  // melody 为出谱或扒谱。
+  task?: 'melody';
   code: MessageCode;
   params: MessageParams | null;
   status: string;
@@ -102,17 +114,31 @@ export interface Preferences { downloadSource: string; backend: string; modelDir
 export interface State {
   characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
-  aiProviders?: AIProvider[]; aiProviderID?: string;
+  aiProviders?: AIProvider[]; aiProviderID?: string; aiTask?: AITask;
+  melody?: MelodyResult;
   /** 助手会话的持久化记录与仅广播的实时状态，与 Go 的 schema.AssistantSessions/Live 一致。 */
   assistantSessions?: AssistantSessions; assistantLive?: AssistantLive;
   /** state.get 附带的随包 AI 助手运行时可用性：缺失时 AI 写作入口禁用。 */
   assistantMissing?: boolean;
 }
 
+// 引擎写出的旋律谱，与 Go 的 schema.MelodyResult 一致：plan 为按歌词出谱，cover 为从歌曲扒谱；只在本次会话有效。
+export interface MelodyResult { id: string; projectId: string; source: 'plan' | 'cover'; abc: string; truncated?: boolean; createdAt: string }
+/** 后端解析旋律谱的结果；issue 指出第一处问题所在的小节与声部。 */
+export interface MelodyIssue { code: string; line?: number; bar?: number; voice?: string; detail?: string }
+export interface MelodyInspection { issue?: MelodyIssue; tempo?: number; meter?: [number, number]; key?: string; bars?: number; seconds?: number; chords?: boolean; score?: Score }
+export interface MelodyChanges { tempo?: boolean; key?: boolean; vocal?: number[]; ins?: number[]; chords?: number[]; bars: [number, number] }
+
 // 可选的大模型服务，与 Go 的 schema.AIProvider 一致；密钥不在状态中，只有掩码。
 export interface AITest { ok: boolean; code?: string; params?: Record<string, unknown>; at: string }
-export interface AIProvider { id: string; preset: string; name: string; format: string; baseURL: string; modelsPath: string; model: string; models?: string[]; keyMask?: string; lastTest?: AITest }
+// 后台 AI 写作任务，与 Go 的 schema.AITask 一致；只在本次会话有效。
+export type AITaskKind = 'cast' | 'melody' | 'image';
+export interface AITask {
+  id: string; kind: AITaskKind; projectId: string; brief: string; status: 'running' | 'completed' | 'failed' | 'cancelled'; stage: 'writing' | 'repairing'; done?: number; total?: number;
+  provider: string; model: string; timeout: number; startedAt: string; finishedAt?: string; result?: unknown; errorCode?: string; errorParams?: Record<string, unknown>;
+}
 export const aiTimeoutDefault = 600;
+export interface AIProvider { id: string; preset: string; name: string; format: string; baseURL: string; modelsPath: string; model: string; models?: string[]; keyMask?: string; lastTest?: AITest }
 
 // 助手会话记录与实时状态，与 Go 的 schema.Assistant* 一致。
 export type AssistantMessageRole = 'user' | 'assistant';
@@ -136,7 +162,7 @@ export interface AssistantContext { page?: string; workId?: string; workTitle?: 
 export const isUntitled = (title: string) => !title.trim() || Object.values(draftCopy).some(copy => copy.untitled === title.trim());
 
 export const createDraft = (example = false, locale: UiLocale = 'zh-CN', modelId = 'index-2.5-q8'): Draft => {
-  const copy = draftCopy[locale];
+  const copy = draftCopy[seedLocale(locale)];
   return {
   id: crypto.randomUUID().replaceAll('-', ''),
   title: example ? copy.exampleTitle : copy.untitled,
@@ -188,7 +214,9 @@ export const isMusicModel = (id: string) => id.startsWith('ace-step-') || id.sta
 export const isYuE = (id: string) => id.startsWith('yue2-');
 // 音色库只供编曲作品渲染使用。
 export const isSoundFont = (id: string) => id.endsWith('-sf2');
-export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id);
+// 扒谱模型只用于从歌曲提取旋律谱。
+export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
+export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id);
 export const isVoxModel = (id: string) => id.startsWith('voxcpm2-');
 export const isReferenceModel = (id: string) => id.startsWith('omnivoice-') || id.startsWith('qwen3-tts-');
 export const isBreezeModel = (id: string) => id.startsWith('breeze-tts-');

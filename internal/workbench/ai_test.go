@@ -3,6 +3,8 @@ package workbench
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -13,6 +15,8 @@ import (
 	"time"
 	"yovoice/internal/assistant"
 	"yovoice/internal/assistant/fakeocho"
+	"yovoice/internal/llm"
+	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 )
 
@@ -69,8 +73,8 @@ func TestAIProviderKeysStayOutOfState(t *testing.T) {
 	}
 }
 
-// fakeLLM 返回一个可用的模型列表与连通测试服务。
-func fakeLLM(t *testing.T) *httptest.Server {
+// fakeModels 返回一个可用的模型列表与连通测试服务，供助手测试的工作台使用。
+func fakeModels(t *testing.T) *httptest.Server {
 	var n atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
@@ -84,13 +88,13 @@ func fakeLLM(t *testing.T) *httptest.Server {
 	return server
 }
 
-// aiWorkbench 准备一个指向假 LLM 服务的 Workbench；助手运行时指向测试二进制（假 ocho），
+// assistantWorkbench 准备一个指向假 LLM 服务的 Workbench；助手运行时指向测试二进制（假 ocho），
 // 假运行时的开关经 Options.ExtraEnv 注入子进程环境。
-func aiWorkbench(t *testing.T, plan fakeocho.Plan, extraEnv ...string) *Workbench {
+func assistantWorkbench(t *testing.T, plan fakeocho.Plan, extraEnv ...string) *Workbench {
 	w, err := New(t.TempDir())
 	must(t, err)
 	t.Cleanup(w.Close)
-	_, err = w.SaveAIProvider(AIProviderInput{Preset: "ollama", BaseURL: fakeLLM(t).URL + "/v1"})
+	_, err = w.SaveAIProvider(AIProviderInput{Preset: "ollama", BaseURL: fakeModels(t).URL + "/v1"})
 	must(t, err)
 	_, err = w.AIModels(context.Background(), "")
 	must(t, err)
@@ -118,14 +122,58 @@ func selfExecutable(t *testing.T) string {
 	return executable
 }
 
-// 模型列表与连通测试的结果写回服务。
-func TestAIModelsAndTest(t *testing.T) {
-	server := fakeLLM(t)
+// fakeLLM 依次返回给定的回复，记录收到的请求；供分角色、旋律谱等后台 AI 任务测试。
+func fakeLLM(t *testing.T, replies ...string) (*httptest.Server, *[]map[string]any) {
+	var requests []map[string]any
+	var n atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			_, _ = w.Write([]byte(`{"data":[{"id":"qwen3"},{"id":"llama3"}]}`))
+			return
+		}
+		var body map[string]any
+		raw, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(raw, &body)
+		requests = append(requests, body)
+		i := int(n.Add(1)) - 1
+		reply, _ := json.Marshal(replies[min(i, len(replies)-1)])
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":` + string(reply) + `},"finish_reason":"stop"}]}`))
+	}))
+	t.Cleanup(server.Close)
+	return server, &requests
+}
+
+func aiWorkbench(t *testing.T, server *httptest.Server) *Workbench {
 	w, err := New(t.TempDir())
 	must(t, err)
-	defer w.Close()
+	t.Cleanup(w.Close)
 	_, err = w.SaveAIProvider(AIProviderInput{Preset: "ollama", BaseURL: server.URL + "/v1"})
 	must(t, err)
+	return w
+}
+
+// waitAI 等待后台任务结束并返回最终状态。
+func waitAI(t *testing.T, w *Workbench) schema.AITask {
+	t.Helper()
+	changes, stop := w.Store.Subscribe()
+	defer stop()
+	deadline := time.After(10 * time.Second)
+	for {
+		if task := w.Store.Read().AITask; task != nil && task.Status != "running" {
+			return *task
+		}
+		select {
+		case <-changes:
+		case <-deadline:
+			t.Fatal("AI 任务没有结束")
+		}
+	}
+}
+
+// 模型列表与连通测试的结果写回服务。
+func TestAIModelsAndTest(t *testing.T) {
+	server, _ := fakeLLM(t, "OK")
+	w := aiWorkbench(t, server)
 	id := w.Store.Read().AIProviderID
 	models, err := w.AIModels(context.Background(), id)
 	must(t, err)
@@ -191,7 +239,7 @@ func TestBuildScoreRepeats(t *testing.T) {
 // 启用时三变量指向配置地址并保留本机直连，显式关闭时不设任何代理变量。
 func TestAssistantProxyEnv(t *testing.T) {
 	dump := filepath.Join(t.TempDir(), "dump.txt")
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
+	w := assistantWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
 		{Assistant: "好"},
 		{Result: "success"},
 	}, {
@@ -244,7 +292,7 @@ func TestAssistantProxyChangeRestartsChild(t *testing.T) {
 	turn := func() []fakeocho.Step {
 		return []fakeocho.Step{{Assistant: "好"}, {Result: "success"}}
 	}
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{turn(), turn(), turn()}})
+	w := assistantWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{turn(), turn(), turn()}})
 	pidFile := filepath.Join(w.Store.Root, "assistant", "ocho.pid")
 	compose := func() string {
 		t.Helper()
@@ -296,5 +344,97 @@ func waitChatIdle(t *testing.T, w *Workbench) []schema.AssistantMessage {
 		case <-deadline:
 			t.Fatal("对话没有结束")
 		}
+	}
+}
+
+// 超时按设置计时，失败原因带上秒数，界面据此提示去设置里延长。
+func TestAITaskTimeout(t *testing.T) {
+	release := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			_, _ = w.Write([]byte(`{"data":[{"id":"m"}]}`))
+			return
+		}
+		select {
+		case <-release:
+		case <-r.Context().Done():
+		}
+	}))
+	defer server.Close()
+	defer close(release)
+	w := aiWorkbench(t, server)
+	_, err := w.AIModels(context.Background(), "")
+	must(t, err)
+	p := w.Store.Read().Preferences
+	p.AITimeout = 1
+	if err = w.SavePreferences(p); err == nil {
+		t.Fatal("超时低于下限应拒绝")
+	}
+	p.AITimeout = schema.AITimeoutMin
+	must(t, w.SavePreferences(p))
+	if aiTimeout(w.Store.Read().Preferences) != time.Duration(schema.AITimeoutMin)*time.Second {
+		t.Fatal("应使用设置的超时")
+	}
+	// 测试里不等 30 秒：直接用很短的超时验证错误转换。
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	_, err = w.complete(ctx, llm.Request{System: "s", Messages: []llm.Message{{Role: "user", Content: "x"}}})
+	var ce *msg.CallError
+	if !errors.As(err, &ce) || ce.Code != msg.ErrAINetwork && ce.Code != msg.ErrAITimeout {
+		t.Fatal("超时应返回可读的错误", err)
+	}
+}
+
+// 取消会中止正在进行的任务，且同一时间只允许一个 AI 任务。
+func TestCancelAI(t *testing.T) {
+	release := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			_, _ = w.Write([]byte(`{"data":[{"id":"m"}]}`))
+			return
+		}
+		select {
+		case <-release:
+		case <-r.Context().Done():
+		}
+	}))
+	defer server.Close()
+	defer close(release)
+	w := aiWorkbench(t, server)
+	_, err := w.AIModels(context.Background(), "")
+	must(t, err)
+	_, err = w.StartCast(CastBrief{Title: "x", Chapters: []CastChapter{{Lines: []CastLine{{Text: "x", Quote: true}}}}})
+	must(t, err)
+	var ce *msg.CallError
+	if _, err = w.StartCast(CastBrief{Title: "x", Chapters: []CastChapter{{Lines: []CastLine{{Text: "x", Quote: true}}}}}); !errors.As(err, &ce) || ce.Code != msg.ErrBusy {
+		t.Fatal("并发请求应返回 busy", err)
+	}
+	w.CancelAI()
+	if task := waitAI(t, w); task.Status != "cancelled" {
+		t.Fatal("取消后任务应为 cancelled", task)
+	}
+	if _, err = w.StartCast(CastBrief{Title: "x", Chapters: []CastChapter{{Lines: []CastLine{{Text: "x", Quote: true}}}}}); err != nil {
+		t.Fatal("结束后应能再次开始", err)
+	}
+}
+
+// Codex 订阅没有地址和密钥：忽略界面传来的地址与协议，拒绝填写密钥；未选模型时也能发起任务（使用 CLI 默认模型）。
+func TestCodexProviderSaves(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	key := "sk-should-not-be-here"
+	if _, err = w.SaveAIProvider(AIProviderInput{Preset: "codex", Key: &key}); err == nil {
+		t.Fatal("Codex 订阅不接受密钥")
+	}
+	p, err := w.SaveAIProvider(AIProviderInput{Preset: "codex", BaseURL: "http://evil.test", Format: "chat_completions"})
+	must(t, err)
+	if p.Format != llm.FormatCodex || p.BaseURL != "" || p.Model != "" || p.Name != "ChatGPT (Codex)" {
+		t.Fatalf("Codex 服务: %+v", p)
+	}
+	_, c, err := w.aiConfig(p.ID)
+	must(t, err)
+	if c.Format != llm.FormatCodex || c.Key != "" {
+		t.Fatalf("调用配置: %+v", c)
 	}
 }

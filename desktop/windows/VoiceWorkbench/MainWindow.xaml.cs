@@ -436,6 +436,10 @@ public partial class MainWindow : Window
                 case "project.export":
                     var projectSave = new SaveFileDialog { Filter = HostL10n.T("Yovoice 工程", "Yovoice Project") + "|*.yovoice", DefaultExt = ".yovoice", FileName = Path.GetFileName(data.GetProperty("name").GetString() ?? "project"), OverwritePrompt = true };
                     result = projectSave.ShowDialog(this) == true ? await service.CallAsync(method, new { id = data.GetProperty("id").GetString(), path = projectSave.FileName }) : false; break;
+                case "logs.export":
+                    // 诊断包由本地服务打包写入，宿主只负责选择保存位置。
+                    var logsSave = new SaveFileDialog { Filter = HostL10n.T("诊断包", "Diagnostics") + "|*.zip", DefaultExt = ".zip", FileName = "yovoice-diagnostics-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".zip", OverwritePrompt = true };
+                    result = logsSave.ShowDialog(this) == true ? await service.CallAsync(method, new { path = logsSave.FileName, version = data.TryGetProperty("version", out var logsVersion) ? logsVersion.GetString() : "" }) : false; break;
                 case "project.import":
                     var projectOpen = new OpenFileDialog { Filter = HostL10n.T("Yovoice 工程", "Yovoice Project") + "|*.yovoice" };
                     result = projectOpen.ShowDialog(this) == true ? await service.CallAsync(method, new { path = projectOpen.FileName }) : null; break;
@@ -457,6 +461,19 @@ public partial class MainWindow : Window
                     string temporary = save.FileName + "." + Guid.NewGuid().ToString("N") + ".tmp";
                     try { await File.WriteAllBytesAsync(temporary, wav); File.Move(temporary, save.FileName, true); }
                     finally { if (File.Exists(temporary)) File.Delete(temporary); }
+                    result = true; break;
+                case "text.export":
+                    // 字幕（SRT/VTT）与歌词（LRC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
+                    string textFormat = data.TryGetProperty("format", out var textFormatValue) ? textFormatValue.GetString() ?? "" : "";
+                    string text = data.TryGetProperty("text", out var textValue) ? textValue.GetString() ?? "" : "";
+                    if (textFormat is not ("srt" or "vtt" or "lrc") || text.Length > 20_000_000) throw new ArgumentException(HostL10n.T("导出文件格式无效。", "The exported file format is invalid."));
+                    string textFilter = textFormat switch { "srt" => HostL10n.T("SRT 字幕", "SRT Subtitles"), "vtt" => HostL10n.T("WebVTT 字幕", "WebVTT Subtitles"), _ => HostL10n.T("LRC 歌词", "LRC Lyrics") };
+                    var textSave = new SaveFileDialog { Filter = textFilter + "|*." + textFormat, DefaultExt = "." + textFormat, FileName = Path.GetFileName(data.GetProperty("name").GetString() ?? "yovoice." + textFormat), OverwritePrompt = true };
+                    if (textSave.ShowDialog(this) != true) { result = false; break; }
+                    string textTemporary = textSave.FileName + "." + Guid.NewGuid().ToString("N") + ".tmp";
+                    // 不写 BOM，与 macOS 输出一致；常见播放器和剪辑软件都按 UTF-8 读取。
+                    try { await File.WriteAllTextAsync(textTemporary, text, new System.Text.UTF8Encoding(false)); File.Move(textTemporary, textSave.FileName, true); }
+                    finally { if (File.Exists(textTemporary)) File.Delete(textTemporary); }
                     result = true; break;
                 case "media.reveal":
                     var location = await service.CallAsync("media.path", data);

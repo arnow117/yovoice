@@ -7,18 +7,17 @@ import { Check, ChevronRight, ChevronUp, LoaderCircle } from 'lucide-react';
 import { Selector } from '../../shared/selector';
 import definitions from '../../shared/lib/generation-options.json';
 import { formatActivity } from '../../shared/i18n/format';
-import { formatTime, isMusicModel, isYuE, modelEngineReady, type Draft, type ModelPackage, type State, type UiLocale } from '../../shared/workbench';
+import { formatTime, isMusicModel, isYuE, modelEngineReady, type Draft, type ModelPackage, type State } from '../../shared/workbench';
 import { AdvancedSettings, SeedInput } from '../create/shared-controls';
 import { ModelSelector } from '../create/model-selector';
-import { applyPresetTags, durationPresets, isPresetActive, musicLanguages, splitTags, stylePresets, styleTags, tagTooltips } from './music-draft';
+import { applyPresetTags, durationPresets, isPresetActive, musicLanguages, splitTags, stylePresets, styleTags, tagHintKey } from './music-draft';
 
 const optionValues = (key: string) => definitions.ace_step.find(spec => spec.key === key)?.values ?? [];
 
 // 音乐检查器：常用的时长、演唱语言与风格预设放在右侧面板中，参照情绪预设的层级结构。
-export function MusicInspector({ draft, state, catalog, change, generate, cancel, settings, upgradeEngine, advanced, setAdvanced, header, locale = 'zh-CN' }: {
+export function MusicInspector({ draft, state, catalog, change, generate, cancel, settings, upgradeEngine, advanced, setAdvanced, header }: {
   draft: Draft; state: State; catalog: ModelPackage[]; change: (patch: Partial<Draft>) => void; header?: ReactNode;
   generate: () => void; cancel: () => void; settings: () => void; upgradeEngine: () => void; close?: () => void; advanced: boolean; setAdvanced: (value: boolean) => void;
-  locale?: UiLocale;
 }) {
   const t = useTranslator();
   const busy = state.activity?.status === 'running';
@@ -53,7 +52,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
   return <VStack as="aside" className="inspector music-inspector" gap={0}>
     <VStack className="generation-action" gap={3}>
       {generating ? <Button label={t('@yovoice.create.cancelGenerate')} onClick={cancel} width="100%" />
-        : <Button label={t('@yovoice.music.generate')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim() || (yue && !draft.lyrics?.trim())} onClick={generate} />}
+        : <Button label={t(yue && draft.abc?.trim() ? '@yovoice.music.generateFromMelody' : '@yovoice.music.generate')} variant="primary" width="100%" aria-keyshortcuts="Control+Enter" isDisabled={busy || !draft.text.trim() || (yue && !draft.lyrics?.trim())} onClick={generate} />}
       {generating ? <HStack className="generation-status" gap={2} vAlign="center">
         <LoaderCircle size={14} className="generation-spinner" aria-hidden="true" />
         <small className="grow" role="status">{state.activity ? formatActivity(t, state.activity) : ''}</small>
@@ -93,7 +92,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
           {stylePresets.slice(0, 3).map(preset => (
             <Button
               key={preset.id}
-              label={preset.name[locale]}
+              label={t(`@yovoice.music.preset.${preset.id}`)}
               size="sm"
               variant="secondary"
               aria-pressed={isPresetActive(preset, tags)}
@@ -106,7 +105,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
             {stylePresets.slice(3).map(preset => (
               <Button
                 key={preset.id}
-                label={preset.name[locale]}
+                label={t(`@yovoice.music.preset.${preset.id}`)}
                 size="sm"
                 variant="secondary"
                 aria-pressed={isPresetActive(preset, tags)}
@@ -153,7 +152,7 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
                       icon={tags.includes(tag) ? <Check size={12} /> : undefined}
                       aria-pressed={tags.includes(tag)}
                       label={tag}
-                      tooltip={tagTooltips[tag]?.[locale] ?? tag}
+                      tooltip={t(tagHintKey(tag))}
                       onClick={() => toggleTag(tag)}
                     />
                   ))}

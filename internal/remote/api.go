@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 	"yovoice/internal/catalog"
+	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 	"yovoice/internal/workbench"
@@ -32,15 +33,59 @@ type API struct {
 	mcpHandler http.Handler
 }
 
+// statusRecorder 记下响应状态码供请求日志使用；Flush 透传给 MCP 的流式响应。
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (s *statusRecorder) WriteHeader(code int) {
+	if s.status == 0 {
+		s.status = code
+	}
+	s.ResponseWriter.WriteHeader(code)
+}
+
+func (s *statusRecorder) Flush() {
+	if f, ok := s.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+func (s *statusRecorder) Unwrap() http.ResponseWriter { return s.ResponseWriter }
+
+// ServeHTTP 记录写操作和失败的请求；轮询状态的成功 GET 不记，避免刷屏。只记路径，不记查询参数与请求体。
 func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	started := time.Now()
+	recorder := &statusRecorder{ResponseWriter: w}
+	a.serve(recorder, r)
+	status := recorder.status
+	if status == 0 {
+		status = http.StatusOK
+	}
+	if a.Workbench != nil && (r.Method != http.MethodGet || status >= 400) {
+		event := "api.request"
+		if status >= 500 {
+			event = "api.request_failed"
+		} else if status >= 400 {
+			event = "api.request_rejected"
+		}
+		diag.Log(a.Workbench.Store.Root, event, "method", r.Method, "path", r.URL.Path, "status", status, "elapsed_ms", time.Since(started).Milliseconds(), "local", a.Local)
+	}
+}
+
+func (a *API) serve(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Cache-Control", "no-store")
+	if serveDocs(w, r) {
+		return
+	}
 	if len(a.Token) < 32 || subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte("Bearer "+a.Token)) != 1 {
 		w.Header().Set("WWW-Authenticate", "Bearer")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	if r.Header.Get("Origin") != "" {
+	if r.Header.Get("Origin") != "" && !sameOrigin(r) {
 		http.Error(w, "浏览器跨域调用不受支持", http.StatusForbidden)
 		return
 	}

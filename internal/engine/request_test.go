@@ -1,10 +1,15 @@
 package engine
 
 import (
+	"errors"
 	"math"
+	"strings"
 	"testing"
 	"yovoice/internal/catalog"
+	"yovoice/internal/msg"
 	"yovoice/internal/schema"
+	"yovoice/internal/score"
+	"yovoice/internal/testkit"
 )
 
 func TestVoxCPMRequest(t *testing.T) {
@@ -119,6 +124,14 @@ func TestModelVariantsAndOptions(t *testing.T) {
 			if m.Family == "soundfont" {
 				t.Skip("音色库由编曲渲染使用，不经过推理引擎")
 			}
+			if m.Family == "sheetsage2" {
+				d := schema.DefaultDraft()
+				d.ModelID = m.ID
+				if schema.Validate(d) == nil {
+					t.Fatal("扒谱模型不能作为作品的生成模型")
+				}
+				return
+			}
 			d := schema.DefaultDraft()
 			d.ModelID = m.ID
 			d.VoiceDescription = "female, young adult"
@@ -182,7 +195,7 @@ func TestYuE2Request(t *testing.T) {
 	must(t, err)
 	r := p["request"].(map[string]any)
 	o := r["options"].(map[string]any)
-	if r["text"] != "[verse]\n晚风吹过招牌" || o["lyrics"] != r["text"] || o["style"] != d.Text || o["seed"] != 9 || len(o) != 3 {
+	if r["text"] != "[verse]\n晚风吹过招牌" || o["lyrics"] != r["text"] || o["style"] != d.Text || o["seed"] != 9 || o["cot"] != "full" || len(o) != 4 {
 		t.Fatal(r)
 	}
 	if d.RequiresVoice() {
@@ -198,6 +211,26 @@ func TestYuE2Request(t *testing.T) {
 		if _, err := BuildRequest(invalid, "", ""); err == nil {
 			t.Fatal("无效的 YuE2 草稿应失败", invalid)
 		}
+	}
+	// 有谱时按谱演唱：带和弦用 full，去掉和弦后用 melody；谱面错误带上小节号。
+	withScore := d
+	withScore.Abc = testkit.ABC
+	p, err = BuildRequest(withScore, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["abc"] != testkit.ABC || o["cot"] != "full" {
+		t.Fatal(o)
+	}
+	withScore.Abc, err = score.StripABCChords(testkit.ABC)
+	must(t, err)
+	p, err = BuildRequest(withScore, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "melody" {
+		t.Fatal(o)
+	}
+	withScore.Abc = strings.Replace(testkit.ABC, "B8G8D16", "B8G8D8", 1)
+	var ce *msg.CallError
+	if _, err = BuildRequest(withScore, "", ""); !errors.As(err, &ce) || ce.Code != msg.ErrMelodyInvalid || ce.Params["bar"] != 2 || ce.Params["voice"] != "Vocal" {
+		t.Fatal(err)
 	}
 	m, _ := catalog.Lookup("yue2-3b-bf16")
 	if len(m.Files) != 6 || m.SessionOptions["yue2.model_gguf"] != "yue2-3b-bf16.gguf" || m.Files[0].Path != m.RemotePath {

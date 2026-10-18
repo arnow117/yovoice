@@ -27,6 +27,25 @@ type Config struct {
 	Model      string
 }
 
+// Request 是单轮对话：系统提示与用户输入，可附带此前的回复和修正要求做一轮修复。
+type Request struct {
+	System      string
+	Messages    []Message
+	MaxTokens   int
+	Temperature float64
+}
+
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+// Result 是模型输出；Truncated 表示因输出长度上限被截断。
+type Result struct {
+	Text      string
+	Truncated bool
+}
+
 // Join 拼接服务地址与接口路径：路径为绝对 URL 时直接使用，已是地址后缀时不重复追加。
 func Join(base, path string) string {
 	base = strings.TrimRight(strings.TrimSpace(base), "/")
@@ -84,23 +103,19 @@ func headers(r *http.Request, c Config) {
 	r.Header.Set("Accept", "application/json")
 }
 
-// pingPayload 组装连通测试用的一次极短对话；推理模型需要一定输出额度才能给出回复。
-func pingPayload(c Config) map[string]any {
-	const (
-		system    = "Reply with OK."
-		user      = "ping"
-		maxTokens = 256
-	)
+func payload(c Config, r Request) map[string]any {
+	maxTokens := r.MaxTokens
+	if maxTokens <= 0 {
+		maxTokens = 1024
+	}
 	switch c.Format {
 	case FormatAnthropic:
-		return map[string]any{"model": c.Model, "max_tokens": maxTokens, "system": system,
-			"messages": []map[string]string{{"role": "user", "content": user}}}
+		return map[string]any{"model": c.Model, "max_tokens": maxTokens, "temperature": r.Temperature, "system": r.System, "messages": r.Messages}
 	case FormatResponses:
-		return map[string]any{"model": c.Model, "instructions": system, "max_output_tokens": maxTokens, "store": false,
-			"input": []map[string]string{{"role": "user", "content": user}}}
+		return map[string]any{"model": c.Model, "instructions": r.System, "input": r.Messages, "max_output_tokens": maxTokens, "temperature": r.Temperature, "store": false}
 	}
-	body := map[string]any{"model": c.Model, "temperature": 0, "stream": false,
-		"messages": []map[string]string{{"role": "system", "content": system}, {"role": "user", "content": user}}}
+	messages := append([]Message{{Role: "system", Content: r.System}}, r.Messages...)
+	body := map[string]any{"model": c.Model, "messages": messages, "temperature": r.Temperature, "stream": false}
 	// Azure 与新版 OpenAI 推理模型只接受 max_completion_tokens。
 	if azure(c.BaseURL) || strings.Contains(c.BaseURL, "api.openai.com") {
 		body["max_completion_tokens"] = maxTokens
@@ -110,66 +125,122 @@ func pingPayload(c Config) map[string]any {
 	return body
 }
 
-// Ping 用一次极短对话验证地址、密钥与模型可用，供服务连通测试。
-func Ping(ctx context.Context, client *http.Client, c Config) error {
-	if strings.TrimSpace(c.Model) == "" {
-		return msg.Err(msg.ErrAINotConfigured, nil)
+// Complete 发送一次非流式请求并取回文本。推理模型输出的 <think> 段会被去掉。
+func Complete(ctx context.Context, client *http.Client, c Config, r Request) (Result, error) {
+	if c.Format == FormatCodex {
+		return codexComplete(ctx, c, r)
 	}
-	raw, e := json.Marshal(pingPayload(c))
+	if strings.TrimSpace(c.Model) == "" || len(r.Messages) == 0 {
+		return Result{}, msg.Err(msg.ErrAINotConfigured, nil)
+	}
+	raw, e := json.Marshal(payload(c, r))
 	if e != nil {
-		return e
+		return Result{}, e
 	}
 	body, e := send(ctx, client, c, http.MethodPost, endpoint(c), raw)
 	if e != nil {
-		return e
+		return Result{}, e
 	}
-	return parse(c.Format, body)
+	result, e := parse(c.Format, body)
+	if e != nil {
+		return Result{}, msg.Err(msg.ErrAIResponse, msg.Params{"status": 200, "detail": Sanitize(string(body), c.Key)})
+	}
+	result.Text = strings.TrimSpace(thinking.ReplaceAllString(result.Text, ""))
+	if result.Text == "" && !result.Truncated {
+		return Result{}, msg.Err(msg.ErrAIResponse, msg.Params{"status": 200, "detail": "empty output"})
+	}
+	return result, nil
 }
 
-// parse 检查连通测试的响应结构是否可读。
-func parse(format string, body []byte) error {
+var thinking = regexp.MustCompile(`(?s)<think>.*?</think>`)
+
+func parse(format string, body []byte) (Result, error) {
 	switch format {
 	case FormatAnthropic:
 		var v struct {
 			Content []struct {
 				Type string `json:"type"`
+				Text string `json:"text"`
 			} `json:"content"`
+			StopReason string `json:"stop_reason"`
 		}
 		if e := json.Unmarshal(body, &v); e != nil {
-			return e
+			return Result{}, e
 		}
-		return nil
+		var b strings.Builder
+		for _, c := range v.Content {
+			if c.Type == "text" {
+				b.WriteString(c.Text)
+			}
+		}
+		return Result{Text: b.String(), Truncated: v.StopReason == "max_tokens"}, nil
 	case FormatResponses:
 		var v struct {
-			Output []struct {
+			Status     string `json:"status"`
+			OutputText string `json:"output_text"`
+			Output     []struct {
 				Content []struct {
 					Type string `json:"type"`
+					Text string `json:"text"`
 				} `json:"content"`
 			} `json:"output"`
 		}
 		if e := json.Unmarshal(body, &v); e != nil {
-			return e
+			return Result{}, e
 		}
-		return nil
+		text := v.OutputText
+		if text == "" {
+			var b strings.Builder
+			for _, o := range v.Output {
+				for _, c := range o.Content {
+					if c.Type == "output_text" || c.Type == "text" {
+						b.WriteString(c.Text)
+					}
+				}
+			}
+			text = b.String()
+		}
+		return Result{Text: text, Truncated: v.Status == "incomplete"}, nil
 	}
 	var v struct {
 		Choices []struct {
 			Message struct {
 				Content json.RawMessage `json:"content"`
 			} `json:"message"`
+			Text         string `json:"text"`
+			FinishReason string `json:"finish_reason"`
 		} `json:"choices"`
 	}
 	if e := json.Unmarshal(body, &v); e != nil {
-		return e
+		return Result{}, e
 	}
 	if len(v.Choices) == 0 {
-		return errors.New("no choices")
+		return Result{}, errors.New("no choices")
 	}
-	return nil
+	choice := v.Choices[0]
+	text := choice.Text
+	// content 通常是字符串，部分兼容服务返回内容片段数组。
+	var s string
+	var parts []struct {
+		Text string `json:"text"`
+	}
+	if json.Unmarshal(choice.Message.Content, &s) == nil {
+		text = s
+	} else if json.Unmarshal(choice.Message.Content, &parts) == nil {
+		var b strings.Builder
+		for _, p := range parts {
+			b.WriteString(p.Text)
+		}
+		text = b.String()
+	}
+	return Result{Text: text, Truncated: choice.FinishReason == "length"}, nil
 }
 
 // Models 读取服务的模型列表（OpenAI 与 Anthropic 都返回 {data:[{id}]}）。
 func Models(ctx context.Context, client *http.Client, c Config) ([]string, error) {
+	if c.Format == FormatCodex {
+		return codexModels(ctx)
+	}
 	if strings.TrimSpace(c.ModelsPath) == "" {
 		return nil, msg.Err(msg.ErrAIModelsPath, nil)
 	}
@@ -347,4 +418,13 @@ func Mask(key string) string {
 		return strings.Repeat("•", len(r))
 	}
 	return fmt.Sprintf("%s••••••••%s", string(r[:4]), string(r[len(r)-4:]))
+}
+
+// ExtractJSON 取出模型回复中的 JSON 对象：去掉 Markdown 代码块，截取第一个 { 到最后一个 }。
+func ExtractJSON(text string) string {
+	start, end := strings.Index(text, "{"), strings.LastIndex(text, "}")
+	if start < 0 || end < start {
+		return ""
+	}
+	return text[start : end+1]
 }

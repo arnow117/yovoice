@@ -11,6 +11,7 @@ import { FolderOpen, FolderCog, ArrowUpRight } from 'lucide-react';
 import { call, isMac } from '../../shared/lib/client';
 import { runtimeStatus, type EngineInfo, type ModelPackage, type State, type Draft, type UiLocale } from '../../shared/workbench';
 import { CallError } from '../../shared/lib/call-error';
+import { uiLocales } from '../../shared/i18n/locale';
 import { AISettings } from './ai-settings';
 import { ModelGroups } from './model-list';
 import { SettingsGroup, SettingsRow } from '../../shared/ui/settings-group';
@@ -18,6 +19,7 @@ import { overflowTitle } from '../../shared/ui/overflow-title';
 import { UpdateSettings } from '../update/update-settings';
 import { LocalAPISettings } from './local-api-settings';
 import { StorageSettings } from './storage-settings';
+import { LogViewer } from './log-viewer';
 
 export function Settings({ state, catalog, engine, draft, run, focus }: { focus?: { tab: string; modelId: string; request: number }; state: State; catalog: ModelPackage[]; engine: EngineInfo; draft: Draft; run: (task: () => Promise<unknown>) => void }) {
   const t = useTranslator();
@@ -50,13 +52,14 @@ export function Settings({ state, catalog, engine, draft, run, focus }: { focus?
       <Tab value="soundfonts" label={t('@yovoice.settings.tabSoundfonts')} panelId="soundfonts-panel" />
       <Tab value="engine" label={t('@yovoice.settings.tabEngine')} panelId="engine-panel" />
       <Tab value="ai" label={t('@yovoice.settings.tabAI')} panelId="ai-panel" />
+      <Tab value="logs" label={t('@yovoice.settings.tabLogs')} panelId="logs-panel" />
     </TabList>
     {tab === 'general' ? <VStack className="settings-panel" gap={6} id="general-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabGeneral')}>
       <UpdateSettings />
       <SettingsGroup title={t('@yovoice.settings.preferences')}>
         <SettingsRow label={t('@yovoice.settings.uiLocale')} hint={t('@yovoice.settings.uiLocaleHint')}>
           <Selector data-testid="ui-locale" size="sm" label={t('@yovoice.settings.uiLocale')} isLabelHidden value={preferences.uiLocale}
-            options={[{ value: 'zh-CN', label: t('@yovoice.settings.uiLocale.zhCN') }, { value: 'en', label: t('@yovoice.settings.uiLocale.en') }]}
+            options={uiLocales.map(locale => ({ value: locale.id, label: locale.name }))}
             onChange={uiLocale => run(() => call('preferences.save', { ...preferences, uiLocale: uiLocale as UiLocale }))} width="calc(var(--spacing-10) * 5)" />
         </SettingsRow>
         <SettingsRow label={t('@yovoice.settings.proxy')} hint={t('@yovoice.settings.proxyHint')}>
@@ -72,6 +75,7 @@ export function Settings({ state, catalog, engine, draft, run, focus }: { focus?
       <LocalAPISettings run={run} />
       <SettingsGroup title={t('@yovoice.settings.diagnosticsGroup')}>
         <SettingsRow label={t('@yovoice.settings.diagnostics')} hint={t('@yovoice.settings.diagnosticsHint')}>
+          <Button size="sm" label={t('@yovoice.settings.viewLogs')} onClick={() => setTab('logs')} />
           <Button size="sm" label={t('@yovoice.settings.openLogs')} icon={<ArrowUpRight size={15} />} onClick={() => run(() => call('logs.open'))} />
         </SettingsRow>
       </SettingsGroup>
@@ -90,7 +94,7 @@ export function Settings({ state, catalog, engine, draft, run, focus }: { focus?
     </VStack> : tab === 'soundfonts' ? <VStack className="settings-panel" gap={6} id="soundfonts-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabSoundfonts')}>
       <small className="settings-intro">{t('@yovoice.settings.soundfontIntro')}</small>
       <ModelGroups models={catalog.filter(model => model.family === 'soundfont')} state={state} draft={draft} run={run} />
-    </VStack> : tab === 'ai' ? <AISettings state={state} run={run} focus={focus} /> : <VStack className="settings-panel engine-settings" gap={6} id="engine-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabEngine')}>
+    </VStack> : tab === 'ai' ? <AISettings state={state} run={run} focus={focus} /> : tab === 'logs' ? <LogViewer run={run} /> : <VStack className="settings-panel engine-settings" gap={6} id="engine-panel" role="tabpanel" aria-label={t('@yovoice.settings.tabEngine')}>
       <SettingsGroup title={<>audio.cpp{runtimeVersion ? <small className="model-size">{runtimeVersion}</small> : null}</>}>
         <SettingsRow className="engine-setting-row" label={t('@yovoice.settings.computeDevice')}>
           <Selector size="sm" label={t('@yovoice.settings.computeDevice')} isLabelHidden value={preferences.backend} options={[{ value: 'cpu', label: 'CPU' }, ...(isMac ? [{ value: 'metal', label: 'Apple GPU · Metal' }] : [{ value: 'cuda', label: 'NVIDIA GPU · CUDA 12.4' }, { value: 'cuda13', label: 'NVIDIA GPU · CUDA 13.3' }, { value: 'vulkan', label: t('@yovoice.settings.backend.vulkan') }])]} onChange={backend => run(() => call('preferences.save', { ...preferences, backend }))} width="calc(var(--spacing-10) * 6)" className="compute-device" />

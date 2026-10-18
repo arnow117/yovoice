@@ -935,12 +935,6 @@
   "@yovoice.settings.uiLocale": {
     "defaultMessage": "Interface language"
   },
-  "@yovoice.settings.uiLocale.en": {
-    "defaultMessage": "English"
-  },
-  "@yovoice.settings.uiLocale.zhCN": {
-    "defaultMessage": "简体中文"
-  },
   "@yovoice.settings.verified": {
     "defaultMessage": "Verified"
   },
@@ -1961,6 +1955,30 @@
   "@yovoice.timeline.peak": {
     "defaultMessage": "Peak"
   },
+  "@yovoice.timeline.exportType": {
+    "defaultMessage": "Format"
+  },
+  "@yovoice.timeline.formatWav": {
+    "defaultMessage": "WAV audio"
+  },
+  "@yovoice.timeline.formatSrt": {
+    "defaultMessage": "SRT subtitles"
+  },
+  "@yovoice.timeline.formatVtt": {
+    "defaultMessage": "WebVTT subtitles"
+  },
+  "@yovoice.timeline.exportCaptions": {
+    "defaultMessage": "Export subtitles"
+  },
+  "@yovoice.timeline.captionSpeaker": {
+    "defaultMessage": "Include speaker names"
+  },
+  "@yovoice.timeline.captionHint": {
+    "defaultMessage": "One subtitle per voiced clip, timed to where it plays on the timeline."
+  },
+  "@yovoice.timeline.noCaptions": {
+    "defaultMessage": "No voiced clips with lines in this export range."
+  },
   "@yovoice.timeline.volume": {
     "defaultMessage": "Volume"
   },
@@ -2510,6 +2528,30 @@
   "@yovoice.library.duration": {
     "defaultMessage": "length"
   },
+  "@yovoice.ai.apply": {
+    "defaultMessage": "Apply"
+  },
+  "@yovoice.ai.discard": {
+    "defaultMessage": "Discard"
+  },
+  "@yovoice.ai.retry": {
+    "defaultMessage": "Try again"
+  },
+  "@yovoice.ai.openLogs": {
+    "defaultMessage": "View logs"
+  },
+  "@yovoice.ai.openProject": {
+    "defaultMessage": "Open project"
+  },
+  "@yovoice.ai.backgroundHint": {
+    "defaultMessage": "Writing in the background. Keep editing or move on; you'll be told when it's done."
+  },
+  "@yovoice.ai.busyElsewhere": {
+    "defaultMessage": "Another AI task is running. Start this one after it finishes."
+  },
+  "@yovoice.ai.failedMeta": {
+    "defaultMessage": "After {time} · {model}"
+  },
   "@yovoice.ai.lyricsPlaceholderInstrumental": {
     "defaultMessage": "Describe the instrumental in a sentence and AI writes the style and sections, e.g. lo-fi for a slow late-night drive through the city"
   },
@@ -2528,14 +2570,14 @@
   "@yovoice.ai.setup.lyrics": {
     "defaultMessage": "Connect a language model to let AI write the style and lyrics from one sentence."
   },
-  "@yovoice.ai.assistantMissing": {
-    "defaultMessage": "This build does not include the AI assistant runtime"
+  "@yovoice.ai.stage.writing": {
+    "defaultMessage": "{model} is writing"
+  },
+  "@yovoice.ai.stage.repairing": {
+    "defaultMessage": "{model} is fixing the format"
   },
   "@yovoice.error.aiTimeout": {
     "defaultMessage": "The AI service didn't finish within {seconds} seconds. Increase the AI request timeout in Settings › General, or pick a faster model."
-  },
-  "@yovoice.error.assistantMissing": {
-    "defaultMessage": "This build does not include the AI assistant runtime, so AI composing and lyric writing are unavailable."
   },
   "@yovoice.music.lyricsMode": {
     "defaultMessage": "Lyrics mode"
@@ -3011,6 +3053,9 @@
   "@yovoice.music.syncReset": {
     "defaultMessage": "Clear sync"
   },
+  "@yovoice.music.exportLrc": {
+    "defaultMessage": "Export lyrics (LRC)"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Lyric timing placed from the vocals; sync to refine"
   },
@@ -3031,6 +3076,567 @@
   },
   "@yovoice.music.syncProgress": {
     "defaultMessage": "{done} / {total} lines"
+  },
+  "@yovoice.music.preset.city-pop": {
+    "defaultMessage": "City Pop"
+  },
+  "@yovoice.music.preset.lofi": {
+    "defaultMessage": "Lo-Fi"
+  },
+  "@yovoice.music.preset.folk": {
+    "defaultMessage": "Folk"
+  },
+  "@yovoice.music.preset.electronic": {
+    "defaultMessage": "Electronic"
+  },
+  "@yovoice.music.preset.chinese": {
+    "defaultMessage": "Chinese"
+  },
+  "@yovoice.music.preset.romantic": {
+    "defaultMessage": "Romantic"
+  },
+  "@yovoice.music.preset.hiphop": {
+    "defaultMessage": "Hip Hop"
+  },
+  "@yovoice.music.preset.rock": {
+    "defaultMessage": "Rock"
+  },
+  "@yovoice.music.tagHint.pop": {
+    "defaultMessage": "Pop music"
+  },
+  "@yovoice.music.tagHint.city-pop": {
+    "defaultMessage": "80s Japanese urban pop"
+  },
+  "@yovoice.music.tagHint.lo-fi": {
+    "defaultMessage": "Relaxed low fidelity beats"
+  },
+  "@yovoice.music.tagHint.folk": {
+    "defaultMessage": "Acoustic folk storytelling"
+  },
+  "@yovoice.music.tagHint.rock": {
+    "defaultMessage": "High energy rock sound"
+  },
+  "@yovoice.music.tagHint.electronic": {
+    "defaultMessage": "Modern electronic beats"
+  },
+  "@yovoice.music.tagHint.r-b": {
+    "defaultMessage": "Smooth rhythm and blues"
+  },
+  "@yovoice.music.tagHint.jazz": {
+    "defaultMessage": "Classic jazz chords"
+  },
+  "@yovoice.music.tagHint.hip-hop": {
+    "defaultMessage": "Booming beats and flow"
+  },
+  "@yovoice.music.tagHint.chinese-traditional": {
+    "defaultMessage": "Traditional Chinese melodies"
+  },
+  "@yovoice.music.tagHint.upbeat": {
+    "defaultMessage": "Bright and energetic mood"
+  },
+  "@yovoice.music.tagHint.chill": {
+    "defaultMessage": "Calm and relaxing vibe"
+  },
+  "@yovoice.music.tagHint.dreamy": {
+    "defaultMessage": "Ethereal atmosphere"
+  },
+  "@yovoice.music.tagHint.melancholic": {
+    "defaultMessage": "Bittersweet nostalgia"
+  },
+  "@yovoice.music.tagHint.epic": {
+    "defaultMessage": "Cinematic grand scale"
+  },
+  "@yovoice.music.tagHint.romantic": {
+    "defaultMessage": "Sweet and loving tone"
+  },
+  "@yovoice.music.tagHint.warm-synths": {
+    "defaultMessage": "Warm analog synthesizer"
+  },
+  "@yovoice.music.tagHint.acoustic-guitar": {
+    "defaultMessage": "Acoustic guitar strums"
+  },
+  "@yovoice.music.tagHint.piano": {
+    "defaultMessage": "Expressive acoustic piano"
+  },
+  "@yovoice.music.tagHint.strings": {
+    "defaultMessage": "Orchestral string section"
+  },
+  "@yovoice.music.tagHint.808-bass": {
+    "defaultMessage": "Heavy sub bass tone"
+  },
+  "@yovoice.music.tagHint.guzheng": {
+    "defaultMessage": "Traditional Guzheng plucks"
+  },
+  "@yovoice.music.tagHint.female-vocals": {
+    "defaultMessage": "Clear female vocal style"
+  },
+  "@yovoice.music.tagHint.male-vocals": {
+    "defaultMessage": "Deep male vocal style"
+  },
+  "@yovoice.music.tagHint.choir": {
+    "defaultMessage": "Multi-part choir harmony"
+  },
+  "@yovoice.music.tagHint.rap": {
+    "defaultMessage": "Fast rhythmic rap delivery"
+  },
+  "@yovoice.book.import": {
+    "defaultMessage": "Import book"
+  },
+  "@yovoice.book.file": {
+    "defaultMessage": "Book file"
+  },
+  "@yovoice.book.title": {
+    "defaultMessage": "Import book"
+  },
+  "@yovoice.book.name": {
+    "defaultMessage": "Title"
+  },
+  "@yovoice.book.chapters": {
+    "defaultMessage": "All chapters · {count}"
+  },
+  "@yovoice.book.selected": {
+    "defaultMessage": "{count} selected · {chars} characters"
+  },
+  "@yovoice.book.part": {
+    "defaultMessage": "Part {n}"
+  },
+  "@yovoice.book.next": {
+    "defaultMessage": "Next: cast roles"
+  },
+  "@yovoice.book.back": {
+    "defaultMessage": "Back"
+  },
+  "@yovoice.book.cast": {
+    "defaultMessage": "Cast roles and voices"
+  },
+  "@yovoice.book.summary": {
+    "defaultMessage": "{chapters} chapters · {roles} roles · {lines} lines"
+  },
+  "@yovoice.book.castHelp": {
+    "defaultMessage": "Narration and dialogue are split by quotes, and speakers found from phrases like “Alice said”. You can fix any line in the project afterwards."
+  },
+  "@yovoice.book.aiCast": {
+    "defaultMessage": "Cast with AI"
+  },
+  "@yovoice.book.aiRunning": {
+    "defaultMessage": "{model} is casting {done} / {total} · {time}"
+  },
+  "@yovoice.book.aiPartial": {
+    "defaultMessage": "AI output for {count} passages was unusable; those keep the automatic result."
+  },
+  "@yovoice.book.listen": {
+    "defaultMessage": "Listen to {name}"
+  },
+  "@yovoice.book.voiceFor": {
+    "defaultMessage": "Voice for {name}"
+  },
+  "@yovoice.book.lines": {
+    "defaultMessage": "{count} lines"
+  },
+  "@yovoice.book.unknown": {
+    "defaultMessage": "Unattributed dialogue"
+  },
+  "@yovoice.book.gender.male": {
+    "defaultMessage": "Male"
+  },
+  "@yovoice.book.gender.female": {
+    "defaultMessage": "Female"
+  },
+  "@yovoice.book.create": {
+    "defaultMessage": "Create {count} projects"
+  },
+  "@yovoice.book.tooLarge": {
+    "defaultMessage": "The file is too large. Text manuscripts can be up to 16 MB and EPUB files up to 32 MB."
+  },
+  "@yovoice.book.invalid": {
+    "defaultMessage": "This EPUB file can't be read. Make sure it isn't DRM-protected or damaged."
+  },
+  "@yovoice.book.unsupported": {
+    "defaultMessage": "Import a book as TXT, Markdown or EPUB."
+  },
+  "@yovoice.ai.task.running.cast": {
+    "defaultMessage": "AI is casting roles"
+  },
+  "@yovoice.ai.task.done.cast": {
+    "defaultMessage": "AI finished casting"
+  },
+  "@yovoice.ai.task.failed.cast": {
+    "defaultMessage": "AI casting failed"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "Writing the melody score"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "Extracting the melody from the song"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "The melody score has a problem: {issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "The model returned no melody score. Try again or adjust the lyrics."
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "Extracting a melody needs the SheetSage2 model. Download it in Settings › Models."
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "Transcribes the melody and chords of a song into a score, used for covers with YuE2."
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "Generate from score"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "Describe how to change the score"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "Connect a language model to let AI rewrite the melody, chords and style from one sentence."
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "AI is editing the score"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "AI finished editing the score"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "AI couldn't edit the score"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "Applying replaces the current score, and the style if AI changed it."
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "Say how to change the score, e.g. raise the chorus a whole step, make bars 9–12 bouncier, switch to jazz chords"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "Edit score"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "Melody score"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Write the melody first, adjust it, then generate the whole song from it."
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "YuE2 can first write the vocal melody and chords for your lyrics. Review and edit the score, then generate the song from it. You can also take the melody of an existing song for a cover."
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "Write melody score"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "Fill in the style and lyrics first"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "Rewrite from lyrics"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "Extract from a song"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "Extracting keeps the melody and drops the original chords, so the song is rearranged in your style. Songs up to 10 minutes."
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "Song to extract the melody from"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "ABC score file"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": "Import .abc"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "Copy score"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "Clear score"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "Keep melody only"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "Score actions"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "Score view"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "Tracks"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "ABC score"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "Melody score tracks, {bars} bars"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "with chords"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "melody only"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "YuE2 wrote a new melody score"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "The melody was extracted from the song"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "Replacing discards the current score."
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "Replace"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "AI edited the score"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "The score was longer than YuE2 can sing, so it was cut at the limit. Shorten the lyrics or trim sections to keep the ending."
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "Melody extracted. The original chords were removed so YuE2 rearranges the song in your style."
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "Changed: {changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "melody in bars {bars}"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "chords in bars {bars}"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "accompaniment in bars {bars}"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "tempo"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "key"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "length {before} → {after} bars"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": ", "
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "YuE2 can't sing this score yet"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "Vocal"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "Accompaniment"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "Chords"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "Bass"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "vocal"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "accompaniment"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "bar {bar}"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "bar {bar} ({voice})"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "line {line}"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where}: {reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "the score is too long."
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "the header must list X, T, M, L, Q, the two V lines and K in order."
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "unsupported time signature."
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "write the tempo as Q:1/4=BPM, between 30 and 300."
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "unsupported key."
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "each group lists V: Vocal then V: Ins, with the same 1–4 bars in both."
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "every bar ends with a plain | ; repeats and double bar lines aren't supported."
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "uses notation outside YuE2's dialect, such as tuplets, grace notes or slurs."
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "unsupported chord; chords go in the vocal line and use common qualities such as m, 7, maj7, sus4."
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "the notes run past the end of the bar."
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "the note lengths don't fill the bar, or use a length YuE2 doesn't support."
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "a tie must join two notes of the same pitch."
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "rests can't carry accidentals, octave marks or ties."
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "a note is out of range."
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "the vocal and accompaniment lines use different meters or note units."
+  },
+  "@yovoice.settings.tabLogs": {
+    "defaultMessage": "Logs"
+  },
+  "@yovoice.settings.viewLogs": {
+    "defaultMessage": "View logs"
+  },
+  "@yovoice.logs.time": {
+    "defaultMessage": "Time"
+  },
+  "@yovoice.logs.levelColumn": {
+    "defaultMessage": "Level"
+  },
+  "@yovoice.logs.level.info": {
+    "defaultMessage": "Info"
+  },
+  "@yovoice.logs.level.warn": {
+    "defaultMessage": "Warning"
+  },
+  "@yovoice.logs.level.error": {
+    "defaultMessage": "Error"
+  },
+  "@yovoice.logs.event": {
+    "defaultMessage": "Event"
+  },
+  "@yovoice.logs.summary": {
+    "defaultMessage": "Summary"
+  },
+  "@yovoice.logs.detail": {
+    "defaultMessage": "Details"
+  },
+  "@yovoice.logs.module": {
+    "defaultMessage": "Module"
+  },
+  "@yovoice.logs.allLevels": {
+    "defaultMessage": "All levels"
+  },
+  "@yovoice.logs.warnAndAbove": {
+    "defaultMessage": "Warnings and errors"
+  },
+  "@yovoice.logs.errorsOnly": {
+    "defaultMessage": "Errors only"
+  },
+  "@yovoice.logs.allModules": {
+    "defaultMessage": "All modules"
+  },
+  "@yovoice.logs.range": {
+    "defaultMessage": "Time range"
+  },
+  "@yovoice.logs.allTime": {
+    "defaultMessage": "All time"
+  },
+  "@yovoice.logs.lastHour": {
+    "defaultMessage": "Last hour"
+  },
+  "@yovoice.logs.lastDay": {
+    "defaultMessage": "Last 24 hours"
+  },
+  "@yovoice.logs.lastWeek": {
+    "defaultMessage": "Last 7 days"
+  },
+  "@yovoice.logs.search": {
+    "defaultMessage": "Search"
+  },
+  "@yovoice.logs.searchPlaceholder": {
+    "defaultMessage": "Event, project ID or error"
+  },
+  "@yovoice.logs.refresh": {
+    "defaultMessage": "Refresh"
+  },
+  "@yovoice.logs.export": {
+    "defaultMessage": "Export diagnostics"
+  },
+  "@yovoice.logs.hint": {
+    "defaultMessage": "Logs record actions, IDs, durations and errors, never text, lyrics or keys. Diagnostics don't include raw inference engine output."
+  },
+  "@yovoice.logs.empty": {
+    "defaultMessage": "No matching logs."
+  },
+  "@yovoice.logs.pages": {
+    "defaultMessage": "Log pages"
+  },
+  "@yovoice.logs.copy": {
+    "defaultMessage": "Copy"
+  },
+  "@yovoice.ai.group.subscription": {
+    "defaultMessage": "Subscriptions"
+  },
+  "@yovoice.ai.codex.title": {
+    "defaultMessage": "Codex CLI"
+  },
+  "@yovoice.ai.codex.missing": {
+    "defaultMessage": "Codex CLI not found"
+  },
+  "@yovoice.ai.codex.chatgpt": {
+    "defaultMessage": "Codex {version} · signed in with ChatGPT"
+  },
+  "@yovoice.ai.codex.apiKey": {
+    "defaultMessage": "Codex {version} · signed in with an API key (billed by usage)"
+  },
+  "@yovoice.ai.codex.loggedOut": {
+    "defaultMessage": "Codex {version} · not signed in"
+  },
+  "@yovoice.ai.codex.checking": {
+    "defaultMessage": "Checking…"
+  },
+  "@yovoice.ai.codex.check": {
+    "defaultMessage": "Check"
+  },
+  "@yovoice.ai.codex.login": {
+    "defaultMessage": "Sign in with ChatGPT"
+  },
+  "@yovoice.ai.codex.install": {
+    "defaultMessage": "How to install Codex"
+  },
+  "@yovoice.ai.codex.hint": {
+    "defaultMessage": "Uses your ChatGPT plan through the Codex CLI on this computer. yovoice never reads or stores your sign-in; each request runs in an empty temporary folder with a read-only sandbox. Requests count toward your plan's usage limits."
+  },
+  "@yovoice.error.codexMissing": {
+    "defaultMessage": "Codex CLI not found. Install Codex (npm i -g @openai/codex or brew install codex), then select Check."
+  },
+  "@yovoice.error.codexLoggedOut": {
+    "defaultMessage": "Codex isn't signed in. Select “Sign in with ChatGPT”, finish in the browser, then try again."
+  },
+  "@yovoice.error.codexFailed": {
+    "defaultMessage": "Codex failed: {detail}"
+  },
+  "@yovoice.error.codexLimit": {
+    "defaultMessage": "Your ChatGPT plan's Codex usage limit was reached or requests are too frequent. Try again later."
+  },
+  "@yovoice.error.codexNoImage": {
+    "defaultMessage": "Codex did not generate an image: {detail}"
+  },
+  "@yovoice.ai.assistantMissing": {
+    "defaultMessage": "This build does not include the AI assistant runtime"
+  },
+  "@yovoice.error.assistantMissing": {
+    "defaultMessage": "This build does not include the AI assistant runtime, so AI composing and lyric writing are unavailable."
   },
   "@yovoice.assistant.toggle": {
     "defaultMessage": "Toggle assistant"
@@ -3172,5 +3778,17 @@
   },
   "@yovoice.assistant.contextOff": {
     "defaultMessage": "No context attached. Click to attach current page and work."
+  },
+  "@yovoice.error.assistantProvider": {
+    "defaultMessage": "The current AI service (ChatGPT subscription) can't be used by the assistant. Switch to an API-based service in Settings."
+  },
+  "@yovoice.assistant.askLyrics": {
+    "defaultMessage": "Write a song for this music work: {brief}"
+  },
+  "@yovoice.assistant.askLyricsInstrumental": {
+    "defaultMessage": "Write a song for this music work: {brief} (instrumental: style and sections only)"
+  },
+  "@yovoice.assistant.askScore": {
+    "defaultMessage": "Write an arrangement for this score work: {brief} (about {seconds} seconds)"
   }
 }
