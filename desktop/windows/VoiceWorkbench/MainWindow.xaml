@@ -154,7 +154,8 @@
                 </Button>
             </StackPanel>
         </Grid>
-        <Grid x:Name="Container" Grid.Row="1">
+        <!-- 与网页启动动画同底色（yovoice-paper 页面底色），网页加载前后不闪白。 -->
+        <Grid x:Name="Container" Grid.Row="1" Background="#F7F7F7">
             <TextBlock x:Name="StartupMessage" Text="正在打开 yovoice…" VerticalAlignment="Center" HorizontalAlignment="Center"
                        Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
         </Grid>

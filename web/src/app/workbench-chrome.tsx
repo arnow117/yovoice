@@ -31,6 +31,7 @@ import { Selector } from '../shared/selector';
 import { ConfirmDelete } from '../shared/ui/app-dialog';
 import { call, isDesktop, mediaUrl, saveAudio } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
+import { dismissSplash } from '../shared/lib/splash';
 import { formatNotice } from '../shared/i18n/format';
 import { isKokoroModel, isYuE, isVoiceModel, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track } from '../shared/workbench';
 import { SidebarNav } from './sidebar-nav';
@@ -129,6 +130,8 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     setTrack(refresh); setPreviewTrack(refresh);
   }, [state.voices, state.history, ready, setDraft]);
   useEffect(() => { setPreviewTrack(null); setTrack(current => current ? { ...current, playRequest: undefined } : null); }, [page]);
+  // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来。
+  useEffect(() => { if (ready || error) dismissSplash(); }, [ready, error]);
   useEffect(() => { if (ready) setDraft(current => Timeline.accept(normalizeDraft(current), state.history)); }, [state.history, draft.id, ready, setDraft]);
   // 生成前的准备清单：缺模型、推理引擎或参考音频时在创作区顶部就地补齐。
   const setup = setupSteps(draft, state, catalog, engine);

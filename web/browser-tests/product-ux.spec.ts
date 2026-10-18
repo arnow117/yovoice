@@ -113,3 +113,15 @@ test('存储设置：展示数据目录与占用明细，可更改位置与清�
   await expect(page.getByText(/^数据已复制到新目录。请完全退出 yovoice 并重新打开应用生效/)).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('storage-settings.png'), animations: 'disabled' });
 });
+
+test('启动动画在脚本加载前显示，界面就绪后移除，不挡住操作', async ({ page }) => {
+  let release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/src/main.tsx', async route => { await gate; await route.continue(); });
+  await page.goto('/', { waitUntil: 'commit' });
+  await expect(page.locator('#splash .tile')).toBeVisible();
+  release();
+  await expect(page.locator('#splash')).toHaveCount(0);
+  await page.getByTestId('nav-new').click();
+  await expect(page.getByRole('menuitem').first()).toBeVisible();
+});
