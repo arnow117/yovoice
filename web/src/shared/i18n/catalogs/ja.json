@@ -3940,5 +3940,8 @@
   },
   "@yovoice.assets.preview": {
     "defaultMessage": "{name} をプレビュー"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "元の作品は削除されました"
   }
 }

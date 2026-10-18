@@ -3940,5 +3940,8 @@
   },
   "@yovoice.assets.preview": {
     "defaultMessage": "{name} 미리 보기"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "원본 프로젝트가 삭제됨"
   }
 }

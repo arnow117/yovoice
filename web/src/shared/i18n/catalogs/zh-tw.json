@@ -3940,5 +3940,8 @@
   },
   "@yovoice.assets.preview": {
     "defaultMessage": "預覽 {name}"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "來源作品已刪除"
   }
 }

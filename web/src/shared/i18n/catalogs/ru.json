@@ -3940,5 +3940,8 @@
   },
   "@yovoice.assets.preview": {
     "defaultMessage": "Просмотр: {name}"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "Исходный проект удалён"
   }
 }

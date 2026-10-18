@@ -3940,5 +3940,8 @@
   },
   "@yovoice.assets.preview": {
     "defaultMessage": "Vista previa de {name}"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "Proyecto de origen eliminado"
   }
 }

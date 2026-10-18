@@ -3940,5 +3940,8 @@
   },
   "@yovoice.assets.preview": {
     "defaultMessage": "Xem trước {name}"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "Dự án nguồn đã bị xóa"
   }
 }

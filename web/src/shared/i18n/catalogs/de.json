@@ -3940,5 +3940,8 @@
   },
   "@yovoice.assets.preview": {
     "defaultMessage": "Vorschau von {name}"
+  },
+  "@yovoice.assets.sourceMissing": {
+    "defaultMessage": "Quellprojekt gelöscht"
   }
 }

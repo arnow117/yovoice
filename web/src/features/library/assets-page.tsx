@@ -117,7 +117,7 @@ export function AssetsPage({ state, active, run, onError, openProject, openStora
     </HStack> },
     { key: 'kind', header: t('@yovoice.assets.col.kind'), width: pixel(104), renderCell: ({ asset: a }) => <Token size="sm" color={a.kind === 'voice' ? 'teal' : a.kind === 'image' ? 'purple' : a.kind === 'material' ? 'orange' : 'default'} label={kindLabel(a.kind)} /> },
     { key: 'project', header: t('@yovoice.assets.col.project'), width: proportional(1), renderCell: ({ asset: a }) => a.projectId
-      ? a.projectTitle ? <Button size="sm" variant="ghost" label={a.projectTitle} onClick={() => openProject(a.projectId!)} /> : <small className="asset-muted">{t('@yovoice.history.sourceMissing')}</small>
+      ? a.projectTitle ? <Button size="sm" variant="ghost" label={a.projectTitle} onClick={() => openProject(a.projectId!)} /> : <small className="asset-muted">{t('@yovoice.assets.sourceMissing')}</small>
       : <small className="asset-muted">—</small> },
     { key: 'duration', header: t('@yovoice.assets.col.duration'), width: pixel(76), align: 'end', sortable: true, renderCell: ({ asset: a }) => <small>{a.duration ? formatTime(a.duration) : '—'}</small> },
     { key: 'bytes', header: t('@yovoice.assets.col.size'), width: pixel(92), align: 'end', sortable: true, renderCell: ({ asset: a }) => <small>{a.bytes < 0 ? '—' : formatBytes(a.bytes)}</small> },
@@ -171,7 +171,7 @@ export function AssetsPage({ state, active, run, onError, openProject, openStora
       <Selector size="sm" label={t('@yovoice.assets.col.kind')} value={kind} onChange={filter(setKind)} width="calc(var(--spacing-10) * 3.5)"
         options={[{ value: '', label: t('@yovoice.assets.allKinds') }, ...kinds.map(value => ({ value, label: kindLabel(value) }))]} />
       <Selector size="sm" label={t('@yovoice.assets.col.project')} value={project} onChange={filter(setProject)} width="calc(var(--spacing-10) * 4.5)"
-        options={[{ value: '', label: t('@yovoice.assets.allProjects') }, ...projects.filter(([, title]) => title).map(([value, label]) => ({ value, label })), ...(projects.some(([, title]) => !title) ? [{ value: '-', label: t('@yovoice.history.sourceMissing') }] : [])]} />
+        options={[{ value: '', label: t('@yovoice.assets.allProjects') }, ...projects.filter(([, title]) => title).map(([value, label]) => ({ value, label })), ...(projects.some(([, title]) => !title) ? [{ value: '-', label: t('@yovoice.assets.sourceMissing') }] : [])]} />
       <Selector size="sm" label={t('@yovoice.assets.usage')} value={usage} onChange={filter(setUsage)} width="calc(var(--spacing-10) * 3)"
         options={[{ value: '', label: t('@yovoice.assets.usage.all') }, { value: 'unused', label: t('@yovoice.assets.status.unused') }, { value: 'used', label: t('@yovoice.assets.status.used') }]} />
       <TextInput size="sm" label={t('@yovoice.assets.search')} value={text} onChange={filter(setText)} placeholder={t('@yovoice.assets.searchPlaceholder')} width="calc(var(--spacing-10) * 5)" />
