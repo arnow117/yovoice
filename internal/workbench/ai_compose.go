@@ -2,29 +2,39 @@ package workbench
 
 import (
 	"cmp"
-	"context"
+	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
-	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 )
 
-// ScoreBrief 是“AI 写谱”的输入：一句话描述、目标时长（秒，0 表示由模型决定）和界面语言。
-// FollowUp 与 Draft 用于“继续修改”：把编辑器里的当前乐谱连同修改意见交回助手。
-type ScoreBrief struct {
-	ProjectID string          `json:"projectId"`
-	Brief     string          `json:"brief"`
-	Seconds   int             `json:"seconds"`
-	Locale    schema.UiLocale `json:"locale"`
-	FollowUp  string          `json:"followUp,omitempty"`
-	Draft     *schema.Score   `json:"draft,omitempty"`
+// 助手写谱与 update_work 共用的乐谱构建与校验：notes 接受紧凑数组与完整对象，
+// repeats 让模型只写一遍循环段落，由这里展开。
+
+// scoreInput 是助手提交的乐谱输入。
+type scoreInput struct {
+	Tempo         float64               `json:"tempo" jsonschema:"速度 30-300（BPM）"`
+	TimeSignature []int                 `json:"timeSignature" jsonschema:"拍号 [分子,分母]，如 [4,4]"`
+	Key           string                `json:"key,omitempty" jsonschema:"调性，如 D minor"`
+	Sections      []schema.ScoreSection `json:"sections,omitempty" jsonschema:"段落，可带自己的 tempo 做渐慢"`
+	Tracks        []scoreTrack          `json:"tracks"`
 }
 
-// ComposedScore 是 AI 写谱的结果：乐谱和顺带起的曲名，曲名只在作品尚未命名时由界面采用。
-type ComposedScore struct {
-	schema.Score
-	Title string `json:"title,omitempty"`
+// scoreTrack 是乐谱里的一个声部。
+type scoreTrack struct {
+	ID       string             `json:"id" jsonschema:"声部唯一 ID"`
+	Name     string             `json:"name" jsonschema:"声部名称，用界面语言书写"`
+	Role     string             `json:"role,omitempty" jsonschema:"melody/piano/strings/bass/drums/pad/arp/other"`
+	Program  int                `json:"program" jsonschema:"General MIDI 音色号 0-127"`
+	Drums    bool               `json:"drums,omitempty" jsonschema:"鼓组时为 true"`
+	Level    float64            `json:"level,omitempty" jsonschema:"电平 dBFS，一般省略"`
+	Pan      float64            `json:"pan,omitempty" jsonschema:"-1 到 1"`
+	Reverb   float64            `json:"reverb,omitempty" jsonschema:"0 到 1"`
+	Humanize *schema.Humanize   `json:"humanize,omitempty" jsonschema:"力度与时间微调"`
+	Dynamics []schema.ScoreRamp `json:"dynamics,omitempty" jsonschema:"音量渐变"`
+	Notes    []any              `json:"notes" jsonschema:"音符数组，每项为 [小节,拍,MIDI音高,拍数,力度] 五个数字或同字段对象；小节与拍从 1 开始，拍可为小数"`
+	Repeats  []scoreRepeat      `json:"repeats,omitempty" jsonschema:"把 from..to 小节的音符复制到各 at 起点"`
 }
 
 // scoreRepeat 让模型只写一遍循环段落，由这里展开成音符，长曲子不必逐个写出。
@@ -66,114 +76,57 @@ func expandRepeats(track *schema.ScoreTrack, repeats []scoreRepeat, budget int) 
 	return nil
 }
 
-func (in ScoreBrief) valid() bool {
-	brief := strings.TrimSpace(in.Brief)
-	return brief != "" && schema.TextLen(brief) <= 2000 && schema.TextLen(strings.TrimSpace(in.FollowUp)) <= 2000 &&
-		in.Seconds >= 0 && in.Seconds <= int(schema.ScoreMaxSeconds)
+// buildScore 把工具参数转成乐谱并做与界面一致的校验。
+func buildScore(in scoreInput) (schema.Score, error) {
+	s := schema.Score{Tempo: in.Tempo, TimeSignature: in.TimeSignature, Key: strings.TrimSpace(in.Key), Sections: in.Sections}
+	notes := 0
+	for _, t := range in.Tracks {
+		track := schema.ScoreTrack{ID: t.ID, Name: t.Name, Role: t.Role, Program: t.Program, Drums: t.Drums, Level: t.Level, Pan: t.Pan, Reverb: t.Reverb, Humanize: t.Humanize, Dynamics: t.Dynamics}
+		for _, raw := range t.Notes {
+			note, err := parseScoreNote(raw)
+			if err != nil {
+				return schema.Score{}, fmt.Errorf("track %q: %v", track.ID, err)
+			}
+			track.Notes = append(track.Notes, note)
+		}
+		if err := expandRepeats(&track, t.Repeats, schema.ScoreMaxNotes-notes); err != nil {
+			return schema.Score{}, err
+		}
+		notes += len(track.Notes)
+		s.Tracks = append(s.Tracks, track)
+	}
+	if issue := schema.ScoreIssue(&s); issue != "" {
+		return schema.Score{}, fmt.Errorf("%s", issue)
+	}
+	return s, nil
 }
 
-// StartScore 在后台写谱，立即返回任务。
-func (w *Workbench) StartScore(in ScoreBrief) (schema.AITask, error) {
-	if !in.valid() {
-		return schema.AITask{}, msg.Err(msg.ErrRequestInvalid, nil)
+// parseScoreNote 接受紧凑数组 [bar, beat, pitch, length, velocity] 与完整对象两种音符写法。
+func parseScoreNote(raw any) (schema.ScoreNote, error) {
+	switch v := raw.(type) {
+	case []any:
+		if len(v) != 5 {
+			return schema.ScoreNote{}, fmt.Errorf("each note array needs exactly 5 numbers [bar, beat, pitch, length, velocity]")
+		}
+		values := make([]float64, 5)
+		for i, item := range v {
+			f, ok := item.(float64)
+			if !ok {
+				return schema.ScoreNote{}, fmt.Errorf("note array values must be numbers")
+			}
+			values[i] = f
+		}
+		return schema.ScoreNote{Bar: int(values[0]), Beat: values[1], Pitch: int(values[2]), Length: values[3], Velocity: int(values[4])}, nil
+	case map[string]any:
+		data, err := json.Marshal(v)
+		if err != nil {
+			return schema.ScoreNote{}, err
+		}
+		var note schema.ScoreNote
+		if err = json.Unmarshal(data, &note); err != nil {
+			return schema.ScoreNote{}, fmt.Errorf("invalid note %s", data)
+		}
+		return note, nil
 	}
-	return w.startAI("score", in.ProjectID, strings.TrimSpace(in.Brief), func(ctx context.Context, task schema.AITask) (any, error) {
-		return w.composeScore(ctx, task.ID, in)
-	})
-}
-
-// ComposeScore 由内置助手写谱并校验；结果取自助手以 submit_score 提交的乐谱。
-func (w *Workbench) ComposeScore(ctx context.Context, in ScoreBrief) (ComposedScore, error) {
-	return w.composeScore(ctx, "", in)
-}
-
-func (w *Workbench) composeScore(ctx context.Context, taskID string, in ScoreBrief) (ComposedScore, error) {
-	if !in.valid() {
-		return ComposedScore{}, msg.Err(msg.ErrRequestInvalid, nil)
-	}
-	draft := &aiDraft{kind: "score", taskID: taskID, projectID: in.ProjectID, brief: strings.TrimSpace(in.Brief),
-		followUp: strings.TrimSpace(in.FollowUp), seconds: in.Seconds, locale: in.Locale, scoreDraft: in.Draft}
-	if err := w.askAssistant(ctx, draft, scoreMessage(taskID, in)); err != nil {
-		return ComposedScore{}, err
-	}
-	if score := draft.score(); score != nil {
-		return *score, nil
-	}
-	return ComposedScore{}, msg.Err(msg.ErrAIResultInvalid, msg.Params{"detail": "assistant ended without submitting a score"})
-}
-
-// scoreMessage 组装发给助手的写谱任务消息；followUp 非空时为继续修改。
-func scoreMessage(taskID string, in ScoreBrief) string {
-	brief := strings.TrimSpace(in.Brief)
-	if followUp := strings.TrimSpace(in.FollowUp); followUp != "" {
-		return fmt.Sprintf("请继续修改这份乐谱。任务类型：score。任务 ID：%s。\n原始需求：%s\n修改意见：%s\n请先 get_draft 查看当前草稿，修改后用 submit_score 重新提交。", taskID, brief, followUp)
-	}
-	return fmt.Sprintf("请写谱。任务类型：score。任务 ID：%s。\n需求：%s", taskID, brief)
-}
-
-// LyricsBrief 是“AI 写歌词”的输入。FollowUp 与 Draft 用于“继续修改”。
-type LyricsBrief struct {
-	ProjectID    string          `json:"projectId"`
-	Brief        string          `json:"brief"`
-	Instrumental bool            `json:"instrumental"`
-	Language     string          `json:"language"`
-	Locale       schema.UiLocale `json:"locale"`
-	FollowUp     string          `json:"followUp,omitempty"`
-	Draft        *Lyrics         `json:"draft,omitempty"`
-}
-
-// Lyrics 是写给音乐作品的风格描述与带段落标记的歌词。
-type Lyrics struct {
-	Title    string `json:"title"`
-	Style    string `json:"style"`
-	Lyrics   string `json:"lyrics"`
-	Language string `json:"language"`
-}
-
-func (in LyricsBrief) valid() bool {
-	brief := strings.TrimSpace(in.Brief)
-	return brief != "" && schema.TextLen(brief) <= 2000 && schema.TextLen(strings.TrimSpace(in.FollowUp)) <= 2000
-}
-
-// StartLyrics 在后台写歌词，立即返回任务。
-func (w *Workbench) StartLyrics(in LyricsBrief) (schema.AITask, error) {
-	if !in.valid() {
-		return schema.AITask{}, msg.Err(msg.ErrRequestInvalid, nil)
-	}
-	return w.startAI("lyrics", in.ProjectID, strings.TrimSpace(in.Brief), func(ctx context.Context, task schema.AITask) (any, error) {
-		return w.writeLyrics(ctx, task.ID, in)
-	})
-}
-
-// WriteLyrics 由内置助手写风格描述与歌词；结果取自助手以 submit_lyrics 提交的值。
-func (w *Workbench) WriteLyrics(ctx context.Context, in LyricsBrief) (Lyrics, error) {
-	return w.writeLyrics(ctx, "", in)
-}
-
-func (w *Workbench) writeLyrics(ctx context.Context, taskID string, in LyricsBrief) (Lyrics, error) {
-	if !in.valid() {
-		return Lyrics{}, msg.Err(msg.ErrRequestInvalid, nil)
-	}
-	draft := &aiDraft{kind: "lyrics", taskID: taskID, projectID: in.ProjectID, brief: strings.TrimSpace(in.Brief),
-		followUp: strings.TrimSpace(in.FollowUp), instrumental: in.Instrumental, musicLanguage: in.Language, locale: in.Locale, lyricsDraft: in.Draft}
-	if err := w.askAssistant(ctx, draft, lyricsMessage(taskID, in)); err != nil {
-		return Lyrics{}, err
-	}
-	if lyrics := draft.lyrics(); lyrics != nil {
-		return *lyrics, nil
-	}
-	return Lyrics{}, msg.Err(msg.ErrAIResultInvalid, msg.Params{"detail": "assistant ended without submitting lyrics"})
-}
-
-// lyricsMessage 组装发给助手的写词任务消息；followUp 非空时为继续修改。
-func lyricsMessage(taskID string, in LyricsBrief) string {
-	brief := strings.TrimSpace(in.Brief)
-	if followUp := strings.TrimSpace(in.FollowUp); followUp != "" {
-		return fmt.Sprintf("请继续修改这首歌词。任务类型：lyrics。任务 ID：%s。\n原始需求：%s\n修改意见：%s\n请先 get_draft 查看当前草稿，修改后用 submit_lyrics 重新提交。", taskID, brief, followUp)
-	}
-	task := fmt.Sprintf("请写词。任务类型：lyrics。任务 ID：%s。\n需求：%s", taskID, brief)
-	if in.Instrumental {
-		task += "\n这是纯音乐：歌词只保留段落标记。"
-	}
-	return task
+	return schema.ScoreNote{}, fmt.Errorf("invalid note %v", raw)
 }

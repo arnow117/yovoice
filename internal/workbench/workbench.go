@@ -40,6 +40,7 @@ type Workbench struct {
 	// bundled 记录随安装包分发的内核，键为后端；启动时登记，之后只读。
 	bundled         map[string]bundledRuntime
 	ai              aiState
+	chat            chatState
 	assistant       *assistant.Manager
 	pendingDataPath string
 }
@@ -274,6 +275,7 @@ func (w *Workbench) Close() {
 			}
 		}
 		w.stopAI()
+		w.stopChat()
 		w.assistant.Stop()
 		w.engine.Stop()
 		w.client.CloseIdleConnections()

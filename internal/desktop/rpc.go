@@ -158,21 +158,20 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 	case "ai.connect":
 		authURL, e := w.ConnectOrcaRouter()
 		return map[string]string{"url": authURL}, e
-	case "ai.score":
-		var input workbench.ScoreBrief
+	case "assistant.send":
+		var input struct {
+			Text    string                     `json:"text"`
+			Context workbench.AssistantContext `json:"context"`
+		}
 		if e := json.Unmarshal(data, &input); e != nil {
 			return nil, e
 		}
-		return w.StartScore(input)
-	case "ai.lyrics":
-		var input workbench.LyricsBrief
-		if e := json.Unmarshal(data, &input); e != nil {
-			return nil, e
-		}
-		return w.StartLyrics(input)
-	case "ai.cancel":
-		w.CancelAI()
+		return true, w.SendAssistant(input.Text, input.Context)
+	case "assistant.cancel":
+		w.CancelAssistant()
 		return true, nil
+	case "assistant.reset":
+		return true, w.ResetAssistant()
 	case "diag.client":
 		// 界面侧的异常（桥接超时、未捕获错误）写入同一份服务日志，便于对照排查。
 		var input struct {
@@ -185,8 +184,6 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		}
 		diag.Log(w.Store.Root, "client."+clip(input.Event, 40), "method", clip(input.Method, 80), "detail", clip(input.Detail, 2000))
 		return true, nil
-	case "ai.dismiss":
-		return true, w.DismissAI(p.ID)
 	case "operation.cancel":
 		w.Cancel()
 		return true, nil

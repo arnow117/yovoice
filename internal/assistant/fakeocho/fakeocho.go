@@ -26,6 +26,7 @@ type Step struct {
 	Call          string          `json:"call,omitempty"`   // 发送 tools/call，并在流上发出 tool_use/tool_result
 	Args          json.RawMessage `json:"args,omitempty"`
 	Assistant     string          `json:"assistant,omitempty"`    // 发一条助手文本
+	Delta         string          `json:"delta,omitempty"`        // 发一条流式文本增量
 	AssistantPID  bool            `json:"assistantPid,omitempty"` // 发一条内容为本进程 PID 的助手文本
 	SleepMS       int             `json:"sleepMs,omitempty"`
 	Result        string          `json:"result,omitempty"`        // 结束本轮（success 或 error_*）
@@ -38,6 +39,7 @@ type Step struct {
 type Plan struct {
 	CrashEarly  int      `json:"crashEarly,omitempty"` // 收到任何输入前立即退出
 	HoldForever bool     `json:"holdForever,omitempty"`
+	EchoUser    string   `json:"echoUser,omitempty"` // 把收到的每条用户消息文本追加到此文件，供测试断言前缀
 	Turns       [][]Step `json:"turns,omitempty"`
 }
 
@@ -193,6 +195,15 @@ func main(planPath string) int {
 				write(map[string]any{"type": "control_response", "response": map[string]any{"subtype": "error", "request_id": id, "error": "unsupported"}})
 			}
 		case "user":
+			if plan.EchoUser != "" {
+				if content, ok := line["message"].(map[string]any)["content"].(string); ok {
+					file, e := os.OpenFile(plan.EchoUser, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+					if e == nil {
+						_, _ = file.WriteString(content + "\n--MSG--\n")
+						_ = file.Close()
+					}
+				}
+			}
 			if len(plan.Turns) == 0 {
 				continue
 			}
@@ -227,6 +238,8 @@ func main(planPath string) int {
 						text = fmt.Sprint(os.Getpid())
 					}
 					write(map[string]any{"type": "assistant", "message": map[string]any{"role": "assistant", "content": []any{map[string]any{"type": "text", "text": text}}}})
+				case step.Delta != "":
+					write(map[string]any{"type": "stream_event", "event": map[string]any{"type": "content_block_delta", "index": 0, "delta": map[string]any{"type": "text_delta", "text": step.Delta}}})
 				case step.SleepMS > 0:
 					time.Sleep(time.Duration(step.SleepMS) * time.Millisecond)
 				case step.BadLine != "":

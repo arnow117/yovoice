@@ -4,6 +4,7 @@ package assistant
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -49,15 +50,18 @@ type EventKind int
 
 const (
 	EventText EventKind = iota
+	EventTextDelta
 	EventToolStart
 	EventToolResult
 )
 
-// Event 是助手运行中的一段进展：助手文本片段、工具调用开始、工具结果（是否出错）。
+// Event 是助手运行中的一段进展：完整的助手文本、流式文本增量、工具调用开始（含参数摘要）、
+// 工具结果（是否出错）。
 type Event struct {
 	Kind      EventKind
 	Text      string
 	Tool      string
+	Args      string
 	ToolError bool
 }
 
@@ -256,7 +260,7 @@ func startProcess(ctx context.Context, root string, options Options, cfg Config)
 	}
 	list := strings.Join(tools, ",")
 	cmd := exec.Command(cfg.Executable, "--print", "--input-format", "stream-json", "--output-format", "stream-json", "--verbose",
-		"--tools", list, "--allowedTools", list, "--model", cfg.Model, "--append-system-prompt-file", systemPromptPath(root))
+		"--include-partial-messages", "--tools", list, "--allowedTools", list, "--model", cfg.Model, "--append-system-prompt-file", systemPromptPath(root))
 	cmd.Dir = workspace
 	cmd.Env = childEnv(root, options, cfg.Env)
 	platform.ConfigureProcess(cmd)
@@ -457,7 +461,8 @@ func (p *process) readLoop(stdout io.ReadCloser) {
 				Role    string          `json:"role"`
 				Content json.RawMessage `json:"content"`
 			} `json:"message"`
-			Subtype string `json:"subtype"`
+			Subtype string          `json:"subtype"`
+			Event   *streamRawEvent `json:"event"`
 		}
 		if err := json.Unmarshal(line, &head); err != nil {
 			p.fail(fmt.Errorf("invalid stream-json line: %.120s", line))
@@ -482,6 +487,10 @@ func (p *process) readLoop(stdout io.ReadCloser) {
 			if head.Message != nil {
 				p.emit(Event{Kind: EventText, Text: chatText(head.Message.Content)})
 				p.noteToolUses(head.Message.Content)
+			}
+		case "stream_event":
+			if text := streamDelta(head.Event); text != "" {
+				p.emit(Event{Kind: EventTextDelta, Text: text})
 			}
 		case "user":
 			if head.Message != nil {
@@ -555,12 +564,30 @@ func chatText(content json.RawMessage) string {
 	return b.String()
 }
 
-// noteToolUses 记录 tool_use 块并对外通知工具调用开始。
+// streamRawEvent 是 --include-partial-messages 输出的原始增量事件；这里只关心文本增量。
+type streamRawEvent struct {
+	Type  string `json:"type"`
+	Delta *struct {
+		Type string `json:"type"`
+		Text string `json:"text"`
+	} `json:"delta"`
+}
+
+// streamDelta 从流式事件里取出文本增量；其余事件返回空串。
+func streamDelta(event *streamRawEvent) string {
+	if event == nil || event.Type != "content_block_delta" || event.Delta == nil || event.Delta.Type != "text_delta" {
+		return ""
+	}
+	return event.Delta.Text
+}
+
+// noteToolUses 记录 tool_use 块并对外通知工具调用开始，附上截断的参数摘要。
 func (p *process) noteToolUses(content json.RawMessage) {
 	var blocks []struct {
-		Type string `json:"type"`
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		Type  string          `json:"type"`
+		ID    string          `json:"id"`
+		Name  string          `json:"name"`
+		Input json.RawMessage `json:"input"`
 	}
 	if json.Unmarshal(content, &blocks) != nil {
 		return
@@ -573,8 +600,20 @@ func (p *process) noteToolUses(content json.RawMessage) {
 		p.toolsMu.Lock()
 		p.toolIDs[block.ID] = name
 		p.toolsMu.Unlock()
-		p.emit(Event{Kind: EventToolStart, Tool: name})
+		p.emit(Event{Kind: EventToolStart, Tool: name, Args: clipJSON(block.Input, 600)})
 	}
+}
+
+// clipJSON 压缩并截断一段 JSON，超长时保留前缀并标注省略。
+func clipJSON(raw json.RawMessage, limit int) string {
+	var compact bytes.Buffer
+	if err := json.Compact(&compact, raw); err != nil {
+		return ""
+	}
+	if r := []rune(compact.String()); len(r) > limit {
+		return string(r[:limit]) + "…"
+	}
+	return compact.String()
 }
 
 // noteToolResults 对外通知工具结果是否出错（tool_result 块出现在回给模型的 user 消息里）。

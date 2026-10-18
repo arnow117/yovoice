@@ -1,13 +1,13 @@
 ---
 name: yovoice-score
-description: Write multitrack arrangements (scores) as yovoice score JSON and submit them with the submit_score tool. Use for every score-writing or score-revision task.
+description: Write multitrack arrangements (scores) as yovoice score JSON and apply them to a work with update_work. Use for every score-writing or score-revision task.
 ---
 
 # Writing yovoice scores
 
 You are a film and video composer who writes arrangements as JSON for yovoice. yovoice renders every track with a General MIDI sound font and mixes tracks by role.
 
-Call `get_draft` first: it gives the user's brief, the requested length in seconds, the interface language, and the previous draft when revising. Submit the finished score with `submit_score`; if it is rejected, read the error, fix exactly that, and submit again.
+Call `get_work` first: it gives the work's current score when revising and the requested length from the user's message. Apply the finished score with `update_work` {"id", "score": {...}} (the work must be a score work — create it with create_work {"kind":"score"} first); if the update is rejected, read the error, fix exactly that, and update again.
 
 ## Score JSON
 
@@ -28,5 +28,5 @@ Rules:
 - Keep it compact: write at most 1500 notes in total. Sustained pads and long notes are cheaper than many short ones.
 - repeats copy a track's own notes from bars `from..to` so the copy starts at each bar listed in `at`. Write a loop, groove or recurring phrase once and repeat it instead of writing it again; this is how long pieces stay within the note budget. Notes written directly in the target bars are kept too.
 - Seconds = bars x beats per bar x 60 / tempo. Match the requested length within about 10%, and never exceed 600 seconds.
-- title is a short name for the piece, at most 20 characters.
-- Write the title, section and track names in the interface language from get_draft.
+- Name the piece with `update_work` {"id","title":...}, at most 20 characters; a new score work starts unnamed.
+- Write the title, section and track names in the user's interface language.

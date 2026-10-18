@@ -42,9 +42,7 @@ func (w *Workbench) RegisterRemoteTools(server *mcp.Server, t RemoteTools) {
 	}
 	w.registerStatusTool(server)
 	w.registerListModelsTool(server)
-	mcp.AddTool(server, &mcp.Tool{Name: "list_voices", Description: "列出已上传参考音色及 voiceId"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, any, error) {
-		return nil, map[string]any{"voices": w.Store.Read().Voices}, nil
-	})
+	w.registerListVoicesTool(server)
 	mcp.AddTool(server, &mcp.Tool{Name: "upload_voice", Description: upload}, func(ctx context.Context, req *mcp.CallToolRequest, in struct {
 		Audio string `json:"audio,omitempty" jsonschema:"参考音频的纯 Base64 字符串，不含 data URL 前缀"`
 		Path  string `json:"path,omitempty" jsonschema:"本机音频文件路径，仅 yovoice mcp（stdio）可用"`
@@ -192,5 +190,12 @@ func (w *Workbench) registerStatusTool(server *mcp.Server) {
 func (w *Workbench) registerListModelsTool(server *mcp.Server) {
 	mcp.AddTool(server, &mcp.Tool{Name: "list_models", Description: "查询模型 ID、安装状态和高级参数定义；生成前选择已安装模型"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, any, error) {
 		return nil, map[string]any{"catalog": catalog.Models, "installed": w.Store.Read().Models, "generationOptions": catalog.GenerationOptions}, nil
+	})
+}
+
+// registerListVoicesTool 注册 list_voices 工具，对外 MCP 与内置助手共用同一份定义。
+func (w *Workbench) registerListVoicesTool(server *mcp.Server) {
+	mcp.AddTool(server, &mcp.Tool{Name: "list_voices", Description: "列出已上传参考音色及 voiceId"}, func(ctx context.Context, req *mcp.CallToolRequest, in struct{}) (*mcp.CallToolResult, any, error) {
+		return nil, map[string]any{"voices": w.Store.Read().Voices}, nil
 	})
 }

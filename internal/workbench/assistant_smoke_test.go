@@ -1,17 +1,18 @@
 package workbench
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 	"yovoice/internal/schema"
 )
 
 // 真实冒烟（本机可选）：设置 ANTHROPIC_BASE_URL、ANTHROPIC_API_KEY、YOVOICE_SMOKE_MODEL 与
-// YOVOICE_OCHO_PATH 后运行，用临时数据目录跑一次写谱与写词并打印结果摘要；未设置时跳过。
-func TestSmokeAssistantCompose(t *testing.T) {
+// YOVOICE_OCHO_PATH 后运行，用临时数据目录跑一轮“新建编曲作品并写四小节钢琴旋律”的对话，
+// 断言作品被创建且乐谱非空；未设置时跳过。
+func TestSmokeAssistantChat(t *testing.T) {
 	model := os.Getenv("YOVOICE_SMOKE_MODEL")
 	baseURL := os.Getenv("ANTHROPIC_BASE_URL")
 	key := os.Getenv("ANTHROPIC_API_KEY")
@@ -32,48 +33,43 @@ func TestSmokeAssistantCompose(t *testing.T) {
 	must(t, err)
 	t.Setenv("YOVOICE_OCHO_PATH", executable)
 
-	wait := func(t *testing.T) schema.AITask {
-		t.Helper()
-		deadline := time.After(10 * time.Minute)
-		for {
-			if task := w.Store.Read().AITask; task != nil && task.Status != "running" {
-				return *task
+	must(t, w.SendAssistant("新建一个编曲作品，写四小节的钢琴旋律，直接写进作品里。", AssistantContext{Page: "score", Locale: schema.UiLocaleZhCN}))
+	deadline := time.After(10 * time.Minute)
+	for {
+		messages := w.Store.Read().AssistantChat
+		if messages != nil && len(messages.Messages) >= 2 && messages.Messages[len(messages.Messages)-1].Status != "" {
+			break
+		}
+		select {
+		case <-time.After(500 * time.Millisecond):
+		case <-deadline:
+			t.Fatal("冒烟对话超时未结束")
+		}
+	}
+	reply := w.Store.Read().AssistantChat.Messages
+	last := reply[len(reply)-1]
+	if last.Status != "completed" {
+		t.Fatalf("对话失败：%+v", last)
+	}
+	var scoreDraft *schema.Draft
+	notes := 0
+	for _, d := range w.Store.Read().Drafts {
+		if d.Kind == "score" && d.Score != nil && strings.Contains(d.Title, "钢琴") || d.Kind == "score" && d.Score != nil {
+			for _, track := range d.Score.Tracks {
+				notes += len(track.Notes)
 			}
-			select {
-			case <-time.After(500 * time.Millisecond):
-			case <-deadline:
-				t.Fatal("冒烟任务超时未结束")
+			if notes > 0 && scoreDraft == nil {
+				scoreDraft = &d
 			}
 		}
 	}
-
-	t.Run("score", func(t *testing.T) {
-		_, err := w.StartScore(ScoreBrief{Brief: "温暖的钢琴小品，带一点弦乐铺底", Seconds: 20, Locale: schema.UiLocaleZhCN})
-		must(t, err)
-		task := wait(t)
-		if task.Status != "completed" {
-			t.Fatalf("写谱任务失败：%+v", task)
-		}
-		var score ComposedScore
-		must(t, json.Unmarshal(task.Result, &score))
-		notes := 0
-		for _, track := range score.Tracks {
-			notes += len(track.Notes)
-		}
-		t.Logf("写谱完成：%q tempo=%g %d 小节 %d 声部 %d 音符 时长约 %.0fs 阶段=%s", score.Title, score.Tempo, score.Bars(), len(score.Tracks), notes, score.Duration(), task.Stage)
-	})
-
-	t.Run("lyrics", func(t *testing.T) {
-		_, err := w.StartLyrics(LyricsBrief{Brief: "夏夜城市里的一段晚风", Language: "zh", Locale: schema.UiLocaleZhCN})
-		must(t, err)
-		task := wait(t)
-		if task.Status != "completed" {
-			t.Fatalf("写词任务失败：%+v", task)
-		}
-		var lyrics Lyrics
-		must(t, json.Unmarshal(task.Result, &lyrics))
-		t.Logf("写词完成：%q style=%q language=%s 歌词 %d 字 阶段=%s", lyrics.Title, lyrics.Style, lyrics.Language, len([]rune(lyrics.Lyrics)), task.Stage)
-	})
+	if scoreDraft == nil || notes == 0 {
+		t.Fatalf("作品未被创建或乐谱为空：notes=%d drafts=%d", notes, len(w.Store.Read().Drafts))
+	}
+	t.Logf("冒烟完成：作品 %q tempo=%g %d 声部 %d 音符，回复 %q", scoreDraft.Title, scoreDraft.Score.Tempo, len(scoreDraft.Score.Tracks), notes, clipRunes(last.Text, 120))
+	for _, card := range last.Tools {
+		t.Logf("工具卡片：%s %s %s", card.Tool, card.Summary, card.State)
+	}
 
 	// 冒烟结束后保留日志便于排查：打印助手子进程日志的尾部。
 	if log, err := os.ReadFile(filepath.Join(root, "logs", "assistant.log")); err == nil {
@@ -83,4 +79,11 @@ func TestSmokeAssistantCompose(t *testing.T) {
 		}
 		t.Logf("assistant.log 尾部：\n%s", tail)
 	}
+}
+
+func clipRunes(s string, n int) string {
+	if r := []rune(s); len(r) > n {
+		return string(r[:n]) + "…"
+	}
+	return s
 }

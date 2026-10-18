@@ -2,14 +2,12 @@ package workbench
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/url"
 	"os"
 	"slices"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 	"yovoice/internal/assistant"
 	"yovoice/internal/diag"
@@ -36,15 +34,10 @@ type AIProviderInput struct {
 }
 
 type aiState struct {
-	mu      sync.Mutex
-	cancel  context.CancelFunc
-	task    string
-	done    chan struct{}
-	secrets sync.Mutex
+	mu sync.Mutex
 	// connect 是进行中的 OrcaRouter 一键授权。
 	connect *connectSession
-	// draft 是当前助手任务的上下文，get_draft 读取、submit_* 写入。
-	draft atomic.Pointer[aiDraft]
+	secrets sync.Mutex
 }
 
 // aiKeysPrivate 是状态库私有设置中保存 AI 服务密钥的键，值为服务 ID 到密钥的映射。
@@ -336,130 +329,7 @@ func (w *Workbench) assistantConfig() (assistant.Config, error) {
 	return assistant.Config{Executable: executable, Model: c.Model, Env: append(providerEnv(p, c), proxyEnv(w.Store.Read().Preferences)...)}, nil
 }
 
-// askAssistant 把任务交给内置助手跑一轮：任务阶段随工具调用推进（构思 → 写入并校验 → 按校验修正），
-// 超时转换为可读错误。
-func (w *Workbench) askAssistant(ctx context.Context, draft *aiDraft, message string) error {
-	cfg, err := w.assistantConfig()
-	if err != nil {
-		return err
-	}
-	w.ai.draft.Store(draft)
-	defer w.ai.draft.Store(nil)
-	timeout := aiTimeout(w.Store.Read().Preferences)
-	ctx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-	fields := []any{"task_id", draft.taskID, "kind", draft.kind, "model", cfg.Model, "timeout_s", int(timeout.Seconds())}
-	diag.Log(w.Store.Root, "ai.request", fields...)
-	started := time.Now()
-	_, err = w.assistant.Ask(ctx, cfg, message, func(e assistant.Event) {
-		if e.Kind == assistant.EventToolStart && strings.HasPrefix(e.Tool, "submit_") {
-			w.setAIStage("writing")
-		}
-		if e.Kind == assistant.EventToolResult && e.ToolError {
-			diag.Log(w.Store.Root, "ai.tool_rejected", "task_id", draft.taskID, "tool", e.Tool)
-			if strings.HasPrefix(e.Tool, "submit_") {
-				w.setAIStage("repairing")
-			}
-		}
-	})
-	if errors.Is(err, context.DeadlineExceeded) {
-		err = msg.Err(msg.ErrAITimeout, msg.Params{"seconds": int(timeout.Seconds())})
-	}
-	diag.Log(w.Store.Root, "ai.response", append(fields, "elapsed_ms", time.Since(started).Milliseconds(), "error", diag.Error(err))...)
-	return err
-}
-
-// startAI 在后台运行一次 AI 写作任务并立即返回任务；同一时间只运行一个，CancelAI 可中止。
-// 结果或错误写回状态里的 AITask，界面据此提示并取用结果。ocho 缺失时直接报 assistantMissing。
-func (w *Workbench) startAI(kind, projectID, brief string, work func(context.Context, schema.AITask) (any, error)) (schema.AITask, error) {
-	if _, e := platform.OchoExecutable(); e != nil {
-		return schema.AITask{}, msg.Err(msg.ErrAssistantMissing, nil)
-	}
-	p, c, e := w.aiConfig("")
-	if e != nil {
-		return schema.AITask{}, e
-	}
-	if c.Model == "" {
-		return schema.AITask{}, msg.Err(msg.ErrAINotConfigured, nil)
-	}
-	w.ai.mu.Lock()
-	defer w.ai.mu.Unlock()
-	if w.ai.cancel != nil {
-		return schema.AITask{}, msg.Err(msg.ErrBusy, nil)
-	}
-	task := schema.AITask{ID: schema.NewID(), Kind: kind, ProjectID: projectID, Brief: brief, Status: "running", Stage: "thinking", Provider: p.Name, Model: c.Model,
-		Timeout: int(aiTimeout(w.Store.Read().Preferences).Seconds()), StartedAt: time.Now().UTC()}
-	if e = w.Store.Update(func(s *schema.State) { s.AITask = &task }, false); e != nil {
-		return schema.AITask{}, e
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	done := make(chan struct{})
-	w.ai.cancel, w.ai.task, w.ai.done = cancel, task.ID, done
-	diag.Log(w.Store.Root, "ai.task_started", "task_id", task.ID, "kind", kind, "project_id", projectID, "provider_id", p.ID, "model", c.Model, "timeout_s", task.Timeout)
-	go func() {
-		defer close(done)
-		defer cancel()
-		result, err := work(ctx, task)
-		var raw json.RawMessage
-		if err == nil {
-			if raw, err = json.Marshal(result); err != nil {
-				err = msg.Err(msg.ErrAIResultInvalid, msg.Params{"detail": err.Error()})
-			}
-		}
-		status := "completed"
-		if errors.Is(err, context.Canceled) {
-			status = "cancelled"
-		} else if err != nil {
-			status = "failed"
-		}
-		finished := time.Now().UTC()
-		diag.Log(w.Store.Root, "ai.task_finished", "task_id", task.ID, "kind", kind, "status", status, "elapsed_ms", finished.Sub(task.StartedAt).Milliseconds(), "error", diag.Error(err))
-		w.ai.mu.Lock()
-		defer w.ai.mu.Unlock()
-		w.ai.cancel, w.ai.task = nil, ""
-		_ = w.Store.Update(func(s *schema.State) {
-			if s.AITask == nil || s.AITask.ID != task.ID {
-				return
-			}
-			t := s.AITask
-			t.Status, t.FinishedAt, t.Result = status, &finished, raw
-			var ce *msg.CallError
-			if errors.As(err, &ce) {
-				t.ErrorCode, t.ErrorParams = ce.Code, ce.Params
-			} else if err != nil && status == "failed" {
-				t.ErrorCode, t.ErrorParams = msg.ErrUnknown, msg.Params{"detail": err.Error()}
-			}
-		}, false)
-	}()
-	return task, nil
-}
-
-// setAIStage 更新正在运行的任务阶段（如修正格式），没有任务时忽略。
-func (w *Workbench) setAIStage(stage string) {
-	w.ai.mu.Lock()
-	id := w.ai.task
-	w.ai.mu.Unlock()
-	if id == "" {
-		return
-	}
-	_ = w.Store.Update(func(s *schema.State) {
-		if s.AITask != nil && s.AITask.ID == id && s.AITask.Status == "running" {
-			s.AITask.Stage = stage
-		}
-	}, false)
-}
-
-// CancelAI 取消正在进行的 AI 任务。
-func (w *Workbench) CancelAI() {
-	w.ai.mu.Lock()
-	defer w.ai.mu.Unlock()
-	if w.ai.cancel != nil {
-		diag.Log(w.Store.Root, "ai.task_cancel_requested", "task_id", w.ai.task)
-		w.ai.cancel()
-	}
-}
-
-// stopAI 取消并等待后台 AI 任务结束，服务关闭时调用。
+// stopAI 取消进行中的一键授权，服务关闭时调用。
 func (w *Workbench) stopAI() {
 	w.ai.mu.Lock()
 	connect := w.ai.connect
@@ -467,22 +337,4 @@ func (w *Workbench) stopAI() {
 	if connect != nil {
 		w.closeConnect(connect)
 	}
-	w.ai.mu.Lock()
-	done := w.ai.done
-	if w.ai.cancel != nil {
-		w.ai.cancel()
-	}
-	w.ai.mu.Unlock()
-	if done != nil {
-		<-done
-	}
-}
-
-// DismissAI 在界面取用结果或关闭提示后清除已结束的任务。
-func (w *Workbench) DismissAI(id string) error {
-	return w.Store.Update(func(s *schema.State) {
-		if s.AITask != nil && s.AITask.ID == id && s.AITask.Status != "running" {
-			s.AITask = nil
-		}
-	}, false)
 }

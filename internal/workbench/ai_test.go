@@ -3,7 +3,6 @@ package workbench
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -14,7 +13,6 @@ import (
 	"time"
 	"yovoice/internal/assistant"
 	"yovoice/internal/assistant/fakeocho"
-	"yovoice/internal/msg"
 	"yovoice/internal/schema"
 )
 
@@ -103,6 +101,13 @@ func aiWorkbench(t *testing.T, plan fakeocho.Plan, extraEnv ...string) *Workbenc
 	must(t, os.WriteFile(path, data, 0600))
 	w.assistant = assistant.New(w.Store.Root, assistant.Options{Tools: assistantTools, NewServer: w.newAssistantServer,
 		ExtraEnv: append([]string{fakeocho.PlanEnv + "=" + path}, extraEnv...)})
+	t.Cleanup(func() {
+		if t.Failed() {
+			if log, e := os.ReadFile(filepath.Join(w.Store.Root, "logs", "assistant.log")); e == nil {
+				t.Logf("child log:\n%s", log)
+			}
+		}
+	})
 	return w
 }
 
@@ -135,14 +140,14 @@ func TestAIModelsAndTest(t *testing.T) {
 	}
 }
 
-// scoreArgs 组装 submit_score 的工具参数。
+// scoreArgs 组装 update_work 乐谱补丁的工具参数。
 func scoreArgs(bad bool) json.RawMessage {
 	beat := 1.0
 	if bad {
-		beat = 99 // 超出每小节拍数，submit_score 应拒绝。
+		beat = 99 // 超出每小节拍数，校验应拒绝。
 	}
 	data, _ := json.Marshal(map[string]any{
-		"title": " 暖光钢琴 ", "tempo": 100, "timeSignature": []int{4, 4}, "key": "C 大调",
+		"tempo": 100, "timeSignature": []int{4, 4}, "key": "C 大调",
 		"sections": []any{map[string]any{"name": "主歌", "start": 1, "end": 2}},
 		"tracks": []any{
 			map[string]any{"id": "p", "name": "钢琴", "role": "piano", "program": 0,
@@ -154,118 +159,11 @@ func scoreArgs(bad bool) json.RawMessage {
 	return data
 }
 
-// AI 写谱：助手先提交一份不合规乐谱被拒，按错误修正后再次提交成功。
-func TestComposeScoreSubmitsAndRepairs(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{Call: "get_draft", Args: json.RawMessage(`{}`)},
-		{Call: "submit_score", Args: scoreArgs(true)},
-		{Call: "submit_score", Args: scoreArgs(false)},
-		{Result: "success"},
-	}}})
-	task, err := w.StartScore(ScoreBrief{ProjectID: "p1", Brief: "温暖的钢琴小品", Seconds: 10, Locale: schema.UiLocaleZhCN})
-	must(t, err)
-	done := waitAI(t, w)
-	if done.Status != "completed" {
-		t.Fatalf("任务应完成：%+v", done)
-	}
-	var score ComposedScore
-	must(t, json.Unmarshal(done.Result, &score))
-	if score.Title != "暖光钢琴" || len(score.Tracks) != 2 || score.Tracks[0].Notes[1].Beat != 1 || !score.Tracks[1].Drums {
-		t.Fatalf("提交的乐谱不对：%+v", score)
-	}
-	if done.ID != task.ID || done.ProjectID != "p1" {
-		t.Fatalf("任务身份不对：%+v", done)
-	}
-	must(t, w.DismissAI(done.ID))
-}
-
-// 本轮没有成功提交时返回 aiResultInvalid。
-func TestComposeScoreWithoutSubmission(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{Assistant: "我写不了"},
-		{Result: "success"},
-	}}})
-	_, err := w.ComposeScore(context.Background(), ScoreBrief{Brief: "x"})
-	var ce *msg.CallError
-	if !errors.As(err, &ce) || ce.Code != msg.ErrAIResultInvalid {
-		t.Fatal("无提交应返回 aiResultInvalid", err)
-	}
-}
-
-// AI 写词：submit_lyrics 提交后取回结果；未配置服务与 style 缺失各有明确错误。
-func TestWriteLyrics(t *testing.T) {
-	w, err := New(t.TempDir())
-	must(t, err)
-	defer w.Close()
-	var ce *msg.CallError
-	t.Setenv("YOVOICE_OCHO_PATH", selfExecutable(t))
-	if _, err = w.WriteLyrics(context.Background(), LyricsBrief{Brief: "夏天"}); !errors.As(err, &ce) || ce.Code != msg.ErrAINotConfigured {
-		t.Fatal("未配置服务时应返回 aiNotConfigured", err)
-	}
-	w = aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{Call: "submit_lyrics", Args: json.RawMessage(`{"title":"夏夜","style":"city pop, warm synths","lyrics":"[verse]\n晚风吹过","language":"xx"}`)},
-		{Result: "success"},
-	}}})
-	l, err := w.WriteLyrics(context.Background(), LyricsBrief{Brief: "夏天的晚风", Language: "zh"})
-	must(t, err)
-	if l.Title != "夏夜" || l.Style != "city pop, warm synths" || !strings.HasPrefix(l.Lyrics, "[verse]") || l.Language != "" {
-		t.Fatalf("%+v", l)
-	}
-	// style 必填：被拒后没有再提交，返回 aiResultInvalid。
-	w = aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{Call: "submit_lyrics", Args: json.RawMessage(`{"title":"无风格","lyrics":"[verse]\n风"}`)},
-		{Result: "success"},
-	}}})
-	_, err = w.WriteLyrics(context.Background(), LyricsBrief{Brief: "x"})
-	if !errors.As(err, &ce) || ce.Code != msg.ErrAIResultInvalid {
-		t.Fatal("style 缺失应被拒绝并最终 aiResultInvalid", err)
-	}
-}
-
-// 纯音乐时歌词只允许段落标记，带唱词的提交被拒绝。
-func TestSubmitLyricsInstrumentalMarkersOnly(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{Call: "submit_lyrics", Args: json.RawMessage(`{"title":"夜航","style":"ambient, warm pad","lyrics":"[intro]\n[verse]\n有歌词的行","language":"zh"}`)},
-		{Result: "success"},
-	}}})
-	_, err := w.WriteLyrics(context.Background(), LyricsBrief{Brief: "夜航", Instrumental: true})
-	var ce *msg.CallError
-	if !errors.As(err, &ce) || ce.Code != msg.ErrAIResultInvalid {
-		t.Fatal("纯音乐带唱词应被拒绝", err)
-	}
-}
-
-// 后台任务：立即返回运行中的任务，完成后结果写回状态，界面取用后清除。
-func TestAITaskCompletesInBackground(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{Call: "submit_lyrics", Args: json.RawMessage(`{"title":"夏夜","style":"city pop","lyrics":"[verse]\n晚风","language":"zh"}`)},
-		{Result: "success"},
-	}}})
-	task, err := w.StartLyrics(LyricsBrief{ProjectID: "p1", Brief: "夏天"})
-	must(t, err)
-	if task.Status != "running" || task.ProjectID != "p1" || task.Model != "llama3" || task.Timeout != schema.AITimeoutDefault || task.Stage != "thinking" {
-		t.Fatalf("应返回运行中的任务：%+v", task)
-	}
-	done := waitAI(t, w)
-	var l Lyrics
-	if done.Status != "completed" || json.Unmarshal(done.Result, &l) != nil || l.Title != "夏夜" || done.FinishedAt == nil {
-		t.Fatalf("结果应写回状态：%+v", done)
-	}
-	must(t, w.DismissAI(done.ID))
-	if w.Store.Read().AITask != nil {
-		t.Fatal("取用后应清除任务")
-	}
-	var ce *msg.CallError
-	if _, err = w.StartScore(ScoreBrief{Brief: " "}); !errors.As(err, &ce) || ce.Code != msg.ErrRequestInvalid {
-		t.Fatal("无效输入应立即报错", err)
-	}
-}
-
 // 循环段落只写一遍，由 repeats 展开；展开后超出音符上限要报错。
 func TestBuildScoreRepeats(t *testing.T) {
-	in := submitScoreInput{}
+	in := scoreInput{}
 	in.Tempo, in.TimeSignature = 120, []int{4, 4}
-	in.Tracks = append(in.Tracks, submitScoreTrack{ID: "d", Name: "鼓", Role: "drums", Notes: []any{
+	in.Tracks = append(in.Tracks, scoreTrack{ID: "d", Name: "鼓", Role: "drums", Notes: []any{
 		[]any{float64(1), float64(1), float64(36), float64(1), float64(100)},
 		[]any{float64(2), float64(3), float64(38), float64(1), float64(90)},
 		[]any{float64(5), float64(1), float64(49), float64(2), float64(110)},
@@ -285,44 +183,7 @@ func TestBuildScoreRepeats(t *testing.T) {
 	}
 	in.Tracks[0].Notes, in.Tracks[0].Repeats = many, []scoreRepeat{{From: 1, To: 1, At: at}}
 	if _, err = buildScore(in); err == nil || !strings.Contains(err.Error(), "after repeats") {
-		t.Fatal("展开超出上限应报错", err)
-	}
-}
-
-// 阶段随工具调用推进：构思 → 写入并校验 → 按校验修正 → 再次写入并校验后完成。
-func TestAIStageProgression(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{Call: "submit_score", Args: scoreArgs(true)},
-		{SleepMS: 150},
-		{Call: "submit_score", Args: scoreArgs(false)},
-		{SleepMS: 150},
-		{Result: "success"},
-	}}})
-	_, err := w.StartScore(ScoreBrief{ProjectID: "p1", Brief: "温暖的钢琴小品", Locale: schema.UiLocaleZhCN})
-	must(t, err)
-	changes, stop := w.Store.Subscribe()
-	defer stop()
-	var stages []string
-	deadline := time.After(30 * time.Second)
-	for {
-		task := w.Store.Read().AITask
-		if task != nil && task.Status != "running" {
-			if task.Stage != "writing" {
-				t.Fatalf("最后一次提交后阶段应为 writing：%+v", task)
-			}
-			break
-		}
-		if task != nil && (len(stages) == 0 || stages[len(stages)-1] != task.Stage) {
-			stages = append(stages, task.Stage)
-		}
-		select {
-		case <-changes:
-		case <-deadline:
-			t.Fatal("AI 任务没有结束")
-		}
-	}
-	if strings.Join(stages, ",") != "thinking,writing,repairing,writing" {
-		t.Fatalf("阶段推进不对：%v", stages)
+		t.Fatal("展开超出上限应报错")
 	}
 }
 
@@ -330,15 +191,20 @@ func TestAIStageProgression(t *testing.T) {
 // 启用时三变量指向配置地址并保留本机直连，显式关闭时不设任何代理变量。
 func TestAssistantProxyEnv(t *testing.T) {
 	dump := filepath.Join(t.TempDir(), "dump.txt")
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{{
-		Call: "submit_score", Args: scoreArgs(false),
+	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
+		{Assistant: "好"},
+		{Result: "success"},
 	}, {
-		Result: "success",
-	}}}}, fakeocho.DumpEnv+"="+dump)
+		{Assistant: "好"},
+		{Result: "success"},
+	}, {
+		{Assistant: "好"},
+		{Result: "success"},
+	}}}, fakeocho.DumpEnv+"="+dump)
 	ask := func() {
 		t.Helper()
-		_, err := w.ComposeScore(context.Background(), ScoreBrief{Brief: "x"})
-		must(t, err)
+		must(t, w.SendAssistant("写一段", AssistantContext{}))
+		waitChatIdle(t, w)
 	}
 	dumpText := func() string {
 		t.Helper()
@@ -376,14 +242,14 @@ func TestAssistantProxyEnv(t *testing.T) {
 // 代理设置参与 Config.Env：变化后助手子进程重启，未变化时复用进程。
 func TestAssistantProxyChangeRestartsChild(t *testing.T) {
 	turn := func() []fakeocho.Step {
-		return []fakeocho.Step{{Call: "submit_score", Args: scoreArgs(false)}, {Result: "success"}}
+		return []fakeocho.Step{{Assistant: "好"}, {Result: "success"}}
 	}
 	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{turn(), turn(), turn()}})
 	pidFile := filepath.Join(w.Store.Root, "assistant", "ocho.pid")
 	compose := func() string {
 		t.Helper()
-		_, err := w.ComposeScore(context.Background(), ScoreBrief{Brief: "x"})
-		must(t, err)
+		must(t, w.SendAssistant("写一段", AssistantContext{}))
+		waitChatIdle(t, w)
 		b, err := os.ReadFile(pidFile)
 		must(t, err)
 		return strings.TrimSpace(string(b))
@@ -402,114 +268,30 @@ func TestAssistantProxyChangeRestartsChild(t *testing.T) {
 	}
 }
 
-// waitAI 等待后台任务结束并返回最终状态。
-func waitAI(t *testing.T, w *Workbench) schema.AITask {
+// waitChatIdle 等待对话完全结束（无运行中的一轮、无排队、最后一条不是未回复的用户消息）。
+func waitChatIdle(t *testing.T, w *Workbench) []schema.AssistantMessage {
 	t.Helper()
 	changes, stop := w.Store.Subscribe()
 	defer stop()
 	deadline := time.After(30 * time.Second)
+	idle := func(s schema.State) []schema.AssistantMessage {
+		if live := s.AssistantLive; live != nil && (live.Turn != nil || live.Queued > 0) {
+			return nil
+		}
+		chat := s.AssistantChat
+		if chat == nil || len(chat.Messages) == 0 || chat.Messages[len(chat.Messages)-1].Role == "user" {
+			return nil
+		}
+		return chat.Messages
+	}
 	for {
-		if task := w.Store.Read().AITask; task != nil && task.Status != "running" {
-			return *task
+		if messages := idle(w.Store.Read()); messages != nil {
+			return messages
 		}
 		select {
 		case <-changes:
 		case <-deadline:
-			t.Fatal("AI 任务没有结束")
+			t.Fatal("对话没有结束")
 		}
-	}
-}
-
-// 取消会中止正在进行的任务，且同一时间只允许一个 AI 任务。
-func TestCancelAI(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{WaitInterrupt: true},
-	}, {
-		{Call: "submit_lyrics", Args: json.RawMessage(`{"title":"夏夜","style":"city pop","lyrics":"[verse]\n晚风"}`)},
-		{Result: "success"},
-	}}})
-	_, err := w.StartLyrics(LyricsBrief{Brief: "x"})
-	must(t, err)
-	var ce *msg.CallError
-	if _, err = w.StartLyrics(LyricsBrief{Brief: "y"}); !errors.As(err, &ce) || ce.Code != msg.ErrBusy {
-		t.Fatal("并发请求应返回 busy", err)
-	}
-	w.CancelAI()
-	if task := waitAI(t, w); task.Status != "cancelled" {
-		t.Fatal("取消后任务应为 cancelled", task)
-	}
-	if _, err = w.StartLyrics(LyricsBrief{Brief: "z"}); err != nil {
-		t.Fatal("结束后应能再次开始", err)
-	}
-}
-
-// 超时按设置计时，失败原因带上秒数；ocho 缺失时 startAI 直接返回 assistantMissing。
-func TestAITimeoutAndMissingOcho(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{SleepMS: 5000},
-	}}})
-	p := w.Store.Read().Preferences
-	p.AITimeout = 1
-	if err := w.SavePreferences(p); err == nil {
-		t.Fatal("超时低于下限应拒绝")
-	}
-	p.AITimeout = schema.AITimeoutMin
-	must(t, w.SavePreferences(p))
-	if aiTimeout(w.Store.Read().Preferences) != time.Duration(schema.AITimeoutMin)*time.Second {
-		t.Fatal("应使用设置的超时")
-	}
-	// 测试里不等 30 秒：用更短的父级截止时间验证错误转换。
-	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
-	defer cancel()
-	_, err := w.ComposeScore(ctx, ScoreBrief{Brief: "x"})
-	var ce *msg.CallError
-	if !errors.As(err, &ce) || ce.Code != msg.ErrAITimeout {
-		t.Fatal("超时应返回 aiTimeout", err)
-	}
-	// ocho 缺失：开始任务前直接报错，不创建任务。
-	w2 := aiWorkbench(t, fakeocho.Plan{})
-	w2.Store.Update(func(s *schema.State) {}, false)
-	t.Setenv("YOVOICE_OCHO_PATH", filepath.Join(t.TempDir(), "missing-ocho"))
-	if _, err = w2.StartScore(ScoreBrief{Brief: "x"}); !errors.As(err, &ce) || ce.Code != msg.ErrAssistantMissing {
-		t.Fatal("ocho 缺失应返回 assistantMissing", err)
-	}
-	if w2.Store.Read().AITask != nil {
-		t.Fatal("ocho 缺失时不应创建任务")
-	}
-}
-
-// 继续修改：followUp 与草稿进 get_draft，助手在同一上下文里再次提交。
-func TestComposeScoreFollowUp(t *testing.T) {
-	w := aiWorkbench(t, fakeocho.Plan{Turns: [][]fakeocho.Step{{
-		{Call: "submit_score", Args: scoreArgs(false)},
-		{Result: "success"},
-	}, {
-		{Call: "get_draft", Args: json.RawMessage(`{}`)},
-		{Call: "submit_score", Args: scoreArgs(false)},
-		{Result: "success"},
-	}}})
-	_, err := w.ComposeScore(context.Background(), ScoreBrief{Brief: "温暖的钢琴小品"})
-	must(t, err)
-	draft := &schema.Score{Tempo: 100, TimeSignature: []int{4, 4}}
-	second, err := w.ComposeScore(context.Background(), ScoreBrief{Brief: "温暖的钢琴小品", FollowUp: "节奏再轻快一些", Draft: draft})
-	must(t, err)
-	if second.Title != "暖光钢琴" {
-		t.Fatalf("继续修改的结果不对：%+v", second)
-	}
-}
-
-// get_draft 返回任务上下文与当前草稿。
-func TestAIDraftContext(t *testing.T) {
-	score := schema.Score{Tempo: 100, TimeSignature: []int{4, 4}}
-	d := &aiDraft{kind: "score", taskID: "t1", projectID: "p1", brief: "夜色", followUp: "再轻快些", seconds: 30, locale: schema.UiLocaleZhCN, scoreDraft: &score}
-	context := d.context()
-	task := context["task"].(map[string]any)
-	if task["id"] != "t1" || task["kind"] != "score" || task["followUp"] != "再轻快些" || context["seconds"] != 30 || context["uiLocale"] != schema.UiLocaleZhCN {
-		t.Fatalf("写谱上下文不对：%+v", context)
-	}
-	l := &aiDraft{kind: "lyrics", taskID: "t2", brief: "夏夜", instrumental: true, musicLanguage: "zh", lyricsDraft: &Lyrics{Title: "夏夜", Style: "city pop"}}
-	context = l.context()
-	if context["instrumental"] != true || context["language"] != "zh" || context["lyricsDraft"].(Lyrics).Title != "夏夜" {
-		t.Fatalf("写词上下文不对：%+v", context)
 	}
 }

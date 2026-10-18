@@ -257,7 +257,9 @@ type State struct {
 	// AIProviders 为可选的大模型服务，AIProviderID 指向当前使用的服务。
 	AIProviders  []AIProvider `json:"aiProviders,omitempty"`
 	AIProviderID string       `json:"aiProviderID,omitempty"`
-	AITask       *AITask      `json:"aiTask,omitempty"`
+	// AssistantChat 是助手对话的持久化记录；AssistantLive 只随状态广播（进行中的一轮与界面事件）。
+	AssistantChat *AssistantChat `json:"assistantChat,omitempty"`
+	AssistantLive *AssistantLive `json:"assistantLive,omitempty"`
 }
 
 type InstalledRuntime struct {
