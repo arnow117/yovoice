@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -339,5 +340,39 @@ func TestReapOrphan(t *testing.T) {
 	}
 	if _, err = os.Stat(pidPath(root)); !os.IsNotExist(err) {
 		t.Fatal("回收后应删除 pid 文件", err)
+	}
+}
+
+// 每个语音模型的参数说明各占一个 Skill，只在需要时才加载；高级参数的键必须与目录里的定义一致，
+// 目录新增或改名参数后这里会提醒同步 Skill。
+func TestVoiceSkillsCoverCatalogOptions(t *testing.T) {
+	raw, err := os.ReadFile("../catalog/generation_options.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var options map[string][]struct {
+		Key string `json:"key"`
+	}
+	if err = json.Unmarshal(raw, &options); err != nil {
+		t.Fatal(err)
+	}
+	families := map[string]string{"index_tts2": "yovoice-voice-indextts", "omnivoice": "yovoice-voice-omnivoice", "qwen3_tts": "yovoice-voice-qwen3-tts", "voxcpm2": "yovoice-voice-voxcpm2", "breeze_tts": "yovoice-voice-breeze", "kokoro_tts": "yovoice-voice-kokoro"}
+	for family, skill := range families {
+		body, err := skillFS.ReadFile("skills/" + skill + "/SKILL.md")
+		if err != nil {
+			t.Fatalf("缺少 %s：%v", skill, err)
+		}
+		text := string(body)
+		if !strings.HasPrefix(text, "---\nname: "+skill+"\n") || !slices.Contains(skillNames, skill) {
+			t.Fatalf("%s 的名称或登记不对", skill)
+		}
+		if len(options[family]) == 0 {
+			t.Fatalf("目录里没有 %s 的高级参数", family)
+		}
+		for _, option := range options[family] {
+			if !strings.Contains(text, "`"+option.Key+"`") {
+				t.Errorf("%s 没有说明高级参数 %s", skill, option.Key)
+			}
+		}
 	}
 }

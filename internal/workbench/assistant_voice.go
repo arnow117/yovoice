@@ -28,7 +28,7 @@ type voiceSettingsInput struct {
 	EmotionStrength   *float64                  `json:"emotionStrength,omitempty" jsonschema:"情绪强度 0-1"`
 	Emotions          []float64                 `json:"emotions,omitempty" jsonschema:"IndexTTS 情绪向量，固定 8 个 0-1 的数：高兴、愤怒、悲伤、恐惧、反感、低落、惊讶、平静"`
 	RandomEmotion     *bool                     `json:"randomEmotion,omitempty" jsonschema:"IndexTTS 随机情绪"`
-	Language          *string                   `json:"language,omitempty" jsonschema:"IndexTTS 的文本语言：zh、en（v2.5 之前还有 ja、es、ar）"`
+	Language          *string                   `json:"language,omitempty" jsonschema:"IndexTTS 的文本语言：zh、en；2.5 另有 ja、es、ar"`
 	SynthesisLanguage *string                   `json:"synthesisLanguage,omitempty" jsonschema:"OmniVoice、Qwen3-TTS、Kokoro 等的合成语言，如 auto、zh、en"`
 	Speed             *float64                  `json:"speed,omitempty" jsonschema:"语速 0.5-2"`
 	OmniSpeed         *float64                  `json:"omniSpeed,omitempty" jsonschema:"OmniVoice 的语速 0.5-2；0 表示按默认"`
@@ -44,7 +44,7 @@ type voiceSettingsInput struct {
 	LengthPenalty     *float64                  `json:"lengthPenalty,omitempty" jsonschema:"长度惩罚 -2 到 2"`
 	GuidanceScale     *float64                  `json:"guidanceScale,omitempty" jsonschema:"VoxCPM2 的引导强度 0.5-5"`
 	InferenceSteps    *int                      `json:"inferenceSteps,omitempty" jsonschema:"VoxCPM2 的推理步数 0-50"`
-	ModelOptions      map[string]map[string]any `json:"modelOptions,omitempty" jsonschema:"各模型家族的高级参数，形如 {\"omnivoice\":{\"num_step\":32}}；键与取值范围见 list_models 的 generationOptions，只改给出的键"`
+	ModelOptions      map[string]map[string]any `json:"modelOptions,omitempty" jsonschema:"各模型家族的高级参数，形如 {\"omnivoice\":{\"num_inference_steps\":32}}；每个模型能用哪些字段、键与取值范围见对应的 yovoice-voice-* skill（按作品 modelId 前缀选一个读），只改给出的键"`
 }
 
 // applyVoiceSettings 把补丁写进合成设置，返回改动了哪些项；校验交给保存时的统一规则。
@@ -390,7 +390,7 @@ func voiceSettingsError(d schema.Draft) error {
 		if slices.Contains(incompleteSettings, code) {
 			continue
 		}
-		return fmt.Errorf("声音设置不合法（%s）：请对照取值范围修改后重试，高级参数的键与范围见 list_models 的 generationOptions", strings.TrimPrefix(string(code), "@yovoice."))
+		return fmt.Errorf("声音设置不合法（%s）：请对照取值范围修改后重试，各模型的可用字段与范围见对应的 yovoice-voice-* skill", strings.TrimPrefix(string(code), "@yovoice."))
 	}
 	return nil
 }
