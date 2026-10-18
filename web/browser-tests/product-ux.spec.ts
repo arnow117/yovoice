@@ -154,3 +154,12 @@ test('首次启动显示开场画面，点「开始探索」进入主界面并�
   await expect(page.getByTestId('nav-new')).toBeVisible();
   await expect(page.getByRole('dialog', { name: 'yovoice' })).toHaveCount(0);
 });
+
+test('开场画面一出现就完全盖住主界面，不会先露出面板', async ({ page }) => {
+  const state = emptyState();
+  await seedState(page, { ...state, preferences: { ...state.preferences, introSeen: false } });
+  await page.goto('/');
+  await page.waitForSelector('.intro-screen', { state: 'attached' });
+  // 挂载的同一帧里就必须不透明；若先从透明淡入，主界面会透出来。
+  expect(await page.locator('.intro-screen').evaluate(el => getComputedStyle(el).opacity)).toBe('1');
+});
