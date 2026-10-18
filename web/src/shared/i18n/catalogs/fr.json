@@ -2738,60 +2738,6 @@
   "@yovoice.music.lyricsEstimated": {
     "defaultMessage": "Le minutage des paroles est estimé d’après la durée de la chanson"
   },
-  "@yovoice.setup.label": {
-    "defaultMessage": "Configuration avant la génération"
-  },
-  "@yovoice.setup.title": {
-    "defaultMessage": "Encore {count} étape(s) avant de pouvoir générer"
-  },
-  "@yovoice.setup.hint": {
-    "defaultMessage": "Terminez chaque étape ici même. Cette carte disparaît une fois que tout est prêt."
-  },
-  "@yovoice.setup.model": {
-    "defaultMessage": "Télécharger un modèle"
-  },
-  "@yovoice.setup.soundfont": {
-    "defaultMessage": "Télécharger une banque de sons"
-  },
-  "@yovoice.setup.engine": {
-    "defaultMessage": "Installer le moteur"
-  },
-  "@yovoice.setup.engineDetail": {
-    "defaultMessage": "audio.cpp exécute les modèles sur cet ordinateur"
-  },
-  "@yovoice.setup.engineUpdate": {
-    "defaultMessage": "Ce modèle nécessite un moteur plus récent"
-  },
-  "@yovoice.setup.voice": {
-    "defaultMessage": "Choisir une voix"
-  },
-  "@yovoice.setup.voiceDetail": {
-    "defaultMessage": "Ce modèle clone la voix à partir d’un audio de référence"
-  },
-  "@yovoice.setup.download": {
-    "defaultMessage": "Télécharger"
-  },
-  "@yovoice.setup.otherModel": {
-    "defaultMessage": "Choisir un autre"
-  },
-  "@yovoice.setup.install": {
-    "defaultMessage": "Installer"
-  },
-  "@yovoice.setup.update": {
-    "defaultMessage": "Mettre à jour"
-  },
-  "@yovoice.setup.chooseVoice": {
-    "defaultMessage": "Choisir un audio de référence"
-  },
-  "@yovoice.setup.done": {
-    "defaultMessage": "Terminé"
-  },
-  "@yovoice.setup.downloading": {
-    "defaultMessage": "{received} sur {total}"
-  },
-  "@yovoice.setup.installing": {
-    "defaultMessage": "Installation…"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "Reculer de {n} secondes"
   },

@@ -738,16 +738,6 @@
 }
 
 @layer app {
-  /* 生成前的准备清单：创作区顶部一张卡片，三步横排、窄时换行；点生成但还没就绪时描边提示一下。 */
-  .setup-checklist { flex-shrink: 0; margin-bottom: var(--spacing-4); transition: box-shadow var(--duration-slow) var(--ease-standard); }
-  .setup-checklist[data-attention="true"] { box-shadow: 0 0 0 var(--spacing-0-5) var(--app-accent); }
-  .setup-title { font-size: var(--app-ui-font); font-weight: var(--font-weight-semibold); }
-  .setup-hint, .setup-step-detail { color: var(--app-muted); }
-  .setup-step { flex-basis: 0; min-width: calc(var(--spacing-10) * 4); }
-  .setup-step-icon { flex: none; margin-top: var(--spacing-0-5); color: var(--app-muted); }
-  .setup-step[data-done="true"] .setup-step-icon { color: var(--color-icon-green); }
-  .setup-step[data-done="true"] b { color: var(--app-muted); font-weight: var(--font-weight-normal); }
-  .setup-step progress { width: 100%; }
 
   /* 音乐播放页：全屏深色舞台，背景取封面的两种颜色缓慢流动并随响度起伏；左侧封面与控制，右侧滚动歌词。 */
   /* 播放页：背景取封面配色，随响度起伏；进出场上滑淡入淡出。 */

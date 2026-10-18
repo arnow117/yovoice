@@ -2738,60 +2738,6 @@
   "@yovoice.music.lyricsEstimated": {
     "defaultMessage": "歌詞時間依歌曲時長估算"
   },
-  "@yovoice.setup.label": {
-    "defaultMessage": "生成前的準備"
-  },
-  "@yovoice.setup.title": {
-    "defaultMessage": "開始生成前還需準備 {count} 項"
-  },
-  "@yovoice.setup.hint": {
-    "defaultMessage": "每一步都可以在這裡完成，全部就緒後自動收合。"
-  },
-  "@yovoice.setup.model": {
-    "defaultMessage": "下載模型"
-  },
-  "@yovoice.setup.soundfont": {
-    "defaultMessage": "下載音色庫"
-  },
-  "@yovoice.setup.engine": {
-    "defaultMessage": "安裝推論引擎"
-  },
-  "@yovoice.setup.engineDetail": {
-    "defaultMessage": "audio.cpp，在本機執行模型"
-  },
-  "@yovoice.setup.engineUpdate": {
-    "defaultMessage": "目前模型需要更新推論引擎"
-  },
-  "@yovoice.setup.voice": {
-    "defaultMessage": "選一個聲音"
-  },
-  "@yovoice.setup.voiceDetail": {
-    "defaultMessage": "目前模型依參考音訊克隆聲音"
-  },
-  "@yovoice.setup.download": {
-    "defaultMessage": "下載"
-  },
-  "@yovoice.setup.otherModel": {
-    "defaultMessage": "換一個"
-  },
-  "@yovoice.setup.install": {
-    "defaultMessage": "安裝"
-  },
-  "@yovoice.setup.update": {
-    "defaultMessage": "更新"
-  },
-  "@yovoice.setup.chooseVoice": {
-    "defaultMessage": "選擇參考音訊"
-  },
-  "@yovoice.setup.done": {
-    "defaultMessage": "已完成"
-  },
-  "@yovoice.setup.downloading": {
-    "defaultMessage": "已下載 {received} / {total}"
-  },
-  "@yovoice.setup.installing": {
-    "defaultMessage": "正在安裝…"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "倒退 {n} 秒"
   },

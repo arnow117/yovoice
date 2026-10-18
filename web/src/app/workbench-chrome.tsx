@@ -23,7 +23,6 @@ import { ScoreEditor } from '../features/score/score-editor';
 import { ScoreDock } from '../features/score/score-arrangement';
 import { ScoreInspector } from '../features/score/score-inspector';
 import { SelectionAction, type TextSelection } from '../features/create/selection-action';
-import { SetupChecklist, setupSteps } from '../features/create/setup-checklist';
 import { Timeline } from '../features/media/timeline';
 import { TimelineEditor } from '../features/media/timeline-editor';
 import { Player } from '../features/media/player';
@@ -227,14 +226,9 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来；开场画面与启动动画同一造型，直接接续。
   useEffect(() => { if (error || showIntro) dismissSplash(true); else if (ready) dismissSplash(); }, [ready, error, showIntro]);
   useEffect(() => { if (ready) setDraft(current => Timeline.accept(normalizeDraft(current), state.history)); }, [state.history, draft.id, ready, setDraft]);
-  // 生成前的准备清单：缺模型、推理引擎或参考音频时在创作区顶部就地补齐。
-  const setup = setupSteps(draft, state, catalog, engine);
-  const [setupAttention, setSetupAttention] = useState(0);
   const generate = () => {
     if (state.activity?.status === 'running') return;
-    // 还没准备好时不再跳到设置页：只差参考音频就直接选择，其余让清单提示一下，在原地完成。
-    const missing = setup.filter(step => !step.done);
-    if (missing.length) { if (missing.every(step => step.id === 'voice')) setVoicePicker('voice'); else setSetupAttention(count => count + 1); return; }
+    // 还没准备好时：缺参考音频直接打开声音选择，缺模型或推理引擎跳到设置里对应的页面。
     if (draft.subtitles) {
       const missing = draft.subtitles.speakers.map(s => ({ ...draft, ...s.settings })).find(d => !state.models.some(m => m.id === d.modelId));
       if (missing || !runtimeUsable(runtimeStatus(state, engine))) { openSettings(missing?.modelId ?? draft.modelId, missing ? 'models' : 'engine'); return; }
@@ -434,7 +428,6 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     }
     run(() => newDraft({ ...structuredClone(item.settings), id: crypto.randomUUID().replaceAll('-', ''), title: (item.title + t('@yovoice.draft.copySuffix')).slice(0, 120), createdAt: undefined, updatedAt: undefined }));
   };
-  const setupCard = ready && page === 'create' ? <SetupChecklist steps={setup} state={state} attention={setupAttention} chooseVoice={() => setVoicePicker('voice')} chooseModel={modelId => openSettings(modelId, 'models')} run={run} /> : null;
   // 检查器收起时，标题栏保留主操作：生成中显示取消，否则按作品类型显示生成或渲染。
   const generateLabel = scoring ? t('@yovoice.score.render') : music ? t(isYuE(draft.modelId) && draft.abc?.trim() ? '@yovoice.music.generateFromMelody' : '@yovoice.music.generate') : t('@yovoice.create.generate');
   const generateReady = scoring ? !!draft.score?.tracks.some(item => item.notes.length) : draft.subtitles ? draft.subtitles.cues.some(cue => cue.text.trim()) : !!draft.text.trim();
@@ -453,7 +446,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
             <Studio showInspector={showInspector} inspector={inspector} inspectorCollapsed={inspectorCollapsed} collapsedAction={collapsedAction}
           title={<input className="document-title" aria-label={t('@yovoice.app.titleLabel')} maxLength={120} value={draft.title} onChange={e => change({ title: e.target.value })} />}
           writingClassName={`${draft.subtitles ? 'writing-subtitles' : ''} ${draft.timeline ? 'writing-timeline' : ''} ${scoring ? 'writing-score' : ''}`.trim()}>
-          {setupCard}{scoring ? <><ScoreEditor key={draft.id} draft={draft} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : music ? <><MusicEditor key={draft.id} draft={draft} state={state} change={change} locale={state.preferences.uiLocale} />{editorFooter()}</> : draft.subtitles ? <SubtitleEditor key={draft.id} history={state.history} playingCue={playingCue} failedCue={activity?.projectId === draft.id && activity.status === 'failed' ? activity.cueId : undefined} draft={draft} characters={state.characters ?? []} change={change} selectedCue={selectedCue} selectCue={selectCue} renderFooter={editorFooter} /> : <><textarea ref={editor} className="script-editor" aria-label={t('@yovoice.app.scriptLabel')} placeholder={t('@yovoice.app.scriptPlaceholder')} maxLength={12000} value={draft.text} spellCheck={false} dir={draft.language === 'ar' ? 'rtl' : 'auto'} onChange={e => change({ text: e.target.value })} />{editorFooter()}</>}
+          {scoring ? <><ScoreEditor key={draft.id} draft={draft} change={change} locale={state.preferences.uiLocale} onError={onError} />{editorFooter()}</> : music ? <><MusicEditor key={draft.id} draft={draft} state={state} change={change} locale={state.preferences.uiLocale} />{editorFooter()}</> : draft.subtitles ? <SubtitleEditor key={draft.id} history={state.history} playingCue={playingCue} failedCue={activity?.projectId === draft.id && activity.status === 'failed' ? activity.cueId : undefined} draft={draft} characters={state.characters ?? []} change={change} selectedCue={selectedCue} selectCue={selectCue} renderFooter={editorFooter} /> : <><textarea ref={editor} className="script-editor" aria-label={t('@yovoice.app.scriptLabel')} placeholder={t('@yovoice.app.scriptPlaceholder')} maxLength={12000} value={draft.text} spellCheck={false} dir={draft.language === 'ar' ? 'rtl' : 'auto'} onChange={e => change({ text: e.target.value })} />{editorFooter()}</>}
         </Studio>
           </PageBoundary></VStack>
           {(['story', 'music', 'score'] as const).map(kind => <VStack key={kind} id={`projects-${kind}-panel`} className="page-panel" gap={0} style={{ display: page === kind ? 'flex' : 'none' }}><PageBoundary name={`projects-${kind}`}>

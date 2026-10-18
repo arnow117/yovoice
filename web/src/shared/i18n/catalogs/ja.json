@@ -2738,60 +2738,6 @@
   "@yovoice.music.lyricsEstimated": {
     "defaultMessage": "歌詞のタイミングは曲の長さから推定されています"
   },
-  "@yovoice.setup.label": {
-    "defaultMessage": "生成前の準備"
-  },
-  "@yovoice.setup.title": {
-    "defaultMessage": "生成まであと {count} 項目"
-  },
-  "@yovoice.setup.hint": {
-    "defaultMessage": "各ステップはここで完了できます。準備がすべて整うと、このカードは非表示になります。"
-  },
-  "@yovoice.setup.model": {
-    "defaultMessage": "モデルをダウンロード"
-  },
-  "@yovoice.setup.soundfont": {
-    "defaultMessage": "サウンドフォントをダウンロード"
-  },
-  "@yovoice.setup.engine": {
-    "defaultMessage": "エンジンをインストール"
-  },
-  "@yovoice.setup.engineDetail": {
-    "defaultMessage": "audio.cpp がこのコンピューターでモデルを実行します"
-  },
-  "@yovoice.setup.engineUpdate": {
-    "defaultMessage": "このモデルには新しいエンジンが必要です"
-  },
-  "@yovoice.setup.voice": {
-    "defaultMessage": "声を選ぶ"
-  },
-  "@yovoice.setup.voiceDetail": {
-    "defaultMessage": "このモデルは参照音声から声をクローンします"
-  },
-  "@yovoice.setup.download": {
-    "defaultMessage": "ダウンロード"
-  },
-  "@yovoice.setup.otherModel": {
-    "defaultMessage": "ほかを選ぶ"
-  },
-  "@yovoice.setup.install": {
-    "defaultMessage": "インストール"
-  },
-  "@yovoice.setup.update": {
-    "defaultMessage": "更新"
-  },
-  "@yovoice.setup.chooseVoice": {
-    "defaultMessage": "参照音声を選択"
-  },
-  "@yovoice.setup.done": {
-    "defaultMessage": "完了"
-  },
-  "@yovoice.setup.downloading": {
-    "defaultMessage": "{received} / {total}"
-  },
-  "@yovoice.setup.installing": {
-    "defaultMessage": "インストール中…"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "{n} 秒戻る"
   },

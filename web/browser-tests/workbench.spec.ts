@@ -62,13 +62,8 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   wav.write('RIFF'); wav.writeUInt32LE(wav.length - 8, 4); wav.write('WAVEfmt ', 8); wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22); wav.writeUInt32LE(16000, 24); wav.writeUInt32LE(32000, 28); wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34); wav.write('data', 36); wav.writeUInt32LE(wav.length - 44, 40);
   for (let i = 0; i < 32000; i++) wav.writeInt16LE(Math.round(Math.sin(i * 440 * Math.PI * 2 / 16000) * 8000), 44 + i * 2);
   await page.locator('input[type=file][accept^="audio/"]').setInputFiles({ name: '测试音色.wav', mimeType: 'audio/wav', buffer: wav });
-  // 新用户的准备清单：模型、推理引擎和参考音频在创作区就地完成，选好的步骤标为已完成。
-  const setup = page.locator('.setup-checklist').getByRole('listitem');
-  await expect(setup).toHaveText([/下载模型/, /安装推理引擎/, /选一个声音/]);
   await page.getByRole('button', { name: '使用所选参考音频', exact: true }).click();
   await expect(page.getByRole('button', { name: '测试音色', exact: true })).toBeVisible();
-  await expect(setup.nth(2)).toHaveAttribute('data-done', 'true');
-  await expect(setup.nth(2)).toContainText('已完成');
   await page.getByRole('button', { name: '试听当前音色' }).click();
   await expect(page.getByRole('button', { name: '暂停', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '暂停', exact: true }).click();

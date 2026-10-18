@@ -52,12 +52,8 @@ test('新建音乐作品：示例、风格标签、段落标记、纯音乐与�
   expect(saved.lyrics).toContain('[bridge]');
   await expect(page.getByRole('radio', { name: '纯音乐' })).toBeChecked();
 
-  // 未安装模型时生成不再跳到设置页：准备清单就地提示下载模型和推理引擎，“换一个”打开模型设置；配音作品的模型列表不包含音乐模型。
+  // 未安装模型时生成直接打开模型设置；配音作品的模型列表不包含音乐模型。
   await page.getByRole('button', { name: '生成歌曲', exact: true }).click();
-  const setup = page.locator('.setup-checklist');
-  await expect(setup).toHaveAttribute('data-attention', 'true');
-  await expect(setup.getByRole('listitem')).toHaveText([/下载模型/, /安装推理引擎/]);
-  await setup.getByRole('button', { name: '换一个', exact: true }).click();
   await expect(page.getByRole('tab', { name: '模型', selected: true })).toBeVisible();
   await page.getByTestId('nav-music').click();
   await expect(page.locator('.project-library-row:visible .record-cover')).toHaveCount(1);
@@ -204,9 +200,9 @@ test('音乐历史版本：工具栏进入历史页，播放页、复用和删�
   }
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).history);
   expect(saved).toEqual([]);
-  // 版本删完后工具栏不再显示历史版本入口。
+  // 版本删完后工具栏仍保留历史版本入口。
   await page.getByRole('button', { name: '返回', exact: true }).click();
-  await expect(transport.getByRole('button', { name: '历史版本', exact: true })).toHaveCount(0);
+  await expect(transport.getByRole('button', { name: '历史版本', exact: true })).toBeVisible();
 });
 
 test('播放页逐行校准歌词：按键标记、撤销，校准结果随版本保存并可清除', async ({ page }) => {

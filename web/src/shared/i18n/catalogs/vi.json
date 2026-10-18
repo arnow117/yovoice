@@ -2738,60 +2738,6 @@
   "@yovoice.music.lyricsEstimated": {
     "defaultMessage": "Thời gian lời bài hát được ước tính theo độ dài bài"
   },
-  "@yovoice.setup.label": {
-    "defaultMessage": "Thiết lập trước khi tạo"
-  },
-  "@yovoice.setup.title": {
-    "defaultMessage": "Còn {count} bước nữa là có thể tạo"
-  },
-  "@yovoice.setup.hint": {
-    "defaultMessage": "Hoàn tất từng bước ngay tại đây. Thẻ này sẽ ẩn khi mọi thứ đã sẵn sàng."
-  },
-  "@yovoice.setup.model": {
-    "defaultMessage": "Tải xuống mô hình"
-  },
-  "@yovoice.setup.soundfont": {
-    "defaultMessage": "Tải xuống SoundFont"
-  },
-  "@yovoice.setup.engine": {
-    "defaultMessage": "Cài đặt công cụ"
-  },
-  "@yovoice.setup.engineDetail": {
-    "defaultMessage": "audio.cpp chạy mô hình trên máy tính này"
-  },
-  "@yovoice.setup.engineUpdate": {
-    "defaultMessage": "Mô hình này cần công cụ mới hơn"
-  },
-  "@yovoice.setup.voice": {
-    "defaultMessage": "Chọn giọng"
-  },
-  "@yovoice.setup.voiceDetail": {
-    "defaultMessage": "Mô hình này nhân bản giọng từ âm thanh tham chiếu"
-  },
-  "@yovoice.setup.download": {
-    "defaultMessage": "Tải xuống"
-  },
-  "@yovoice.setup.otherModel": {
-    "defaultMessage": "Chọn mô hình khác"
-  },
-  "@yovoice.setup.install": {
-    "defaultMessage": "Cài đặt"
-  },
-  "@yovoice.setup.update": {
-    "defaultMessage": "Cập nhật"
-  },
-  "@yovoice.setup.chooseVoice": {
-    "defaultMessage": "Chọn âm thanh tham chiếu"
-  },
-  "@yovoice.setup.done": {
-    "defaultMessage": "Xong"
-  },
-  "@yovoice.setup.downloading": {
-    "defaultMessage": "{received} / {total}"
-  },
-  "@yovoice.setup.installing": {
-    "defaultMessage": "Đang cài đặt…"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "Lùi {n} giây"
   },

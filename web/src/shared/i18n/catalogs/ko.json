@@ -2738,60 +2738,6 @@
   "@yovoice.music.lyricsEstimated": {
     "defaultMessage": "가사 타이밍은 곡 길이를 기준으로 추정했습니다"
   },
-  "@yovoice.setup.label": {
-    "defaultMessage": "생성 전 준비"
-  },
-  "@yovoice.setup.title": {
-    "defaultMessage": "생성까지 {count}단계 남음"
-  },
-  "@yovoice.setup.hint": {
-    "defaultMessage": "여기에서 각 단계를 완료하세요. 모든 준비가 끝나면 이 카드는 사라집니다."
-  },
-  "@yovoice.setup.model": {
-    "defaultMessage": "모델 다운로드"
-  },
-  "@yovoice.setup.soundfont": {
-    "defaultMessage": "사운드 폰트 다운로드"
-  },
-  "@yovoice.setup.engine": {
-    "defaultMessage": "엔진 설치"
-  },
-  "@yovoice.setup.engineDetail": {
-    "defaultMessage": "audio.cpp가 이 컴퓨터에서 모델을 실행합니다"
-  },
-  "@yovoice.setup.engineUpdate": {
-    "defaultMessage": "이 모델에는 더 새로운 엔진이 필요합니다"
-  },
-  "@yovoice.setup.voice": {
-    "defaultMessage": "음성 선택"
-  },
-  "@yovoice.setup.voiceDetail": {
-    "defaultMessage": "이 모델은 참조 오디오에서 음성을 복제합니다"
-  },
-  "@yovoice.setup.download": {
-    "defaultMessage": "다운로드"
-  },
-  "@yovoice.setup.otherModel": {
-    "defaultMessage": "다른 항목 선택"
-  },
-  "@yovoice.setup.install": {
-    "defaultMessage": "설치"
-  },
-  "@yovoice.setup.update": {
-    "defaultMessage": "업데이트"
-  },
-  "@yovoice.setup.chooseVoice": {
-    "defaultMessage": "참조 오디오 선택"
-  },
-  "@yovoice.setup.done": {
-    "defaultMessage": "완료"
-  },
-  "@yovoice.setup.downloading": {
-    "defaultMessage": "{received} / {total}"
-  },
-  "@yovoice.setup.installing": {
-    "defaultMessage": "설치 중…"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "{n}초 뒤로"
   },

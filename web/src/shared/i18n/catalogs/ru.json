@@ -2738,60 +2738,6 @@
   "@yovoice.music.lyricsEstimated": {
     "defaultMessage": "Тайминг текста рассчитан приблизительно по длительности песни"
   },
-  "@yovoice.setup.label": {
-    "defaultMessage": "Подготовка к генерации"
-  },
-  "@yovoice.setup.title": {
-    "defaultMessage": "Осталось шагов до генерации: {count}"
-  },
-  "@yovoice.setup.hint": {
-    "defaultMessage": "Выполните каждый шаг прямо здесь. Карточка скроется, когда всё будет готово."
-  },
-  "@yovoice.setup.model": {
-    "defaultMessage": "Скачайте модель"
-  },
-  "@yovoice.setup.soundfont": {
-    "defaultMessage": "Скачайте звуковой банк"
-  },
-  "@yovoice.setup.engine": {
-    "defaultMessage": "Установите движок"
-  },
-  "@yovoice.setup.engineDetail": {
-    "defaultMessage": "audio.cpp запускает модели на этом компьютере"
-  },
-  "@yovoice.setup.engineUpdate": {
-    "defaultMessage": "Этой модели нужен более новый движок"
-  },
-  "@yovoice.setup.voice": {
-    "defaultMessage": "Выберите голос"
-  },
-  "@yovoice.setup.voiceDetail": {
-    "defaultMessage": "Эта модель клонирует голос по референсному аудио"
-  },
-  "@yovoice.setup.download": {
-    "defaultMessage": "Скачать"
-  },
-  "@yovoice.setup.otherModel": {
-    "defaultMessage": "Выбрать другую"
-  },
-  "@yovoice.setup.install": {
-    "defaultMessage": "Установить"
-  },
-  "@yovoice.setup.update": {
-    "defaultMessage": "Обновить"
-  },
-  "@yovoice.setup.chooseVoice": {
-    "defaultMessage": "Выбрать референсное аудио"
-  },
-  "@yovoice.setup.done": {
-    "defaultMessage": "Готово"
-  },
-  "@yovoice.setup.downloading": {
-    "defaultMessage": "{received} из {total}"
-  },
-  "@yovoice.setup.installing": {
-    "defaultMessage": "Установка…"
-  },
   "@yovoice.music.rewind": {
     "defaultMessage": "Назад на {n} с"
   },
