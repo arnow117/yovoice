@@ -679,6 +679,21 @@
   .music-tag-group-col { width: 100%; margin-block: var(--spacing-1); }
   .music-tag-group-title { color: var(--app-muted); font-size: var(--app-small-font); font-weight: var(--font-weight-medium); }
 
+  /* 旋律谱：放在歌词之后，轨道视图只读、轨头收窄；谱面源码用等宽字体，提示条按语气着色。 */
+  .melody-score .number-field.compact { gap: var(--spacing-1); color: var(--app-muted); }
+  .melody-score .number-field.compact input { width: calc(var(--spacing-10) * 1.5); min-height: var(--spacing-8); padding: 0 var(--spacing-1); }
+  .melody-score .score-arrangement { margin: 0; max-height: 40vh; }
+  .score-arrangement[data-readonly] { --score-head: calc(var(--spacing-10) * 4); }
+  .score-arrangement[data-readonly] .score-track-head > .score-role-dot { flex: none; margin-inline: var(--spacing-1); }
+  .melody-source textarea { font-family: var(--app-mono); font-size: var(--app-small-font); line-height: 1.6; white-space: pre; overflow-x: auto; }
+  .melody-progress { padding: var(--spacing-2) var(--spacing-3); border-radius: var(--radius-element); background: var(--app-surface); color: var(--app-muted); }
+  .melody-notice { padding: var(--spacing-2) var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); background: var(--app-surface); line-height: 1.6; }
+  .melody-notice > svg { flex: none; margin-top: var(--spacing-0-5); }
+  .melody-notice[data-tone="danger"] { border-color: color-mix(in srgb, var(--color-text-red) 45%, var(--app-line)); }
+  .melody-notice[data-tone="danger"] > svg { color: var(--color-text-red); }
+  .melody-notice[data-tone="warning"] { border-color: color-mix(in srgb, var(--color-text-orange) 45%, var(--app-line)); }
+  .melody-changes { color: var(--app-muted); }
+  .melody-empty small { color: var(--app-muted); }
   /* 编曲轨道视图：单行轨头固定宽度，轨道向右延伸贴紧检查器，右侧音块与段落标尺共用时间轴。 */
   /* 轨道区放在底部全宽面板里，与下方播放器同宽，横向贯穿检查器下方。 */
   .score-arrangement { min-width: 0; flex: none; max-height: 45vh; margin: var(--spacing-2) var(--spacing-3) 0; --score-head: calc(var(--spacing-10) * 5); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); overflow: hidden; }

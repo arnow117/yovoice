@@ -11,9 +11,10 @@ import { call } from '../../shared/lib/client';
 import { AIComposer } from '../../shared/ui/ai-composer';
 import { isUntitled, isYuE, type Draft, type State, type UiLocale } from '../../shared/workbench';
 import { createMusicDraft, lyricSections, lyricsPatch, splitTags } from './music-draft';
+import { MelodyScore } from './melody-score';
 
 // 音乐创作区：参照 Suno、Udio 的写法，从上到下是“一句话交给 AI → 风格 → 歌词”；生成的版本在“版本记录”里查看。
-// 一句话可以直接写出风格和歌词，也可以手动填写；纯音乐与填写歌词是并列的两种模式。
+// 一句话可以直接写出风格和歌词，也可以手动填写；纯音乐与填写歌词是并列的两种模式。YuE2 还可以先出旋律谱、改谱后再生成。
 export function MusicEditor({ draft, state, change, locale, configureAI }: {
   draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale; configureAI: () => void;
 }) {
@@ -71,7 +72,7 @@ export function MusicEditor({ draft, state, change, locale, configureAI }: {
   return <VStack className="music-editor" gap={5}>
     <AIComposer kind="lyrics" projectId={draft.id} state={state} overwrite={!empty} configure={configureAI} apply={applyLyrics}
       placeholder={t(draft.instrumental ? '@yovoice.ai.lyricsPlaceholderInstrumental' : '@yovoice.ai.lyricsPlaceholder')} submitLabel={t('@yovoice.ai.lyricsSubmit')}
-      start={brief => call('ai.lyrics', { projectId: draft.id, brief, instrumental: !!draft.instrumental, language: draft.synthesisLanguage ?? '', locale })} />
+      start={brief => call('ai.lyrics', { projectId: draft.id, brief, instrumental: !!draft.instrumental, language: draft.synthesisLanguage ?? '', locale, model: draft.modelId })} />
     <VStack className="music-block" gap={3}>
       <HStack className="music-style-header" hAlign="between" vAlign="center" gap={2}>
         <h2>{t('@yovoice.music.style')}</h2>
@@ -123,5 +124,7 @@ export function MusicEditor({ draft, state, change, locale, configureAI }: {
         ? <p className="music-instrumental">{t('@yovoice.music.instrumentalHint')}</p>
         : <TextArea ref={lyrics} className="music-lyrics" label={t('@yovoice.music.lyrics')} isLabelHidden value={draft.lyrics ?? ''} maxLength={4000} rows={14} hasSpellCheck={false} placeholder={t('@yovoice.music.lyricsPlaceholder')} onChange={value => change({ lyrics: value.slice(0, 4000) })} />}
     </VStack>
+    {/* YuE2 的流程是“歌词 → 旋律谱 → 整首歌”，谱放在歌词之后。 */}
+    {yue ? <MelodyScore draft={draft} state={state} change={change} locale={locale} configureAI={configureAI} /> : null}
   </VStack>;
 }

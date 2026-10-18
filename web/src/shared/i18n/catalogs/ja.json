@@ -3259,5 +3259,242 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "AI の配役に失敗しました"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "メロディ譜を作成中"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "曲からメロディを抽出中"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "メロディ譜に問題があります：{issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "モデルがメロディ譜を返しませんでした。再試行するか歌詞を調整してください。"
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "曲からメロディを抽出するには SheetSage2 モデルが必要です。「設定 › モデル」でダウンロードしてください。"
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "曲のメロディとコードを譜面に書き起こし、YuE2 でのカバーに使います。"
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "メロディ譜から生成"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "譜面をどう変えたいか説明"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "言語モデルを接続すると、ひとことでメロディ・コード・スタイルを AI に書き換えさせられます。"
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "AI が譜面を編集中"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "AI が譜面の編集を終えました"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "AI は譜面を編集できませんでした"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "適用すると現在の譜面が置き換わり、AI がスタイルを変えた場合はスタイルも置き換わります。"
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "譜面の変え方を書いてください。例：サビを全音上げる、9–12 小節をもっと跳ねるリズムに、コードをジャズ風に"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "譜面を編集"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "メロディ譜"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "まずメロディを書き、調整してから曲全体を生成します。"
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "YuE2 は歌詞からボーカルのメロディとコードを先に書けます。譜面を確認・編集してから曲を生成できます。既存の曲のメロディを取り出してカバーすることもできます。"
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "メロディ譜を作成"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "先にスタイルと歌詞を入力してください"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "歌詞から作り直す"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "曲から抽出"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "抽出ではメロディを残して元のコードを外し、あなたのスタイルでアレンジし直します。10 分以内の曲に対応。"
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "メロディを抽出する曲"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "ABC 譜面ファイル"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": ".abc を読み込む"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "譜面をコピー"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "譜面をクリア"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "メロディだけ残す"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "譜面の操作"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "テンポ"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "譜面の表示"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "トラック"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "ABC 譜面"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "メロディ譜のトラック、{bars} 小節"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "コード付き"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "メロディのみ"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "YuE2 が新しいメロディ譜を書きました"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "曲からメロディを抽出しました"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "置き換えると現在の譜面は破棄されます。"
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "置き換える"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "AI が譜面を編集しました"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "譜面が YuE2 で歌える長さを超えたため、上限で切り詰めました。最後まで残すには歌詞を短くするかセクションを減らしてください。"
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "メロディを抽出しました。元のコードは外したので、YuE2 があなたのスタイルでアレンジし直します。"
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "変更：{changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "メロディ {bars} 小節"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "コード {bars} 小節"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "伴奏 {bars} 小節"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "テンポ"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "調"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "長さ {before} → {after} 小節"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": "、"
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "YuE2 はまだこの譜面を歌えません"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "ボーカル"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "伴奏"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "コード"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "ベース"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "ボーカル"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "伴奏"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "{bar} 小節目"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "{bar} 小節目（{voice}）"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "{line} 行目"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where}：{reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "譜面が長すぎます。"
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "ヘッダーには X、T、M、L、Q、2 行の V、K をこの順で書きます。"
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "対応していない拍子です。"
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "テンポは Q:1/4=BPM の形で、30〜300 の範囲で書きます。"
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "対応していない調です。"
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "各グループは V: Vocal、V: Ins の順に書き、どちらも同じ 1〜4 小節にします。"
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "各小節は通常の | で終えます。反復記号や複縦線には対応していません。"
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "YuE2 の記法にない表記（連符、装飾音、スラーなど）が使われています。"
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "対応していないコードです。コードはボーカル行に書き、m、7、maj7、sus4 などの一般的な表記を使います。"
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "音符が小節の終わりを超えています。"
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "音価が小節を満たしていないか、YuE2 が対応していない長さです。"
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "タイは同じ高さの 2 つの音だけをつなげます。"
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "休符には臨時記号、オクターブ記号、タイを付けられません。"
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "音域外の音符があります。"
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "ボーカル行と伴奏行の拍子または単位音価が異なります。"
   }
 }

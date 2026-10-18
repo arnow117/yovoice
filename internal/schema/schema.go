@@ -26,6 +26,8 @@ type SynthesisSettings struct {
 	// 音乐作品中 Text 是风格描述，歌词单独保存；纯音乐时保留歌词但不演唱。
 	Lyrics       string `json:"lyrics,omitempty"`
 	Instrumental bool   `json:"instrumental,omitempty"`
+	// Abc 是 YuE2 的旋律谱（受限 ABC 方言）：有谱时按谱演唱，随版本快照一起保存。
+	Abc string `json:"abc,omitempty"`
 
 	VoiceMode         string    `json:"voiceMode"`
 	VoxMode           string    `json:"voxMode"`
@@ -195,11 +197,13 @@ type GenerationSegment struct {
 	TargetClipID string `json:"targetClipId,omitempty"`
 }
 type Activity struct {
-	CueID       string     `json:"cueId,omitempty"`
-	ProjectID   string     `json:"projectId,omitempty"`
-	CharacterID string     `json:"characterId,omitempty"`
-	RequestID   string     `json:"requestId,omitempty"`
-	Kind        string     `json:"kind"`
+	CueID       string `json:"cueId,omitempty"`
+	ProjectID   string `json:"projectId,omitempty"`
+	CharacterID string `json:"characterId,omitempty"`
+	RequestID   string `json:"requestId,omitempty"`
+	Kind        string `json:"kind"`
+	// Task 区分同一类操作里的具体任务：melody 为出谱或扒谱，界面据此在旋律谱区域显示进度。
+	Task        string     `json:"task,omitempty"`
 	Code        msg.Code   `json:"code"`
 	Params      msg.Params `json:"params"`
 	Status      string     `json:"status"`
@@ -272,6 +276,18 @@ type State struct {
 	AIProviders  []AIProvider `json:"aiProviders,omitempty"`
 	AIProviderID string       `json:"aiProviderID,omitempty"`
 	AITask       *AITask      `json:"aiTask,omitempty"`
+	// Melody 是最近一次出谱或扒谱的结果，等界面填入作品；只属于本次会话。
+	Melody *MelodyResult `json:"melody,omitempty"`
+}
+
+// MelodyResult 是引擎写出的旋律谱：Source 为 plan（YuE2 按歌词出谱）或 cover（从歌曲扒谱）。
+type MelodyResult struct {
+	ID        string    `json:"id"`
+	ProjectID string    `json:"projectId"`
+	Source    string    `json:"source"`
+	Abc       string    `json:"abc"`
+	Truncated bool      `json:"truncated,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type InstalledRuntime struct {

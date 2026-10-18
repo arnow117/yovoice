@@ -3259,5 +3259,242 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "Falha ao distribuir papéis com IA"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "Escrevendo a partitura da melodia"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "Extraindo a melodia da música"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "A partitura da melodia tem um problema: {issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "O modelo não retornou nenhuma partitura. Tente novamente ou ajuste a letra."
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "Extrair uma melodia requer o modelo SheetSage2. Baixe-o em Configurações › Modelos."
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "Transcreve a melodia e os acordes de uma música em partitura, para covers com o YuE2."
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "Gerar pela partitura"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "Descreva como mudar a partitura"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "Conecte um modelo de linguagem para a IA reescrever a melodia, os acordes e o estilo com uma frase."
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "A IA está editando a partitura"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "A IA terminou de editar a partitura"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "A IA não conseguiu editar a partitura"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "Aplicar substitui a partitura atual, e o estilo se a IA o mudou."
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "Diga como mudar a partitura, p. ex. subir o refrão um tom, deixar os compassos 9–12 mais saltitantes, trocar por acordes de jazz"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "Editar partitura"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "Partitura da melodia"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Escreva a melodia primeiro, ajuste e depois gere a música inteira a partir dela."
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "O YuE2 pode escrever primeiro a melodia vocal e os acordes da sua letra. Revise e edite a partitura e depois gere a música. Você também pode usar a melodia de uma música existente para fazer um cover."
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "Escrever partitura"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "Preencha primeiro o estilo e a letra"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "Reescrever pela letra"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "Extrair de uma música"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "A extração mantém a melodia e remove os acordes originais, para rearranjar a música no seu estilo. Músicas de até 10 minutos."
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "Música da qual extrair a melodia"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "Arquivo de partitura ABC"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": "Importar .abc"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "Copiar partitura"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "Limpar partitura"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "Manter só a melodia"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "Ações da partitura"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "Andamento"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "Visualização da partitura"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "Faixas"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "Partitura ABC"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "Faixas da partitura da melodia, {bars} compassos"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "com acordes"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "só melodia"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "O YuE2 escreveu uma nova partitura da melodia"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "A melodia foi extraída da música"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "Substituir descarta a partitura atual."
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "Substituir"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "A IA editou a partitura"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "A partitura passou do que o YuE2 consegue cantar e foi cortada no limite. Encurte a letra ou remova seções para manter o final."
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "Melodia extraída. Os acordes originais foram removidos para o YuE2 rearranjar a música no seu estilo."
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "Alterado: {changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "melodia nos compassos {bars}"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "acordes nos compassos {bars}"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "acompanhamento nos compassos {bars}"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "andamento"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "tonalidade"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "duração {before} → {after} compassos"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": ", "
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "O YuE2 ainda não consegue cantar esta partitura"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "Voz"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "Acompanhamento"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "Acordes"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "Baixo"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "voz"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "acompanhamento"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "compasso {bar}"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "compasso {bar} ({voice})"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "linha {line}"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where}: {reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "a partitura é longa demais."
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "o cabeçalho deve listar X, T, M, L, Q, as duas linhas V e K, nessa ordem."
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "fórmula de compasso não suportada."
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "escreva o andamento como Q:1/4=BPM, entre 30 e 300."
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "tonalidade não suportada."
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "cada grupo lista V: Vocal e depois V: Ins, com os mesmos 1–4 compassos nos dois."
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "cada compasso termina com uma barra simples |; repetições e barras duplas não são suportadas."
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "usa notação fora do dialeto do YuE2, como quiálteras, apojaturas ou ligaduras de expressão."
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "acorde não suportado; os acordes ficam na linha vocal e usam qualidades comuns como m, 7, maj7, sus4."
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "as notas passam do fim do compasso."
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "as durações não preenchem o compasso ou usam uma duração que o YuE2 não suporta."
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "uma ligadura deve unir duas notas da mesma altura."
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "pausas não podem ter acidentes, sinais de oitava nem ligaduras."
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "há uma nota fora da extensão."
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "as linhas de voz e de acompanhamento usam fórmulas de compasso ou unidades de nota diferentes."
   }
 }

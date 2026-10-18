@@ -91,6 +91,61 @@ test('选中 YuE2：隐藏时长与纯音乐，长度由歌词决定', async ({ 
   await page.screenshot({ path: testInfo.outputPath('music-yue2.png') });
 });
 
+const melodyABC = `X:1
+T:
+M:4/4
+L:1/32
+Q:1/4=120
+V: Vocal clef=treble name="Vocal Melody" snm="Vocal"
+V: Ins clef=treble name="Ins Melody" snm="Inst."
+K:C
+% verse
+V: Vocal
+"C"E8G8c16|"G"B8G8D16|
+V: Ins
+Z2|
+`;
+
+test('YuE2 旋律谱：导入 ABC，看轨道与谱面，调速度、只留旋律后按谱生成', async ({ page }, testInfo) => {
+  const draft = { ...createMusicDraft('zh-CN'), id: 'f'.repeat(32), modelId: 'yue2-3b-q8', instrumental: false };
+  const state = emptyState();
+  state.drafts = [draft];
+  state.models = [{ id: 'yue2-3b-q8', path: 'Yue2-3B-GGUF', managed: true }];
+  await seedState(page, state);
+  await page.goto('/');
+  // 空状态给出三种来源：按歌词出谱、从歌曲提取、导入谱文件。
+  await expect(page.getByRole('heading', { name: '旋律谱' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '先写旋律谱' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeVisible();
+  await page.getByLabel('ABC 谱文件').setInputFiles({ name: 'song.abc', mimeType: 'text/plain', buffer: Buffer.from(melodyABC) });
+  await expect(page.getByText(/C · 120 BPM · 4\/4 · 2 小节 · 00:04 · 带和弦/)).toBeVisible();
+  await expect(page.getByRole('group', { name: '旋律谱轨道，共 2 小节' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '按旋律谱生成', exact: true })).toBeVisible();
+  await page.getByRole('group', { name: '旋律谱轨道，共 2 小节' }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('melody-tracks.png') });
+
+  const tempo = page.getByRole('spinbutton', { name: '速度' });
+  await tempo.fill('90'); await tempo.press('Enter');
+  await expect(page.getByText(/90 BPM/)).toBeVisible();
+  await page.getByRole('button', { name: '谱面操作' }).click();
+  await page.getByRole('menuitem', { name: '只保留旋律' }).click();
+  await expect(page.getByText(/仅旋律/)).toBeVisible();
+  await page.getByRole('radio', { name: 'ABC 谱面' }).click();
+  const source = page.getByLabel('ABC 谱面', { exact: true });
+  await expect(source).toHaveValue(/Q:1\/4=90/);
+  await expect(source).not.toHaveValue(/"C"/);
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').drafts[0].abc as string);
+  expect(saved).toContain('Q:1/4=90');
+  await source.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('melody-source.png') });
+
+  // 浏览器预览不做推理：提取旋律给出明确提示。
+  await page.getByRole('button', { name: '谱面操作' }).click();
+  await page.getByRole('menuitem', { name: '清空谱' }).click();
+  await page.getByLabel('要提取旋律的歌曲').setInputFiles({ name: 'song.wav', mimeType: 'audio/wav', buffer: Buffer.from(wavBytes(new Float32Array(800), new Float32Array(800), 8000)) });
+  await expect(page.getByRole('alert').filter({ hasText: '桌面' })).toBeVisible();
+});
+
 test('音乐历史版本：工具栏进入历史页，播放页、复用和删除都在这里', async ({ page }) => {
   const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32) };
   const state = emptyState();

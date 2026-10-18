@@ -3259,5 +3259,242 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "Assegnazione con IA non riuscita"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "Scrittura dello spartito della melodia"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "Estrazione della melodia dal brano"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "Lo spartito della melodia contiene un errore: {issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "Il modello non ha restituito alcuno spartito. Riprova o modifica il testo."
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "Per estrarre una melodia serve il modello SheetSage2. Scaricalo in Impostazioni › Modelli."
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "Trascrive melodia e accordi di un brano in spartito, per le cover con YuE2."
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "Genera dallo spartito"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "Descrivi come modificare lo spartito"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "Collega un modello linguistico per far riscrivere all’IA melodia, accordi e stile con una frase."
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "L’IA sta modificando lo spartito"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "L’IA ha finito di modificare lo spartito"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "L’IA non è riuscita a modificare lo spartito"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "Applicando si sostituisce lo spartito attuale, e lo stile se l’IA lo ha cambiato."
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "Di’ come modificare lo spartito, ad es. alza il ritornello di un tono, rendi le battute 9–12 più saltellanti, passa ad accordi jazz"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "Modifica spartito"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "Spartito della melodia"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Scrivi prima la melodia, sistemala e poi genera l’intero brano."
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "YuE2 può scrivere prima la melodia vocale e gli accordi del tuo testo. Rivedi e modifica lo spartito, poi genera il brano. Puoi anche prendere la melodia di un brano esistente per una cover."
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "Scrivi spartito"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "Compila prima stile e testo"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "Riscrivi dal testo"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "Estrai da un brano"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "L’estrazione mantiene la melodia e rimuove gli accordi originali, per riarrangiare il brano nel tuo stile. Brani fino a 10 minuti."
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "Brano da cui estrarre la melodia"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "File di spartito ABC"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": "Importa .abc"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "Copia spartito"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "Cancella spartito"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "Tieni solo la melodia"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "Azioni sullo spartito"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "Vista spartito"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "Tracce"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "Spartito ABC"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "Tracce dello spartito della melodia, {bars} battute"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "con accordi"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "solo melodia"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "YuE2 ha scritto un nuovo spartito della melodia"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "La melodia è stata estratta dal brano"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "Sostituendo si scarta lo spartito attuale."
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "Sostituisci"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "L’IA ha modificato lo spartito"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "Lo spartito superava ciò che YuE2 può cantare ed è stato tagliato al limite. Accorcia il testo o togli sezioni per mantenere il finale."
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "Melodia estratta. Gli accordi originali sono stati rimossi perché YuE2 riarrangi il brano nel tuo stile."
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "Modificato: {changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "melodia nelle battute {bars}"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "accordi nelle battute {bars}"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "accompagnamento nelle battute {bars}"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "tempo"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "tonalità"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "durata {before} → {after} battute"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": ", "
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "YuE2 non può ancora cantare questo spartito"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "Voce"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "Accompagnamento"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "Accordi"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "Basso"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "voce"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "accompagnamento"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "battuta {bar}"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "battuta {bar} ({voice})"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "riga {line}"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where}: {reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "lo spartito è troppo lungo."
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "l’intestazione deve elencare X, T, M, L, Q, le due righe V e K in ordine."
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "indicazione di tempo non supportata."
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "scrivi il tempo come Q:1/4=BPM, tra 30 e 300."
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "tonalità non supportata."
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "ogni gruppo elenca V: Vocal e poi V: Ins, con le stesse 1–4 battute in entrambi."
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "ogni battuta termina con una stanghetta semplice |; ritornelli e doppie stanghette non sono supportati."
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "usa una notazione fuori dal dialetto di YuE2, come terzine, abbellimenti o legature di portamento."
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "accordo non supportato; gli accordi vanno nella riga vocale e usano qualità comuni come m, 7, maj7, sus4."
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "le note superano la fine della battuta."
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "le durate non riempiono la battuta o usano una durata che YuE2 non supporta."
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "una legatura deve unire due note della stessa altezza."
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "le pause non possono avere alterazioni, segni d’ottava o legature."
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "una nota è fuori estensione."
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "le righe di voce e accompagnamento usano tempi o unità di nota diversi."
   }
 }

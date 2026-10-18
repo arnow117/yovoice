@@ -3259,5 +3259,242 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "KI-Besetzung fehlgeschlagen"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "Melodienoten werden geschrieben"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "Melodie wird aus dem Song extrahiert"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "Die Melodienoten enthalten einen Fehler: {issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "Das Modell hat keine Melodienoten geliefert. Versuche es erneut oder passe den Text an."
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "Zum Extrahieren einer Melodie wird das Modell SheetSage2 benötigt. Lade es unter Einstellungen › Modelle herunter."
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "Transkribiert Melodie und Akkorde eines Songs in Noten, für Coverversionen mit YuE2."
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "Aus Melodienoten erzeugen"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "Beschreibe, wie die Noten geändert werden sollen"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "Verbinde ein Sprachmodell, damit die KI Melodie, Akkorde und Stil mit einem Satz umschreibt."
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "KI bearbeitet die Noten"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "KI hat die Noten bearbeitet"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "KI konnte die Noten nicht bearbeiten"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "Übernehmen ersetzt die aktuellen Noten und den Stil, falls die KI ihn geändert hat."
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "Sag, wie die Noten geändert werden sollen, z. B. Refrain einen Ganzton höher, Takte 9–12 beschwingter, Jazz-Akkorde"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "Noten bearbeiten"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "Melodienoten"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Erst die Melodie schreiben, anpassen und dann den ganzen Song daraus erzeugen."
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "YuE2 kann zuerst die Gesangsmelodie und Akkorde zu deinem Text schreiben. Prüfe und bearbeite die Noten und erzeuge dann den Song. Du kannst auch die Melodie eines vorhandenen Songs für ein Cover übernehmen."
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "Melodienoten schreiben"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "Zuerst Stil und Text ausfüllen"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "Aus dem Text neu schreiben"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "Aus einem Song extrahieren"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "Beim Extrahieren bleibt die Melodie erhalten und die Originalakkorde werden entfernt, damit der Song in deinem Stil neu arrangiert wird. Songs bis 10 Minuten."
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "Song, aus dem die Melodie extrahiert wird"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "ABC-Notendatei"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": ".abc importieren"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "Noten kopieren"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "Noten löschen"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "Nur Melodie behalten"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "Notenaktionen"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "Notenansicht"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "Spuren"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "ABC-Noten"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "Spuren der Melodienoten, {bars} Takte"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "mit Akkorden"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "nur Melodie"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "YuE2 hat neue Melodienoten geschrieben"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "Die Melodie wurde aus dem Song extrahiert"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "Ersetzen verwirft die aktuellen Noten."
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "Ersetzen"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "KI hat die Noten bearbeitet"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "Die Noten waren länger, als YuE2 singen kann, und wurden an der Grenze gekürzt. Kürze den Text oder entferne Abschnitte, um das Ende zu behalten."
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "Melodie extrahiert. Die Originalakkorde wurden entfernt, damit YuE2 den Song in deinem Stil neu arrangiert."
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "Geändert: {changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "Melodie in Takt {bars}"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "Akkorde in Takt {bars}"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "Begleitung in Takt {bars}"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "Tonart"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "Länge {before} → {after} Takte"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": ", "
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "YuE2 kann diese Noten noch nicht singen"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "Gesang"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "Begleitung"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "Akkorde"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "Bass"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "Gesang"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "Begleitung"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "Takt {bar}"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "Takt {bar} ({voice})"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "Zeile {line}"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where}: {reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "die Noten sind zu lang."
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "der Kopf muss X, T, M, L, Q, die beiden V-Zeilen und K in dieser Reihenfolge enthalten."
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "Taktart wird nicht unterstützt."
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "gib das Tempo als Q:1/4=BPM an, zwischen 30 und 300."
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "Tonart wird nicht unterstützt."
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "jede Gruppe enthält erst V: Vocal, dann V: Ins, mit jeweils denselben 1–4 Takten."
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "jeder Takt endet mit einem einfachen |; Wiederholungen und Doppelstriche werden nicht unterstützt."
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "verwendet Notation außerhalb des YuE2-Dialekts, etwa Triolen, Vorschläge oder Bindebögen."
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "Akkord wird nicht unterstützt; Akkorde gehören in die Gesangszeile und nutzen übliche Typen wie m, 7, maj7, sus4."
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "die Noten reichen über das Taktende hinaus."
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "die Notenwerte füllen den Takt nicht oder nutzen eine Länge, die YuE2 nicht unterstützt."
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "ein Haltebogen muss zwei Noten gleicher Tonhöhe verbinden."
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "Pausen dürfen keine Vorzeichen, Oktavzeichen oder Haltebögen tragen."
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "eine Note liegt außerhalb des Tonumfangs."
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "Gesangs- und Begleitzeile verwenden unterschiedliche Taktarten oder Notenwerte."
   }
 }

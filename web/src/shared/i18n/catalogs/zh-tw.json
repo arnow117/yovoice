@@ -3259,5 +3259,242 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "AI 分角色失敗"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "正在寫旋律譜"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "正在從歌曲擷取旋律"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "旋律譜有誤：{issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "模型沒有寫出旋律譜，請重試或調整歌詞。"
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "從歌曲擷取旋律需要 SheetSage2 模型，請在「設定 › 模型」中下載。"
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "把歌曲的旋律與和弦扒成譜，搭配 YuE2 做翻唱。"
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "按旋律譜生成"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "描述想怎麼改譜"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "接入大型模型後，可以用一句話讓 AI 改旋律、和弦與風格。"
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "AI 正在改譜"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "AI 改好了旋律譜"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "AI 改譜沒有成功"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "套用後會取代目前的旋律譜；如果 AI 改了風格，也一併取代。"
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "說說想怎麼改譜，例如：副歌升高一個全音，第 9–12 小節節奏更跳躍，和弦換成爵士味"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "改譜"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "旋律譜"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "先寫出旋律，改好後按譜生成整首歌。"
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "YuE2 可以先按歌詞寫出人聲旋律與和弦，你看過、改過後再按譜生成整首歌；也可以擷取一首歌的旋律來翻唱。"
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "先寫旋律譜"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "請先填寫風格和歌詞"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "按歌詞重新出譜"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "從歌曲擷取"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "擷取時保留旋律、去掉原曲和弦，按你寫的風格重新編配；支援 10 分鐘以內的歌曲。"
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "要擷取旋律的歌曲"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "ABC 譜檔案"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": "匯入 .abc"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "複製譜面"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "清空譜"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "只保留旋律"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "譜面操作"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "速度"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "譜面檢視"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "軌道"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC 譜面"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "ABC 譜面"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "旋律譜軌道，共 {bars} 小節"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "帶和弦"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "僅旋律"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "YuE2 寫好了新的旋律譜"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "已從歌曲擷取出旋律"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "取代後目前的譜會被覆蓋。"
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "取代"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "AI 改好了譜"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "譜面超出了 YuE2 的長度上限，已在上限處截斷；想保留結尾可以精簡歌詞或刪減段落。"
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "已擷取旋律並去掉原曲和弦，YuE2 會按你寫的風格重新編配。"
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "改動：{changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "旋律第 {bars} 小節"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "和弦第 {bars} 小節"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "伴奏第 {bars} 小節"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "速度"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "調號"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "長度 {before} → {after} 小節"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": "、"
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "YuE2 還不能按這份譜演唱"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "人聲旋律"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "伴奏動機"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "和弦"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "低音"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "人聲"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "伴奏"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "第 {bar} 小節"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "第 {bar} 小節（{voice}）"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "第 {line} 行"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where}：{reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "譜面太長。"
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "譜頭需要依序寫出 X、T、M、L、Q、兩行 V 和 K。"
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "不支援這個拍號。"
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "速度要寫成 Q:1/4=BPM，範圍 30–300。"
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "不支援這個調號。"
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "每組先寫 V: Vocal 再寫 V: Ins，兩行小節數相同，每組 1–4 小節。"
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "每個小節以一般的 | 結束，不支援反覆記號和雙小節線。"
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "用了 YuE2 不支援的記法，如三連音、裝飾音或連線。"
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "和弦不受支援；和弦只寫在人聲行，使用 m、7、maj7、sus4 等常見寫法。"
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "音符超出了小節長度。"
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "音符時值沒有填滿小節，或用了不支援的時值。"
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "連結線只能連接兩個相同音高的音。"
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "休止符不能帶升降記號、八度記號或連結線。"
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "有音符超出音域。"
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "人聲與伴奏兩行的拍號或時值單位不一致。"
   }
 }

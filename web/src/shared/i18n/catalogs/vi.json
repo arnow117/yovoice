@@ -3259,5 +3259,242 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "AI phân vai thất bại"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "Đang viết bản nhạc giai điệu"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "Đang trích xuất giai điệu từ bài hát"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "Bản nhạc giai điệu có lỗi: {issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "Mô hình không trả về bản nhạc nào. Hãy thử lại hoặc chỉnh lời bài hát."
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "Cần mô hình SheetSage2 để trích xuất giai điệu. Hãy tải trong Cài đặt › Mô hình."
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "Chép giai điệu và hợp âm của bài hát thành bản nhạc, dùng để cover với YuE2."
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "Tạo theo bản nhạc"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "Mô tả cách sửa bản nhạc"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "Kết nối mô hình ngôn ngữ để AI viết lại giai điệu, hợp âm và phong cách chỉ bằng một câu."
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "AI đang sửa bản nhạc"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "AI đã sửa xong bản nhạc"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "AI không sửa được bản nhạc"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "Áp dụng sẽ thay bản nhạc hiện tại, và cả phong cách nếu AI đã đổi."
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "Nói cách sửa bản nhạc, ví dụ: nâng điệp khúc lên một cung, cho ô nhịp 9–12 nảy hơn, đổi sang hợp âm jazz"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "Sửa bản nhạc"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "Bản nhạc giai điệu"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Viết giai điệu trước, chỉnh sửa rồi tạo cả bài hát từ đó."
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "YuE2 có thể viết trước giai điệu giọng hát và hợp âm cho lời bài hát. Xem và sửa bản nhạc rồi tạo bài hát. Bạn cũng có thể lấy giai điệu của một bài có sẵn để cover."
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "Viết bản nhạc"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "Hãy điền phong cách và lời trước"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "Viết lại theo lời"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "Trích từ bài hát"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "Khi trích xuất, giai điệu được giữ và hợp âm gốc bị bỏ để phối lại theo phong cách của bạn. Hỗ trợ bài dài tối đa 10 phút."
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "Bài hát cần trích giai điệu"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "Tệp bản nhạc ABC"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": "Nhập .abc"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "Sao chép bản nhạc"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "Xóa bản nhạc"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "Chỉ giữ giai điệu"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "Thao tác bản nhạc"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "Nhịp độ"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "Chế độ xem bản nhạc"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "Bản nhạc theo track"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "Bản nhạc ABC"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "Các track của bản nhạc giai điệu, {bars} ô nhịp"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "có hợp âm"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "chỉ giai điệu"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "YuE2 đã viết bản nhạc giai điệu mới"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "Đã trích giai điệu từ bài hát"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "Thay thế sẽ bỏ bản nhạc hiện tại."
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "Thay thế"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "AI đã sửa bản nhạc"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "Bản nhạc dài hơn mức YuE2 hát được nên đã bị cắt ở giới hạn. Rút ngắn lời hoặc bớt đoạn để giữ phần kết."
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "Đã trích giai điệu. Hợp âm gốc đã bị bỏ để YuE2 phối lại bài theo phong cách của bạn."
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "Thay đổi: {changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "giai điệu ở ô nhịp {bars}"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "hợp âm ở ô nhịp {bars}"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "đệm ở ô nhịp {bars}"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "nhịp độ"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "giọng"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "độ dài {before} → {after} ô nhịp"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": ", "
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "YuE2 chưa thể hát bản nhạc này"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "Giọng hát"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "Đệm"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "Hợp âm"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "Bass"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "giọng hát"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "đệm"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "ô nhịp {bar}"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "ô nhịp {bar} ({voice})"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "dòng {line}"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where}: {reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "bản nhạc quá dài."
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "phần đầu phải ghi X, T, M, L, Q, hai dòng V và K theo thứ tự."
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "không hỗ trợ số chỉ nhịp này."
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "ghi nhịp độ dạng Q:1/4=BPM, từ 30 đến 300."
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "không hỗ trợ giọng này."
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "mỗi nhóm ghi V: Vocal rồi V: Ins, cả hai có cùng 1–4 ô nhịp."
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "mỗi ô nhịp kết thúc bằng vạch | thường; không hỗ trợ dấu nhắc lại và vạch kép."
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "dùng ký hiệu ngoài phương ngữ của YuE2, như liên ba, nốt hoa mỹ hoặc dấu luyến."
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "hợp âm không được hỗ trợ; hợp âm ghi ở dòng giọng hát và dùng loại thông dụng như m, 7, maj7, sus4."
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "các nốt vượt quá cuối ô nhịp."
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "trường độ không lấp đầy ô nhịp hoặc dùng độ dài YuE2 không hỗ trợ."
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "dấu nối phải nối hai nốt cùng cao độ."
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "dấu lặng không được mang dấu hóa, ký hiệu quãng tám hoặc dấu nối."
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "có nốt nằm ngoài âm vực."
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "dòng giọng hát và dòng đệm dùng số chỉ nhịp hoặc đơn vị nốt khác nhau."
   }
 }

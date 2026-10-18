@@ -3259,5 +3259,242 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "ИИ не смог распределить роли"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "Пишется партитура мелодии"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "Извлечение мелодии из песни"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "В партитуре мелодии ошибка: {issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "Модель не вернула партитуру. Повторите попытку или измените текст песни."
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "Для извлечения мелодии нужна модель SheetSage2. Загрузите её в «Настройки › Модели»."
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "Записывает мелодию и аккорды песни в ноты для каверов с YuE2."
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "Создать по нотам"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "Опишите, как изменить ноты"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "Подключите языковую модель, чтобы ИИ переписывал мелодию, аккорды и стиль по одной фразе."
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "ИИ редактирует ноты"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "ИИ закончил редактировать ноты"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "ИИ не смог отредактировать ноты"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "При применении текущие ноты заменятся, а также стиль, если ИИ его изменил."
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "Скажите, как изменить ноты, например: поднять припев на тон, сделать такты 9–12 упругее, перейти на джазовые аккорды"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "Изменить ноты"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "Ноты мелодии"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Сначала напишите мелодию, доработайте её, затем создайте по ней всю песню."
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "YuE2 может сначала написать вокальную мелодию и аккорды к вашему тексту. Проверьте и измените ноты, затем создайте песню. Можно также взять мелодию существующей песни для кавера."
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "Написать ноты"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "Сначала заполните стиль и текст"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "Переписать по тексту"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "Извлечь из песни"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "При извлечении мелодия сохраняется, а исходные аккорды удаляются, чтобы песня была заново аранжирована в вашем стиле. Песни до 10 минут."
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "Песня, из которой извлечь мелодию"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "Файл нот ABC"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": "Импорт .abc"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "Копировать ноты"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "Очистить ноты"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "Оставить только мелодию"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "Действия с нотами"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "Темп"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "Вид нот"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "Дорожки"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "Ноты ABC"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "Дорожки нот мелодии, тактов: {bars}"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "с аккордами"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "только мелодия"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "YuE2 написал новые ноты мелодии"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "Мелодия извлечена из песни"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "При замене текущие ноты будут удалены."
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "Заменить"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "ИИ изменил ноты"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "Ноты оказались длиннее, чем может спеть YuE2, и обрезаны по пределу. Сократите текст или уберите разделы, чтобы сохранить концовку."
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "Мелодия извлечена. Исходные аккорды удалены, чтобы YuE2 заново аранжировал песню в вашем стиле."
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "Изменено: {changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "мелодия в тактах {bars}"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "аккорды в тактах {bars}"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "аккомпанемент в тактах {bars}"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "темп"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "тональность"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "длина {before} → {after} тактов"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": ", "
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "YuE2 пока не может спеть эти ноты"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "Вокал"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "Аккомпанемент"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "Аккорды"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "Бас"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "вокал"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "аккомпанемент"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "такт {bar}"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "такт {bar} ({voice})"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "строка {line}"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where}: {reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "ноты слишком длинные."
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "заголовок должен содержать X, T, M, L, Q, две строки V и K по порядку."
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "размер не поддерживается."
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "укажите темп как Q:1/4=BPM, от 30 до 300."
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "тональность не поддерживается."
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "каждая группа содержит V: Vocal, затем V: Ins, с одинаковыми 1–4 тактами в обеих."
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "каждый такт заканчивается обычной чертой |; репризы и двойные черты не поддерживаются."
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "используется запись вне диалекта YuE2, например триоли, форшлаги или лиги."
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "аккорд не поддерживается; аккорды пишутся в вокальной строке и используют обычные типы вроде m, 7, maj7, sus4."
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "ноты выходят за конец такта."
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "длительности не заполняют такт или не поддерживаются YuE2."
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "залиговка должна соединять две ноты одной высоты."
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "у пауз не может быть знаков альтерации, октавных знаков и залиговок."
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "нота вне диапазона."
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "у вокальной строки и аккомпанемента разные размеры или единицы длительности."
   }
 }

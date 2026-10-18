@@ -3259,5 +3259,242 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "Échec de la distribution par l'IA"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "Écriture de la partition mélodique"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "Extraction de la mélodie du morceau"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "La partition mélodique comporte un problème : {issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "Le modèle n’a renvoyé aucune partition. Réessayez ou modifiez les paroles."
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "L’extraction d’une mélodie nécessite le modèle SheetSage2. Téléchargez-le dans Réglages › Modèles."
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "Transcrit la mélodie et les accords d’un morceau en partition, pour les reprises avec YuE2."
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "Générer depuis la partition"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "Décrivez comment modifier la partition"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "Connectez un modèle de langage pour que l’IA réécrive la mélodie, les accords et le style en une phrase."
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "L’IA modifie la partition"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "L’IA a fini de modifier la partition"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "L’IA n’a pas pu modifier la partition"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "Appliquer remplace la partition actuelle, et le style si l’IA l’a changé."
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "Dites comment modifier la partition, p. ex. monter le refrain d’un ton, rendre les mesures 9–12 plus sautillantes, passer à des accords jazz"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "Modifier la partition"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "Partition mélodique"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Écrivez d’abord la mélodie, ajustez-la, puis générez la chanson entière."
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "YuE2 peut d’abord écrire la mélodie vocale et les accords de vos paroles. Relisez et modifiez la partition, puis générez la chanson. Vous pouvez aussi reprendre la mélodie d’un morceau existant pour une reprise."
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "Écrire la partition"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "Remplissez d’abord le style et les paroles"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "Réécrire depuis les paroles"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "Extraire d’un morceau"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "L’extraction garde la mélodie et retire les accords d’origine, pour réarranger le morceau dans votre style. Morceaux de 10 minutes maximum."
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "Morceau dont extraire la mélodie"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "Fichier de partition ABC"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": "Importer un .abc"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "Copier la partition"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "Effacer la partition"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "Garder la mélodie seule"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "Actions sur la partition"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "Vue de la partition"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "Pistes"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "Partition ABC"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "Pistes de la partition mélodique, {bars} mesures"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "avec accords"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "mélodie seule"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "YuE2 a écrit une nouvelle partition mélodique"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "La mélodie a été extraite du morceau"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "Remplacer supprime la partition actuelle."
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "Remplacer"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "L’IA a modifié la partition"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "La partition dépassait ce que YuE2 peut chanter et a été coupée à la limite. Raccourcissez les paroles ou retirez des sections pour garder la fin."
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "Mélodie extraite. Les accords d’origine ont été retirés pour que YuE2 réarrange le morceau dans votre style."
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "Modifié : {changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "mélodie aux mesures {bars}"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "accords aux mesures {bars}"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "accompagnement aux mesures {bars}"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "tempo"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "tonalité"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "durée {before} → {after} mesures"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": ", "
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "YuE2 ne peut pas encore chanter cette partition"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "Voix"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "Accompagnement"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "Accords"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "Basse"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "voix"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "accompagnement"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "mesure {bar}"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "mesure {bar} ({voice})"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "ligne {line}"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where} : {reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "la partition est trop longue."
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "l’en-tête doit contenir X, T, M, L, Q, les deux lignes V et K dans cet ordre."
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "signature rythmique non prise en charge."
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "écrivez le tempo sous la forme Q:1/4=BPM, entre 30 et 300."
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "tonalité non prise en charge."
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "chaque groupe contient V: Vocal puis V: Ins, avec les mêmes 1 à 4 mesures dans les deux."
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "chaque mesure se termine par une barre simple | ; les reprises et doubles barres ne sont pas prises en charge."
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "utilise une notation hors du dialecte de YuE2, comme des triolets, des appogiatures ou des liaisons d’expression."
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "accord non pris en charge ; les accords vont sur la ligne vocale et utilisent des qualités courantes comme m, 7, maj7, sus4."
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "les notes dépassent la fin de la mesure."
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "les durées ne remplissent pas la mesure ou utilisent une durée que YuE2 ne prend pas en charge."
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "une liaison doit relier deux notes de même hauteur."
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "les silences ne peuvent pas porter d’altérations, de marques d’octave ni de liaisons."
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "une note est hors tessiture."
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "les lignes de voix et d’accompagnement utilisent des mesures ou des unités de note différentes."
   }
 }

@@ -3259,5 +3259,242 @@
   },
   "@yovoice.ai.task.failed.cast": {
     "defaultMessage": "AI casting failed"
+  },
+  "@yovoice.activity.planMelody": {
+    "defaultMessage": "Writing the melody score"
+  },
+  "@yovoice.activity.transcribe": {
+    "defaultMessage": "Extracting the melody from the song"
+  },
+  "@yovoice.error.melodyInvalid": {
+    "defaultMessage": "The melody score has a problem: {issue}"
+  },
+  "@yovoice.error.melodyEmpty": {
+    "defaultMessage": "The model returned no melody score. Try again or adjust the lyrics."
+  },
+  "@yovoice.error.coverModelRequired": {
+    "defaultMessage": "Extracting a melody needs the SheetSage2 model. Download it in Settings › Models."
+  },
+  "@yovoice.settings.modelDesc.sheetsage2": {
+    "defaultMessage": "Transcribes the melody and chords of a song into a score, used for covers with YuE2."
+  },
+  "@yovoice.music.generateFromMelody": {
+    "defaultMessage": "Generate from score"
+  },
+  "@yovoice.ai.brief.melody": {
+    "defaultMessage": "Describe how to change the score"
+  },
+  "@yovoice.ai.setup.melody": {
+    "defaultMessage": "Connect a language model to let AI rewrite the melody, chords and style from one sentence."
+  },
+  "@yovoice.ai.task.running.melody": {
+    "defaultMessage": "AI is editing the score"
+  },
+  "@yovoice.ai.task.done.melody": {
+    "defaultMessage": "AI finished editing the score"
+  },
+  "@yovoice.ai.task.failed.melody": {
+    "defaultMessage": "AI couldn't edit the score"
+  },
+  "@yovoice.ai.task.replace.melody": {
+    "defaultMessage": "Applying replaces the current score, and the style if AI changed it."
+  },
+  "@yovoice.ai.melodyPlaceholder": {
+    "defaultMessage": "Say how to change the score, e.g. raise the chorus a whole step, make bars 9–12 bouncier, switch to jazz chords"
+  },
+  "@yovoice.ai.melodySubmit": {
+    "defaultMessage": "Edit score"
+  },
+  "@yovoice.melody.title": {
+    "defaultMessage": "Melody score"
+  },
+  "@yovoice.melody.subtitle": {
+    "defaultMessage": "Write the melody first, adjust it, then generate the whole song from it."
+  },
+  "@yovoice.melody.empty": {
+    "defaultMessage": "YuE2 can first write the vocal melody and chords for your lyrics. Review and edit the score, then generate the song from it. You can also take the melody of an existing song for a cover."
+  },
+  "@yovoice.melody.plan": {
+    "defaultMessage": "Write melody score"
+  },
+  "@yovoice.melody.planNeeds": {
+    "defaultMessage": "Fill in the style and lyrics first"
+  },
+  "@yovoice.melody.replan": {
+    "defaultMessage": "Rewrite from lyrics"
+  },
+  "@yovoice.melody.cover": {
+    "defaultMessage": "Extract from a song"
+  },
+  "@yovoice.melody.coverHint": {
+    "defaultMessage": "Extracting keeps the melody and drops the original chords, so the song is rearranged in your style. Songs up to 10 minutes."
+  },
+  "@yovoice.melody.coverFile": {
+    "defaultMessage": "Song to extract the melody from"
+  },
+  "@yovoice.melody.abcFile": {
+    "defaultMessage": "ABC score file"
+  },
+  "@yovoice.melody.import": {
+    "defaultMessage": "Import .abc"
+  },
+  "@yovoice.melody.copy": {
+    "defaultMessage": "Copy score"
+  },
+  "@yovoice.melody.clear": {
+    "defaultMessage": "Clear score"
+  },
+  "@yovoice.melody.stripChords": {
+    "defaultMessage": "Keep melody only"
+  },
+  "@yovoice.melody.more": {
+    "defaultMessage": "Score actions"
+  },
+  "@yovoice.melody.tempo": {
+    "defaultMessage": "Tempo"
+  },
+  "@yovoice.melody.view": {
+    "defaultMessage": "Score view"
+  },
+  "@yovoice.melody.viewTracks": {
+    "defaultMessage": "Tracks"
+  },
+  "@yovoice.melody.viewSource": {
+    "defaultMessage": "ABC"
+  },
+  "@yovoice.melody.source": {
+    "defaultMessage": "ABC score"
+  },
+  "@yovoice.melody.tracksLabel": {
+    "defaultMessage": "Melody score tracks, {bars} bars"
+  },
+  "@yovoice.melody.withChords": {
+    "defaultMessage": "with chords"
+  },
+  "@yovoice.melody.melodyOnly": {
+    "defaultMessage": "melody only"
+  },
+  "@yovoice.melody.readyPlan": {
+    "defaultMessage": "YuE2 wrote a new melody score"
+  },
+  "@yovoice.melody.readyCover": {
+    "defaultMessage": "The melody was extracted from the song"
+  },
+  "@yovoice.melody.readyReplace": {
+    "defaultMessage": "Replacing discards the current score."
+  },
+  "@yovoice.melody.replace": {
+    "defaultMessage": "Replace"
+  },
+  "@yovoice.melody.edited": {
+    "defaultMessage": "AI edited the score"
+  },
+  "@yovoice.melody.notice.truncated": {
+    "defaultMessage": "The score was longer than YuE2 can sing, so it was cut at the limit. Shorten the lyrics or trim sections to keep the ending."
+  },
+  "@yovoice.melody.notice.cover": {
+    "defaultMessage": "Melody extracted. The original chords were removed so YuE2 rearranges the song in your style."
+  },
+  "@yovoice.melody.changed": {
+    "defaultMessage": "Changed: {changes}"
+  },
+  "@yovoice.melody.changedVocal": {
+    "defaultMessage": "melody in bars {bars}"
+  },
+  "@yovoice.melody.changedChords": {
+    "defaultMessage": "chords in bars {bars}"
+  },
+  "@yovoice.melody.changedIns": {
+    "defaultMessage": "accompaniment in bars {bars}"
+  },
+  "@yovoice.melody.changedTempo": {
+    "defaultMessage": "tempo"
+  },
+  "@yovoice.melody.changedKey": {
+    "defaultMessage": "key"
+  },
+  "@yovoice.melody.changedBars": {
+    "defaultMessage": "length {before} → {after} bars"
+  },
+  "@yovoice.melody.listSeparator": {
+    "defaultMessage": ", "
+  },
+  "@yovoice.melody.invalid": {
+    "defaultMessage": "YuE2 can't sing this score yet"
+  },
+  "@yovoice.melody.track.vocal": {
+    "defaultMessage": "Vocal"
+  },
+  "@yovoice.melody.track.ins": {
+    "defaultMessage": "Accompaniment"
+  },
+  "@yovoice.melody.track.chords": {
+    "defaultMessage": "Chords"
+  },
+  "@yovoice.melody.track.bass": {
+    "defaultMessage": "Bass"
+  },
+  "@yovoice.melody.voice.Vocal": {
+    "defaultMessage": "vocal"
+  },
+  "@yovoice.melody.voice.Ins": {
+    "defaultMessage": "accompaniment"
+  },
+  "@yovoice.melody.where.bar": {
+    "defaultMessage": "bar {bar}"
+  },
+  "@yovoice.melody.where.barVoice": {
+    "defaultMessage": "bar {bar} ({voice})"
+  },
+  "@yovoice.melody.where.line": {
+    "defaultMessage": "line {line}"
+  },
+  "@yovoice.melody.issueAt": {
+    "defaultMessage": "{where}: {reason}"
+  },
+  "@yovoice.melody.issue.length": {
+    "defaultMessage": "the score is too long."
+  },
+  "@yovoice.melody.issue.header": {
+    "defaultMessage": "the header must list X, T, M, L, Q, the two V lines and K in order."
+  },
+  "@yovoice.melody.issue.meter": {
+    "defaultMessage": "unsupported time signature."
+  },
+  "@yovoice.melody.issue.tempo": {
+    "defaultMessage": "write the tempo as Q:1/4=BPM, between 30 and 300."
+  },
+  "@yovoice.melody.issue.key": {
+    "defaultMessage": "unsupported key."
+  },
+  "@yovoice.melody.issue.group": {
+    "defaultMessage": "each group lists V: Vocal then V: Ins, with the same 1–4 bars in both."
+  },
+  "@yovoice.melody.issue.barline": {
+    "defaultMessage": "every bar ends with a plain | ; repeats and double bar lines aren't supported."
+  },
+  "@yovoice.melody.issue.token": {
+    "defaultMessage": "uses notation outside YuE2's dialect, such as tuplets, grace notes or slurs."
+  },
+  "@yovoice.melody.issue.chord": {
+    "defaultMessage": "unsupported chord; chords go in the vocal line and use common qualities such as m, 7, maj7, sus4."
+  },
+  "@yovoice.melody.issue.overflow": {
+    "defaultMessage": "the notes run past the end of the bar."
+  },
+  "@yovoice.melody.issue.duration": {
+    "defaultMessage": "the note lengths don't fill the bar, or use a length YuE2 doesn't support."
+  },
+  "@yovoice.melody.issue.tie": {
+    "defaultMessage": "a tie must join two notes of the same pitch."
+  },
+  "@yovoice.melody.issue.rest": {
+    "defaultMessage": "rests can't carry accidentals, octave marks or ties."
+  },
+  "@yovoice.melody.issue.pitch": {
+    "defaultMessage": "a note is out of range."
+  },
+  "@yovoice.melody.issue.grid": {
+    "defaultMessage": "the vocal and accompaniment lines use different meters or note units."
   }
 }

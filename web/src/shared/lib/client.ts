@@ -28,6 +28,13 @@ export async function importVoiceFile(file: File): Promise<Voice> {
   return call<Voice>('voice.record', { name: file.name.replace(/\.[^.]+$/, ''), base64: await toBase64(file) });
 }
 
+// 翻唱扒谱：上传歌曲交给后台用 SheetSage2 提取旋律；浏览器预览不做推理。
+export async function coverMelodyFile(projectId: string, file: File): Promise<void> {
+  if (!isDesktop) throw new CallError('@yovoice.error.previewDesktopOnly');
+  assertUploadSize(file);
+  await call('melody.cover', { projectId, base64: await toBase64(file) });
+}
+
 export async function mediaUrl(kind: 'voices' | 'outputs', file: string): Promise<string> {
   return isDesktop ? desktopMediaUrl(kind, file) : previewMediaUrl(file);
 }

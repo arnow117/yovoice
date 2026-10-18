@@ -62,6 +62,7 @@ func New(root string) (store *Store, err error) {
 	s.state.ModelActivity = settleActivity(s.state.ModelActivity)
 	// AI 任务只属于本次会话。
 	s.state.AITask = nil
+	s.state.Melody = nil
 	// 未保存的试听不跨会话保留，角色已保存的试听使用独立文件。
 	s.state.Previews = []schema.CharacterPreview{}
 	files, _ := filepath.Glob(filepath.Join(root, "outputs", "audition-*.wav"))
