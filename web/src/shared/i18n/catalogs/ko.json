@@ -2738,6 +2738,27 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "가사 내보내기(LRC)"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "가사 스타일"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "스크롤"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "곡 전체가 스크롤되고 현재 줄이 한 글자씩 밝아짐"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "스포트라이트"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "한 줄씩 보여 주며 글자가 노래에 맞춰 튀어나와 빛남. 화면 녹화에 적합"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "글자 단위 가사 내보내기"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "모든 글자에 시간이 있는 확장 LRC. 노래방 가사를 지원하는 플레이어용"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "보컬을 분석해 가사 타이밍을 배치했습니다. 싱크로 더 정확하게 맞출 수 있습니다"
   },

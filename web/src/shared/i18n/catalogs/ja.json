@@ -2738,6 +2738,27 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "歌詞を書き出し（LRC）"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "歌詞スタイル"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "スクロール"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "曲全体がスクロールし、今の行が一文字ずつ光る"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "スポットライト"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "一行ずつ表示し、文字が歌に合わせて飛び出して光る。画面録画向け"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "単語単位の歌詞を書き出す"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "すべての文字に時刻が付いた拡張 LRC。カラオケ歌詞対応のプレーヤー向け"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "歌詞のタイミングはボーカルから配置しました。同期で微調整できます"
   },

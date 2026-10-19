@@ -2738,6 +2738,27 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "导出歌词（LRC）"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "歌词样式"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "滚动歌词"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "整首歌词随播放滚动，当前句逐字点亮"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "浮光"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "一句一屏，字随演唱逐个跃出并发光，适合录屏"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "导出逐字歌词"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "增强 LRC，每个字都带时间，支持卡拉 OK 歌词的播放器可逐字显示"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "歌词时间按人声自动定位，可再校准"
   },

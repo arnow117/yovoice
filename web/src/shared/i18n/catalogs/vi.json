@@ -2738,6 +2738,27 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "Xuất lời bài hát (LRC)"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "Kiểu lời bài hát"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "Cuộn"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "Toàn bộ lời cuộn theo bài, dòng hiện tại sáng dần từng chữ"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "Tâm điểm"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "Mỗi lần một dòng, từng chữ bật lên và phát sáng. Hợp để quay màn hình"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "Xuất lời theo từng chữ"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "LRC mở rộng có thời gian cho từng chữ, dành cho trình phát hỗ trợ lời karaoke"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Thời gian lời được đặt theo giọng hát; hãy đồng bộ để tinh chỉnh"
   },

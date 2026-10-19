@@ -2738,6 +2738,27 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "Экспорт текста песни (LRC)"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "Стиль текста"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "Прокрутка"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "Весь текст прокручивается, текущая строка подсвечивается по словам"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "Прожектор"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "По одной строке: слова выпрыгивают и светятся. Удобно для записи экрана"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "Экспорт текста по словам"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "Расширенный LRC с отметкой времени для каждого слова, для плееров с караоке"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Тайминг текста расставлен по вокалу; синхронизируйте для уточнения"
   },

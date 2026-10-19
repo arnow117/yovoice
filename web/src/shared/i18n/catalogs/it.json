@@ -2738,6 +2738,27 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "Esporta testo (LRC)"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "Stile del testo"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "Scorrimento"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "Il testo scorre e la riga corrente si illumina parola per parola"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "Riflettore"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "Una riga alla volta, ogni parola salta fuori e brilla. Ideale per registrare lo schermo"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "Esporta testo parola per parola"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "LRC avanzato con un tempo per ogni parola, per i lettori che supportano il karaoke"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Tempi del testo posizionati in base alla voce; sincronizza per perfezionarli"
   },

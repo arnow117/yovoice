@@ -2738,6 +2738,27 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "Exportar letra (LRC)"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "Estilo da letra"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "Rolagem"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "A letra rola com a música e a linha atual acende palavra por palavra"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "Holofote"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "Uma linha por vez, cada palavra salta e brilha. Ideal para gravar a tela"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "Exportar letra por palavra"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "LRC avançado com horário em cada palavra, para players com letras de karaokê"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Tempo da letra posicionado pelos vocais; sincronize para refinar"
   },

@@ -1,14 +1,14 @@
-import { useEffect, useEffectEvent, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { Dialog } from '@astryxdesign/core/Dialog';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowDown, ArrowLeftRight, Check, ChevronDown, Download, FastForward, Maximize, Minimize, Pause, Play, Rewind } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, Check, ChevronDown, Download, FastForward, Maximize, Minimize, Pause, Play, Rewind, Sparkles } from 'lucide-react';
 import { call, mediaUrl, saveText } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, type Generation } from '../../shared/workbench';
-import { alignLyrics, vocalActivity, type VocalActivity } from './lyric-align';
+import { alignLyrics, vocalActivity, withWords, type VocalActivity } from './lyric-align';
 import { activeLyric, lyricRows, lyricTimeline, lyricsToLrc, type LyricLine } from './lyric-timing';
 import { splitTags } from './music-draft';
 import { coverPalette, SongCover } from './song-cover';
@@ -40,8 +40,18 @@ async function analyse(url: string): Promise<{ envelope: number[]; activity?: Vo
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// 歌词样式：scroll 是整首滚动、当前句逐字点亮；stage 是一句一屏，字随演唱逐个跃出并发光，适合录屏。选择记在本机。
+type LyricStyle = 'scroll' | 'stage';
+const lyricStyleKey = 'yovoice-lyric-style';
+const savedLyricStyle = (): LyricStyle => { try { return localStorage.getItem(lyricStyleKey) === 'stage' ? 'stage' : 'scroll'; } catch { return 'scroll'; } };
+// 浮光样式里每个字固定的倾斜与上下错落，由行号和字序派生，同一句每次显示都一样。
+const jitter = (seed: number) => { const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453; return value - Math.floor(value) - .5; };
+// 浮光样式背景里漂浮的几何图形。
+const shapes = ['ring', 'disc', 'triangle', 'star', 'ring', 'dash', 'disc'] as const;
+
 // 音乐播放页：仿 Apple Music 的全屏播放，左侧封面与播放控制，右侧滚动歌词；方便录屏，静置时自动隐藏控件和鼠标。
 // 歌词时间先按音频里的人声片段自动定位，判断不可靠时按时长估算；可以边听边逐行校准，校准结果随版本保存。
+// 每行再按人声分出逐字时间，当前句逐字点亮；也可以换成一句一屏的浮光样式。
 // versions 是同一作品的各个版本：可以在播放页里切换版本对比试听，切换时保持播放位置，按 B 在最近两个版本之间来回切。
 export function NowPlaying({ item: opened, title: openedTitle, versions = [], close, onError }: { item: Generation; title: string; versions?: Generation[]; close: () => void; onError: (message: string) => void }) {
   const t = useTranslator();
@@ -74,11 +84,16 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
   const lyrics = item.settings.instrumental ? '' : item.settings.lyrics ?? '';
   const rows = useMemo(() => lyricRows(lyrics), [lyrics]);
   const auto = useMemo(() => voice ? alignLyrics(rows, voice.activity, voice.duration) ?? undefined : undefined, [rows, voice]);
-  const timeline = useMemo(() => lyricTimeline(lyrics, duration, times ?? auto), [lyrics, duration, times, auto]);
+  // 逐字时间按音频里的人声片段分配；没有可靠的人声判断时按音节均分。
+  const timeline = useMemo(() => withWords(lyricTimeline(lyrics, duration, times ?? auto), voice?.activity), [lyrics, duration, times, auto, voice]);
+  const [lyricStyle, setLyricStyle] = useState(savedLyricStyle);
+  const chooseStyle = (value: LyricStyle) => { setLyricStyle(value); try { localStorage.setItem(lyricStyleKey, value); } catch { /* 存储不可用时只在本次生效 */ } };
   // 校准时逐行显示，不补前奏；刚标记的一行视为当前句，下一行是待标记的目标。
   const lines: LyricLine[] = sync ? rows.map(row => ({ ...row, start: 0, end: 0 })) : timeline;
   const current = sync ? sync.length - 1 : activeLyric(lines, time);
   const focus = sync ? Math.min(sync.length, lines.length - 1) : current, syncing = sync !== null;
+  // 校准时总用滚动歌词，方便看到下一行。
+  const staged = lyricStyle === 'stage' && !sync && lines.length > 0;
   const { hue, accent } = coverPalette(item.id);
   const tags = splitTags(item.settings.text).slice(0, 4);
 
@@ -145,8 +160,8 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
     if (next.length < rows.length) { setSync(next); return; }
     setSync(null); save(next);
   };
-  // 按当前显示的歌词时间（校准、自动定位或估算）导出 LRC。
-  const exportLrc = () => { void saveText(lyricsToLrc(timeline, title), title, 'lrc').catch((error: unknown) => onError(noticeMessage(error))); };
+  // 按当前显示的歌词时间（校准、自动定位或估算）导出 LRC；words 为真时导出逐字时间。
+  const exportLrc = (words = false) => { void saveText(lyricsToLrc(timeline, title, words), title, 'lrc').catch((error: unknown) => onError(noticeMessage(error))); };
   const undo = () => {
     if (!sync?.length) return;
     const last = sync.at(-1)!;
@@ -167,12 +182,31 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
     frame = requestAnimationFrame(tick);
     return () => { cancelAnimationFrame(frame); root.style.setProperty('--now-playing-level', '0'); };
   }, [playing]);
+  // 逐字点亮：按播放位置把每个字的进度（--word-fill，0~1）和状态（data-sung）直接写到元素上，播放中逐帧更新，不经过 React 渲染。
+  // 用布局阶段的 effect，换行后新出现的字在第一次绘制前就有正确的状态。
+  useLayoutEffect(() => {
+    const element = audio.current, root = stage.current;
+    if (!element || !root) return;
+    let frame = 0;
+    const paint = () => {
+      const now = element.currentTime;
+      for (const word of root.querySelectorAll<HTMLElement>('[data-word-start]')) {
+        const start = Number(word.dataset.wordStart), end = Number(word.dataset.wordEnd);
+        word.style.setProperty('--word-fill', Math.max(0, Math.min(1, (now - start) / Math.max(.05, end - start))).toFixed(3));
+        const state = now < start ? 'waiting' : now < end ? 'active' : 'done';
+        if (word.dataset.sung !== state) word.dataset.sung = state;
+      }
+      if (!element.paused) frame = requestAnimationFrame(paint);
+    };
+    paint();
+    return () => cancelAnimationFrame(frame);
+  }, [playing, time, current, staged, timeline]);
   // 当前句（校准时是待标记的一行）滚到歌词区中间。
   useEffect(() => {
     const box = lyricsBox.current, line = box?.querySelector<HTMLElement>(`[data-index="${focus}"]`);
     if (!box || !line) return;
     box.scrollTo({ top: line.offsetTop - box.clientHeight / 2 + line.clientHeight / 2, behavior: reducedMotion() ? 'auto' : 'smooth' });
-  }, [focus, syncing]);
+  }, [focus, syncing, staged]);
   // 播放中鼠标静置 2.5 秒后隐藏控件和指针，录屏时画面只留封面与歌词；校准时保持显示。
   const lastActive = useRef(0);
   const wake = () => { lastActive.current = performance.now(); if (idle) setIdle(false); };
@@ -211,9 +245,20 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
   }, []);
   const progress = duration ? time / duration * 100 : 0;
   const lineState = (index: number) => index === current ? 'current' : index < current ? 'past' : 'next';
+  // 滚动歌词只把当前句拆成逐字，其余行是整句文字。
+  const lineText = (line: LyricLine, index: number) => line.instrumental ? '• • •'
+    : !sync && index === current && line.words ? line.words.map((word, k) => <span key={k} className="now-playing-word" data-word-start={word.start} data-word-end={word.end}>{word.text}</span>) : line.text;
+  // 浮光样式只显示上一句（正在飘走）、当前句和下一句预告；每句按行号保持同一个元素，换句时在三个位置之间过渡。
+  const phrase = (index: number) => {
+    const line = lines[index], words = line.words ?? [{ text: line.text, start: line.start, end: line.end }];
+    return <p key={index} className="now-playing-phrase" data-slot={index < current ? 'past' : index === current ? 'current' : 'next'} data-instrumental={line.instrumental || undefined} aria-hidden={index !== current || undefined}>
+      {line.instrumental ? <span className="now-playing-rest">• • •</span> : words.map((word, k) => <span key={k} className="now-playing-glyph" data-word-start={word.start} data-word-end={word.end}
+        style={{ '--glyph-tilt': `${jitter(index * 97 + k) * 14}deg`, '--glyph-drift': jitter(index * 131 + k * 7 + 3), '--glyph-size': 1 + jitter(index * 17 + k * 29 + 5) * .3 } as CSSProperties}>{word.text}</span>)}
+    </p>;
+  };
   return <Dialog className="now-playing-dialog" isOpen variant="fullscreen" padding={0} aria-label={t('@yovoice.music.nowPlayingTitle', { title })}
     onOpenChange={open => { if (open) return; if (sync) setSync(null); else leave(); }}>
-    <VStack ref={stage} tabIndex={-1} className="now-playing" data-playing={playing} data-idle={idle && !sync} data-leaving={leaving || undefined} data-syncing={!!sync || undefined} gap={0}
+    <VStack ref={stage} tabIndex={-1} className="now-playing" data-playing={playing} data-idle={idle && !sync} data-leaving={leaving || undefined} data-syncing={!!sync || undefined} data-style={staged ? 'stage' : 'scroll'} gap={0}
       style={{ '--now-playing-hue': hue, '--now-playing-accent': accent } as CSSProperties}
       onPointerMove={wake} onPointerDown={wake}
       onAnimationEnd={event => { if (leaving && event.target === stage.current) close(); }}>
@@ -237,8 +282,15 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
               endContent: entry.id === item.id ? <Check size={14} /> : undefined, onClick: () => switchTo(entry) }))} />
           {previous && previous.id !== item.id ? <Button className="now-playing-glass" size="sm" variant="ghost" icon={<ArrowLeftRight />} label={t('@yovoice.music.switchBack', { n: versionNumber(previous) })} tooltip={t('@yovoice.music.switchBackHint')} onClick={() => switchTo(previous)} /> : null}
         </HStack> : null}
-        {document.fullscreenEnabled ? <Button className="now-playing-glass now-playing-round" label={t(fullscreen ? '@yovoice.music.exitFullscreen' : '@yovoice.music.fullscreen')} isIconOnly variant="ghost" icon={fullscreen ? <Minimize /> : <Maximize />} onClick={toggleFullscreen} /> : null}
+        <HStack gap={2} vAlign="center">
+          {rows.length ? <DropdownMenu presentation="popover" alignment="end" menuWidth="max-content" hasChevron={false}
+            button={{ className: 'now-playing-glass now-playing-round', variant: 'ghost', isIconOnly: true, icon: <Sparkles />, label: t('@yovoice.music.lyricStyle'), tooltip: t('@yovoice.music.lyricStyle') }}
+            items={(['scroll', 'stage'] as const).map(value => ({ id: value, label: t(value === 'stage' ? '@yovoice.music.lyricStyleStage' : '@yovoice.music.lyricStyleScroll'),
+              description: t(value === 'stage' ? '@yovoice.music.lyricStyleStageHint' : '@yovoice.music.lyricStyleScrollHint'), endContent: lyricStyle === value ? <Check size={14} /> : undefined, onClick: () => chooseStyle(value) }))} /> : null}
+          {document.fullscreenEnabled ? <Button className="now-playing-glass now-playing-round" label={t(fullscreen ? '@yovoice.music.exitFullscreen' : '@yovoice.music.fullscreen')} isIconOnly variant="ghost" icon={fullscreen ? <Minimize /> : <Maximize />} onClick={toggleFullscreen} /> : null}
+        </HStack>
       </HStack>
+      {staged ? <span className="now-playing-shapes" aria-hidden>{shapes.map((shape, index) => <span key={index} className="now-playing-shape" data-shape={shape} style={{ '--shape-index': index, '--shape-x': `${(index * 37 + 8) % 90}%`, '--shape-y': `${(index * 53 + 12) % 80}%`, '--shape-scale': 1.2 + (index * 7 % 5) * .5 } as CSSProperties} />)}</span> : null}
       <HStack className={`now-playing-stage ${lines.length ? '' : 'now-playing-solo'}`.trim()} gap={0} vAlign="center">
         <VStack className="now-playing-side" gap={6}>
           <VStack className="now-playing-art" gap={0}><SongCover seed={item.id} animated={playing} size={640} /></VStack>
@@ -256,12 +308,14 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
             </HStack>
           </VStack>
         </VStack>
-        {lines.length ? <VStack ref={lyricsBox} className="now-playing-lyrics" gap={0} role="list" aria-label={t('@yovoice.music.lyrics')}>
+        {staged ? <VStack className="now-playing-kinetic" gap={0} role="group" aria-label={t('@yovoice.music.lyrics')}>
+          {[current - 1, current, current + 1].filter(index => index >= 0 && index < lines.length).map(phrase)}
+        </VStack> : lines.length ? <VStack ref={lyricsBox} className="now-playing-lyrics" gap={0} role="list" aria-label={t('@yovoice.music.lyrics')}>
           {lines.map((line, index) => <p key={`${sync ? 'sync' : 'play'}-${index}`} role="listitem" data-index={index} className="now-playing-line" data-state={lineState(index)}
             data-target={sync && index === sync.length || undefined} data-instrumental={line.instrumental || undefined}
             style={{ '--now-playing-distance': Math.min(4, Math.abs(index - focus)) } as CSSProperties}
             title={sync || line.instrumental ? undefined : t('@yovoice.music.seekLyric')} onClick={() => { if (sync) return; seek(line.start); if (audio.current?.paused) void play(); }}>
-            {line.instrumental ? '• • •' : line.text}
+            {lineText(line, index)}
           </p>)}
         </VStack> : null}
       </HStack>
@@ -275,7 +329,8 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
         <small>{t(times ? '@yovoice.music.lyricsSynced' : auto ? '@yovoice.music.lyricsAnalyzed' : '@yovoice.music.lyricsEstimated')}</small>
         <Button className="now-playing-glass" size="sm" variant="ghost" label={t(times ? '@yovoice.music.resyncLyrics' : '@yovoice.music.syncLyrics')} isDisabled={!url} onClick={startSync} />
         {times ? <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.syncReset')} onClick={() => save(undefined)} /> : null}
-        <Button className="now-playing-glass" size="sm" variant="ghost" icon={<Download />} label={t('@yovoice.music.exportLrc')} isDisabled={!timeline.length} onClick={exportLrc} />
+        <Button className="now-playing-glass" size="sm" variant="ghost" icon={<Download />} label={t('@yovoice.music.exportLrc')} isDisabled={!timeline.length} onClick={() => exportLrc()} />
+        <Button className="now-playing-glass" size="sm" variant="ghost" icon={<Download />} label={t('@yovoice.music.exportWordLrc')} tooltip={t('@yovoice.music.exportWordLrcHint')} isDisabled={!timeline.length} onClick={() => exportLrc(true)} />
       </HStack> : null}
     </VStack>
   </Dialog>;

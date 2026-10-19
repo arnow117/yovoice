@@ -2738,6 +2738,27 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "Exporter les paroles (LRC)"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "Style des paroles"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "Défilement"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "Les paroles défilent et la ligne en cours s’illumine mot à mot"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "Projecteur"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "Une ligne à la fois, chaque mot surgit et brille. Idéal pour l’enregistrement d’écran"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "Exporter les paroles mot à mot"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "LRC enrichi avec un horodatage par mot, pour les lecteurs compatibles karaoké"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Minutage des paroles placé d’après le chant ; synchronisez pour l’affiner"
   },

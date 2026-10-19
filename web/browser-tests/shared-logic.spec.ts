@@ -4,8 +4,8 @@ import { SubtitleParser } from '../src/features/create/subtitle-parser';
 import { Timeline } from '../src/features/media/timeline';
 import { CallError, noticeMessage, parseCallError } from '../src/shared/lib/call-error';
 import { formatCallError, formatNotice } from '../src/shared/i18n/format';
-import { alignLyrics, vocalActivity } from '../src/features/music/lyric-align';
-import { activeLyric, lyricRows, lyricTimeline } from '../src/features/music/lyric-timing';
+import { alignLyrics, vocalActivity, withWords } from '../src/features/music/lyric-align';
+import { activeLyric, estimateWords, lyricRows, lyricTimeline, lyricTokens } from '../src/features/music/lyric-timing';
 import { songLyrics, syntheticSong } from './synthetic-song';
 import { readFileSync } from 'node:fs';
 import { isUiLocale, resolveInitialUiLocale, uiLocales } from '../src/shared/i18n/locale';
@@ -160,6 +160,24 @@ test('歌词按音频自动定位：人声片段的开头对上每一行，没�
   expect(alignLyrics(accompaniment.rows, vocalActivity(accompaniment.left, accompaniment.right, accompaniment.rate), accompaniment.duration)).toBeNull();
   const silence = new Float32Array(16000 * 20);
   expect(alignLyrics(song.rows, vocalActivity(silence, silence, 16000), 20)).toBeNull();
+});
+
+test('逐字时间：中文逐字、英文逐词拆分，按人声片段分配，行内停顿不占字', () => {
+  expect(lyricTokens('“你好，world!” 再见').map(token => token.text)).toEqual(['“你', '好，', 'world!” ', '再', '见']);
+  expect(lyricTokens('hello beautiful').map(token => token.weight)).toEqual([2, 3]);
+  // 没有音频时按音节均分，唱完后留出换气，不把最后一个字拖到下一句。
+  const estimated = estimateWords({ text: '一二三四', start: 10, end: 20 });
+  expect(estimated.map(word => word.start)).toEqual([10, 11.875, 13.75, 15.625]);
+  expect(estimated.at(-1)!.end).toBe(17.5);
+  // 合成歌曲已知每个字的开始时间：按真实的行开始时间逐字对齐，多数字误差在 0.1 秒内，最大不超过 0.3 秒。
+  const song = syntheticSong(songLyrics, .3);
+  const lines = withWords(lyricTimeline(songLyrics, song.duration, song.starts), vocalActivity(song.left, song.right, song.rate));
+  const sung = song.words.filter(words => words.length);
+  const errors = lines.filter(line => line.words).flatMap((line, index) => line.words!.map((word, k) => Math.abs(word.start - sung[index][k]))).sort((a, b) => a - b);
+  expect(errors).toHaveLength(sung.flat().length);
+  expect(errors[errors.length >> 1]).toBeLessThan(.1);
+  expect(errors.at(-1)).toBeLessThan(.3);
+  for (const line of lines) line.words?.forEach((word, k) => { expect(word.end).toBeGreaterThan(word.start); if (k) expect(word.start).toBeGreaterThanOrEqual(line.words![k - 1].end); });
 });
 
 test('首次启动按系统语言选择界面语言，繁体与葡语按地区归并，未知语言回退英文', () => {

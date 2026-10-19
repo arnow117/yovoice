@@ -2738,6 +2738,27 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "Liedtext exportieren (LRC)"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "Liedtextstil"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "Scrollend"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "Der ganze Text scrollt mit, die aktuelle Zeile leuchtet Wort für Wort auf"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "Spotlight"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "Eine Zeile pro Bild, jedes Wort springt hervor und leuchtet. Ideal für Bildschirmaufnahmen"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "Liedtext mit Wortzeiten exportieren"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "Erweitertes LRC mit Zeitstempel pro Wort, für Player mit Karaoke-Liedtexten"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Songtext-Timing aus dem Gesang ermittelt; zum Verfeinern synchronisieren"
   },
