@@ -659,7 +659,9 @@
   .melody-meta { min-width: 0; }
   .melody-view-bar { flex: none; padding-inline-end: calc(var(--spacing-1) / 2); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); background: var(--app-surface); }
   .melody-view-bar > .astryx-segmented-control { border: none; background: transparent; }
-  .melody-view-bar .astryx-button { min-height: var(--spacing-8); border-left: var(--border-width) solid var(--app-line); border-radius: 0 var(--radius-inner) var(--radius-inner) 0; background: transparent; }
+  /* 比默认分段控件小一号：高 28px、字号再小一档。 */
+  .melody-view-bar .astryx-segmented-control-item { min-height: calc(var(--spacing-1) * 7); padding-inline: calc(var(--spacing-1) * 1.5); font-size: calc(var(--app-small-font) - var(--spacing-0-5) / 2); }
+  .melody-view-bar .astryx-button { min-height: calc(var(--spacing-1) * 7); min-width: calc(var(--spacing-1) * 7); width: calc(var(--spacing-1) * 7); height: calc(var(--spacing-1) * 7); border-left: var(--border-width) solid var(--app-line); border-radius: 0 var(--radius-inner) var(--radius-inner) 0; background: transparent; }
   .melody-view-bar .astryx-button:hover { background: var(--app-white); }
   .melody-score .melody-tempo { flex: none; gap: var(--spacing-1); color: var(--app-muted); }
   .melody-score .melody-tempo input { width: calc(var(--spacing-10) * 1.2); min-height: var(--spacing-8); padding: 0 var(--spacing-1); background: transparent; border-color: transparent; color: var(--app-ink); appearance: textfield; transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard); }
