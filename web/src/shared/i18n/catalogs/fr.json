@@ -2018,9 +2018,6 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Signature rythmique"
   },
-  "@yovoice.music.steps": {
-    "defaultMessage": "Étapes"
-  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Ce modèle nécessite le moteur d’inférence {version} ou ultérieur. Mettez à jour le moteur dans les Paramètres."
   },
@@ -3793,47 +3790,5 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "Précision"
-  },
-  "@yovoice.music.stepWrite": {
-    "defaultMessage": "Style et paroles"
-  },
-  "@yovoice.music.stepWriteEmpty": {
-    "defaultMessage": "Pas encore rempli"
-  },
-  "@yovoice.music.stepWriteStatus": {
-    "defaultMessage": "{tags} styles · {lines} vers"
-  },
-  "@yovoice.music.stepWriteInstrumental": {
-    "defaultMessage": "{tags} styles · instrumental"
-  },
-  "@yovoice.music.stepScoreEmpty": {
-    "defaultMessage": "Pas de partition"
-  },
-  "@yovoice.music.stepScoreReady": {
-    "defaultMessage": "Prête pour la génération"
-  },
-  "@yovoice.music.stepScoreWorking": {
-    "defaultMessage": "Écriture de la partition…"
-  },
-  "@yovoice.music.stepScoreFree": {
-    "defaultMessage": "Mode libre, non utilisée"
-  },
-  "@yovoice.music.nextPlan": {
-    "defaultMessage": "Écrire la partition"
-  },
-  "@yovoice.music.nextOpenScore": {
-    "defaultMessage": "Voir la partition"
-  },
-  "@yovoice.music.nextPlanHint": {
-    "defaultMessage": "Ensuite, YuE2 écrit la mélodie vocale et les accords d’après les paroles ; relisez-la, modifiez-la puis générez à partir d’elle. Vous avez une chanson ou un fichier .abc ? Passez à l’étape partition pour l’extraire ou l’importer."
-  },
-  "@yovoice.music.nextScoreHint": {
-    "defaultMessage": "Cette œuvre a déjà une partition ; la génération la suit."
-  },
-  "@yovoice.music.nextFreeHint": {
-    "defaultMessage": "Le mode libre génère directement à partir du style et des paroles, sans partition."
-  },
-  "@yovoice.music.stepScorePending": {
-    "defaultMessage": "Nouvelle partition prête à relire"
   }
 }

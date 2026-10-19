@@ -2018,9 +2018,6 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "拍号"
   },
-  "@yovoice.music.steps": {
-    "defaultMessage": "创作步骤"
-  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "该模型需要 {version} 及以上的推理内核，请在设置中更新内核。"
   },
@@ -3793,47 +3790,5 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
-  },
-  "@yovoice.music.stepWrite": {
-    "defaultMessage": "风格与歌词"
-  },
-  "@yovoice.music.stepWriteEmpty": {
-    "defaultMessage": "还没填写"
-  },
-  "@yovoice.music.stepWriteStatus": {
-    "defaultMessage": "{tags} 个风格 · {lines} 行歌词"
-  },
-  "@yovoice.music.stepWriteInstrumental": {
-    "defaultMessage": "{tags} 个风格 · 纯音乐"
-  },
-  "@yovoice.music.stepScoreEmpty": {
-    "defaultMessage": "还没有谱"
-  },
-  "@yovoice.music.stepScoreReady": {
-    "defaultMessage": "已写好，可按谱生成"
-  },
-  "@yovoice.music.stepScoreWorking": {
-    "defaultMessage": "正在写谱…"
-  },
-  "@yovoice.music.stepScoreFree": {
-    "defaultMessage": "自由发挥，不用谱"
-  },
-  "@yovoice.music.nextPlan": {
-    "defaultMessage": "写旋律谱"
-  },
-  "@yovoice.music.nextOpenScore": {
-    "defaultMessage": "查看旋律谱"
-  },
-  "@yovoice.music.nextPlanHint": {
-    "defaultMessage": "下一步由 YuE2 按歌词写出人声旋律与和弦，你看过、改过后再按谱生成。已有歌曲或 .abc 谱，可以直接到旋律谱一步提取或导入。"
-  },
-  "@yovoice.music.nextScoreHint": {
-    "defaultMessage": "这个作品已经有旋律谱，生成时按谱演唱。"
-  },
-  "@yovoice.music.nextFreeHint": {
-    "defaultMessage": "自由发挥直接按风格和歌词生成，不经过旋律谱。"
-  },
-  "@yovoice.music.stepScorePending": {
-    "defaultMessage": "新谱已写好，点开查看"
   }
 }
