@@ -2018,6 +2018,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "Fórmula de compasso"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "Etapas"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "Este modelo precisa do motor de inferência {version} ou posterior. Atualize o motor em Configurações."
   },
@@ -3731,11 +3734,17 @@
   "@yovoice.music.mode": {
     "defaultMessage": "Geração"
   },
+  "@yovoice.music.modeScore": {
+    "defaultMessage": "Com partitura"
+  },
   "@yovoice.music.modeFree": {
-    "defaultMessage": "Sem partitura"
+    "defaultMessage": "Livre"
   },
   "@yovoice.music.modeScoreHint": {
     "defaultMessage": "Canta sobre a partitura; sem ela, o YuE2 escreve primeiro e você pode carregá-la da versão para editar."
+  },
+  "@yovoice.music.modeFreeHint": {
+    "defaultMessage": "Gera diretamente sem partitura; o resultado não tem partitura editável."
   },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "Passar a melodia aos instrumentos"
@@ -3788,49 +3797,46 @@
   "@yovoice.create.precision": {
     "defaultMessage": "Precisão"
   },
-  "@yovoice.melody.subtitle": {
-    "defaultMessage": "Escreva primeiro a melodia, edite e gere a música inteira com ela."
+  "@yovoice.music.stepWrite": {
+    "defaultMessage": "Estilo e letra"
   },
-  "@yovoice.music.modeChords": {
-    "defaultMessage": "Melodia + acordes"
+  "@yovoice.music.stepWriteEmpty": {
+    "defaultMessage": "Ainda não preenchido"
   },
-  "@yovoice.music.modeMelody": {
-    "defaultMessage": "Só melodia"
+  "@yovoice.music.stepWriteStatus": {
+    "defaultMessage": "{tags} estilos · {lines} versos"
   },
-  "@yovoice.music.modeMelodyHint": {
-    "defaultMessage": "Canta a melodia; ignora os acordes e arranja o acompanhamento livremente pelo estilo."
+  "@yovoice.music.stepWriteInstrumental": {
+    "defaultMessage": "{tags} estilos · instrumental"
   },
-  "@yovoice.music.styleCount": {
-    "defaultMessage": "{count} tags"
+  "@yovoice.music.stepScoreEmpty": {
+    "defaultMessage": "Sem partitura"
   },
-  "@yovoice.music.lyricLines": {
-    "defaultMessage": "{count} versos"
+  "@yovoice.music.stepScoreReady": {
+    "defaultMessage": "Pronta para gerar"
   },
-  "@yovoice.music.takes": {
-    "defaultMessage": "Versões"
+  "@yovoice.music.stepScoreWorking": {
+    "defaultMessage": "Escrevendo a partitura…"
   },
-  "@yovoice.music.takeGenerating": {
-    "defaultMessage": "Versão {n} · gerando"
+  "@yovoice.music.stepScoreFree": {
+    "defaultMessage": "Modo livre, não usada"
   },
-  "@yovoice.music.playTake": {
-    "defaultMessage": "Tocar {name}"
+  "@yovoice.music.nextPlan": {
+    "defaultMessage": "Escrever a partitura"
   },
-  "@yovoice.music.pauseTake": {
-    "defaultMessage": "Pausar {name}"
+  "@yovoice.music.nextOpenScore": {
+    "defaultMessage": "Ver a partitura"
   },
-  "@yovoice.music.takeScored": {
-    "defaultMessage": "Partitura"
+  "@yovoice.music.nextPlanHint": {
+    "defaultMessage": "Em seguida, o YuE2 escreve a melodia vocal e os acordes a partir da letra; revise, edite e gere com ela. Tem uma música ou um .abc? Vá à etapa da partitura para extrair ou importar."
   },
-  "@yovoice.music.takeActions": {
-    "defaultMessage": "Mais ações de {name}"
+  "@yovoice.music.nextScoreHint": {
+    "defaultMessage": "Esta obra já tem partitura; a geração a segue."
   },
-  "@yovoice.music.loadTakeScore": {
-    "defaultMessage": "Carregar a partitura desta versão"
+  "@yovoice.music.nextFreeHint": {
+    "defaultMessage": "O modo livre gera direto do estilo e da letra, sem partitura."
   },
-  "@yovoice.music.takesEmpty": {
-    "defaultMessage": "Ainda não há versões"
-  },
-  "@yovoice.music.takesEmptyHint": {
-    "defaultMessage": "Cada música gerada aparece aqui para ouvir, comparar e reutilizar."
+  "@yovoice.music.stepScorePending": {
+    "defaultMessage": "Nova partitura pronta para revisar"
   }
 }

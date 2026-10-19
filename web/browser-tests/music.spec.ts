@@ -30,7 +30,8 @@ test('新建音乐作品：示例、风格标签、段落标记、纯音乐与�
 
   const lyrics = page.getByLabel('歌词', { exact: true });
   await lyrics.evaluate((el: HTMLTextAreaElement) => el.setSelectionRange(el.value.length, el.value.length));
-  await page.getByRole('button', { name: '[bridge]', exact: true }).click();
+  await page.getByRole('button', { name: '插入段落' }).click();
+  await page.getByRole('menuitem', { name: '[bridge]', exact: true }).click();
   await expect(lyrics).toHaveValue(/一直等\n\n\[bridge\]\n$/);
 
   // 音乐作品使用独立检查器：只列音乐模型，时长与语言写入作品。
@@ -83,20 +84,22 @@ test('选中 YuE2：长度由歌词决定，纯音乐先写谱再交给乐器，
   await expect(page.getByText('歌曲长度由歌词决定')).toBeVisible();
   await expect(page.getByRole('radio', { name: '02:00' })).toHaveCount(0);
   await expect(page.getByRole('combobox', { name: '演唱语言' })).toHaveCount(0);
-  // 旋律谱卡片里选择生成方式：纯音乐不能选“不用谱”。
-  const mode = page.getByRole('radiogroup', { name: '生成方式' });
-  await expect(mode.getByRole('radio', { name: '旋律 + 和弦' })).toBeChecked();
-  await expect(mode.getByRole('radio', { name: '不用谱' })).toBeDisabled();
-  await expect(page.getByRole('button', { name: '先写旋律谱' })).toBeEnabled();
+  await expect(page.getByRole('radio', { name: '自由发挥' })).toHaveCount(0);
+  // YuE2 作品按“风格与歌词 → 旋律谱”两步切换，底部的下一步按钮进入旋律谱并开始写谱。
+  await expect(page.getByRole('tab', { name: /风格与歌词/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tab', { name: /旋律谱/ })).toContainText('还没有谱');
+  await expect(page.getByRole('button', { name: '写旋律谱', exact: true })).toBeEnabled();
   await page.getByLabel('歌词', { exact: true }).fill('');
   await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeEnabled();
   await page.screenshot({ path: testInfo.outputPath('music-yue2-instrumental.png') });
   // 填写歌词时可以选不经过谱自由发挥；高级设置里是 YuE2 自己的参数。
   await page.getByRole('radio', { name: '填写歌词' }).click();
   await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeDisabled();
-  await mode.getByRole('radio', { name: '不用谱' }).click();
-  await expect(page.getByText('当前是自由发挥，生成时不使用旋律谱。')).toBeVisible();
-  await expect(page.getByRole('button', { name: '先写旋律谱' })).toHaveCount(0);
+  await expect(page.getByRole('radio', { name: '按旋律谱' })).toBeChecked();
+  await page.getByRole('radio', { name: '自由发挥' }).click();
+  await expect(page.getByText('不经过旋律谱直接生成')).toBeVisible();
+  await expect(page.getByRole('tab', { name: /旋律谱/ })).toContainText('自由发挥，不用谱');
+  await expect(page.getByRole('button', { name: '查看旋律谱', exact: true })).toBeVisible();
   await page.locator('details.advanced > summary').click();
   await expect(page.getByLabel('演唱温度')).toHaveValue('1');
   await expect(page.getByLabel('写谱温度')).toHaveValue('0.7');
@@ -127,7 +130,9 @@ test('YuE2 旋律谱：导入 ABC，看轨道与谱面，调速度、只留旋�
   state.models = [{ id: 'yue2-3b-q8', path: 'Yue2-3B-GGUF', managed: true }];
   await seedState(page, state);
   await page.goto('/');
-  // 还没有谱时，旋律谱卡片给出三种来源：按歌词出谱、从歌曲提取、导入谱文件。
+  // 还没有谱时停在第一步；切到旋律谱，空状态给出三种来源：按歌词出谱、从歌曲提取、导入谱文件。
+  await expect(page.getByRole('tab', { name: /风格与歌词/ })).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('tab', { name: /旋律谱/ }).click();
   await expect(page.getByRole('button', { name: '先写旋律谱' })).toBeEnabled();
   await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeVisible();
   await page.getByLabel('ABC 谱文件').setInputFiles({ name: 'song.abc', mimeType: 'text/plain', buffer: Buffer.from(melodyABC) });
@@ -167,13 +172,8 @@ test('音乐历史版本：工具栏进入历史页，播放页、复用和删�
   state.history = [take('v3', 12, '[verse]\n第三版的歌词'), take('v2', 11, '[verse]\n第二版的第一句\n第二版的第二句'), take('v1', 10, '[verse]\n第一版的歌词')];
   await page.addInitScript(value => { if (!localStorage.getItem('voice-workbench-v1')) localStorage.setItem('voice-workbench-v1', value); }, JSON.stringify(state));
   await page.goto('/');
-  // 编辑区右侧是版本列表：最新在上，点封面把这一版载入播放器试听（预览里没有音频文件，不会真正出声）。
-  const feed = page.getByRole('region', { name: '版本' });
-  await expect(feed.locator('.take-title')).toHaveText(['版本 3', '版本 2', '版本 1']);
-  await expect(feed.locator('.take-badge').first()).toHaveText('ACE');
-  await feed.getByRole('button', { name: '播放版本 2', exact: true }).click();
-  await expect(feed.locator('.take[data-active]').locator('.take-title')).toHaveText('版本 2');
-  // 播放器工具栏放导出、播放页和历史版本入口。
+  // 编辑区不再有版本列表；播放器工具栏只放导出、播放页和历史版本入口。
+  await expect(page.locator('.music-take-row')).toHaveCount(0);
   const transport = page.locator('.player .transport');
   await expect(transport.getByRole('button', { name: '导出音频', exact: true })).toBeVisible();
   await expect(transport.getByRole('button', { name: '播放页', exact: true })).toBeVisible();
@@ -350,20 +350,4 @@ test('同一模型下载了多个精度时选择器只列一项，在下方切�
   await expect(precision.getByRole('radio')).toHaveText(['Q8', 'Q4']);
   await precision.getByRole('radio', { name: 'Q8' }).click();
   await expect(page.getByRole('radio', { name: 'Q8' })).toBeChecked();
-});
-
-test('YuE2 版本列表：按谱生成的版本带标记，可以把这一版的谱载回编辑区', async ({ page }) => {
-  const draft = { ...createMusicDraft('zh-CN'), id: 'b'.repeat(32), modelId: 'yue2-3b-q8', abc: '' };
-  const state = emptyState();
-  state.drafts = [draft];
-  state.models = [{ id: 'yue2-3b-q8', path: 'Yue2-3B-GGUF', managed: true }];
-  state.history = [{ id: 'scored', title: draft.title, fileName: 'scored.wav', createdAt: '2026-09-15T12:00:00Z', duration: 30, settings: { ...draft, abc: melodyABC } }];
-  await seedState(page, state);
-  await page.goto('/');
-  const feed = page.getByRole('region', { name: '版本' });
-  await expect(feed.locator('.take-badge')).toHaveText(['YuE2', '按谱']);
-  await feed.getByRole('button', { name: '版本 1的更多操作', exact: true }).click();
-  await page.getByRole('menuitem', { name: '载入这一版的谱' }).click();
-  await expect(page.getByRole('group', { name: '旋律谱轨道，共 2 小节' })).toBeVisible();
-  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1') ?? '{}').drafts[0].abc as string)).toContain('V: Vocal');
 });

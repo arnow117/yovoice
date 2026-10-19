@@ -2018,6 +2018,9 @@
   "@yovoice.music.timesignature": {
     "defaultMessage": "박자"
   },
+  "@yovoice.music.steps": {
+    "defaultMessage": "제작 단계"
+  },
   "@yovoice.error.engineUpgradeRequired": {
     "defaultMessage": "이 모델에는 추론 엔진 {version} 이상이 필요합니다. 설정에서 엔진을 업데이트하세요."
   },
@@ -3731,11 +3734,17 @@
   "@yovoice.music.mode": {
     "defaultMessage": "생성 방식"
   },
+  "@yovoice.music.modeScore": {
+    "defaultMessage": "악보 기반"
+  },
   "@yovoice.music.modeFree": {
-    "defaultMessage": "악보 없음"
+    "defaultMessage": "자유 생성"
   },
   "@yovoice.music.modeScoreHint": {
     "defaultMessage": "멜로디 악보대로 부릅니다. 악보가 없으면 YuE2가 먼저 쓰고, 생성 후 해당 버전에서 불러와 수정할 수 있습니다."
+  },
+  "@yovoice.music.modeFreeHint": {
+    "defaultMessage": "악보 없이 바로 생성하며, 결과에는 편집할 악보가 없습니다."
   },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "멜로디를 악기로 옮기기"
@@ -3788,49 +3797,46 @@
   "@yovoice.create.precision": {
     "defaultMessage": "정밀도"
   },
-  "@yovoice.melody.subtitle": {
-    "defaultMessage": "먼저 멜로디를 쓰고, 고친 뒤 악보대로 곡 전체를 생성합니다."
+  "@yovoice.music.stepWrite": {
+    "defaultMessage": "스타일과 가사"
   },
-  "@yovoice.music.modeChords": {
-    "defaultMessage": "멜로디 + 코드"
+  "@yovoice.music.stepWriteEmpty": {
+    "defaultMessage": "아직 비어 있음"
   },
-  "@yovoice.music.modeMelody": {
-    "defaultMessage": "멜로디만"
+  "@yovoice.music.stepWriteStatus": {
+    "defaultMessage": "스타일 {tags}개 · 가사 {lines}줄"
   },
-  "@yovoice.music.modeMelodyHint": {
-    "defaultMessage": "멜로디대로 부르고 악보의 코드는 무시하며, 반주는 스타일에 맞춰 자유롭게 편곡합니다."
+  "@yovoice.music.stepWriteInstrumental": {
+    "defaultMessage": "스타일 {tags}개 · 연주곡"
   },
-  "@yovoice.music.styleCount": {
-    "defaultMessage": "태그 {count}개"
+  "@yovoice.music.stepScoreEmpty": {
+    "defaultMessage": "악보 없음"
   },
-  "@yovoice.music.lyricLines": {
-    "defaultMessage": "{count}줄"
+  "@yovoice.music.stepScoreReady": {
+    "defaultMessage": "악보 준비됨, 생성 가능"
   },
-  "@yovoice.music.takes": {
-    "defaultMessage": "버전"
+  "@yovoice.music.stepScoreWorking": {
+    "defaultMessage": "악보 작성 중…"
   },
-  "@yovoice.music.takeGenerating": {
-    "defaultMessage": "버전 {n} · 생성 중"
+  "@yovoice.music.stepScoreFree": {
+    "defaultMessage": "자유 생성, 악보 미사용"
   },
-  "@yovoice.music.playTake": {
-    "defaultMessage": "{name} 재생"
+  "@yovoice.music.nextPlan": {
+    "defaultMessage": "멜로디 악보 쓰기"
   },
-  "@yovoice.music.pauseTake": {
-    "defaultMessage": "{name} 일시정지"
+  "@yovoice.music.nextOpenScore": {
+    "defaultMessage": "멜로디 악보 보기"
   },
-  "@yovoice.music.takeScored": {
-    "defaultMessage": "악보"
+  "@yovoice.music.nextPlanHint": {
+    "defaultMessage": "다음으로 YuE2가 가사로 보컬 멜로디와 코드를 씁니다. 확인하고 수정한 뒤 악보대로 생성하세요. 곡이나 .abc 파일이 있으면 멜로디 악보 단계에서 추출하거나 가져올 수 있습니다."
   },
-  "@yovoice.music.takeActions": {
-    "defaultMessage": "{name} 추가 작업"
+  "@yovoice.music.nextScoreHint": {
+    "defaultMessage": "이 작품에는 이미 멜로디 악보가 있으며 생성 시 악보대로 부릅니다."
   },
-  "@yovoice.music.loadTakeScore": {
-    "defaultMessage": "이 버전의 악보 불러오기"
+  "@yovoice.music.nextFreeHint": {
+    "defaultMessage": "자유 생성은 악보 없이 스타일과 가사로 바로 생성합니다."
   },
-  "@yovoice.music.takesEmpty": {
-    "defaultMessage": "아직 버전이 없습니다"
-  },
-  "@yovoice.music.takesEmptyHint": {
-    "defaultMessage": "생성한 곡이 여기에 쌓이며 듣고 비교하고 재사용할 수 있습니다."
+  "@yovoice.music.stepScorePending": {
+    "defaultMessage": "새 악보가 준비됨, 열어서 확인"
   }
 }

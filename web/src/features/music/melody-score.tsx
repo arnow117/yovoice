@@ -5,7 +5,7 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, Music } from 'lucide-react';
+import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2 } from 'lucide-react';
 import { call, CallError, coverMelodyFile } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatMelodyIssue } from '../../shared/i18n/format';
 import { formatTime, type Draft, type MelodyInspection, type MelodyResult, type State } from '../../shared/workbench';
@@ -31,8 +31,8 @@ function useInspection(abc: string) {
 
 // 旋律谱：YuE2 先按歌词写出旋律与和弦（或从一首歌提取旋律做翻唱），在这里看轨道、改谱面或让创作助手改，
 // 然后按谱生成整首歌。参照 YuE 官方的 ABC 方言：人声行带和弦、伴奏行写配器动机，两行成组。
-export function MelodyScore({ draft, state, change }: {
-  draft: Draft; state: State; change: (patch: Partial<Draft>) => void;
+export function MelodyScore({ draft, state, change, planRequest }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; planRequest?: number;
 }) {
   const t = useTranslator();
   const abc = draft.abc ?? '';
@@ -67,13 +67,12 @@ export function MelodyScore({ draft, state, change }: {
   const commitTempo = () => { const value = Number(tempo); if (inspection?.tempo && value && value !== inspection.tempo) void transform('tempo', value); else setTempo(inspection?.tempo ? String(inspection.tempo) : ''); };
   const plan = () => attempt(() => call('melody.plan', draft));
   const canPlan = !busy && !!draft.text.trim() && (draft.instrumental || !!draft.lyrics?.trim());
+  // 从“风格与歌词”一步点“写旋律谱”过来时直接开始出谱。
+  const requested = useEffectEvent(() => { if (planRequest && canPlan && !abc.trim()) void plan(); });
+  useEffect(() => requested(), [planRequest]);
   // 谱里还有人声旋律：纯音乐生成时会自动交给乐器演奏，也可以先在这里转好再改。
   // 自由发挥不经过谱：谱仍保留，提示生成时不会用到。
-  const cot = String(draft.modelOptions?.yue2?.cot ?? 'auto');
-  const free = !draft.instrumental && cot === 'off';
-  // 生成方式：旋律加和弦（谱里有和弦时一起用）、只用旋律（伴奏自由编配）或不用谱；纯音乐必须按谱。
-  const mode = cot === 'off' || cot === 'melody' ? cot : 'auto';
-  const setMode = (value: string) => change({ modelOptions: { ...draft.modelOptions, yue2: { ...draft.modelOptions?.yue2, cot: value } } });
+  const free = !draft.instrumental && draft.modelOptions?.yue2?.cot === 'off';
   const sung = !!inspection?.score?.tracks.some(track => track.id === 'vocal');
   const summary = inspection && !inspection.issue ? [inspection.key, `${inspection.tempo} BPM`, inspection.meter?.join('/'), t('@yovoice.score.barCount', { count: inspection.bars ?? 0 }), formatTime(inspection.seconds ?? 0), t(inspection.chords ? '@yovoice.melody.withChords' : '@yovoice.melody.melodyOnly')].filter(Boolean).join(' · ') : '';
   const score = inspection?.score ? { ...inspection.score, tracks: inspection.score.tracks.map(track => ({ ...track, name: t(`@yovoice.melody.track.${track.id}`) })) } : undefined;
@@ -96,22 +95,14 @@ export function MelodyScore({ draft, state, change }: {
     <Button size="sm" label={t('@yovoice.action.cancel')} onClick={() => void attempt(() => call('operation.cancel'))} />
   </HStack> : null;
 
-  return <VStack className="music-card melody-score" gap={3}>
+  return <VStack className="music-block melody-score" gap={3}>
     {pickers}
-    <HStack className="music-card-header" gap={2} vAlign="center" wrap="wrap">
-      <span className="music-card-icon" aria-hidden="true"><Music /></span>
+    {/* 步骤条已写明这一步是旋律谱，空谱时不再重复标题。 */}
+    {abc.trim() ? <HStack vAlign="center" gap={2} wrap="wrap">
       <VStack className="grow" gap={0}>
         <h2>{t('@yovoice.melody.title')}</h2>
-        <small className="score-summary">{abc.trim() ? summary || ' ' : t('@yovoice.melody.subtitle')}</small>
+        <small className="score-summary">{summary || ' '}</small>
       </VStack>
-      <SegmentedControl label={t('@yovoice.music.mode')} size="sm" value={draft.instrumental && mode === 'off' ? 'auto' : mode} onChange={setMode}>
-        <SegmentedControlItem value="auto" label={t('@yovoice.music.modeChords')} />
-        <SegmentedControlItem value="melody" label={t('@yovoice.music.modeMelody')} />
-        <SegmentedControlItem value="off" label={t('@yovoice.music.modeFree')} isDisabled={draft.instrumental} />
-      </SegmentedControl>
-    </HStack>
-    {abc.trim() ? <HStack className="melody-toolbar" vAlign="center" gap={2} wrap="wrap">
-      <small className="grow">{t(mode === 'melody' ? '@yovoice.music.modeMelodyHint' : '@yovoice.music.modeScoreHint')}</small>
       <>
         <label className="number-field compact" title={t('@yovoice.melody.tempo')}><input type="number" aria-label={t('@yovoice.melody.tempo')} min={30} max={300} step={1} value={tempo} disabled={!inspection?.tempo}
           onChange={event => setTempo(event.target.value)} onBlur={commitTempo} onKeyDown={event => { if (event.key === 'Enter') commitTempo(); }} /><small aria-hidden="true">BPM</small></label>
@@ -144,7 +135,7 @@ export function MelodyScore({ draft, state, change }: {
     </HStack> : null}
     {error ? <HStack className="melody-notice" data-tone="danger" gap={2} vAlign="start" role="alert"><CircleAlert size={16} aria-hidden="true" /><small className="grow">{error}</small></HStack> : null}
 
-    {!abc.trim() ? working || free ? null : <VStack className="score-empty melody-empty" gap={3} hAlign="center">
+    {!abc.trim() ? working ? null : <VStack className="score-empty melody-empty" gap={3} hAlign="center">
       <p>{t('@yovoice.melody.empty')}</p>
       <HStack gap={2} wrap="wrap" hAlign="center">
         <Button variant="primary" icon={<ListMusic />} label={t('@yovoice.melody.plan')} isDisabled={!canPlan} tooltip={canPlan ? undefined : t('@yovoice.melody.planNeeds')} onClick={() => void plan()} />

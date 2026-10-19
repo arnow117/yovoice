@@ -635,66 +635,23 @@
   @media (max-width: 600px) { .sidebar-update { display: none; } }
 
   /* 音乐：区块分隔，风格标签采用一体化输入盒，右侧配置区与情绪预设统一。 */
-  /* 音乐工作室：左侧卡片式创作表单，右侧版本流；窄屏时上下排列。音乐的强调色是粉到橙的渐变。 */
-  .music-studio { --music-a: var(--color-icon-orange); --music-b: var(--color-border-pink); flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(calc(var(--spacing-12) * 6), 1fr); column-gap: var(--spacing-5); }
-  .music-studio > .music-form { padding-block: var(--spacing-3) var(--spacing-6); padding-inline-end: var(--spacing-1); }
-  .music-card { flex: none; padding: var(--spacing-4); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: color-mix(in srgb, var(--app-surface) 55%, transparent); }
-  .music-card-header h2 { font-size: var(--app-ui-font); font-weight: var(--font-weight-semibold); }
-  .music-card-header small { color: var(--app-muted); font-size: var(--app-small-font); }
-  .music-card-header .astryx-segmented-control { flex: none; width: max-content; }
-  .music-card-icon { flex: none; display: grid; place-items: center; width: var(--spacing-8); height: var(--spacing-8); border-radius: var(--radius-element); background: linear-gradient(135deg, var(--music-a), var(--music-b)); color: var(--color-on-dark); box-shadow: 0 var(--spacing-1) var(--spacing-3) color-mix(in srgb, var(--music-b) 30%, transparent); }
-  .music-card-icon svg { width: var(--spacing-4); height: var(--spacing-4); }
-  .music-card + .music-card .music-card-icon { background: linear-gradient(135deg, var(--color-border-pink), var(--color-border-purple)); box-shadow: 0 var(--spacing-1) var(--spacing-3) color-mix(in srgb, var(--color-icon-purple) 30%, transparent); }
-  .music-card.melody-score .music-card-icon { background: linear-gradient(135deg, var(--color-border-purple), var(--color-border-blue)); box-shadow: 0 var(--spacing-1) var(--spacing-3) color-mix(in srgb, var(--color-icon-blue) 30%, transparent); }
-  .music-card .music-style-box, .music-card .music-lyrics textarea, .music-card .score-empty { background: var(--color-background-card); }
-  .music-sections { margin-top: calc(var(--spacing-1) * -1); }
-  .music-section-chip { padding: var(--spacing-0-5) var(--spacing-2); border: var(--border-width) dashed var(--color-border-emphasized); border-radius: var(--radius-full); background: transparent; color: var(--app-muted); font-family: var(--app-mono); font-size: var(--font-size-xs); cursor: pointer; transition: color var(--duration-fast) var(--app-ease-swift), border-color var(--duration-fast) var(--app-ease-swift), background-color var(--duration-fast) var(--app-ease-swift); }
-  .music-section-chip:hover { border-style: solid; border-color: var(--music-b); background: color-mix(in srgb, var(--music-b) 8%, transparent); color: var(--app-ink); }
-  .music-section-chip:focus-visible { outline: 2px solid var(--app-wave); outline-offset: 1px; }
-  .melody-toolbar small { color: var(--app-muted); line-height: 1.5; }
-  .music-generate.astryx-button:not(:disabled) { border-color: transparent; background: linear-gradient(100deg, var(--color-icon-orange), var(--color-border-pink)); color: var(--color-on-dark); box-shadow: 0 var(--spacing-2) var(--spacing-6) color-mix(in srgb, var(--color-border-pink) 32%, transparent); }
-  .music-generate.astryx-button:not(:disabled):hover { filter: saturate(1.15) brightness(1.04); }
-
-  /* 版本流：每一版一行，封面可直接试听，当前播放的一版高亮。 */
-  .take-feed { min-height: 0; padding-inline-start: var(--spacing-5); border-inline-start: var(--border-width) solid var(--app-line); }
-  .take-feed-header { flex: none; padding-block: var(--spacing-3) var(--spacing-2); }
-  .take-feed-header h2 { font-size: var(--app-ui-font); font-weight: var(--font-weight-semibold); }
-  .take-count { min-width: var(--spacing-6); padding: 0 var(--spacing-2); border-radius: var(--radius-full); background: var(--color-background-muted); color: var(--app-muted); font-family: var(--app-mono); font-size: var(--font-size-xs); text-align: center; }
-  .take-list { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: var(--spacing-6); }
-  .take { flex: none; padding: var(--spacing-2); border-radius: var(--radius-container); transition: background-color var(--duration-fast) var(--app-ease-swift), box-shadow var(--duration-fast) var(--app-ease-swift); }
-  .take:hover { background: var(--color-overlay-hover); }
-  .take[data-active] { background: var(--app-surface); box-shadow: inset 0 0 0 var(--border-width) var(--app-line); }
-  .take-cover { position: relative; flex: none; display: block; width: calc(var(--spacing-8) * 2); height: calc(var(--spacing-8) * 2); padding: 0; overflow: hidden; border: 0; border-radius: var(--radius-element); background: var(--app-surface); cursor: pointer; }
-  .take-cover canvas { display: block; width: 100%; height: 100%; }
-  .take-cover:focus-visible { outline: 2px solid var(--app-wave); outline-offset: 2px; }
-  .take-cover-icon { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--color-on-light) 28%, transparent); color: var(--color-on-dark); opacity: 0; transition: opacity var(--duration-fast) var(--app-ease-swift); }
-  .take-cover-icon svg { width: var(--spacing-5); height: var(--spacing-5); filter: drop-shadow(0 1px var(--spacing-1) color-mix(in srgb, var(--color-on-light) 40%, transparent)); }
-  .take-cover:hover .take-cover-icon, .take-cover:focus-visible .take-cover-icon, .take[data-playing] .take-cover-icon { opacity: 1; }
-  .take-body { min-width: 0; }
-  .take-title { overflow: hidden; color: var(--app-ink); font-weight: var(--font-weight-medium); white-space: nowrap; text-overflow: ellipsis; }
-  .take[data-playing] .take-title { color: var(--color-text-pink); }
-  .take-duration, .take-time { color: var(--app-muted); font-family: var(--app-mono); font-size: var(--font-size-xs); white-space: nowrap; }
-  .take-tags { min-width: 0; overflow: hidden; }
-  .take-tag { flex: none; padding: 0 var(--spacing-2); border-radius: var(--radius-full); background: var(--color-background-muted); color: var(--app-muted); font-size: var(--font-size-xs); line-height: 1.7; white-space: nowrap; }
-  .take-badge { flex: none; padding: 0 var(--spacing-1-5); border-radius: var(--radius-inner); background: var(--color-background-pink); color: var(--color-text-pink); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); line-height: 1.7; white-space: nowrap; }
-  .take-badge[data-model="ace"] { background: var(--color-background-blue); color: var(--color-text-blue); }
-  .take-badge[data-kind="score"] { background: var(--color-background-teal); color: var(--color-text-teal); }
-  .take-actions { flex: none; opacity: .55; transition: opacity var(--duration-fast) var(--app-ease-swift); }
-  .take:hover .take-actions, .take:focus-within .take-actions, .take[data-active] .take-actions { opacity: 1; }
-  .take-pending .take-cover { display: grid; place-items: center; background: linear-gradient(135deg, var(--color-icon-orange), var(--color-border-pink)); color: var(--color-on-dark); cursor: default; }
-  .take-status { color: var(--app-muted); }
-  .take-shimmer { display: block; height: var(--spacing-0-5); border-radius: var(--radius-full); background: linear-gradient(90deg, transparent, var(--color-icon-orange), var(--color-border-pink), transparent) 0 0 / 200% 100%; animation: take-shimmer 1.4s linear infinite; }
-  @keyframes take-shimmer { to { background-position: -200% 0; } }
-  .take-empty { padding: var(--spacing-10) var(--spacing-4); border: var(--border-width) dashed var(--app-line); border-radius: var(--radius-container); color: var(--app-muted); text-align: center; }
-  .take-empty > svg { width: var(--spacing-10); height: var(--spacing-10); color: var(--color-border-emphasized); }
-  .take-empty p { color: var(--app-ink); font-weight: var(--font-weight-medium); }
-  @media (max-width: 1360px) {
-    .music-studio { display: flex; flex-direction: column; overflow-y: auto; }
-    .music-studio > .music-form { flex: none; overflow: visible; }
-    .take-feed { padding-inline-start: 0; border-inline-start: 0; }
-    .take-list { overflow: visible; }
-  }
-  @media (prefers-reduced-motion: reduce) { .take-shimmer { animation: none; } }
+  /* YuE2 的创作步骤条：编号圆点、标题与进度，两步之间的连线在前一步完成后点亮。 */
+  .music-steps { flex: none; padding-bottom: var(--spacing-3); border-bottom: var(--border-width) solid var(--app-line); }
+  .music-step { display: flex; align-items: center; gap: var(--spacing-3); min-width: 0; padding: var(--spacing-2) var(--spacing-3); border: var(--border-width) solid transparent; border-radius: var(--radius-element); background: transparent; color: var(--app-muted); text-align: start; cursor: pointer; font: inherit; transition: background-color var(--duration-fast) var(--app-ease-swift), border-color var(--duration-fast) var(--app-ease-swift), color var(--duration-fast) var(--app-ease-swift); }
+  .music-step:hover { background: var(--color-overlay-hover); }
+  .music-step[aria-selected="true"] { background: var(--app-surface); border-color: var(--app-line); color: var(--app-ink); }
+  .music-step:focus-visible { outline: 2px solid var(--app-wave); outline-offset: 1px; }
+  .music-step-index { flex: none; display: grid; place-items: center; width: var(--spacing-7); height: var(--spacing-7); border: var(--border-width) solid var(--color-border-emphasized); border-radius: var(--radius-full); font-family: var(--app-mono); font-size: var(--font-size-xs); transition: background-color var(--duration-medium) var(--app-ease-swift), color var(--duration-medium) var(--app-ease-swift); }
+  .music-step[data-state="done"] .music-step-index { border-color: transparent; background: var(--app-ink); color: var(--app-white); }
+  .music-step[data-state="busy"] .music-step-index { border-color: var(--app-wave); color: var(--app-wave); animation: now-playing-breathe 1.6s var(--ease-standard) infinite; }
+  .music-step-text { display: flex; flex-direction: column; min-width: 0; }
+  .music-step-text b { font-size: var(--app-ui-font); font-weight: var(--font-weight-medium); white-space: nowrap; }
+  .music-step-text small { overflow: hidden; color: var(--app-muted); font-size: var(--app-small-font); white-space: nowrap; text-overflow: ellipsis; }
+  .music-step-link { flex: 1; min-width: var(--spacing-6); max-width: calc(var(--spacing-12) * 2); height: var(--border-width); margin-inline: var(--spacing-2); background: var(--app-line); transition: background var(--duration-medium) var(--app-ease-swift); }
+  .music-step-link[data-done] { background: linear-gradient(90deg, var(--app-ink), var(--app-wave)); }
+  .music-next { position: sticky; bottom: 0; z-index: 1; padding: var(--spacing-3) var(--spacing-4); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); background: color-mix(in srgb, var(--app-surface) 88%, transparent); backdrop-filter: blur(var(--spacing-3)); box-shadow: 0 var(--spacing-2) var(--spacing-6) var(--color-shadow); }
+  .music-next small { color: var(--app-muted); line-height: 1.5; }
+  @media (prefers-reduced-motion: reduce) { .music-step[data-state="busy"] .music-step-index { animation: none; } }
   .music-block + .music-block { padding-top: var(--spacing-4); border-top: var(--border-width) solid var(--app-line); }
   .music-tag.astryx-button[aria-pressed="true"] { border-color: var(--app-ink); background: var(--app-surface); color: var(--app-ink); }
   .music-tag.astryx-button { transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard); }
