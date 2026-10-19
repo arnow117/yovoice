@@ -145,6 +145,22 @@ test('YuE2 旋律谱：导入 ABC，看轨道与谱面，调速度、只留旋�
   await page.getByRole('button', { name: '谱面操作' }).click();
   await page.getByRole('menuitem', { name: '只保留旋律' }).click();
   await expect(page.getByText(/仅旋律/)).toBeVisible();
+  // 谱面改动可以逐步撤回：先撤回只保留旋律，再撤回改速度，然后重新做一遍。
+  await page.getByRole('button', { name: '撤回：只保留旋律' }).click();
+  await expect(page.getByText(/带和弦/)).toBeVisible();
+  await page.getByRole('button', { name: '撤回：速度' }).click();
+  await expect(tempo).toHaveValue('120');
+  await expect(page.getByRole('button', { name: /^撤回/ })).toHaveAccessibleName('撤回：导入 .abc');
+  await tempo.fill('90'); await tempo.press('Enter');
+  await expect(tempo).toHaveValue('90');
+  await page.getByRole('button', { name: '谱面操作' }).click();
+  await page.getByRole('menuitem', { name: '只保留旋律' }).click();
+  await expect(page.getByText(/仅旋律/)).toBeVisible();
+  // 导出为 .abc 文件。
+  await page.getByRole('button', { name: '谱面操作' }).click();
+  const exported = page.waitForEvent('download');
+  await page.getByRole('menuitem', { name: '导出 .abc' }).click();
+  expect((await exported).suggestedFilename()).toMatch(/\.abc$/);
   await page.getByRole('radio', { name: 'ABC 谱面' }).click();
   const source = page.getByLabel('ABC 谱面', { exact: true });
   await expect(source).toHaveValue(/Q:1\/4=90/);
@@ -155,6 +171,11 @@ test('YuE2 旋律谱：导入 ABC，看轨道与谱面，调速度、只留旋�
   await page.screenshot({ path: testInfo.outputPath('melody-source.png') });
 
   // 浏览器预览不做推理：提取旋律给出明确提示。
+  await page.getByRole('button', { name: '谱面操作' }).click();
+  await page.getByRole('menuitem', { name: '清空谱' }).click();
+  // 清空也能撤回。
+  await page.getByRole('button', { name: '撤回：清空谱' }).click();
+  await expect(page.getByText(/仅旋律/)).toBeVisible();
   await page.getByRole('button', { name: '谱面操作' }).click();
   await page.getByRole('menuitem', { name: '清空谱' }).click();
   await page.getByLabel('要提取旋律的歌曲').setInputFiles({ name: 'song.wav', mimeType: 'audio/wav', buffer: Buffer.from(wavBytes(new Float32Array(800), new Float32Array(800), 8000)) });

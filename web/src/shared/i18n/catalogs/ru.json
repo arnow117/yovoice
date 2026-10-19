@@ -2384,6 +2384,15 @@
   "@yovoice.update.group": {
     "defaultMessage": "Версия и обновления"
   },
+  "@yovoice.update.starTitle": {
+    "defaultMessage": "Нравится yovoice?"
+  },
+  "@yovoice.update.starHint": {
+    "defaultMessage": "Поставьте звезду на GitHub — это поднимет ему настроение на весь день и поможет другим его найти."
+  },
+  "@yovoice.update.star": {
+    "defaultMessage": "Поставить звезду"
+  },
   "@yovoice.update.title": {
     "defaultMessage": "Обновление программы"
   },
@@ -2987,8 +2996,11 @@
   "@yovoice.melody.import": {
     "defaultMessage": "Импорт .abc"
   },
-  "@yovoice.melody.copy": {
-    "defaultMessage": "Копировать ноты"
+  "@yovoice.melody.export": {
+    "defaultMessage": "Экспорт в .abc"
+  },
+  "@yovoice.melody.undo": {
+    "defaultMessage": "Отменить: {action}"
   },
   "@yovoice.melody.clear": {
     "defaultMessage": "Очистить ноты"

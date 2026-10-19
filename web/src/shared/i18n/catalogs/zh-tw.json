@@ -2384,6 +2384,15 @@
   "@yovoice.update.group": {
     "defaultMessage": "版本與更新"
   },
+  "@yovoice.update.starTitle": {
+    "defaultMessage": "覺得 yovoice 好用嗎？"
+  },
+  "@yovoice.update.starHint": {
+    "defaultMessage": "去 GitHub 點亮一顆 Star，它會開心一整天，也能讓更多人發現它。"
+  },
+  "@yovoice.update.star": {
+    "defaultMessage": "去點 Star"
+  },
   "@yovoice.update.title": {
     "defaultMessage": "軟體更新"
   },
@@ -2987,8 +2996,11 @@
   "@yovoice.melody.import": {
     "defaultMessage": "匯入 .abc"
   },
-  "@yovoice.melody.copy": {
-    "defaultMessage": "複製譜面"
+  "@yovoice.melody.export": {
+    "defaultMessage": "匯出 .abc"
+  },
+  "@yovoice.melody.undo": {
+    "defaultMessage": "復原：{action}"
   },
   "@yovoice.melody.clear": {
     "defaultMessage": "清空譜"

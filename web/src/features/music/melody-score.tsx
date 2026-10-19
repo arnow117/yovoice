@@ -5,8 +5,8 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, MoreHorizontal, Pause, Play } from 'lucide-react';
-import { call, CallError, coverMelodyFile } from '../../shared/lib/client';
+import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, MoreHorizontal, Pause, Play, Undo2 } from 'lucide-react';
+import { call, CallError, coverMelodyFile, saveText } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatMelodyIssue } from '../../shared/i18n/format';
 import { formatTime, type Draft, type MelodyInspection, type MelodyResult, type State } from '../../shared/workbench';
 import { ScoreArrangement } from '../score/score-arrangement';
@@ -74,8 +74,24 @@ export function MelodyScore({ draft, state, change, onError }: {
   // 操作失败走全局的错误提示，不在谱面区域插入提示条。
   const fail = (e: unknown) => onError(formatCallError(t, e));
   const attempt = async (job: () => Promise<unknown>) => { try { await job(); } catch (e) { fail(e); } };
+  // 谱面改动的撤回记录：记下改之前的谱和改之后的谱；谱被别处改过（手改源码、Ocho 改谱）就作废，避免撤回覆盖新内容。
+  const [undo, setUndo] = useState<{ before: string; after: string; action: string }[]>([]);
+  useEffect(() => { setUndo(stack => stack.length && stack[stack.length - 1].after !== abc ? [] : stack); }, [abc]);
+  const replace = (next: string, action: string) => {
+    if (next === abc) return;
+    setUndo(stack => [...stack.slice(-19), { before: abc, after: next, action }]);
+    change({ abc: next });
+  };
+  const revert = () => {
+    const last = undo[undo.length - 1];
+    if (!last) return;
+    setUndo(stack => stack.slice(0, -1));
+    change({ abc: last.before }); setNotice(null);
+  };
+  const lastAction = undo.length ? undo[undo.length - 1].action : '';
+  const undoButton = lastAction ? <Button size="sm" variant="ghost" isIconOnly icon={<Undo2 />} label={t('@yovoice.melody.undo', { action: lastAction })} tooltip={t('@yovoice.melody.undo', { action: lastAction })} onClick={revert} /> : null;
   const apply = (melody: MelodyResult) => {
-    change({ abc: melody.abc });
+    if (abc.trim()) replace(melody.abc, t('@yovoice.melody.replace')); else change({ abc: melody.abc });
     setNotice(melody.truncated ? { kind: 'truncated' } : melody.source === 'cover' ? { kind: 'cover' } : null);
     switchView('tracks');
     void call('melody.dismiss', { id: melody.id });
@@ -84,7 +100,8 @@ export function MelodyScore({ draft, state, change, onError }: {
   const settle = useEffectEvent(() => { if (pending && !abc.trim()) apply(pending); });
   useEffect(() => settle(), [pending?.id]);
 
-  const transform = (op: 'stripChords' | 'tempo' | 'instrumental', value = 0) => attempt(async () => change({ abc: await call<string>('melody.transform', { abc, op, tempo: value }) }));
+  const transformLabel = { stripChords: '@yovoice.melody.stripChords', tempo: '@yovoice.melody.tempo', instrumental: '@yovoice.melody.toInstrumental' } as const;
+  const transform = (op: 'stripChords' | 'tempo' | 'instrumental', value = 0) => attempt(async () => replace(await call<string>('melody.transform', { abc, op, tempo: value }), t(transformLabel[op])));
   const commitTempo = () => { const value = Number(tempo); if (inspection?.tempo && value && value !== inspection.tempo) void transform('tempo', value); else setTempo(inspection?.tempo ? String(inspection.tempo) : ''); };
   const plan = () => attempt(() => call('melody.plan', draft));
   // 试听：用已装的音色库把谱渲染成音频，在谱面里播放并显示进度，底部播放器留给歌曲。
@@ -105,7 +122,7 @@ export function MelodyScore({ draft, state, change, onError }: {
       const picked = event.target.files?.[0]; event.target.value = '';
       if (!picked) return;
       if (picked.size > maxLength) { fail(new CallError('@yovoice.error.melodyInvalid', { code: 'length' })); return; }
-      change({ abc: (await picked.text()).replace(/\r\n?/g, '\n') }); setNotice(null);
+      replace((await picked.text()).replace(/\r\n?/g, '\n'), t('@yovoice.melody.import')); setNotice(null);
     }} />
   </>;
   const progress = working ? <HStack className="melody-progress" gap={2} vAlign="center" role="status">
@@ -133,8 +150,8 @@ export function MelodyScore({ draft, state, change, onError }: {
             { id: 'strip', label: t('@yovoice.melody.stripChords'), isDisabled: !inspection?.chords, onClick: () => void transform('stripChords') },
             { id: 'instrumental', label: t('@yovoice.melody.toInstrumental'), isDisabled: !sung, onClick: () => void transform('instrumental') },
             { id: 'import', label: t('@yovoice.melody.import'), onClick: () => file.current?.click() },
-            { id: 'copy', label: t('@yovoice.melody.copy'), onClick: () => void attempt(() => navigator.clipboard.writeText(abc)) },
-            { id: 'clear', label: t('@yovoice.melody.clear'), onClick: () => { change({ abc: '' }); setNotice(null); } },
+            { id: 'export', label: t('@yovoice.melody.export'), onClick: () => void attempt(() => saveText(abc, draft.title || 'melody', 'abc')) },
+            { id: 'clear', label: t('@yovoice.melody.clear'), onClick: () => { replace('', t('@yovoice.melody.clear')); setNotice(null); } },
           ]} />
         </HStack>
       </> : null}
@@ -147,6 +164,7 @@ export function MelodyScore({ draft, state, change, onError }: {
         tooltip={t(preview.status === 'rendering' ? '@yovoice.melody.listening' : playing ? '@yovoice.melody.pause' : '@yovoice.melody.listen')}
         isDisabled={preview.status === 'rendering' || !!inspection?.issue} onClick={() => void preview.toggle()} />
       <small className="score-summary grow" title={summary}>{summary || ' '}</small>
+      {undoButton}
       <label className="number-field compact melody-tempo" title={t('@yovoice.melody.tempo')}><input type="number" aria-label={t('@yovoice.melody.tempo')} min={30} max={300} step={1} value={tempo} disabled={!inspection?.tempo}
         onChange={event => setTempo(event.target.value)} onBlur={commitTempo} onKeyDown={event => { if (event.key === 'Enter') commitTempo(); }} /><small aria-hidden="true">BPM</small></label>
     </HStack> : null}
@@ -164,6 +182,7 @@ export function MelodyScore({ draft, state, change, onError }: {
       <Button variant="primary" icon={<ListMusic />} label={t('@yovoice.melody.plan')} isDisabled={!canPlan} tooltip={canPlan ? undefined : t('@yovoice.melody.planNeeds')} onClick={() => void plan()} />
       <Button variant="secondary" icon={<Mic2 />} label={t('@yovoice.melody.cover')} isDisabled={busy} tooltip={t('@yovoice.melody.coverHint')} onClick={() => audio.current?.click()} />
       <Button variant="ghost" icon={<FileMusic />} label={t('@yovoice.melody.import')} onClick={() => file.current?.click()} />
+      {undoButton}
     </HStack> : <>
       {notice ? <HStack className="melody-notice" data-tone={notice.kind === 'truncated' ? 'warning' : 'info'} gap={2} vAlign="start" role="status">
         <VStack className="grow" gap={0}>

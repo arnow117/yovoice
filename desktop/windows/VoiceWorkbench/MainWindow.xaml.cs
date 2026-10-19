@@ -485,11 +485,11 @@ public partial class MainWindow : Window
                     finally { if (File.Exists(temporary)) File.Delete(temporary); }
                     result = true; break;
                 case "text.export":
-                    // 字幕（SRT/VTT）与歌词（LRC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
+                    // 字幕（SRT/VTT）、歌词（LRC）与旋律谱（ABC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
                     string textFormat = data.TryGetProperty("format", out var textFormatValue) ? textFormatValue.GetString() ?? "" : "";
                     string text = data.TryGetProperty("text", out var textValue) ? textValue.GetString() ?? "" : "";
-                    if (textFormat is not ("srt" or "vtt" or "lrc") || text.Length > 20_000_000) throw new ArgumentException(HostL10n.T("导出文件格式无效。", "The exported file format is invalid."));
-                    string textFilter = textFormat switch { "srt" => HostL10n.T("SRT 字幕", "SRT Subtitles"), "vtt" => HostL10n.T("WebVTT 字幕", "WebVTT Subtitles"), _ => HostL10n.T("LRC 歌词", "LRC Lyrics") };
+                    if (textFormat is not ("srt" or "vtt" or "lrc" or "abc") || text.Length > 20_000_000) throw new ArgumentException(HostL10n.T("导出文件格式无效。", "The exported file format is invalid."));
+                    string textFilter = textFormat switch { "srt" => HostL10n.T("SRT 字幕", "SRT Subtitles"), "vtt" => HostL10n.T("WebVTT 字幕", "WebVTT Subtitles"), "abc" => HostL10n.T("ABC 旋律谱", "ABC Melody Score"), _ => HostL10n.T("LRC 歌词", "LRC Lyrics") };
                     var textSave = new SaveFileDialog { Filter = textFilter + "|*." + textFormat, DefaultExt = "." + textFormat, FileName = Path.GetFileName(data.GetProperty("name").GetString() ?? "yovoice." + textFormat), OverwritePrompt = true };
                     if (textSave.ShowDialog(this) != true) { result = false; break; }
                     string textTemporary = textSave.FileName + "." + Guid.NewGuid().ToString("N") + ".tmp";

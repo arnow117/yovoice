@@ -2384,6 +2384,15 @@
   "@yovoice.update.group": {
     "defaultMessage": "Versión y actualizaciones"
   },
+  "@yovoice.update.starTitle": {
+    "defaultMessage": "¿Te gusta yovoice?"
+  },
+  "@yovoice.update.starHint": {
+    "defaultMessage": "Dale una estrella en GitHub: le alegra el día y ayuda a que más gente lo descubra."
+  },
+  "@yovoice.update.star": {
+    "defaultMessage": "Dar una estrella"
+  },
   "@yovoice.update.title": {
     "defaultMessage": "Actualización de software"
   },
@@ -2987,8 +2996,11 @@
   "@yovoice.melody.import": {
     "defaultMessage": "Importar .abc"
   },
-  "@yovoice.melody.copy": {
-    "defaultMessage": "Copiar partitura"
+  "@yovoice.melody.export": {
+    "defaultMessage": "Exportar .abc"
+  },
+  "@yovoice.melody.undo": {
+    "defaultMessage": "Deshacer: {action}"
   },
   "@yovoice.melody.clear": {
     "defaultMessage": "Borrar partitura"

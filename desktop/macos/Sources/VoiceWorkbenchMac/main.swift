@@ -490,9 +490,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             return ["id": message["id"]!, "result": true]
         }
         if method == "text.export" {
-            // 字幕（SRT/VTT）与歌词（LRC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
+            // 字幕（SRT/VTT）、歌词（LRC）与旋律谱（ABC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
             let format = data["format"] as? String ?? ""
-            guard ["srt", "vtt", "lrc"].contains(format), let text = data["text"] as? String, text.utf8.count <= 20_000_000 else { throw failure(HostL10n.t("err.textExportInvalid")) }
+            guard ["srt", "vtt", "lrc", "abc"].contains(format), let text = data["text"] as? String, text.utf8.count <= 20_000_000 else { throw failure(HostL10n.t("err.textExportInvalid")) }
             let panel = NSSavePanel()
             panel.allowedContentTypes = [UTType(filenameExtension: format) ?? .plainText]
             panel.nameFieldStringValue = (data["name"] as? String ?? "yovoice." + format)

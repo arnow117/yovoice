@@ -2384,6 +2384,15 @@
   "@yovoice.update.group": {
     "defaultMessage": "Version and updates"
   },
+  "@yovoice.update.starTitle": {
+    "defaultMessage": "Enjoying yovoice?"
+  },
+  "@yovoice.update.starHint": {
+    "defaultMessage": "Give it a Star on GitHub. It makes its whole day and helps more people find it."
+  },
+  "@yovoice.update.star": {
+    "defaultMessage": "Star on GitHub"
+  },
   "@yovoice.update.title": {
     "defaultMessage": "Software update"
   },
@@ -2987,8 +2996,11 @@
   "@yovoice.melody.import": {
     "defaultMessage": "Import .abc"
   },
-  "@yovoice.melody.copy": {
-    "defaultMessage": "Copy score"
+  "@yovoice.melody.export": {
+    "defaultMessage": "Export .abc"
+  },
+  "@yovoice.melody.undo": {
+    "defaultMessage": "Undo: {action}"
   },
   "@yovoice.melody.clear": {
     "defaultMessage": "Clear score"

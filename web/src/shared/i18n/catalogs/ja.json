@@ -2384,6 +2384,15 @@
   "@yovoice.update.group": {
     "defaultMessage": "バージョンとアップデート"
   },
+  "@yovoice.update.starTitle": {
+    "defaultMessage": "yovoice は気に入りましたか？"
+  },
+  "@yovoice.update.starHint": {
+    "defaultMessage": "GitHub で Star をひとつ。一日中ごきげんになって、もっと多くの人に見つけてもらえます。"
+  },
+  "@yovoice.update.star": {
+    "defaultMessage": "Star する"
+  },
   "@yovoice.update.title": {
     "defaultMessage": "ソフトウェアアップデート"
   },
@@ -2987,8 +2996,11 @@
   "@yovoice.melody.import": {
     "defaultMessage": ".abc を読み込む"
   },
-  "@yovoice.melody.copy": {
-    "defaultMessage": "譜面をコピー"
+  "@yovoice.melody.export": {
+    "defaultMessage": ".abc を書き出す"
+  },
+  "@yovoice.melody.undo": {
+    "defaultMessage": "元に戻す：{action}"
   },
   "@yovoice.melody.clear": {
     "defaultMessage": "譜面をクリア"

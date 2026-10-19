@@ -2384,6 +2384,15 @@
   "@yovoice.update.group": {
     "defaultMessage": "Phiên bản và cập nhật"
   },
+  "@yovoice.update.starTitle": {
+    "defaultMessage": "Bạn thấy yovoice hữu ích?"
+  },
+  "@yovoice.update.starHint": {
+    "defaultMessage": "Tặng một ngôi sao trên GitHub nhé, nó sẽ vui cả ngày và giúp nhiều người biết đến hơn."
+  },
+  "@yovoice.update.star": {
+    "defaultMessage": "Tặng sao"
+  },
   "@yovoice.update.title": {
     "defaultMessage": "Cập nhật phần mềm"
   },
@@ -2987,8 +2996,11 @@
   "@yovoice.melody.import": {
     "defaultMessage": "Nhập .abc"
   },
-  "@yovoice.melody.copy": {
-    "defaultMessage": "Sao chép bản nhạc"
+  "@yovoice.melody.export": {
+    "defaultMessage": "Xuất .abc"
+  },
+  "@yovoice.melody.undo": {
+    "defaultMessage": "Hoàn tác: {action}"
   },
   "@yovoice.melody.clear": {
     "defaultMessage": "Xóa bản nhạc"

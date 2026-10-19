@@ -2384,6 +2384,15 @@
   "@yovoice.update.group": {
     "defaultMessage": "Version et mises à jour"
   },
+  "@yovoice.update.starTitle": {
+    "defaultMessage": "Vous aimez yovoice ?"
+  },
+  "@yovoice.update.starHint": {
+    "defaultMessage": "Offrez-lui une étoile sur GitHub : ça illumine sa journée et aide d’autres personnes à le découvrir."
+  },
+  "@yovoice.update.star": {
+    "defaultMessage": "Mettre une étoile"
+  },
   "@yovoice.update.title": {
     "defaultMessage": "Mise à jour du logiciel"
   },
@@ -2987,8 +2996,11 @@
   "@yovoice.melody.import": {
     "defaultMessage": "Importer un .abc"
   },
-  "@yovoice.melody.copy": {
-    "defaultMessage": "Copier la partition"
+  "@yovoice.melody.export": {
+    "defaultMessage": "Exporter en .abc"
+  },
+  "@yovoice.melody.undo": {
+    "defaultMessage": "Annuler : {action}"
   },
   "@yovoice.melody.clear": {
     "defaultMessage": "Effacer la partition"

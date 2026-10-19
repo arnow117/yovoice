@@ -75,8 +75,8 @@ export async function saveAudio(blob: Blob, name: string): Promise<boolean> {
   });
 }
 
-// 字幕与歌词等 UTF-8 文本：桌面端由宿主弹出保存对话框并写文件，用户取消时返回 false。
-export type TextExportFormat = 'srt' | 'vtt' | 'lrc';
+// 字幕、歌词与 ABC 谱面等 UTF-8 文本：桌面端由宿主弹出保存对话框并写文件，用户取消时返回 false。
+export type TextExportFormat = 'srt' | 'vtt' | 'lrc' | 'abc';
 export async function saveText(text: string, name: string, format: TextExportFormat): Promise<boolean> {
   const fileName = `${exportName(name)}.${format}`;
   return logged(format, async () => {

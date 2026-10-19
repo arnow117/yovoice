@@ -2384,6 +2384,15 @@
   "@yovoice.update.group": {
     "defaultMessage": "버전 및 업데이트"
   },
+  "@yovoice.update.starTitle": {
+    "defaultMessage": "yovoice가 마음에 드시나요?"
+  },
+  "@yovoice.update.starHint": {
+    "defaultMessage": "GitHub에서 Star를 하나 눌러 주세요. 하루 종일 신이 나고, 더 많은 사람이 찾게 돼요."
+  },
+  "@yovoice.update.star": {
+    "defaultMessage": "Star 누르기"
+  },
   "@yovoice.update.title": {
     "defaultMessage": "소프트웨어 업데이트"
   },
@@ -2987,8 +2996,11 @@
   "@yovoice.melody.import": {
     "defaultMessage": ".abc 가져오기"
   },
-  "@yovoice.melody.copy": {
-    "defaultMessage": "악보 복사"
+  "@yovoice.melody.export": {
+    "defaultMessage": ".abc 내보내기"
+  },
+  "@yovoice.melody.undo": {
+    "defaultMessage": "실행 취소: {action}"
   },
   "@yovoice.melody.clear": {
     "defaultMessage": "악보 지우기"
