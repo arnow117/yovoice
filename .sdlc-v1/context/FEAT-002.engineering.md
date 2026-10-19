@@ -6,7 +6,7 @@
 
 ### 2026-10-18 页面可见性与原生验收显示前置检查
 
-本节 supersedes 既有空白页返修中尚未确定的显示实现与验证策略；其他产品规则、已接受的三项正式评审修正和接口保持。沿用同一 FEAT-002/TASK-001、Terra 实施者、全部失败历史与已经使用的主诊断 allowance，不清零尝试次数。2026-10-18 用户另行授权的一次零模型定位已结束，后续 App 启动与模型运行尚未授权。
+本节 supersedes 既有空白页返修中尚未确定的显示实现与验证策略；其他产品规则、已接受的三项正式评审修正和接口保持。沿用同一 FEAT-002/TASK-001、Terra 实施者、全部失败历史与已经使用的主诊断 allowance，不清零尝试次数。2026-10-18 用户另行授权的一次零模型定位已结束，当时后续 App 启动与模型运行尚未授权；之后各次明确授权与实际结果见 Validation，不构成自动重跑权限。
 
 新因果证据见 `artifacts/verification/feature-002-goal-acceptance-20261017/opacity-diagnostic-attempt-001/primary-assessment.json` 及同目录 raw result/screenshot：两个嵌套 page-panel 的 page-in 为 pending/currentTime=0、opacity=0；同一阻挡元素持续透明 30 秒后，仅取消内层动画就使该元素 opacity 从 0 变为 1，外层仍为 0，截图仍空白。document.visibilityState=hidden、hasFocus=false，两次 RAF 等待超时。仅启动一次、35 秒、零声纹写操作，源码/App/资产/普通 State 稳定，自有进程均退出。该证据确认页面可见性对入场动画的依赖有实际影响，未证明 WebView 为何 hidden，也不能代表 Feature 验收通过。
 
@@ -366,7 +366,25 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 ## Validation
 
-当前 Feature 验收未通过。正式独立 Validate 的历史通过仅绑定 `767b65ce18f75752a55ebb610e52ffc712950ed3`；之后评审返修提交 `5bec2b86ca7a26bec489ec0420560a3a1cf082bd` 的原生主页面可见性检查失败，不能沿用旧包通过结论。首轮 fail/INCONCLUSIVE、Build 检查及全部原生证据保留。物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+当前 Feature 验收未通过。当前业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的新包在最近一次原生初始化前置检查失败，归因 INCONCLUSIVE；真实登记、识别、删除和重启未执行。正式独立 Validate 的历史通过仅绑定 `767b65ce18f75752a55ebb610e52ffc712950ed3`，不能代表当前提交通过。全部历史失败、Build 与原生证据保留。物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+
+### 2026-10-19 当前包初始化观察与完整旅程停止
+
+被测业务提交为 `a001a0fa74e97a4923c44f5637525f79ff97d15c`，App 为 `artifacts/speaker-validation-macos/worker-20261018-visibility-fix-final/yovoice.app`，源码 385 文件指纹 `133823b8029e7675dc3974bc43f905a2da2d90d21fdc4e0b301a05d52ca2b570`、完整 App `7f1e692377ffc9ecccc7c548097908671d00df8ec6d7c7987e39f33acc12ac9d`。主已核对最终 receipt、strict codesign、打包资源及实际检查记录；Build 为 E2E 62/62、browser 59/59、Swift 17、脚本 24，Web lint/typecheck/build 通过，均不等同原生旅程通过。原始记录在 `artifacts/verification/feature-002-visibility-fix-20261018/` 的 `primary-acceptance.json`、`build-handoff.json`、各命令日志及根级 `web-e2e-results/report.json`（run `01a14f81-b686-7179-8737-2bd189994ba0`）。Go 未变部分的 218 pass/12 skip 属于此前相同相关输入的 Build 证据；当前提交尚无正式 Validate/Review。
+
+用户手动解锁后，各次授权分别消费并结束，未自动重跑：
+
+| 实际命令与证据目录 | 结果 | 验收边界 |
+|---|---|---|
+| `python3 artifacts/verification/feature-002-goal-acceptance-20261018/final-visibility-001/run-authorized-native.py` | exit 1，15,465ms；`document_not_visible`，visibility 为 unavailable、active=false、occlusionVisible=false | 初始化前置失败，0 次提取，未执行业务脚本与重启，无截图；原始 result/outcome 与主核对在该目录 |
+| 单次宿主使用原 `scripts/desktop/speaker-validation-init.js`，实际参数见 `artifacts/verification/feature-002-goal-acceptance-20261019/init-observation-001/native-command.json`；2026-10-19 15:47:31–15:47:35（Asia/Shanghai） | host exit 0，4 秒，`initialized:true`；主查看真实 `smoke.png`，声纹页正常绘制 | 仅初始化观察，0 次提取；用户看到图标短暂出现，未确认实际窗口到前台。成功路径保存结果/截图后由 DEBUG smoke 主动 `NSApp.terminate`，该退出不是崩溃证据；不构成完整 Feature 验收 |
+| `python3 artifacts/verification/feature-002-goal-acceptance-20261019/final-observed-001/run-authorized-native.py`，本次服务日志 2026-10-19 16:00:04–16:00:21（Asia/Shanghai） | exit 1，21,827ms，非外层超时；同一初始化前置失败 | 仅 1 次 host、0 次提取，无登记/识别/删除日志，main/restart 与业务截图均未产生；15 秒观察延时尚未执行到 |
+
+最后一轮输入只对验收产物中的初始化脚本增加导航就绪后 15 秒等待；driver 仅改为产物 shell，shell 仅固定仓库与初始化模板路径，原 App、main/restart、显示和业务断言未改。逐项差异及静态校验见 `final-observed-001/derivation-check.json` 与 `static-checks.json`，原首次静态命令参数错误及缩进比对错误分别保留，均未启动 App。授权原文与预算见同目录 `authorization.json`；限制为一次初始化→主流程→重启、最多 3 次 host/5 次本地 WeSpeaker 提取、CPU 单线程、T=0.6/M=0.05/120 秒、全程 20 分钟，首次失败停止。
+
+最后失败 raw `smoke/initialize-result.json` 显示 windowVisible=true、miniaturized=false、WebView attached 且 1280×840、applicationActive=true，但 windowOcclusionVisible=false、documentVisibility=unavailable。这只能证明在有限期限内没有取得有效的文档可见性值；不能断言 document 实际 hidden、回调从未返回或 App 崩溃，也不足以归因为环境。服务日志记录正常 stopped；worker 确认无自有 host/service/runner 遗留，主只读桌面 inventory 确认 yovoice 未运行、窗口为 0。主核对为 INCONCLUSIVE，见 `final-observed-001/primary-native-assessment.json`；该次预算已耗尽，未追加启动、模型或新诊断。
+
+TASK-001 保持 in_progress；不进入正式 Validate/Review，不复用旧包的原生成功冒充当前提交通过。既有失败历史和已用主诊断 allowance 不变，停止相同输入的盲目重跑，等待用户观察及下一步方向。本节及 project 的后续修改仅同步事实记录，不改变产品规则、实现或当前方案的行为要求；本次 App/receipt 仍绑定运行前的 `a001a0f` 源码快照，不改写旧 receipt 来适配这些记录变化。
 
 ### 2026-10-18 空白页定位与当前 Build 边界
 
