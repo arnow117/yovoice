@@ -1340,18 +1340,30 @@ test('生成拒绝无绑定、失效绑定、缺参考原文、模式冲突和�
   await browser.evaluate(() => {
     window.__yovoiceSyntheticSpeakerFixture.state.voices[0].referenceText = '';
   });
-  // Qwen 的空参考原文在实际 applySpeakerBinding → schema.Validate 路径会映射为
-  // speakerRequestInvalid；fixture 只返回这一公开结果，不重写业务校验。
+  await selectGenerationInputs(screen, 'OmniVoice');
+  const missingReferenceCloneMode = screen
+    .getByTestId('speaker-omni-mode')
+    .getByRole('radio', /^(音色克隆|Voice clone)$/);
+  await missingReferenceCloneMode.tap();
+  await expect(missingReferenceCloneMode).toHaveAttribute('aria-checked', 'true');
+
+  // Omni 的绑定路径会强制 clone；缺失参考原文由 schema.Validate 拒绝并公开为
+  // speakerRequestInvalid。fixture 只返回这一公开结果，不重写业务校验。
   await configureFixture(browser, { generateErrorCode: '@yovoice.error.speakerRequestInvalid' });
+  const missingReferenceCallCount = await generationCallCount(browser);
   await screen.getByTestId('speaker-generate').tap();
+  const missingReferenceRequest = await latestGenerationSnapshot(browser, {
+    previousCallCount: missingReferenceCallCount,
+    modelID: 'omnivoice-q8',
+  });
   await expect(screen.getByText(/声纹档案请求无效|speaker profile request is invalid/)).toBeVisible();
   await expect(screen.getByTestId('speaker-generated-output')).toBeHidden();
   await expect(browser.locator('#speaker-generation-text')).toHaveValue('Keep this target text while correcting the reference.');
+  expect(missingReferenceRequest.draft.voiceMode).toBe('clone');
 
   await browser.evaluate(() => {
     window.__yovoiceSyntheticSpeakerFixture.state.voices[0].referenceText = 'repaired reference';
   });
-  await selectGenerationInputs(screen, 'OmniVoice');
   await screen.getByTestId('speaker-omni-mode').getByRole('radio', /设计|Voice design/).tap();
   await configureFixture(browser, { generateErrorCode: '@yovoice.error.speakerClone' });
   await screen.getByTestId('speaker-generate').tap();

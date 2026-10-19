@@ -36,6 +36,61 @@ func TestApplySpeakerBindingUsesBoundVoiceWithoutChangingCallerEmotion(t *testin
 	}
 }
 
+func TestApplySpeakerBindingReferenceTextRequirements(t *testing.T) {
+	const voiceID = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+	tests := []struct {
+		name          string
+		modelID       string
+		referenceText string
+		wantErrorCode string
+		wantVoiceMode string
+	}{
+		{
+			name:          "Qwen Base permits an empty reference transcript",
+			modelID:       "qwen3-tts-base-q8",
+			wantVoiceMode: "",
+		},
+		{
+			name:          "Omni clone rejects an empty reference transcript",
+			modelID:       "omnivoice-q8",
+			wantErrorCode: "invalid_input",
+			wantVoiceMode: "clone",
+		},
+		{
+			name:          "Omni clone accepts a supplied reference transcript",
+			modelID:       "omnivoice-q8",
+			referenceText: "绑定参考原文",
+			wantVoiceMode: "clone",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			draft := schema.DefaultDraft()
+			draft.ModelID = test.modelID
+			voice := schema.Voice{ID: voiceID, ReferenceText: test.referenceText}
+
+			err := applySpeakerBinding(&draft, voice)
+			if code := SpeakerErrorCode(err); code != test.wantErrorCode {
+				t.Fatalf("SpeakerErrorCode() = %q, want %q (err = %v)", code, test.wantErrorCode, err)
+			}
+			if draft.VoiceMode != test.wantVoiceMode {
+				t.Fatalf("VoiceMode = %q, want %q", draft.VoiceMode, test.wantVoiceMode)
+			}
+			if test.wantErrorCode != "" {
+				return
+			}
+			if draft.VoiceID == nil || *draft.VoiceID != voiceID {
+				t.Fatalf("VoiceID = %v, want %q", draft.VoiceID, voiceID)
+			}
+			if draft.ReferenceText != test.referenceText {
+				t.Fatalf("ReferenceText = %q, want %q", draft.ReferenceText, test.referenceText)
+			}
+		})
+	}
+}
+
 func TestSpeakerRuntimeLogsConfigurationRejectionOnceWithoutPrivateValues(t *testing.T) {
 	workbench, err := New(t.TempDir())
 	if err != nil {

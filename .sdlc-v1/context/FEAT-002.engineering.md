@@ -4,6 +4,14 @@
 
 ## Plan
 
+### 2026-10-19 最后两项验收补证
+
+独立Validate对3c8783f集中核对并实际运行70/70后，剩余仅SCN-UI-16错误的缺原文夹具和SCN-UI-22当前包真实旅程。本节supersedes上一节关于新包原生证据可能仅分层复用的安排：REQ-002证据边界2/5明确保留当前App实际运行要求，旧包不能代替。旧实模仍只证明未改业务；新包需沿既已准备的路径申请一次最多2启动/5本地CPU1提取、20分钟预算，等待用户明确答复，首次验收断言失败停止；逐条时延仍延期。新增预算问题已提出，未获答复前不启动。保留同一Task/实施者、全部失败历史和已用诊断allowance。
+
+主只读复核schema/validate.go与engine/request.go确认：Qwen Base允许空原文并启用x_vector_only_mode；此前把此输入映射为speakerRequestInvalid的测试说明错误，不能算缺必要原文的证据，不修改Qwen合法行为。Omni绑定会强制clone，schema要求原文，空原文实际经applySpeakerBinding映射invalid_input并公开为speakerRequestInvalid。同一Terra worker仅修正生成拒绝故事，用真正Omni clone空原文及准确公开错误；保留先成功再拒绝、正文不丢、无回退、显式修正及最终合法clone恢复，核对本次请求model/mode。增加一个有意义的真实applySpeakerBinding测试，区分Qwen空原文合法、Omni空原文拒绝及补齐后合法，防止合成fixture再偏离实际合同。
+
+写边界仅web/e2e/speaker-page.e2e.ts和internal/workbench/speakers_test.go；禁止生产、fixture算法、依赖、App/receipt、docs/state/Plan/Git修改。单worker串行执行两语言目标故事、Web lint/tsc、Go定向race及formatter/vet，保存原始命令/时间/退出和必要自有资源核对。未改的其余68项由本轮独立70、browser59、完整Go232/12及147/173profile保留精确相关输入范围，不为仅测试修正重建App或重复所有检查。源码测试变化不编入App，原receipt保持，实际旅程前明确逐文件runtime适用性。主接受后干净提交，再由原独立验证者执行受改故事并核对其余复用；SCN22预算获准后才跑新包真实旅程。新出现的实际缺口集中返回，不扩大生产或盲重试。
+
 ### 2026-10-19 错误提示修复后的证据适用性
 
 本节明确最新最小修复的验证策略，保留同一Task、实施者、全部失败历史和已用诊断allowance。最终生产diff只改SpeakerPage的删除错误状态及现成ConfirmDelete error接线；Go业务/识别/持久化、Swift宿主、公开协议、配置、模型资产及页面可见性CSS均未改。原真实登记/识别、成功删除及重启证据保留其原App/源码身份；新增删除失败由真实Call存储故障测试与实际页面对话框alert、保留列表及显式重试断言共同覆盖，不把合成桥接称为本地模型运行。
@@ -430,7 +438,21 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的真实原生文件功能旅程已由主 Agent 验收通过；逐条时延按2026-10-19用户决定留作后续补测。指南和Go覆盖已补齐，四组集中补测及其发现的删除错误提示修复现由主接受Build交付，待干净提交后的独立Validate；当前正式validation仍保留上一轮fail / INCONCLUSIVE，Review未执行。历史smoke失败与旧验证/评审均保留其版本边界。物理Mic与真实TTS听测仍NOT_RUN。
+业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的真实原生文件功能旅程已由主 Agent 验收通过；逐条时延按2026-10-19用户决定留作后续补测。当前3c8783f独立70项通过后发现的SCN-UI-16缺原文夹具已由同一worker修正并经主接受，待独立定向核对；SCN-UI-22新包仍未运行，正式validation保持fail / INCONCLUSIVE，Review未执行。历史smoke失败与旧验证/评审均保留其版本边界。物理Mic与真实TTS听测仍NOT_RUN。
+
+### 2026-10-19 缺参考原文合同修正的Build验收
+
+主已逐行审查并接受仅两文件的测试修正，生产/App/receipt完全未改。生成拒绝故事先保留原Qwen成功，再切Omni并显式clone，实际捕获本次请求omnivoice-q8/voiceMode=clone，缺原文公开speakerRequestInvalid、旧输出清除、正文保留、无回退和明确修正恢复；不再把Qwen空原文当错误。真实applySpeakerBinding表格同时执行Qwen空原文合法、Omni空原文invalid_input及补齐后合法，成功行核对绑定ID/原文，实际公开错误映射另由desktop/speakers.go既有invalid_input默认分支确认。
+
+主亲读raw和报告：run `01a154b4-01de-7511-8150-44ada779d6b7` UTC15:07:25.740–15:07:38.343、12.61秒exit0，两个语言目标2/2，无skip/retry/model。Go定向离线race UTC15:06:31–15:06:33、internal/workbench1.275秒exit0；初次测试本体1.785秒通过而包装记录器误用zsh只读status导致包装失败的原件保留，worker在主“不必仅为日志重跑”的消息送达前已完成准确记录的第二次，未改生产。eslint15:06:49–50、tsc15:06:56–57、vet15:07:49–50均exit0，formatter/diff-check通过。精确argv/env/cwd/HEAD/start/end/exit均在 `artifacts/verification/feature-002-reference-text-contract-20261019/*.raw.log`；报告位于 `web/e2e-results/e2e-results-feature-002-reference-text-contract-20261019-omni-reference/`。15:08:31Z自有e2e/Vite/WebEngine无残留，未杀共享进程。
+
+独立3c8783f的其余68项、browser59及原完整Go232/12与147/173profile仅按未改相关生产输入复用，新Go表格有自己的实际定向结果，不推导新的完整测试数量或覆盖率。测试与SDLC差异不编入App，包树和receipt原件仍保持41d856c0…/ef565265…，不重建。新包真实旅程预算问题仍等待用户答复，未启动App/模型；后续仅独立重验受改故事与真实Go合同、集中确认SCN-UI-22缺口。
+
+### 2026-10-19 3c8783f独立验证的最后两项
+
+原独立验证者在干净且已push的3c8783f实际运行当前集成测试，命令 `E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --workers 1 --retries 0 --strict-cache --output e2e-results/formal-validation-3c8783f`，UTC14:57:31–15:00:24、173.406秒exit0，run01a154aa-f1b6-704c-9487-62e589a397c2：70/70、每例1attempt、0skip/retry/model步骤、cleanup全部complete。原件在 `artifacts/verification/feature-002-formal-validation-20261019/independent-001/final-3c8783f/` 和 `web/e2e-results/formal-validation-3c8783f/`。15:01:09Z PID/PGID48979及项目进程均退出，4173/62382/62383无监听。
+
+集中核对结论仅剩两项，已记录validation fail，不用绿色测试掩盖证据问题：SCN-UI-16的Qwen空原文人为注入拒绝没有真实服务语义（Qwen允许x_vector_only），因此撤回该子例的缺必要原文通过声明，同一worker改为Omni clone并补真实合同测试；SCN-UI-22仍受产品证据边界2/5约束，当前新包NOT_RUN，需用户另授最多2启动/5提取预算，旧包不能代替。其他原四组补证已确认闭合。recognition85.3%、Go147/173＝84.9711%、232/12真实计数、browser59、未改Swift17/脚本24及签名/receipt按原范围保留，Go branch百分比仍不可统计。新receipt当前与源码差异只有SDLC两项、CHANGELOG、usage，包本体完全匹配；测试修正后需另外列出非运行时测试差异，禁止伪称严格相同。
 
 ### 2026-10-19 四组补测与删除提示修复的Build验收
 
