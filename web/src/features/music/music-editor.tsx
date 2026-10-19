@@ -114,7 +114,6 @@ export function MusicEditor({ draft, state, change, locale }: {
           <SegmentedControlItem value="instrumental" label={t('@yovoice.music.instrumental')} />
         </SegmentedControl>
       </HStack>
-      {draft.instrumental ? <p className="music-instrumental">{t(yue ? '@yovoice.music.yueInstrumentalHint' : '@yovoice.music.instrumentalHint')}</p> : null}
       {draft.instrumental && !yue ? null
         : <TextArea ref={lyrics} className="music-lyrics" label={t('@yovoice.music.lyrics')} isLabelHidden value={draft.lyrics ?? ''} maxLength={4000} rows={draft.instrumental ? 6 : 14} hasSpellCheck={false} placeholder={t(draft.instrumental ? '@yovoice.music.structurePlaceholder' : '@yovoice.music.lyricsPlaceholder')} onChange={value => change({ lyrics: value.slice(0, 4000) })} />}
     </VStack>

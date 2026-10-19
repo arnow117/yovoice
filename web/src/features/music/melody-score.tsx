@@ -67,9 +67,7 @@ export function MelodyScore({ draft, state, change }: {
   const commitTempo = () => { const value = Number(tempo); if (inspection?.tempo && value && value !== inspection.tempo) void transform('tempo', value); else setTempo(inspection?.tempo ? String(inspection.tempo) : ''); };
   const plan = () => attempt(() => call('melody.plan', draft));
   const canPlan = !busy && !!draft.text.trim() && (draft.instrumental || !!draft.lyrics?.trim());
-  // 谱里还有人声旋律：纯音乐生成时会自动交给乐器演奏，也可以先在这里转好再改。
-  // 自由发挥不经过谱：谱仍保留，提示生成时不会用到。
-  const free = !draft.instrumental && draft.modelOptions?.yue2?.cot === 'off';
+  // 谱里还有人声旋律时，菜单里可以把它转给乐器。
   const sung = !!inspection?.score?.tracks.some(track => track.id === 'vocal');
   const summary = inspection && !inspection.issue ? [inspection.key, `${inspection.tempo} BPM`, inspection.meter?.join('/'), t('@yovoice.score.barCount', { count: inspection.bars ?? 0 }), formatTime(inspection.seconds ?? 0), t(inspection.chords ? '@yovoice.melody.withChords' : '@yovoice.melody.melodyOnly')].filter(Boolean).join(' · ') : '';
   const score = inspection?.score ? { ...inspection.score, tracks: inspection.score.tracks.map(track => ({ ...track, name: t(`@yovoice.melody.track.${track.id}`) })) } : undefined;
@@ -125,10 +123,6 @@ export function MelodyScore({ draft, state, change }: {
     </HStack> : null}
 
     {progress}
-    {free ? <HStack className="melody-notice" data-tone="info" gap={2} vAlign="center" role="status">
-      <small className="grow">{t('@yovoice.melody.freeNotice')}</small>
-      <Button size="sm" variant="ghost" label={t('@yovoice.melody.useScore')} onClick={() => change({ modelOptions: { ...draft.modelOptions, yue2: { ...draft.modelOptions?.yue2, cot: 'auto' } } })} />
-    </HStack> : null}
     {error ? <HStack className="melody-notice" data-tone="danger" gap={2} vAlign="start" role="alert"><CircleAlert size={16} aria-hidden="true" /><small className="grow">{error}</small></HStack> : null}
 
     {/* 还没有谱时只留三个来源按钮，不再放说明文字。 */}
@@ -142,10 +136,6 @@ export function MelodyScore({ draft, state, change }: {
           <small>{t(`@yovoice.melody.notice.${notice.kind}`)}</small>
         </VStack>
         <Button size="sm" variant="ghost" label={t('@yovoice.action.closeNotice')} onClick={() => setNotice(null)} />
-      </HStack> : null}
-      {draft.instrumental && sung && !inspection?.issue ? <HStack className="melody-notice" data-tone="info" gap={2} vAlign="center" role="status">
-        <small className="grow">{t('@yovoice.melody.instrumentalNotice')}</small>
-        <Button size="sm" variant="ghost" label={t('@yovoice.melody.toInstrumental')} onClick={() => void transform('instrumental')} />
       </HStack> : null}
       {inspection?.issue ? <HStack className="melody-notice" data-tone="danger" gap={2} vAlign="start" role="alert">
         <CircleAlert size={16} aria-hidden="true" />

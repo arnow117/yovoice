@@ -1958,9 +1958,6 @@
   "@yovoice.music.instrumental": {
     "defaultMessage": "Instrumental"
   },
-  "@yovoice.music.instrumentalHint": {
-    "defaultMessage": "Faixas instrumentais ignoram a letra e seguem apenas o estilo. Sua letra é mantida; desative esta opção para continuar editando."
-  },
   "@yovoice.music.lyricsPlaceholder": {
     "defaultMessage": "Escreva a letra e marque as seções com [verse], [chorus] e assim por diante. Deixe em branco para o modelo cantarolar."
   },
@@ -2368,9 +2365,6 @@
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "Gera uma canção completa ou instrumental a partir da letra e do estilo, e pode escrever antes uma partitura editável; a duração acompanha a letra ou a partitura. Licença CC BY-NC 4.0, somente para uso não comercial."
-  },
-  "@yovoice.music.yueLength": {
-    "defaultMessage": "O YuE2 canta seção por seção, então a letra define a duração da música."
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "Reutilizar o estilo e a letra desta versão"
@@ -3719,9 +3713,6 @@
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "Sua seleção será enviada ao Ocho com a próxima mensagem"
   },
-  "@yovoice.music.yueInstrumentalHint": {
-    "defaultMessage": "O YuE2 escreve primeiro uma partitura e depois passa a melodia vocal aos instrumentos. A letra é opcional; marcas de seção como [Verse] e [Chorus] definem a estrutura."
-  },
   "@yovoice.music.structurePlaceholder": {
     "defaultMessage": "Opcional: marcas de seção como [Intro], [Verse], [Chorus], [Outro]"
   },
@@ -3734,17 +3725,8 @@
   "@yovoice.music.modeFree": {
     "defaultMessage": "Livre"
   },
-  "@yovoice.music.modeScoreHint": {
-    "defaultMessage": "Canta sobre a partitura; sem ela, o YuE2 escreve primeiro e você pode carregá-la da versão para editar."
-  },
-  "@yovoice.music.modeFreeHint": {
-    "defaultMessage": "Gera diretamente sem partitura; o resultado não tem partitura editável."
-  },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "Passar a melodia aos instrumentos"
-  },
-  "@yovoice.melody.instrumentalNotice": {
-    "defaultMessage": "A partitura ainda tem melodia vocal. Em uma faixa instrumental ela é tocada por instrumentos; acordes, andamento e tom não mudam."
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Temperatura da partitura"
@@ -3760,12 +3742,6 @@
   },
   "@yovoice.options.semantic_repetition_penalty": {
     "defaultMessage": "Penalidade de repetição do áudio"
-  },
-  "@yovoice.melody.freeNotice": {
-    "defaultMessage": "A geração livre está ativa; esta partitura não é usada."
-  },
-  "@yovoice.melody.useScore": {
-    "defaultMessage": "Usar partitura"
   },
   "@yovoice.music.compareVersions": {
     "defaultMessage": "Trocar de versão para comparar"

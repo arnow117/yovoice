@@ -1958,9 +1958,6 @@
   "@yovoice.music.instrumental": {
     "defaultMessage": "純音樂"
   },
-  "@yovoice.music.instrumentalHint": {
-    "defaultMessage": "純音樂不演唱歌詞，只依風格生成。歌詞會保留，關閉後可以繼續編輯。"
-  },
   "@yovoice.music.lyricsPlaceholder": {
     "defaultMessage": "寫下歌詞，用 [verse]、[chorus] 等標記段落。留空時由模型自由哼唱。"
   },
@@ -2368,9 +2365,6 @@
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "根據歌詞和風格生成整首歌曲或純音樂，可先寫出可編輯的旋律譜，長度由歌詞或譜決定。模型授權為 CC BY-NC 4.0，僅限非商業用途。"
-  },
-  "@yovoice.music.yueLength": {
-    "defaultMessage": "YuE2 依歌詞段落生成，歌曲長度由歌詞決定。"
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "重複使用這一版的風格和歌詞"
@@ -3719,9 +3713,6 @@
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "選取的內容會隨下一則訊息傳給 Ocho"
   },
-  "@yovoice.music.yueInstrumentalHint": {
-    "defaultMessage": "YuE2 會先寫譜，再把人聲旋律交給樂器演奏。歌詞可以不填，寫 [Verse]、[Chorus] 等段落標記可以安排結構。"
-  },
   "@yovoice.music.structurePlaceholder": {
     "defaultMessage": "選填：寫段落標記，如 [Intro]、[Verse]、[Chorus]、[Outro]"
   },
@@ -3734,17 +3725,8 @@
   "@yovoice.music.modeFree": {
     "defaultMessage": "自由發揮"
   },
-  "@yovoice.music.modeScoreHint": {
-    "defaultMessage": "按旋律譜演唱；沒有譜時 YuE2 先寫譜，生成後可以從這一版載入譜再修改。"
-  },
-  "@yovoice.music.modeFreeHint": {
-    "defaultMessage": "不經過旋律譜直接生成，結果沒有可編輯的譜。"
-  },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "人聲旋律轉給樂器"
-  },
-  "@yovoice.melody.instrumentalNotice": {
-    "defaultMessage": "譜裡還有人聲旋律。生成純音樂時會交給樂器演奏，和弦、速度和調不變。"
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "寫譜溫度"
@@ -3760,12 +3742,6 @@
   },
   "@yovoice.options.semantic_repetition_penalty": {
     "defaultMessage": "演唱重複懲罰"
-  },
-  "@yovoice.melody.freeNotice": {
-    "defaultMessage": "目前是自由發揮，生成時不使用旋律譜。"
-  },
-  "@yovoice.melody.useScore": {
-    "defaultMessage": "改為按譜"
   },
   "@yovoice.music.compareVersions": {
     "defaultMessage": "切換版本對比試聽"

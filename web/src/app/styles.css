@@ -426,7 +426,6 @@
   .music-style textarea { font-size: calc(var(--app-ui-font) + var(--spacing-0-5)); }
   .music-tag-group { min-width: var(--spacing-10); }
   .music-tag.astryx-button { border-radius: var(--radius-full); }
-  .music-instrumental { padding: var(--spacing-4); border-radius: var(--radius-container); background: var(--app-surface); color: var(--app-muted); line-height: 1.8; }
   .song-cover { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 1; border-radius: var(--radius-container); background: var(--app-ink); }
   .project-avatars .song-cover { width: var(--spacing-10); border-radius: var(--radius-element); }
   /* 编曲作品：音块总览用深底发光块呈现每个声部，声部表按角色色点区分。 */

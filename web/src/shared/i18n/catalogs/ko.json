@@ -1958,9 +1958,6 @@
   "@yovoice.music.instrumental": {
     "defaultMessage": "연주곡"
   },
-  "@yovoice.music.instrumentalHint": {
-    "defaultMessage": "연주곡은 가사를 무시하고 스타일만 따릅니다. 가사는 그대로 유지되며, 이 옵션을 끄면 계속 편집할 수 있습니다."
-  },
   "@yovoice.music.lyricsPlaceholder": {
     "defaultMessage": "가사를 쓰고 [verse], [chorus] 등으로 섹션을 표시하세요. 비워 두면 모델이 허밍으로 부릅니다."
   },
@@ -2368,9 +2365,6 @@
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "가사와 스타일로 완전한 노래나 연주곡을 생성하며, 먼저 편집 가능한 멜로디 악보를 쓸 수도 있습니다. 길이는 가사나 악보에 따라 정해집니다. CC BY-NC 4.0 라이선스로 비상업적 용도로만 사용할 수 있습니다."
-  },
-  "@yovoice.music.yueLength": {
-    "defaultMessage": "YuE2는 섹션별로 노래하므로 가사가 곡 길이를 결정합니다."
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "이 버전의 스타일과 가사 재사용"
@@ -3719,9 +3713,6 @@
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "선택한 내용은 다음 메시지와 함께 Ocho에게 전달됩니다"
   },
-  "@yovoice.music.yueInstrumentalHint": {
-    "defaultMessage": "YuE2가 먼저 악보를 쓰고 보컬 멜로디를 악기가 연주하게 합니다. 가사는 비워도 되며, [Verse]·[Chorus] 같은 구간 표시로 구성을 정할 수 있습니다."
-  },
   "@yovoice.music.structurePlaceholder": {
     "defaultMessage": "선택: [Intro], [Verse], [Chorus], [Outro] 같은 구간 표시"
   },
@@ -3734,17 +3725,8 @@
   "@yovoice.music.modeFree": {
     "defaultMessage": "자유 생성"
   },
-  "@yovoice.music.modeScoreHint": {
-    "defaultMessage": "멜로디 악보대로 부릅니다. 악보가 없으면 YuE2가 먼저 쓰고, 생성 후 해당 버전에서 불러와 수정할 수 있습니다."
-  },
-  "@yovoice.music.modeFreeHint": {
-    "defaultMessage": "악보 없이 바로 생성하며, 결과에는 편집할 악보가 없습니다."
-  },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "멜로디를 악기로 옮기기"
-  },
-  "@yovoice.melody.instrumentalNotice": {
-    "defaultMessage": "악보에 아직 보컬 멜로디가 있습니다. 연주곡에서는 악기가 연주하며 코드, 템포, 조는 그대로입니다."
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "악보 온도"
@@ -3760,12 +3742,6 @@
   },
   "@yovoice.options.semantic_repetition_penalty": {
     "defaultMessage": "오디오 반복 페널티"
-  },
-  "@yovoice.melody.freeNotice": {
-    "defaultMessage": "자유 생성 중이라 이 악보는 사용하지 않습니다."
-  },
-  "@yovoice.melody.useScore": {
-    "defaultMessage": "악보 사용"
   },
   "@yovoice.music.compareVersions": {
     "defaultMessage": "버전을 바꿔 비교 감상"

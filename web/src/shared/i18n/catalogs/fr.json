@@ -1958,9 +1958,6 @@
   "@yovoice.music.instrumental": {
     "defaultMessage": "Instrumental"
   },
-  "@yovoice.music.instrumentalHint": {
-    "defaultMessage": "Les morceaux instrumentaux ignorent les paroles et suivent uniquement le style. Vos paroles sont conservées ; désactivez cette option pour continuer à les modifier."
-  },
   "@yovoice.music.lyricsPlaceholder": {
     "defaultMessage": "Écrivez les paroles et marquez les sections avec [verse], [chorus], etc. Laissez vide pour laisser le modèle fredonner."
   },
@@ -2368,9 +2365,6 @@
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "Génère une chanson complète ou un instrumental à partir de paroles et d’un style, et peut d’abord écrire une partition modifiable ; la durée dépend des paroles ou de la partition. Sous licence CC BY-NC 4.0, usage non commercial uniquement."
-  },
-  "@yovoice.music.yueLength": {
-    "defaultMessage": "YuE2 chante section par section : ce sont donc les paroles qui déterminent la durée de la chanson."
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "Réutiliser le style et les paroles de cette prise"
@@ -3719,9 +3713,6 @@
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "Votre sélection est envoyée à Ocho avec le prochain message"
   },
-  "@yovoice.music.yueInstrumentalHint": {
-    "defaultMessage": "YuE2 écrit d’abord une partition, puis confie la mélodie vocale aux instruments. Les paroles sont facultatives ; des repères comme [Verse] et [Chorus] structurent le morceau."
-  },
   "@yovoice.music.structurePlaceholder": {
     "defaultMessage": "Facultatif : repères de section comme [Intro], [Verse], [Chorus], [Outro]"
   },
@@ -3734,17 +3725,8 @@
   "@yovoice.music.modeFree": {
     "defaultMessage": "Libre"
   },
-  "@yovoice.music.modeScoreHint": {
-    "defaultMessage": "Chante sur la partition ; sans partition, YuE2 l’écrit d’abord et vous pouvez la charger depuis la version pour la modifier."
-  },
-  "@yovoice.music.modeFreeHint": {
-    "defaultMessage": "Génère directement sans partition ; le résultat n’a pas de partition modifiable."
-  },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "Confier la mélodie aux instruments"
-  },
-  "@yovoice.melody.instrumentalNotice": {
-    "defaultMessage": "La partition contient encore une mélodie vocale. En instrumental, elle est jouée par les instruments ; accords, tempo et tonalité restent identiques."
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Température de partition"
@@ -3760,12 +3742,6 @@
   },
   "@yovoice.options.semantic_repetition_penalty": {
     "defaultMessage": "Pénalité de répétition audio"
-  },
-  "@yovoice.melody.freeNotice": {
-    "defaultMessage": "La génération libre est active ; cette partition n’est pas utilisée."
-  },
-  "@yovoice.melody.useScore": {
-    "defaultMessage": "Utiliser la partition"
   },
   "@yovoice.music.compareVersions": {
     "defaultMessage": "Changer de version pour comparer"

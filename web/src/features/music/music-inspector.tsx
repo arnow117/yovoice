@@ -70,7 +70,6 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
         <ModelSelector label={t('@yovoice.create.model')} models={models} state={state} value={draft.modelId} isDisabled={generating} manage={settings} onChange={modelId => change({ modelId })} />
       </VStack>
       {yue ? <>
-      <VStack gap={2}><h3>{t('@yovoice.music.duration')}</h3><small>{t('@yovoice.music.yueLength')}</small></VStack>
       {/* 生成方式：按旋律谱（有谱按谱、没谱先写谱）或不经过谱自由发挥；纯音乐必须经过谱。 */}
       {draft.instrumental ? null : <VStack gap={2}>
         <h3>{t('@yovoice.music.mode')}</h3>
@@ -78,7 +77,6 @@ export function MusicInspector({ draft, state, catalog, change, generate, cancel
           <SegmentedControlItem value="score" label={t('@yovoice.music.modeScore')} />
           <SegmentedControlItem value="off" label={t('@yovoice.music.modeFree')} />
         </SegmentedControl>
-        <small>{t(yueMode === 'off' ? '@yovoice.music.modeFreeHint' : '@yovoice.music.modeScoreHint')}</small>
       </VStack>}
       </> : <>
       <VStack gap={3}>

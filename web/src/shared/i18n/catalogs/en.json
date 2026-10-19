@@ -1958,9 +1958,6 @@
   "@yovoice.music.instrumental": {
     "defaultMessage": "Instrumental"
   },
-  "@yovoice.music.instrumentalHint": {
-    "defaultMessage": "Instrumental tracks ignore the lyrics and follow the style only. Your lyrics are kept; turn this off to keep editing them."
-  },
   "@yovoice.music.lyricsPlaceholder": {
     "defaultMessage": "Write lyrics and mark sections with [verse], [chorus] and so on. Leave empty to let the model hum along."
   },
@@ -2368,9 +2365,6 @@
   },
   "@yovoice.settings.modelDesc.yue2": {
     "defaultMessage": "Generates a full song or instrumental from lyrics and style, and can write an editable melody score first; length follows the lyrics or score. Licensed CC BY-NC 4.0, non-commercial use only."
-  },
-  "@yovoice.music.yueLength": {
-    "defaultMessage": "YuE2 sings section by section, so the lyrics decide the song length."
   },
   "@yovoice.music.reuseTake": {
     "defaultMessage": "Reuse this take's style and lyrics"
@@ -3719,9 +3713,6 @@
   "@yovoice.assistant.selectionHint": {
     "defaultMessage": "Your selection is sent to Ocho with the next message"
   },
-  "@yovoice.music.yueInstrumentalHint": {
-    "defaultMessage": "YuE2 writes a score first, then gives the vocal melody to instruments. Lyrics are optional; section markers such as [Verse] and [Chorus] shape the structure."
-  },
   "@yovoice.music.structurePlaceholder": {
     "defaultMessage": "Optional: section markers such as [Intro], [Verse], [Chorus], [Outro]"
   },
@@ -3734,17 +3725,8 @@
   "@yovoice.music.modeFree": {
     "defaultMessage": "Free"
   },
-  "@yovoice.music.modeScoreHint": {
-    "defaultMessage": "Sings over the melody score; without one, YuE2 writes it first, and you can load it from that version to edit."
-  },
-  "@yovoice.music.modeFreeHint": {
-    "defaultMessage": "Skips the score and generates directly; the result has no editable score."
-  },
   "@yovoice.melody.toInstrumental": {
     "defaultMessage": "Give melody to instruments"
-  },
-  "@yovoice.melody.instrumentalNotice": {
-    "defaultMessage": "This score still has a vocal melody. For an instrumental track it is played by instruments; chords, tempo and key stay the same."
   },
   "@yovoice.options.abc_temperature": {
     "defaultMessage": "Score temperature"
@@ -3760,12 +3742,6 @@
   },
   "@yovoice.options.semantic_repetition_penalty": {
     "defaultMessage": "Audio repetition penalty"
-  },
-  "@yovoice.melody.freeNotice": {
-    "defaultMessage": "Free generation is on, so this score is not used."
-  },
-  "@yovoice.melody.useScore": {
-    "defaultMessage": "Use score"
   },
   "@yovoice.music.compareVersions": {
     "defaultMessage": "Switch version to compare"
