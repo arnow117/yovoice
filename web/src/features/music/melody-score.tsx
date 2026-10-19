@@ -120,20 +120,23 @@ export function MelodyScore({ draft, state, change, onError }: {
     <HStack vAlign="center" gap={2}>
       <h2 className="grow">{t('@yovoice.melody.title')}</h2>
       {abc.trim() ? <>
-        <SegmentedControl label={t('@yovoice.melody.view')} size="sm" value={view} onChange={value => switchView(value as View)}>
-          <SegmentedControlItem value="staff" label={t('@yovoice.melody.viewStaff')} />
-          <SegmentedControlItem value="tracks" label={t('@yovoice.melody.viewTracks')} />
-          <SegmentedControlItem value="source" label={t('@yovoice.melody.viewSource')} />
-        </SegmentedControl>
-        <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.melody.more'), tooltip: t('@yovoice.melody.more') }} items={[
-          { id: 'plan', label: t('@yovoice.melody.replan'), isDisabled: !canPlan, onClick: () => void plan() },
-          { id: 'cover', label: t('@yovoice.melody.cover'), isDisabled: busy, onClick: () => audio.current?.click() },
-          { id: 'strip', label: t('@yovoice.melody.stripChords'), isDisabled: !inspection?.chords, onClick: () => void transform('stripChords') },
-          { id: 'instrumental', label: t('@yovoice.melody.toInstrumental'), isDisabled: !sung, onClick: () => void transform('instrumental') },
-          { id: 'import', label: t('@yovoice.melody.import'), onClick: () => file.current?.click() },
-          { id: 'copy', label: t('@yovoice.melody.copy'), onClick: () => void attempt(() => navigator.clipboard.writeText(abc)) },
-          { id: 'clear', label: t('@yovoice.melody.clear'), onClick: () => { change({ abc: '' }); setNotice(null); } },
-        ]} />
+        {/* 视图切换和「⋯」谱面操作并成一个控件：共用底色和边框，中间一条细分隔。 */}
+        <HStack className="melody-view-bar" gap={0} vAlign="center">
+          <SegmentedControl label={t('@yovoice.melody.view')} size="sm" value={view} onChange={value => switchView(value as View)}>
+            <SegmentedControlItem value="staff" label={t('@yovoice.melody.viewStaff')} />
+            <SegmentedControlItem value="tracks" label={t('@yovoice.melody.viewTracks')} />
+            <SegmentedControlItem value="source" label={t('@yovoice.melody.viewSource')} />
+          </SegmentedControl>
+          <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.melody.more'), tooltip: t('@yovoice.melody.more') }} items={[
+            { id: 'plan', label: t('@yovoice.melody.replan'), isDisabled: !canPlan, onClick: () => void plan() },
+            { id: 'cover', label: t('@yovoice.melody.cover'), isDisabled: busy, onClick: () => audio.current?.click() },
+            { id: 'strip', label: t('@yovoice.melody.stripChords'), isDisabled: !inspection?.chords, onClick: () => void transform('stripChords') },
+            { id: 'instrumental', label: t('@yovoice.melody.toInstrumental'), isDisabled: !sung, onClick: () => void transform('instrumental') },
+            { id: 'import', label: t('@yovoice.melody.import'), onClick: () => file.current?.click() },
+            { id: 'copy', label: t('@yovoice.melody.copy'), onClick: () => void attempt(() => navigator.clipboard.writeText(abc)) },
+            { id: 'clear', label: t('@yovoice.melody.clear'), onClick: () => { change({ abc: '' }); setNotice(null); } },
+          ]} />
+        </HStack>
       </> : null}
     </HStack>
     {/* 谱面信息行：试听、调号拍号等概要，右侧可直接改速度。 */}
