@@ -4,6 +4,26 @@
 
 ## Plan
 
+### 2026-10-19 使用说明与时延证据范围调整
+
+用户明确决定“本次只验功能，逐条时延留作后续补测”，对应 REQ-002 的 SCN-UI-22 和质量要求已同步；其他22场景义务及有限超时/失败即停保持。本节 supersedes 原方案的逐条推理耗时要求：本次记录整段真实操作耗时，不作延迟基准结论，也不再启动App或模型补数据。保留全部失败历史及已用诊断 allowance。
+
+独立 Validate 已定位全局 usage 的操作路径缺口：USG-SPEAKER-MAC-VALIDATION 仍主要指向内嵌 smoke，而当前真实操作证据为正常 LaunchServices + Computer Use。返回同一 Task 的简单文档 Build，由主同步唯一 `docs/usage.md`，明确正常启动、私有data/日志来源、原生文件步骤及失败停止/退出恢复；旧 smoke 入口仍按其自动检查范围保留，不声称它已通过。文档只能写已实际使用的命令和参数来源，不改实现、配置、receipt或包，不重建。以实际逐文件差异确认运行时输入未变后复用现有原生和确定性检查，完成干净文档提交，再由原独立验证者核对当前要求/指南和证据适用性并进入 Review。
+
+### 2026-10-19 Computer Use 真实声纹验收
+
+用户已明确授权一次正常启动与 Computer Use 真实声纹旅程：最多2次宿主启动、5次本地 WeSpeaker 提取、CPU单线程、T=0.6/M=0.05/单次120秒、总时限20分钟，首次失败停止；不调用云端、不下载、不做TTS或物理麦克风录音。此授权不复用已耗尽的旧运行预算，也不重置既有失败历史和已用诊断 allowance。用户随后报告全机卡顿，实际旅程尚未启动；只读资源采样确认本轮旧host/service已退出，其他测试父链自行结束后CPU空闲回到约80%、换页明显下降，故沿该尚未消费的授权继续，不同时运行浏览器回归。
+
+本节 supersedes 下一次真实业务验收的执行方式：沿用已验证的 LaunchServices 正常启动路径和同一 `a001a0f` 绑定App，显式使用全新私有数据目录，不设置 WORKBENCH_SMOKE_SCRIPT。主通过 Computer Use 原生文件面板和真实控件完成A/B登记、两个独立已知查询与一个未知查询、删除B、正常退出并同数据重启确认只剩A；不注入业务JS、不直接调用RPC。读取实际UI结果、完整档案与候选ID，并使用既有只读capture核对普通State/Voices及源码/App/Web/固定资产稳定。源码相对原包只有.sdlc记录变化时，明确其适用性并保留原receipt。主执行桌面验收，原Terra owner协助有界进程及证据管理，任何失败或界面再次失去响应均停止，不追加重启或模型。通过后才完成Task、提交事实记录并进入独立正式Validate/Review。
+
+### 2026-10-19 正常启动显示验证
+
+用户审查验证方法后明确要求“好，赶快试试”。本节只替代下一次显示验证的执行方式，沿用同一 Task、实施者、既有失败历史和已用诊断 allowance，不授权重跑完整声纹旅程。先对已绑定 `a001a0f` 的同一 App 做一次零模型正常启动：复用项目 `run-macos.sh` 已有 LaunchServices `open` 方式，显式使用全新私有 WORKBENCH_DATA，不设置 WORKBENCH_SMOKE_SCRIPT，窗口不由内嵌 smoke 自动关闭。最多一次 App 启动、总时限 120 秒，首次失败停止，结束后仅清理本轮识别出的自有进程，保留原始日志及桌面证据；不下载、不录音、不做 TTS 或声纹写操作。
+
+可证伪的问题是：同一候选在正常启动路径能否显示实际窗口并接受声纹页导航。主通过桌面可访问性与原生窗口画面核对，不能以 WebView snapshot 或 windowVisible 布尔值代替用户实际可见窗口。若正常启动通过，只证明该路径可用；LaunchServices 与禁用 smoke 两个条件同时变化，不据此单独归因旧失败。若失败，本次即停，不追加实验。现有 62 E2E/59 browser/17 Swift/24 脚本证据保留各自范围，真实模型旅程仍需后续明确预算。
+
+本次不改实现或重建 App。当前 HEAD 相对被测 `a001a0f` 仅有 `.sdlc-v1/**` 事实记录变化，启动前分别核对该差异和原 receipt 对完整 App/host/service/Web 的绑定及签名；保留原 receipt 的源码快照，不把记录变化伪装成已重新构建。实际运行与主验收结果追加到既有 Validation。
+
 ### 2026-10-18 页面可见性与原生验收显示前置检查
 
 本节 supersedes 既有空白页返修中尚未确定的显示实现与验证策略；其他产品规则、已接受的三项正式评审修正和接口保持。沿用同一 FEAT-002/TASK-001、Terra 实施者、全部失败历史与已经使用的主诊断 allowance，不清零尝试次数。2026-10-18 用户另行授权的一次零模型定位已结束，当时后续 App 启动与模型运行尚未授权；之后各次明确授权与实际结果见 Validation，不构成自动重跑权限。
@@ -366,7 +386,43 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 ## Validation
 
-当前 Feature 验收未通过。当前业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的新包在最近一次原生初始化前置检查失败，归因 INCONCLUSIVE；真实登记、识别、删除和重启未执行。正式独立 Validate 的历史通过仅绑定 `767b65ce18f75752a55ebb610e52ffc712950ed3`，不能代表当前提交通过。全部历史失败、Build 与原生证据保留。物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+当前业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的真实原生文件功能旅程已由主 Agent 验收通过；逐条时延按2026-10-19用户决定留作后续补测。首次当前独立 Validate 的62项E2E通过，但因唯一使用文档缺少已跑通的正常启动路径而记录 fail / INCONCLUSIVE；指南已返回同一 Task 作简单文档修正，正式 Validate/Review 待后续接受。此前 smoke 初始化显示失败及旧正式验证/评审历史保留，不能代表当前提交结果。物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+
+### 2026-10-19 独立 Validate 首轮与文档修正
+
+独立验证者 `/root/speaker_formal_validation_final` 在 `f83701bc24ba5ed75873a3d52843a689dd7d8ae4`、仅3个 `.sdlc-v1/**` 脏文件的业务干净工作树执行：`E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --workers 1 --retries 0 --strict-cache --output e2e-results/formal-validation-20261019-independent-001`（cwd `web`），2026-10-19 UTC12:26:36–12:29:40，exit 0、183.818秒。根级run `01a15420-c913-7b6a-a15f-d4c376ae3614` 实际收集/选择/通过62项，各一次，无失败/跳过/重试/model-agent步骤；全部cleanup complete。环境为Node25.9.0、e2e0.19.0、WebEngine0.14.0、Chromium153.0.8010.12，两个既有目标为synthetic bridge，不等同真实macOS。原件见 `artifacts/verification/feature-002-formal-validation-20261019/independent-001/` 的命令JSON、根级report/JUnit、日志和cleanup；主已核对根级run及全部结果。
+
+该阶段整体 INCONCLUSIVE：MAC-VALIDATION指南仍导向旧smoke，而实际通过路径为正常LaunchServices/CUA，其他正式检查尚未完成适用性核对，因此按返回请求记录validation fail，未推进Review。主按用户明确决定同步REQ-002/Plan的时延证据范围，并返回同一Task，仅修改 `docs/usage.md` 加入实际已用的正常启动命令、原生文件步骤、参数权威及失败/未知/退出恢复；不改变任何运行时代码或测试配置。完成文档检查与提交后，由原独立验证者继续必要检查和证据适用性判断；已完成相同输入的E2E不因文档改动机械重跑。首轮自有PID/PGID4091已退出，Vite无残留、4173无监听；原始清理证据保留。
+
+### 2026-10-19 Computer Use 真实原生文件旅程通过
+
+用户重启后要求聚焦当前验收；此前尚未消费的“一次、失败即停”授权继续适用。Terra caretaker 在运行时返回 Selected model is at capacity，本轮不涉及代码实现，主直接完成真实桌面集成验收。原始证据在 `artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-001/`，总表为 `primary-native-assessment.json`，公开 UI 结果为 `ui-results.json`。实际使用入口为 `docs/usage.md` 的声纹档案故事：从原生文件面板选择 eval-manifest 固定的两段登记和三段独立查询样本，不注入业务 JS，不直接调用 RPC 替代界面操作。参数来自验证包既有配置，UI 确认本地 WeSpeaker、CPU 单线程、T=0.6/M=0.05/120秒。
+
+两次启动均为 `/usr/bin/env -u WORKBENCH_SMOKE_SCRIPT /usr/bin/open -W --stdout <本轮日志> --stderr <本轮日志> --env WORKBENCH_DATA=<本轮私有data> --env WORKBENCH_DEBUG=1 --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env MKL_NUM_THREADS=1 <同一最终App>`；第一次完整参数见 `launch-request.json`，重启使用相同 App/data。2026-10-19 20:12:04 开始，20:22:09 第二次正常退出，20:22:57 清理核对结束（Asia/Shanghai），共653秒，未超过20分钟；两个 open 会话均 exit 0。合计2次宿主启动、5次模型提取，无重试/云端/下载/TTS/物理麦克风。主查看 CUA 原生窗口截图及 AX；截图原件在本对话工具输出，未声称存在本地 PNG。
+
+| 当前条件 | 实际结果 | 证据 |
+|---|---|---|
+| 真窗口、导航与原生文件选择 | 可见窗口内完成声纹页导航及5次原生文件选择 | 本对话 CUA AX/截图，`ui-results.json` |
+| 登记 A/B，公开完整 ID | A=`87d4e35466691e29b1a52c22ec945ad0`；B=`d71f68da300129a5b1bc838d19d9c0ee` | `ui-results.json`；截图含完整列表 ID |
+| 两个独立已知查询 | A/B分别 matched 到对应 ID，分数0.8181493827733626/0.8388678724598981；2/2正确 | 同文件含完整候选 profileId 与分数 |
+| 第三人查询 | unknown / below_threshold，无确定 profileId，最高0.46485008260461286；1/1正确，总查询3/3 | 同文件；unknown 真实画面及 AX |
+| 删除 B、正常退出并重启 | 确认删除后、重启后均只有原 A ID；配置仍 ready | `after-main.json`、`after-restart.json`、`restart-assertions.json`，重启原生截图 |
+| 普通 State/Voices、源码、App/Web/固定资产 | 三阶段规范化普通 State 相等；files/sourceCandidate/appBundle/webResources/fixedAssets/recognitionManifest 均逐项相等 | `before.json`、`after-main.json`、`after-restart.json`、`restart-assertions.json` |
+| 有限退出和私有数据清理 | 首轮87995/87996、重启277/293宿主/服务均退出，无本包/data/runner残留；已移除私有测试 speakers.json，保留公开结果与散列 | 两份 `owned-processes*.json`、`cleanup.json` |
+
+当前 HEAD `f83701bc…` 及运行前工作树相对 `a001a0f` 只有 `.sdlc-v1/**` 事实记录变化；App/host/service/Web 与原 receipt 一致，strict codesign exit 0，原 receipt 不改写。完整 App 指纹仍为 `7f1e692377ffc9ecccc7c548097908671d00df8ec6d7c7987e39f33acc12ac9d`，旧构建源码385文件指纹仍按原 receipt 保存，运行时完整源码快照另外记录。当前方案改用真实 Computer Use 旅程，覆盖相同产品义务并增加原生选文件验证；不改变22场景、接口、阈值或产品语义，因此同业务输入的既有确定性 Build 证据仍适用，待独立 Validate 再判定完整覆盖。
+
+逐次推理耗时未单独保存，记为 NOT_COLLECTED，不作延迟基准结论；记录的是整段实际桌面操作和清理时间。三次查询分母为3，结果只代表固定三段样本，不外推人群准确率。原生面板首次快捷键过早、一次不支持的滚动参数和退出前 CUA stale-state 拒绝均发生在业务动作前或之后；刷新实际状态后继续同一旅程，未产生额外提取或启动，也没有失败的功能断言。刚进入重启页面时 AX 早于异步配置/列表加载，后续稳定 AX 和真实截图均确认 ready 与唯一 A。正式 Validate/Review 不能以旧通过替代当前阶段；原有失败历史、已用诊断 allowance 保留。
+
+### 2026-10-19 正常启动与 Computer Use 桌面显示通过
+
+用户明确要求试正常启动并建议使用 Computer Use；本轮仅授权零模型检查，未扩大为真实声纹旅程。同一候选经 `/usr/bin/open -W`（LaunchServices）启动，显式设置全新私有 WORKBENCH_DATA、未传 WORKBENCH_SMOKE_SCRIPT，未更改 App 或业务代码。包内容与原 receipt 的 app/host/service/Web 完全匹配、strict codesign exit 0；当前提交与工作树相对被测 `a001a0f` 仅 `.sdlc-v1/**` 记录变化，原源码绑定在此明确范围内适用，未改写 receipt。原始核对见 `artifacts/verification/feature-002-goal-acceptance-20261019/launchservices-observation-001/preflight.json`。
+
+主通过 CUA 选中已运行的同一 App，AX 显示 focused standard window yovoice；用户同时确认“我看现在已经打开了”。真实点击导航进入声纹档案页，原生窗口画面与 AX 显示页面正常、识别已准备（T=0.6/M=0.05/120秒）；点击登记区选择文件打开原生 NSOpenPanel，随后 Cancel 返回声纹页，未选择或处理音频。截图与完整 AX 原始输出在本对话对应 CUA 工具记录，未另存本地 PNG，不能指称已有截图文件。主记录见同目录 `primary-desktop-assessment.json`。
+
+actual host PID 60520、open PID 60514（先前消息中的 60483 为误报，已更正，以 launch-ready 为准）。服务日志为 2026-10-19 19:30:49–19:32:47（Asia/Shanghai）；120秒观察预算到期后进行有限清理，总计127秒，`launch-outcome.json` 记录 host/service remaining 均为空，worker 确认无 runner 遗留，主 CUA 确认 App 未运行。登记/识别/生成/删除/录音与模型提取均为0，私有 State 与 seeded backup 字节相同。
+
+本轮正常桌面显示层通过，证明同一候选在正常启动下可显示并操作，不证明旧 smoke 失败的唯一根因；LaunchServices 与不加载 smoke 两个条件同时变化。保留历史失败和已用诊断 allowance。剩余真实业务验收应沿已验证的正常启动与 Computer Use 路径执行，固定模型及五段样本已再次匹配 eval-manifest，实际模型旅程仍需明确的一次预算；TASK 保持 in_progress。
 
 ### 2026-10-19 当前包初始化观察与完整旅程停止
 
