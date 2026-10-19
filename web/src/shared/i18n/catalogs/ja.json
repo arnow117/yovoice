@@ -1955,6 +1955,9 @@
   "@yovoice.music.insertSection": {
     "defaultMessage": "セクションを挿入"
   },
+  "@yovoice.music.expandLyrics": {
+    "defaultMessage": "歌詞を拡大して編集"
+  },
   "@yovoice.music.instrumental": {
     "defaultMessage": "インスト"
   },

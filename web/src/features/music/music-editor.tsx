@@ -6,7 +6,8 @@ import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/Segme
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, Maximize2 } from 'lucide-react';
+import { AppDialog } from '../../shared/ui/app-dialog';
 import { isUntitled, isYuE, type Draft, type State, type UiLocale } from '../../shared/workbench';
 import { createMusicDraft, instrumentalSections, lyricSections, splitTags } from './music-draft';
 import { MelodyScore } from './melody-score';
@@ -20,6 +21,9 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
   // YuE2 的纯音乐先出谱，再把人声旋律交给乐器演奏；歌词可留空，或只写段落标记安排结构。
   const yue = isYuE(draft.modelId);
   const lyrics = useRef<HTMLTextAreaElement>(null);
+  const expandedLyrics = useRef<HTMLTextAreaElement>(null);
+  // 歌词框在 YuE2 下收矮，让下方旋律谱露出来；需要细看或长段编辑时放大到对话框里。
+  const [expanded, setExpanded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputVal, setInputVal] = useState('');
   const tags = splitTags(draft.text);
@@ -58,13 +62,15 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
   };
   // 在光标处插入段落标记；标记单独占一行，便于 ACE-Step 识别结构。
   const insertSection = (section: string) => {
-    const element = lyrics.current; const value = draft.lyrics ?? '';
+    const element = (expanded ? expandedLyrics : lyrics).current; const value = draft.lyrics ?? '';
     const start = element?.selectionStart ?? value.length, end = element?.selectionEnd ?? value.length;
     const before = value.slice(0, start);
     const tag = `${before && !before.endsWith('\n\n') ? (before.endsWith('\n') ? '\n' : '\n\n') : ''}[${section}]\n`;
     change({ lyrics: (before + tag + value.slice(end)).slice(0, 4000) });
     requestAnimationFrame(() => { element?.focus(); element?.setSelectionRange(start + tag.length, start + tag.length); });
   };
+  const sectionMenu = <DropdownMenu hasChevron alignment="end" button={{ size: 'sm', variant: 'ghost', label: t('@yovoice.music.insertSection') }}
+    items={[...lyricSections.map(section => ({ label: `[${section}]`, onClick: () => insertSection(section) })), { type: 'divider' as const }, ...instrumentalSections.map(section => ({ label: `[${section}]`, onClick: () => insertSection(section) }))]} />;
   const empty = !draft.text.trim() && !draft.lyrics?.trim();
   return <VStack className="music-editor" gap={5}>
     <VStack className="music-block" gap={3}>
@@ -107,16 +113,21 @@ export function MusicEditor({ draft, state, change, locale, onError }: {
     <VStack className="music-block" gap={3}>
       <HStack vAlign="center" gap={2} wrap="wrap">
         <h2 className="grow">{t('@yovoice.music.lyrics')}</h2>
-        {!draft.instrumental || yue ? <DropdownMenu hasChevron alignment="end" button={{ size: 'sm', variant: 'ghost', label: t('@yovoice.music.insertSection') }}
-          items={[...lyricSections.map(section => ({ label: `[${section}]`, onClick: () => insertSection(section) })), { type: 'divider' as const }, ...instrumentalSections.map(section => ({ label: `[${section}]`, onClick: () => insertSection(section) }))]} /> : null}
+        {!draft.instrumental || yue ? sectionMenu : null}
+        {!draft.instrumental || yue ? <Button size="sm" variant="ghost" isIconOnly icon={<Maximize2 />} label={t('@yovoice.music.expandLyrics')} tooltip={t('@yovoice.music.expandLyrics')} onClick={() => setExpanded(true)} /> : null}
         <SegmentedControl label={t('@yovoice.music.lyricsMode')} size="sm" value={draft.instrumental ? 'instrumental' : 'vocal'} onChange={value => change({ instrumental: value === 'instrumental' })}>
           <SegmentedControlItem value="vocal" label={t('@yovoice.music.vocal')} />
           <SegmentedControlItem value="instrumental" label={t('@yovoice.music.instrumental')} />
         </SegmentedControl>
       </HStack>
       {draft.instrumental && !yue ? null
-        : <TextArea ref={lyrics} className="music-lyrics" label={t('@yovoice.music.lyrics')} isLabelHidden value={draft.lyrics ?? ''} maxLength={4000} rows={draft.instrumental ? 6 : 14} hasSpellCheck={false} placeholder={t(draft.instrumental ? '@yovoice.music.structurePlaceholder' : '@yovoice.music.lyricsPlaceholder')} onChange={value => change({ lyrics: value.slice(0, 4000) })} />}
+        : <TextArea ref={lyrics} className="music-lyrics" label={t('@yovoice.music.lyrics')} isLabelHidden value={draft.lyrics ?? ''} maxLength={4000} rows={draft.instrumental ? 6 : yue ? 8 : 14} hasSpellCheck={false} placeholder={t(draft.instrumental ? '@yovoice.music.structurePlaceholder' : '@yovoice.music.lyricsPlaceholder')} onChange={value => change({ lyrics: value.slice(0, 4000) })} />}
     </VStack>
+    {expanded ? <AppDialog title={t('@yovoice.music.lyrics')} width={760} closeLabel={t('@yovoice.action.close')} onClose={() => setExpanded(false)}
+      actions={sectionMenu}>
+      <TextArea ref={expandedLyrics} className="music-lyrics music-lyrics-expanded" label={t('@yovoice.music.lyrics')} isLabelHidden value={draft.lyrics ?? ''} maxLength={4000} rows={20} hasSpellCheck={false}
+        placeholder={t(draft.instrumental ? '@yovoice.music.structurePlaceholder' : '@yovoice.music.lyricsPlaceholder')} onChange={value => change({ lyrics: value.slice(0, 4000) })} />
+    </AppDialog> : null}
     {/* YuE2 的流程是“歌词 → 旋律谱 → 整首歌”，谱放在歌词之后。 */}
     {yue ? <MelodyScore draft={draft} state={state} change={change} onError={onError} /> : null}
   </VStack>;

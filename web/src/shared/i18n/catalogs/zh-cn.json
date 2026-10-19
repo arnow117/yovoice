@@ -1955,6 +1955,9 @@
   "@yovoice.music.insertSection": {
     "defaultMessage": "插入段落"
   },
+  "@yovoice.music.expandLyrics": {
+    "defaultMessage": "放大编辑歌词"
+  },
   "@yovoice.music.instrumental": {
     "defaultMessage": "纯音乐"
   },

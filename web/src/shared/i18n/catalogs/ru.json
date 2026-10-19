@@ -1955,6 +1955,9 @@
   "@yovoice.music.insertSection": {
     "defaultMessage": "Вставить раздел"
   },
+  "@yovoice.music.expandLyrics": {
+    "defaultMessage": "Развернуть текст песни"
+  },
   "@yovoice.music.instrumental": {
     "defaultMessage": "Инструментал"
   },

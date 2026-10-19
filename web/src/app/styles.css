@@ -641,6 +641,9 @@
   .music-tag.astryx-button { transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard); }
   .music-block .astryx-segmented-control { flex: none; width: max-content; }
   .music-style-box { position: relative; min-height: calc(var(--spacing-10) * 1.5); padding: var(--spacing-2) var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); background: var(--app-paper); cursor: text; transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard); }
+  /* 风格标签最多显示两行，多出来的在框内滚动。 */
+  .music-style-box { row-gap: var(--spacing-2); max-height: calc(var(--spacing-6) * 2 + var(--spacing-2) * 3 + var(--border-width) * 2); overflow-y: auto; align-content: flex-start; }
+  .music-lyrics-expanded textarea { height: 55vh; resize: none; }
   .music-style-box:focus-within { border-color: var(--app-ink); box-shadow: 0 0 0 1px var(--app-ink); }
   .music-style-field { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; margin: -1px; border: 0; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); }
   .music-inline-input { border: none; background: transparent; outline: none; font-size: calc(var(--app-ui-font) + var(--spacing-0-5)); color: var(--app-ink); min-width: 140px; padding: var(--spacing-0-5) var(--spacing-1); font-family: inherit; }

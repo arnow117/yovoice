@@ -1955,6 +1955,9 @@
   "@yovoice.music.insertSection": {
     "defaultMessage": "섹션 삽입"
   },
+  "@yovoice.music.expandLyrics": {
+    "defaultMessage": "가사 크게 편집"
+  },
   "@yovoice.music.instrumental": {
     "defaultMessage": "연주곡"
   },

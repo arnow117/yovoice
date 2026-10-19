@@ -1955,6 +1955,9 @@
   "@yovoice.music.insertSection": {
     "defaultMessage": "Chèn đoạn"
   },
+  "@yovoice.music.expandLyrics": {
+    "defaultMessage": "Phóng to lời bài hát"
+  },
   "@yovoice.music.instrumental": {
     "defaultMessage": "Không lời"
   },
