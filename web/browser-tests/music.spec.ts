@@ -308,6 +308,44 @@ test('播放页逐行校准歌词：按键标记、撤销，校准结果随版�
   await expect(playing).toHaveCount(0);
 });
 
+test('播放页智能对齐歌词：没装对齐模型时去设置下载，装好后逐字对齐并随版本保存，清除校准一并清除', async ({ page }) => {
+  const song = syntheticSong(songLyrics, .3);
+  const draft = { ...createMusicDraft('zh-CN'), id: 'd'.repeat(32) };
+  const state = emptyState();
+  state.drafts = [draft];
+  state.history = [{ id: 'song', title: draft.title, fileName: 'song.wav', createdAt: '2026-09-15T12:00:00Z', duration: song.duration, settings: { ...draft, lyrics: songLyrics } }];
+  await page.goto('/');
+  await page.evaluate(async (data: string) => {
+    const bytes = Uint8Array.from(atob(data), char => char.charCodeAt(0));
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('voice-workbench-audio', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('audio');
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => { const db = request.result; const tx = db.transaction('audio', 'readwrite'); tx.objectStore('audio').put(new Blob([bytes], { type: 'audio/wav' }), 'song.wav'); tx.oncomplete = () => { db.close(); resolve(); }; };
+    });
+  }, Buffer.from(wavBytes(song.left, song.right, song.rate)).toString('base64'));
+  await seedState(page, state); await page.reload();
+  const open = async () => {
+    await page.locator('.player .transport').getByRole('button', { name: '播放页', exact: true }).click();
+    return page.getByRole('dialog', { name: `${draft.title} · 播放页` });
+  };
+  let playing = await open();
+  // 对齐模型是可选下载：没装时按钮带去设置里的音乐模型页。
+  await playing.getByRole('button', { name: '智能对齐', exact: true }).click();
+  await expect(playing).toHaveCount(0);
+  await expect(page.getByRole('tabpanel', { name: '音乐模型' })).toContainText('Lyric Aligner');
+  await seedState(page, { ...state, models: [{ id: 'lyric-align-q8', path: 'Lyric-Align-GGUF', managed: true }] }); await page.reload();
+  playing = await open();
+  await playing.getByRole('button', { name: '智能对齐', exact: true }).click();
+  await expect(playing.getByText('歌词已按演唱逐字对齐，可再手动校准')).toBeVisible();
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).history[0].lyricWords as { word: string }[]);
+  expect(saved.map(word => word.word).join('')).toBe(songLyrics.split('\n').filter(line => !/^\[.*\]$/.test(line.trim())).join('').replace(/\s/g, ''));
+  // 清除后回到按人声自动定位。
+  await playing.getByRole('button', { name: '清除校准', exact: true }).click();
+  await expect(playing.getByText('歌词时间按人声自动定位，可再校准')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).history[0].lyricWords)).toBeUndefined();
+});
+
 test('播放页按音频里的人声自动定位歌词，点歌词跳到这一句实际开始唱的位置', async ({ page }) => {
   const song = syntheticSong(songLyrics, .3);
   const draft = { ...createMusicDraft('zh-CN'), id: 'e'.repeat(32) };

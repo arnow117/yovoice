@@ -4,11 +4,12 @@ import { Dialog } from '@astryxdesign/core/Dialog';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowDown, ArrowLeftRight, Check, ChevronDown, Download, FastForward, Maximize, Minimize, Pause, Play, Rewind, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, Download, FastForward, Maximize, Minimize, Pause, Play, Rewind, Sparkles } from 'lucide-react';
 import { call, mediaUrl, saveText } from '../../shared/lib/client';
+import { formatActivity } from '../../shared/i18n/format';
 import { noticeMessage } from '../../shared/lib/call-error';
-import { formatTime, type Generation } from '../../shared/workbench';
-import { alignLyrics, vocalActivity, withWords, type VocalActivity } from './lyric-align';
+import { formatTime, type Activity, type Generation } from '../../shared/workbench';
+import { alignChunks, alignedTimeline, alignLyrics, vocalActivity, withWords, type VocalActivity } from './lyric-align';
 import { activeLyric, lyricRows, lyricTimeline, lyricsToLrc, type LyricLine } from './lyric-timing';
 import { splitTags } from './music-draft';
 import { coverPalette, SongCover } from './song-cover';
@@ -53,7 +54,11 @@ const shapes = ['ring', 'disc', 'triangle', 'star', 'ring', 'dash', 'disc'] as c
 // 歌词时间先按音频里的人声片段自动定位，判断不可靠时按时长估算；可以边听边逐行校准，校准结果随版本保存。
 // 每行再按人声分出逐字时间，当前句逐字点亮；也可以换成一句一屏的浮光样式。
 // versions 是同一作品的各个版本：可以在播放页里切换版本对比试听，切换时保持播放位置，按 B 在最近两个版本之间来回切。
-export function NowPlaying({ item: opened, title: openedTitle, versions = [], close, onError }: { item: Generation; title: string; versions?: Generation[]; close: () => void; onError: (message: string) => void }) {
+// 下载了可选的歌词对齐模型时可以一键逐字对齐（分离人声后强制对齐），结果随版本保存，和手动校准以最近一次为准；
+// aligner 表示模型已安装，没装时 getAligner 打开设置里的下载项。activity 是当前后台任务，用来显示对齐进度。
+export function NowPlaying({ item: opened, title: openedTitle, versions = [], aligner = false, activity, getAligner, close, onError }: {
+  item: Generation; title: string; versions?: Generation[]; aligner?: boolean; activity?: Activity | null; getAligner?: () => void; close: () => void; onError: (message: string) => void;
+}) {
   const t = useTranslator();
   const locale = useLocale();
   const [item, setItem] = useState(opened);
@@ -77,6 +82,8 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
   const [leaving, setLeaving] = useState(false);
   // times 是已保存的校准时间；sync 是正在校准时已标记的行开始时间，null 表示不在校准。
   const [times, setTimes] = useState(item.lyricTimes);
+  // 对齐模型给出的逐字时间，有它时优先使用。
+  const [aligned, setAligned] = useState(item.lyricWords);
   const [sync, setSync] = useState<number[] | null>(null);
   const envelope = useRef<number[]>([]);
   // 音频分析得到的人声片段，用来自动定位歌词。
@@ -85,7 +92,8 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
   const rows = useMemo(() => lyricRows(lyrics), [lyrics]);
   const auto = useMemo(() => voice ? alignLyrics(rows, voice.activity, voice.duration) ?? undefined : undefined, [rows, voice]);
   // 逐字时间按音频里的人声片段分配；没有可靠的人声判断时按音节均分。
-  const timeline = useMemo(() => withWords(lyricTimeline(lyrics, duration, times ?? auto), voice?.activity), [lyrics, duration, times, auto, voice]);
+  const fromModel = useMemo(() => aligned?.length ? alignedTimeline(rows, aligned, duration) : null, [rows, aligned, duration]);
+  const timeline = useMemo(() => fromModel ?? withWords(lyricTimeline(lyrics, duration, times ?? auto), voice?.activity), [fromModel, lyrics, duration, times, auto, voice]);
   const [lyricStyle, setLyricStyle] = useState(savedLyricStyle);
   const chooseStyle = (value: LyricStyle) => { setLyricStyle(value); try { localStorage.setItem(lyricStyleKey, value); } catch { /* 存储不可用时只在本次生效 */ } };
   // 校准时逐行显示，不补前奏；刚标记的一行视为当前句，下一行是待标记的目标。
@@ -102,7 +110,17 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
     const element = audio.current;
     resume.current = { time: element?.currentTime ?? time, play: !!element && !element.paused };
     envelope.current = [];
-    setPrevious(item); setItem(next); setTimes(next.lyricTimes); setVoice(null); setSync(null); setDuration(next.duration);
+    setPrevious(item); setItem(next); setTimes(next.lyricTimes); setAligned(next.lyricWords); setVoice(null); setSync(null); setDuration(next.duration);
+  };
+  // 对齐在后台完成后版本记录随状态更新，这里同步最新结果。
+  const saved = versions.find(entry => entry.id === item.id);
+  const savedKey = saved ? JSON.stringify([saved.lyricWords ?? null, saved.lyricTimes ?? null]) : '';
+  const syncSaved = useEffectEvent(() => { if (saved) { setAligned(saved.lyricWords); setTimes(saved.lyricTimes); } });
+  useEffect(() => { syncSaved(); }, [savedKey]);
+  const running = activity?.status === 'running', aligning = running && activity.task === 'align' && activity.projectId === item.settings.id;
+  const alignNow = () => {
+    if (!aligner) { getAligner?.(); return; }
+    void call('generation.alignLyrics', { id: item.id, chunks: alignChunks(timeline, duration) }).catch((error: unknown) => onError(noticeMessage(error)));
   };
   // 打开即开始播放；浏览器拦截自动播放时停在开头，由用户点播放。
   useEffect(() => {
@@ -149,7 +167,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
   }, [leaving, close]);
 
   const save = (next: number[] | undefined) => {
-    void call('generation.lyricTimes', { id: item.id, times: next ?? [] }).then(() => setTimes(next), (error: unknown) => onError(noticeMessage(error)));
+    void call('generation.lyricTimes', { id: item.id, times: next ?? [] }).then(() => { setTimes(next); setAligned(undefined); }, (error: unknown) => onError(noticeMessage(error)));
   };
   // 从头播放开始校准；开头是器乐段落时它从 0 秒开始，自动标好。
   const startSync = () => { setSync(rows[0]?.instrumental ? [0] : []); seek(0); void play(); stage.current?.focus({ preventScroll: true }); };
@@ -326,9 +344,11 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], cl
         <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.syncCancel')} onClick={() => setSync(null)} />
         <Button className="now-playing-mark" size="sm" variant="ghost" icon={<ArrowDown />} label={t('@yovoice.music.syncNext')} isDisabled={!url} onClick={mark} />
       </HStack> : rows.length ? <HStack className="now-playing-note now-playing-chrome" gap={2} vAlign="center">
-        <small>{t(times ? '@yovoice.music.lyricsSynced' : auto ? '@yovoice.music.lyricsAnalyzed' : '@yovoice.music.lyricsEstimated')}</small>
-        <Button className="now-playing-glass" size="sm" variant="ghost" label={t(times ? '@yovoice.music.resyncLyrics' : '@yovoice.music.syncLyrics')} isDisabled={!url} onClick={startSync} />
-        {times ? <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.syncReset')} onClick={() => save(undefined)} /> : null}
+        <small>{aligning ? formatActivity(t, activity) : t(fromModel ? '@yovoice.music.lyricsAligned' : times ? '@yovoice.music.lyricsSynced' : auto ? '@yovoice.music.lyricsAnalyzed' : '@yovoice.music.lyricsEstimated')}</small>
+        <Button className="now-playing-glass" size="sm" variant="ghost" icon={<AudioLines />} label={t(aligning ? '@yovoice.music.aligningLyrics' : '@yovoice.music.alignLyrics')} tooltip={t(aligner ? '@yovoice.music.alignLyricsHint' : '@yovoice.music.alignLyricsDownload')}
+          isLoading={aligning} isDisabled={!url || running} onClick={alignNow} />
+        <Button className="now-playing-glass" size="sm" variant="ghost" label={t(times || fromModel ? '@yovoice.music.resyncLyrics' : '@yovoice.music.syncLyrics')} isDisabled={!url || aligning} onClick={startSync} />
+        {times || fromModel ? <Button className="now-playing-glass" size="sm" variant="ghost" label={t('@yovoice.music.syncReset')} onClick={() => save(undefined)} /> : null}
         <Button className="now-playing-glass" size="sm" variant="ghost" icon={<Download />} label={t('@yovoice.music.exportLrc')} isDisabled={!timeline.length} onClick={() => exportLrc()} />
         <Button className="now-playing-glass" size="sm" variant="ghost" icon={<Download />} label={t('@yovoice.music.exportWordLrc')} tooltip={t('@yovoice.music.exportWordLrcHint')} isDisabled={!timeline.length} onClick={() => exportLrc(true)} />
       </HStack> : null}

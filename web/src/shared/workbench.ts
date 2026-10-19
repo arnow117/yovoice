@@ -70,7 +70,9 @@ export type LogLevel = 'INFO' | 'WARN' | 'ERROR';
 export interface LogEntry { time: string; level: LogLevel; event: string; fields?: Record<string, unknown> }
 export interface LogFilter { level?: string; module?: string; text?: string; since?: string; offset?: number; limit?: number }
 export interface LogPage { entries: LogEntry[]; total: number; modules: string[] }
-export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[] }
+export interface Generation { segment?: GenerationSegment; id: string; title: string; fileName: string; createdAt: string; duration: number; settings: Draft; lyricTimes?: number[]; lyricWords?: AlignedWord[] }
+/** 歌词对齐模型给出的逐字时间（秒），和逐行校准互斥，以最近一次为准。 */
+export interface AlignedWord { word: string; start: number; end: number }
 /** UI chrome locale. Distinct from Draft.language (TTS). */
 export type { UiLocale };
 /** Stable product message key. Catalogs and Go constants share this spelling. */
@@ -84,8 +86,8 @@ export interface Activity {
   startedAt?: string | null;
   modelId?: string | null;
   kind: string;
-  // melody 为出谱或扒谱。
-  task?: 'melody';
+  // melody 为出谱或扒谱，align 为歌词对齐。
+  task?: 'melody' | 'align';
   code: MessageCode;
   params: MessageParams | null;
   status: string;
@@ -230,15 +232,17 @@ export const isKokoroModel = (id: string) => id.startsWith('kokoro-');
 export const isMusicModel = (id: string) => id.startsWith('ace-step-') || id.startsWith('yue2-');
 /** YuE2 由歌词或旋律谱决定长度，没有时长设置。 */
 export const isYuE = (id: string) => id.startsWith('yue2-');
-// 设置里模型按用途分页：语音模型、音乐模型（歌曲生成与扒谱）和编曲音色库。
-const musicFamilies = new Set(['ace_step', 'yue2', 'sheetsage2']);
+// 设置里模型按用途分页：语音模型、音乐模型（歌曲生成、扒谱与歌词对齐）和编曲音色库。
+const musicFamilies = new Set(['ace_step', 'yue2', 'sheetsage2', 'lyric_align']);
 export const modelTab = (family: string) => family === 'soundfont' ? 'soundfonts' : musicFamilies.has(family) ? 'music-models' : 'models';
 export const modelTabs = ['models', 'music-models', 'soundfonts'];
 // 音色库只供编曲作品渲染使用。
 export const isSoundFont = (id: string) => id.endsWith('-sf2');
 // 扒谱模型只用于从歌曲提取旋律谱。
 export const isTranscriber = (id: string) => id.startsWith('sheetsage2-');
-export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id);
+// 歌词对齐模型只用于给已生成的歌曲做逐字对齐，可选下载。
+export const isAligner = (id: string) => id.startsWith('lyric-align-');
+export const isVoiceModel = (id: string) => !isMusicModel(id) && !isSoundFont(id) && !isTranscriber(id) && !isAligner(id);
 // 同名模型的不同量化归为一组，保持目录顺序。
 export function groupModels(models: ModelPackage[]) {
   const groups = new Map<string, ModelPackage[]>();

@@ -77,7 +77,7 @@ func (w *Workbench) RenameMedia(kind, id, name string) error {
 // 校准歌词最多记录的行数，与正文长度上限同一量级。
 const maxLyricTimes = 2000
 
-// SetLyricTimes 保存播放页校准的歌词时间：每行的开始秒数，按顺序不减，不超过音频时长；空列表恢复按时长估算。
+// SetLyricTimes 保存播放页校准的歌词时间：每行的开始秒数，按顺序不减，不超过音频时长；空列表清除校准和逐字对齐，恢复自动定位。
 func (w *Workbench) SetLyricTimes(id string, times []float64) error {
 	w.edit.Lock()
 	defer w.edit.Unlock()
@@ -100,7 +100,9 @@ func (w *Workbench) SetLyricTimes(id string, times []float64) error {
 	return w.Store.Update(func(s *schema.State) {
 		for i := range s.History {
 			if s.History[i].ID == id {
+				// 手动校准比之前的逐字对齐新，两者只留一份；清除时一并清掉。
 				s.History[i].LyricTimes = slices.Clone(times)
+				s.History[i].LyricWords = nil
 				if len(times) == 0 {
 					s.History[i].LyricTimes = nil
 				}

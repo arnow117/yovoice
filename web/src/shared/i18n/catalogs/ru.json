@@ -2759,6 +2759,21 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "Расширенный LRC с отметкой времени для каждого слова, для плееров с караоке"
   },
+  "@yovoice.music.alignLyrics": {
+    "defaultMessage": "Автовыравнивание"
+  },
+  "@yovoice.music.aligningLyrics": {
+    "defaultMessage": "Выравнивание"
+  },
+  "@yovoice.music.alignLyricsHint": {
+    "defaultMessage": "Отделяет вокал и выравнивает каждое слово текста по пению; сохраняется с этой версией"
+  },
+  "@yovoice.music.alignLyricsDownload": {
+    "defaultMessage": "Сначала скачайте необязательную модель выравнивания текста (около 1,3 ГБ)"
+  },
+  "@yovoice.music.lyricsAligned": {
+    "defaultMessage": "Текст выровнен по вокалу пословно; синхронизируйте, чтобы уточнить"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Тайминг текста расставлен по вокалу; синхронизируйте для уточнения"
   },
@@ -2972,6 +2987,21 @@
   "@yovoice.activity.transcribe": {
     "defaultMessage": "Извлечение мелодии из песни"
   },
+  "@yovoice.activity.separateVocals": {
+    "defaultMessage": "Отделение вокала"
+  },
+  "@yovoice.activity.alignLyrics": {
+    "defaultMessage": "Выравнивание текста ({done}/{total})"
+  },
+  "@yovoice.error.alignModelRequired": {
+    "defaultMessage": "Сначала скачайте модель выравнивания текста в разделе «Музыкальные модели» в настройках"
+  },
+  "@yovoice.error.alignLyrics": {
+    "defaultMessage": "В этой версии нет текста для выравнивания"
+  },
+  "@yovoice.error.alignEmpty": {
+    "defaultMessage": "Не удалось сопоставить текст с вокалом; синхронизируйте вручную"
+  },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "В партитуре мелодии ошибка: {issue}"
   },
@@ -2986,6 +3016,9 @@
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Записывает мелодию и аккорды песни в ноты для каверов с YuE2."
+  },
+  "@yovoice.settings.modelDesc.lyricAlign": {
+    "defaultMessage": "Необязательно: отделяет вокал и выравнивает текст по пению пословно — для пословной анимации текста и экспорта пословного LRC. Поддерживает 11 языков, включая китайский, английский, японский и корейский."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Создать по нотам"

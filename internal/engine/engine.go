@@ -394,9 +394,108 @@ func (e *Engine) Transcribe(ctx context.Context, executable string, m schema.Ins
 	return score, nil
 }
 
-// taskResult 是 /v1/tasks/run 的结果：音频为 base64 WAV，附加产物（如 ABC 谱）也以 base64 承载。
+// AlignedWord 是强制对齐给出的一个字（拉丁文为一个词）及其起止秒数。
+type AlignedWord struct {
+	Word  string  `json:"word"`
+	Start float64 `json:"start"`
+	End   float64 `json:"end"`
+}
+
+// alignerRate 是 Qwen3 Forced Aligner 的输入采样率，返回的时间也以这个采样率的样本数计。
+const alignerRate = 16000
+
+// lyricStage 在歌词对齐模型包里找出某一步的模型文件，并给出启动内核所需的家族与任务。
+func lyricStage(m schema.InstalledModel, prefix, family, task string) (string, catalog.ModelPackage, error) {
+	definition, err := catalog.Lookup(m.ID)
+	if err != nil {
+		return "", definition, err
+	}
+	if definition.Family != "lyric_align" {
+		return "", definition, msg.Err(msg.ErrModelUnsupported, nil)
+	}
+	for _, f := range definition.Files {
+		if strings.HasPrefix(f.Path, prefix) {
+			return filepath.Join(m.Path, filepath.FromSlash(f.Path)), catalog.ModelPackage{ID: definition.ID, Family: family, Task: task}, nil
+		}
+	}
+	return "", definition, msg.Err(msg.ErrModelUnsupported, nil)
+}
+
+// SeparateVocals 用歌词对齐模型包里的 BS-RoFormer 从混音分出人声，写到 output；input 须为 44.1 kHz WAV。
+func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema.InstalledModel, backend, input, output string, progress func(msg.Code, msg.Params)) (err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	path, definition, err := lyricStage(m, "BS-RoFormer", "bs_roformer", "sep")
+	if err != nil {
+		return err
+	}
+	if err = e.start(ctx, executable, path, definition, backend, 0, progress); err != nil {
+		return err
+	}
+	progress(msg.ActivitySeparateVocals, nil)
+	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": input}})
+	if err != nil {
+		return err
+	}
+	for _, stem := range result.Stems {
+		if stem.ID != "vocals" {
+			continue
+		}
+		b, err := base64.StdEncoding.DecodeString(stem.Audio)
+		if err != nil || len(b) <= 44 {
+			return msg.Err(msg.ErrEngineNoAudio, nil)
+		}
+		return os.WriteFile(output, b, 0600)
+	}
+	return msg.Err(msg.ErrEngineNoAudio, nil)
+}
+
+// AlignWords 用歌词对齐模型包里的 Qwen3 Forced Aligner 把 text 逐字对到 wav（16 kHz 人声）上；
+// language 是 Chinese、English 这类英文语言名。返回的时间相对于 wav 开头。
+func (e *Engine) AlignWords(ctx context.Context, executable string, m schema.InstalledModel, backend, wav, text, language string, progress func(msg.Code, msg.Params)) (words []AlignedWord, err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	path, definition, err := lyricStage(m, "Qwen3-ForcedAligner", "qwen3_forced_aligner", "align")
+	if err != nil {
+		return nil, err
+	}
+	if err = e.start(ctx, executable, path, definition, backend, 0, progress); err != nil {
+		return nil, err
+	}
+	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": wav, "text": text, "language": language,
+		"options": map[string]string{"clamp_timestamps_to_audio": "true"}}})
+	if err != nil {
+		return nil, err
+	}
+	for _, w := range result.Words {
+		words = append(words, AlignedWord{Word: w.Word, Start: float64(w.StartSample) / alignerRate, End: float64(w.EndSample) / alignerRate})
+	}
+	return words, nil
+}
+
+// taskResult 是 /v1/tasks/run 的结果：音频为 base64 WAV，附加产物（如 ABC 谱）也以 base64 承载；
+// 分离任务的各个分轨在 named_audio_outputs，对齐任务的逐字时间在 words（以样本数计）。
 type taskResult struct {
-	Audio     string `json:"audio"`
+	Audio string `json:"audio"`
+	Stems []struct {
+		ID    string `json:"id"`
+		Audio string `json:"audio"`
+	} `json:"named_audio_outputs"`
+	Words []struct {
+		Word        string `json:"word"`
+		StartSample int64  `json:"start_sample"`
+		EndSample   int64  `json:"end_sample"`
+	} `json:"words"`
 	Artifacts []struct {
 		ID      string            `json:"id"`
 		Payload string            `json:"payload"`

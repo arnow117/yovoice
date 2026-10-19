@@ -2759,6 +2759,21 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "모든 글자에 시간이 있는 확장 LRC. 노래방 가사를 지원하는 플레이어용"
   },
+  "@yovoice.music.alignLyrics": {
+    "defaultMessage": "자동 정렬"
+  },
+  "@yovoice.music.aligningLyrics": {
+    "defaultMessage": "정렬 중"
+  },
+  "@yovoice.music.alignLyricsHint": {
+    "defaultMessage": "보컬을 분리한 뒤 가사를 단어별로 노래에 맞춥니다. 결과는 이 버전에 저장됩니다"
+  },
+  "@yovoice.music.alignLyricsDownload": {
+    "defaultMessage": "먼저 선택 사항인 가사 정렬 모델을 다운로드하세요(약 1.3 GB)"
+  },
+  "@yovoice.music.lyricsAligned": {
+    "defaultMessage": "가사를 노래에 맞춰 단어별로 정렬했습니다. 직접 보정할 수도 있습니다"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "보컬을 분석해 가사 타이밍을 배치했습니다. 싱크로 더 정확하게 맞출 수 있습니다"
   },
@@ -2972,6 +2987,21 @@
   "@yovoice.activity.transcribe": {
     "defaultMessage": "곡에서 멜로디 추출 중"
   },
+  "@yovoice.activity.separateVocals": {
+    "defaultMessage": "보컬 분리 중"
+  },
+  "@yovoice.activity.alignLyrics": {
+    "defaultMessage": "가사 정렬 중({done}/{total})"
+  },
+  "@yovoice.error.alignModelRequired": {
+    "defaultMessage": "먼저 설정의 음악 모델에서 가사 정렬 모델을 다운로드하세요"
+  },
+  "@yovoice.error.alignLyrics": {
+    "defaultMessage": "이 버전에는 정렬할 가사가 없습니다"
+  },
+  "@yovoice.error.alignEmpty": {
+    "defaultMessage": "보컬에서 가사를 맞추지 못했습니다. 직접 보정해 보세요"
+  },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "멜로디 악보에 문제가 있습니다: {issue}"
   },
@@ -2986,6 +3016,9 @@
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "곡의 멜로디와 코드를 악보로 채보해 YuE2 커버에 사용합니다."
+  },
+  "@yovoice.settings.modelDesc.lyricAlign": {
+    "defaultMessage": "선택 사항: 보컬을 분리하고 가사를 단어별로 노래에 맞춥니다. 단어별 가사 애니메이션과 단어별 LRC 내보내기에 사용합니다. 중국어, 영어, 일본어, 한국어 등 11개 언어를 지원합니다."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "멜로디 악보로 생성"

@@ -2759,6 +2759,21 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "增強 LRC，每個字都帶時間，支援卡拉 OK 歌詞的播放器可逐字顯示"
   },
+  "@yovoice.music.alignLyrics": {
+    "defaultMessage": "智慧對齊"
+  },
+  "@yovoice.music.aligningLyrics": {
+    "defaultMessage": "正在對齊"
+  },
+  "@yovoice.music.alignLyricsHint": {
+    "defaultMessage": "分離人聲後把歌詞逐字對到演唱上，結果隨版本儲存"
+  },
+  "@yovoice.music.alignLyricsDownload": {
+    "defaultMessage": "需要先下載可選的歌詞對齊模型（約 1.3 GB）"
+  },
+  "@yovoice.music.lyricsAligned": {
+    "defaultMessage": "歌詞已按演唱逐字對齊，可再手動校準"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "歌詞時間已依人聲自動定位，可再校準"
   },
@@ -2972,6 +2987,21 @@
   "@yovoice.activity.transcribe": {
     "defaultMessage": "正在從歌曲擷取旋律"
   },
+  "@yovoice.activity.separateVocals": {
+    "defaultMessage": "正在分離人聲"
+  },
+  "@yovoice.activity.alignLyrics": {
+    "defaultMessage": "正在對齊歌詞（{done}/{total}）"
+  },
+  "@yovoice.error.alignModelRequired": {
+    "defaultMessage": "請先在設定的音樂模型裡下載歌詞對齊模型"
+  },
+  "@yovoice.error.alignLyrics": {
+    "defaultMessage": "這個版本沒有可對齊的歌詞"
+  },
+  "@yovoice.error.alignEmpty": {
+    "defaultMessage": "沒能從人聲裡對上歌詞，可以手動校準"
+  },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "旋律譜有誤：{issue}"
   },
@@ -2986,6 +3016,9 @@
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "把歌曲的旋律與和弦扒成譜，搭配 YuE2 做翻唱。"
+  },
+  "@yovoice.settings.modelDesc.lyricAlign": {
+    "defaultMessage": "可選：先分離人聲，再把歌詞逐字對齊到演唱上，用於逐字歌詞動畫和匯出逐字 LRC。支援中文、英語、日語、韓語等 11 種語言。"
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "按旋律譜生成"

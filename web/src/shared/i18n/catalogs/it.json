@@ -2759,6 +2759,21 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "LRC avanzato con un tempo per ogni parola, per i lettori che supportano il karaoke"
   },
+  "@yovoice.music.alignLyrics": {
+    "defaultMessage": "Allinea automaticamente"
+  },
+  "@yovoice.music.aligningLyrics": {
+    "defaultMessage": "Allineamento"
+  },
+  "@yovoice.music.alignLyricsHint": {
+    "defaultMessage": "Separa la voce e allinea ogni parola del testo al canto; salvato con questa versione"
+  },
+  "@yovoice.music.alignLyricsDownload": {
+    "defaultMessage": "Scarica prima l’allineatore di testi opzionale (circa 1,3 GB)"
+  },
+  "@yovoice.music.lyricsAligned": {
+    "defaultMessage": "Testo allineato parola per parola alla voce; sincronizza per rifinire"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Tempi del testo posizionati in base alla voce; sincronizza per perfezionarli"
   },
@@ -2972,6 +2987,21 @@
   "@yovoice.activity.transcribe": {
     "defaultMessage": "Estrazione della melodia dal brano"
   },
+  "@yovoice.activity.separateVocals": {
+    "defaultMessage": "Separazione della voce"
+  },
+  "@yovoice.activity.alignLyrics": {
+    "defaultMessage": "Allineamento del testo ({done}/{total})"
+  },
+  "@yovoice.error.alignModelRequired": {
+    "defaultMessage": "Scarica prima l’allineatore di testi in Modelli musicali, nelle Impostazioni"
+  },
+  "@yovoice.error.alignLyrics": {
+    "defaultMessage": "Questa versione non ha testo da allineare"
+  },
+  "@yovoice.error.alignEmpty": {
+    "defaultMessage": "Impossibile far corrispondere il testo alla voce; prova a sincronizzarlo a mano"
+  },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "Lo spartito della melodia contiene un errore: {issue}"
   },
@@ -2986,6 +3016,9 @@
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Trascrive melodia e accordi di un brano in spartito, per le cover con YuE2."
+  },
+  "@yovoice.settings.modelDesc.lyricAlign": {
+    "defaultMessage": "Opzionale: separa la voce e allinea il testo parola per parola al canto, per l’animazione del testo parola per parola e l’esportazione LRC per parola. Supporta 11 lingue, tra cui cinese, inglese, giapponese e coreano."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Genera dallo spartito"

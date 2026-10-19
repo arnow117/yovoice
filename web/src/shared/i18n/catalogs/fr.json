@@ -2759,6 +2759,21 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "LRC enrichi avec un horodatage par mot, pour les lecteurs compatibles karaoké"
   },
+  "@yovoice.music.alignLyrics": {
+    "defaultMessage": "Aligner automatiquement"
+  },
+  "@yovoice.music.aligningLyrics": {
+    "defaultMessage": "Alignement…"
+  },
+  "@yovoice.music.alignLyricsHint": {
+    "defaultMessage": "Sépare la voix et aligne chaque mot des paroles sur le chant ; enregistré avec cette version"
+  },
+  "@yovoice.music.alignLyricsDownload": {
+    "defaultMessage": "Téléchargez d’abord l’aligneur de paroles facultatif (environ 1,3 Go)"
+  },
+  "@yovoice.music.lyricsAligned": {
+    "defaultMessage": "Paroles alignées mot à mot sur la voix ; synchronisez pour affiner"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Minutage des paroles placé d’après le chant ; synchronisez pour l’affiner"
   },
@@ -2972,6 +2987,21 @@
   "@yovoice.activity.transcribe": {
     "defaultMessage": "Extraction de la mélodie du morceau"
   },
+  "@yovoice.activity.separateVocals": {
+    "defaultMessage": "Séparation de la voix"
+  },
+  "@yovoice.activity.alignLyrics": {
+    "defaultMessage": "Alignement des paroles ({done}/{total})"
+  },
+  "@yovoice.error.alignModelRequired": {
+    "defaultMessage": "Téléchargez d’abord l’aligneur de paroles dans Modèles de musique, dans les Réglages"
+  },
+  "@yovoice.error.alignLyrics": {
+    "defaultMessage": "Cette version n’a pas de paroles à aligner"
+  },
+  "@yovoice.error.alignEmpty": {
+    "defaultMessage": "Impossible de faire correspondre les paroles à la voix ; synchronisez à la main"
+  },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "La partition mélodique comporte un problème : {issue}"
   },
@@ -2986,6 +3016,9 @@
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transcrit la mélodie et les accords d’un morceau en partition, pour les reprises avec YuE2."
+  },
+  "@yovoice.settings.modelDesc.lyricAlign": {
+    "defaultMessage": "Facultatif : sépare la voix et aligne les paroles mot à mot sur le chant, pour l’animation des paroles mot à mot et l’export LRC par mot. Prend en charge 11 langues, dont le chinois, l’anglais, le japonais et le coréen."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Générer depuis la partition"
