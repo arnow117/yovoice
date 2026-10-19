@@ -4,35 +4,25 @@
 
 ## [Unreleased]
 
-- 新增功能引导：首次进入主界面时依次介绍新建作品、语音生成、故事配音、音乐生成、声音库、设置和 Ocho，可随时跳过，并可在“设置 › 常规”中重新查看。
-- 「编曲」更名为「编曲生成」，并入侧栏的「音乐生成」：页面顶部用标签在音乐生成与编曲生成作品之间切换。
-- 设置新增“资源”页：集中查看所有生成音频、故事配音片段、参考音频、时间轴素材和 AI 图片，显示大小、所属作品与使用情况；可按类型、作品、使用情况和关键词筛选，按大小、时长或时间排序，试听或预览，并批量删除未被使用的项目，被引用的项目会标出使用者且不能误删。资源页和日志页都是一行工具栏，只有表格区域滚动。
-- 界面新增繁體中文、日本語、한국어、Español、Français、Deutsch、Português (Brasil)、Русский、Italiano 和 Tiếng Việt，可在设置中随时切换，首次启动按系统语言自动选择；缺少的文案回退为英文。原生菜单与对话框在中文以外的语言中显示英文。
-- `yovoice serve` 与桌面本机接口在 `/docs/` 提供交互式 API 文档（Swagger UI），可填入令牌后直接试调用；新增架构说明文档。
-- 故事配音新增“导入小说”：支持 TXT、Markdown 和 EPUB，按章节生成故事作品，自动拆分旁白与对白、识别说话人并从声音库选角；配置 AI 服务后可让 AI 补全说话人和角色特征。
-- YuE2 歌曲可以先写旋律谱：按歌词写出人声旋律与和弦，在轨道视图或 ABC 谱面里查看和修改，调速度、只保留旋律、导入 `.abc`，或让创作助手改谱，再按谱生成整首歌；每个版本保存所用的谱，复用时一并恢复。
-- 新增翻唱：用 SheetSage2 从一首歌提取旋律（去掉原曲和弦），由 YuE2 按新的风格和歌词重新演唱。
-- AI 为 YuE2 写歌词时，风格描述按 YuE2 的写法给出演唱语言和速度。
-- AI 服务新增“ChatGPT (Codex)”：通过本机官方 Codex CLI 使用 ChatGPT 订阅额度，设置页可检测安装与登录状态、一键用 ChatGPT 登录并读取模型列表；yovoice 不读取或保存登录凭证，请求在临时目录的只读沙箱中运行。
-- 设置新增“日志”页：按级别、模块、时间和关键词查看服务日志，点开查看完整字段，并可导出诊断包（不含推理进程原始输出）用于反馈问题；导入导出、音色与素材、模型与运行时、AI 服务、推理进程启停、本机 API 请求和界面导出等关键操作都会留痕，日志不记录正文、歌词（包括 AI 输出）和密钥，用户主目录显示为 `~`。
-- 故事配音的“导出音轨”可选择导出 SRT 或 WebVTT 字幕：每个配音片段一条字幕，时间按片段在时间轴上的实际位置（含裁剪），支持全部、所选范围、单条音轨或某位说话人，可附带说话人名；音乐播放页新增“导出歌词（LRC）”，按校准、自动定位或估算的歌词时间输出。
-- 新增 AI 助手 Ocho（右下角入口、标题栏或 ⌘J / Ctrl+J）：用对话新建和修改作品、写词写谱、改 YuE2 旋律谱、挑音色、调参数、发起语音/音乐/配乐生成，操作即时反映到界面。回复逐字流式输出，思考和每一步操作收在可展开的过程里，结束后自动收起；Ocho 是一只会动的小幽灵，运行时按思考、查找、修改作品、生成音频等阶段显示不同的点阵动画和带流光的状态文字。浮窗可拖动、缩放和拉高，位置会记住；右下角入口可移走，移走后改从标题栏打开。输入框左下角可直接切换模型，当前作品自动随消息带上。对话按会话组织，历史从左侧抽屉切换。AI 写作统一走助手，编辑器里不再有单独的 AI 写作栏。助手需要接口类 AI 服务，暂不支持 ChatGPT (Codex) 订阅。Ocho 能看到你在编辑区选中的文字、故事配音里选中的台词、播放位置、作品所用模型是否已安装以及最近一次生成的结果和错误，“这句”“刚才那段”不用再描述；选中的内容会以引用标签显示在输入框里，点 × 即可不带。Ocho 熟悉各个模型的特点、页面与设置的位置和每个错误码的处理办法，能查看已装模型、推理引擎、任务和最近的错误日志来排查问题。删除作品、生成记录或声音，下载模型或推理引擎，清理存储，切换计算设备或下载源时，Ocho 会给出确认卡片，点确认才执行。在对话里说出的偏好（常用声音、风格、语速等）会被记住，可在新增的“设置 › Ocho”中查看和删除。生成完成或失败、模型下载结束时，Ocho 会在右下角给出建议，一键交给它处理；可在“设置 › Ocho”中关闭。
-- 首次启动播放约 8 秒的开场动画：粒子汇成随声音起伏的 3D 声音球，再聚成声波图标，随后出现标语与四种创作方式，点“开始探索”进入主界面；可在“设置 › 常规”中重新播放。之后启动只显示简短的声波加载动画。开启“减少动态效果”时不播放动画。macOS 与 Windows 窗口在界面出现前使用相同底色，不再闪白。
-- 移除“请求超时”设置，AI 请求的超时改由内部统一处理；AI 服务与编曲文档同步更新切换模型、编程套餐和音色库入口的说明。
-- 语音生成的播放器工具栏始终显示“历史生成”入口，新作品还没生成过时也能进入历史页。
-- 移除创作区顶部的“开始生成前还需准备”清单：缺参考音频时点生成直接打开声音选择，缺模型或推理引擎时打开设置里对应的页面。
-- 界面细节打磨：按钮、导航和分段控件有按压回弹，悬停过渡更顺滑；检查器、侧栏、设置等可滚动区域的上下边缘平滑淡出，不再生硬截断；助手输入框有层次并在聚焦时亮起；新回复由虚到实浮起；时间、大小等数字等宽不抖动。
-- Ocho 能改右侧检查器里的全部声音设置和各模型的高级参数（声音设计描述、情绪、语速、温度、种子等），并能新建和修改声音库里的角色、给作品或故事角色套用角色；只想建角色时不再新建作品、不再跳转页面。历史里的生成结果新增“保存为角色”，生成时用的模型和全部参数一起存成角色。
-- YuE2 支持纯音乐：先写谱，再把人声旋律交给乐器演奏，和弦、速度和调不变，歌词可以不填；旋律谱菜单可直接把人声旋律转给乐器。YuE2 新增“按旋律谱 / 自由发挥”两种生成方式，高级设置里可调推理步数以及写谱和演唱的采样参数。
-- Ocho 能直接为 YuE2 作品出谱、从本地歌曲扒谱、去和弦、改速度、把人声旋律转给乐器；改和声、换风格保旋律、换词和翻唱有了成套做法，改谱后会按小节说明改了哪里。
-- Ocho 现在可以读写文件、搜索文件、运行命令和联网查资料（工作目录为它自己的工作区）；对作品、角色和设置的改动仍只通过应用内的工具进行。
-- 音乐播放页可以在同一作品的各个版本之间切换对比试听：从顶部选择版本，切换时保持播放位置；“切回版本 N”或按 B 键在最近两个版本之间来回切。
-- 设置中音乐相关的模型（ACE-Step、YuE2、SheetSage2）单独放在“音乐模型”页，原“模型”页改名为“语音模型”；修复侧栏最近作品的删除按钮按下时位置下移。
-- 新建作品默认使用已下载的模型，并沿用上一次同类作品选的模型；Ocho 新建作品与新建声音设计角色同样优先用已下载的模型。
-- 同一模型的多种量化（Q4、Q8、BF16 等）合并为一项：设置里每个模型一行，用精度切换下载或移除，并标出已下载的精度；创作区的模型选择器每个模型只列一项，下载了多个精度时在下方切换。
-- Ocho 写歌词时按曲风和篇幅选择不同的曲式（主副歌、AABA、分节歌、说唱、贯穿式等），不再每首都是同一种段落结构；纯音乐可以用 [Guitar Solo] 这类段落标记安排器乐段落。
-- YuE2 按旋律谱生成时，作品还没有谱的话，生成后自动把 YuE2 这次写的谱填入旋律谱，可以接着改谱再生成；歌词的“插入段落”补充了 Post-Chorus、Hook、Final Chorus 和间奏、独奏等器乐段落。
-- 旋律谱新增五线谱视图（默认显示，人声与伴奏成组、和弦标在上方）和“试听”：用已下载的编曲音色库把谱渲染出来先听一遍，不占用推理，也不占用底部的歌曲播放器：播放时五线谱高亮正在响的音符并跟随滚动，轨道视图显示播放指针，点音符或标尺可跳转；谱中途换拍子（如 4/4 里夹一小节 9/8）也能试听。旋律谱的操作报错改用全局提示，不再插在谱面上方；试听和谱面操作收成图标按钮，五线谱、轨道和 ABC 三种视图等高，切换时页面不再跳到歌词。五线谱一行音符太密时自动缩小排版，行尾音符不再被截掉；旋律谱的只保留旋律、人声转给乐器、改速度、导入和清空都可以撤回；“复制谱面”改为“导出 .abc”。设置 › 常规新增去 GitHub 点 Star 的入口。风格标签最多显示两行，多出的在框内滚动；YuE2 的歌词框收矮到 10 行让旋律谱露出来，可点放大按钮在对话框里编辑。Ocho 为按旋律谱生成的 YuE2 歌曲先写谱、填入旋律谱，请你看过听过确认后再生成整首歌；说“直接生成”时才跳过。
+## [0.3.0] - 2026-10-19
+
+### English
+
+- Meet Ocho, the built-in AI assistant (⌘J / Ctrl+J): create and edit projects, write lyrics and scores, pick voices, tune parameters and start generations by chatting. It sees your selection and recent results, remembers preferences, and asks before anything destructive.
+- YuE2 songs can start from a melody score: write or extract the melody and chords, view them as staff notation, tracks or ABC, preview with a sound font (notes light up as they play), edit, undo, export `.abc`, then generate from the score. Adds instrumental songs, covers via SheetSage2, and song forms that vary from song to song.
+- Novel import for story narration (TXT, Markdown, EPUB), SRT/WebVTT subtitle export, LRC lyrics export, and side-by-side comparison of song versions on the playback page.
+- New settings pages: Resources to find and clean up unused audio, Logs with diagnostic bundles, separate Speech and Music model pages with one row per model and a precision switch, and ChatGPT (Codex) as an AI provider.
+- The interface now speaks Traditional Chinese, Japanese, Korean, Spanish, French, German, Portuguese (Brazil), Russian, Italian and Vietnamese, with an opening animation, a feature tour and smoother motion throughout.
+- New projects default to downloaded models; `yovoice serve` serves interactive API docs at `/docs/`; Score projects move under Music as "Score generation".
+
+### 简体中文
+
+- 新增 AI 助手 Ocho（⌘J / Ctrl+J）：用对话新建和修改作品、写词写谱、挑音色、调参数、发起生成；能看到你的选中内容和最近结果，记住偏好，删除等操作先确认再执行。
+- YuE2 歌曲可以先写旋律谱：按歌词写谱或从歌曲提取，用五线谱、轨道或 ABC 查看，用音色库试听（谱面跟随高亮）、修改、撤回、导出 `.abc`，再按谱生成整首歌；新增纯音乐、SheetSage2 翻唱，写词时按曲风选择不同曲式。
+- 故事配音支持导入小说（TXT、Markdown、EPUB）和导出 SRT/WebVTT 字幕；音乐播放页可导出 LRC 歌词，并在同一作品的各版本间对比试听。
+- 设置新增“资源”页（查找并清理未使用的音频）、“日志”页（可导出诊断包），模型分为“语音模型”和“音乐模型”两页，每个模型一行、切换精度下载；AI 服务新增 ChatGPT (Codex)。
+- 界面新增繁體中文、日本語、한국어、Español、Français、Deutsch、Português (Brasil)、Русский、Italiano 和 Tiếng Việt，加入开场动画、功能引导和更顺滑的动效。
+- 新建作品默认使用已下载的模型；`yovoice serve` 在 `/docs/` 提供交互式 API 文档；「编曲」更名为「编曲生成」并入「音乐生成」。
 
 ## [0.2.1] - 2026-10-16
 
