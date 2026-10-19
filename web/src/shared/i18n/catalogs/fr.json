@@ -3005,8 +3005,8 @@
   "@yovoice.melody.listening": {
     "defaultMessage": "Préparation de l’écoute…"
   },
-  "@yovoice.melody.listenName": {
-    "defaultMessage": "Écoute de la mélodie"
+  "@yovoice.melody.pause": {
+    "defaultMessage": "Mettre l'écoute en pause"
   },
   "@yovoice.melody.view": {
     "defaultMessage": "Vue de la partition"

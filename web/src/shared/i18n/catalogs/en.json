@@ -3005,8 +3005,8 @@
   "@yovoice.melody.listening": {
     "defaultMessage": "Rendering preview…"
   },
-  "@yovoice.melody.listenName": {
-    "defaultMessage": "Melody score preview"
+  "@yovoice.melody.pause": {
+    "defaultMessage": "Pause preview"
   },
   "@yovoice.melody.view": {
     "defaultMessage": "Score view"

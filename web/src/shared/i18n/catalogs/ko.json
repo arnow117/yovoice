@@ -3005,8 +3005,8 @@
   "@yovoice.melody.listening": {
     "defaultMessage": "미리 듣기 만드는 중…"
   },
-  "@yovoice.melody.listenName": {
-    "defaultMessage": "멜로디 악보 미리 듣기"
+  "@yovoice.melody.pause": {
+    "defaultMessage": "미리 듣기 일시 정지"
   },
   "@yovoice.melody.view": {
     "defaultMessage": "악보 보기"

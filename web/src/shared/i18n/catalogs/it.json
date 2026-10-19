@@ -3005,8 +3005,8 @@
   "@yovoice.melody.listening": {
     "defaultMessage": "Preparazione dell’ascolto…"
   },
-  "@yovoice.melody.listenName": {
-    "defaultMessage": "Ascolto della melodia"
+  "@yovoice.melody.pause": {
+    "defaultMessage": "Metti in pausa l'ascolto"
   },
   "@yovoice.melody.view": {
     "defaultMessage": "Vista spartito"

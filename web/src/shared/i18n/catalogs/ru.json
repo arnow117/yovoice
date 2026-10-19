@@ -3005,8 +3005,8 @@
   "@yovoice.melody.listening": {
     "defaultMessage": "Готовим прослушивание…"
   },
-  "@yovoice.melody.listenName": {
-    "defaultMessage": "Прослушивание мелодии"
+  "@yovoice.melody.pause": {
+    "defaultMessage": "Приостановить прослушивание"
   },
   "@yovoice.melody.view": {
     "defaultMessage": "Вид нот"

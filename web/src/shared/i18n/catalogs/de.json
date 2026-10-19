@@ -3005,8 +3005,8 @@
   "@yovoice.melody.listening": {
     "defaultMessage": "Vorschau wird erstellt…"
   },
-  "@yovoice.melody.listenName": {
-    "defaultMessage": "Melodie-Vorschau"
+  "@yovoice.melody.pause": {
+    "defaultMessage": "Vorhören pausieren"
   },
   "@yovoice.melody.view": {
     "defaultMessage": "Notenansicht"

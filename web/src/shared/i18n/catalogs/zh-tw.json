@@ -3005,8 +3005,8 @@
   "@yovoice.melody.listening": {
     "defaultMessage": "正在算繪試聽…"
   },
-  "@yovoice.melody.listenName": {
-    "defaultMessage": "旋律譜試聽"
+  "@yovoice.melody.pause": {
+    "defaultMessage": "暫停試聽"
   },
   "@yovoice.melody.view": {
     "defaultMessage": "譜面檢視"

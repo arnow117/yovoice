@@ -3005,8 +3005,8 @@
   "@yovoice.melody.listening": {
     "defaultMessage": "試聴を作成中…"
   },
-  "@yovoice.melody.listenName": {
-    "defaultMessage": "メロディ譜の試聴"
+  "@yovoice.melody.pause": {
+    "defaultMessage": "試聴を一時停止"
   },
   "@yovoice.melody.view": {
     "defaultMessage": "譜面の表示"

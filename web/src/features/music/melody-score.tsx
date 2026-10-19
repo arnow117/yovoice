@@ -5,16 +5,18 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { TextArea } from '@astryxdesign/core/TextArea';
 import { useTranslator } from '@astryxdesign/core/i18n';
-import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, Play } from 'lucide-react';
+import { CircleAlert, FileMusic, ListMusic, LoaderCircle, Mic2, MoreHorizontal, Pause, Play } from 'lucide-react';
 import { call, CallError, coverMelodyFile } from '../../shared/lib/client';
 import { formatActivity, formatCallError, formatMelodyIssue } from '../../shared/i18n/format';
-import { formatTime, type Draft, type MelodyInspection, type MelodyResult, type State, type Track } from '../../shared/workbench';
+import { formatTime, type Draft, type MelodyInspection, type MelodyResult, type State } from '../../shared/workbench';
 import { ScoreArrangement } from '../score/score-arrangement';
 import { MelodyStaff } from './melody-staff';
+import { useMelodyPreview } from './melody-preview';
 
 const maxLength = 64 << 10;
 
 type Notice = { kind: 'truncated' | 'cover' };
+type View = 'staff' | 'tracks' | 'source';
 
 // 谱面校验与换算只在 Go 里做一份：编辑稍停后请后端检查，返回概要、问题位置和换算出的轨道。
 function useInspection(abc: string) {
@@ -32,13 +34,13 @@ function useInspection(abc: string) {
 
 // 旋律谱：YuE2 先按歌词写出旋律与和弦（或从一首歌提取旋律做翻唱），在这里看轨道、改谱面或让创作助手改，
 // 然后按谱生成整首歌。参照 YuE 官方的 ABC 方言：人声行带和弦、伴奏行写配器动机，两行成组。
-export function MelodyScore({ draft, state, change, play, onError }: {
-  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; play: (track: Track) => void; onError: (message: string) => void;
+export function MelodyScore({ draft, state, change, onError }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; onError: (message: string) => void;
 }) {
   const t = useTranslator();
   const abc = draft.abc ?? '';
   const inspection = useInspection(abc);
-  const [view, setView] = useState<'staff' | 'tracks' | 'source'>('staff');
+  const [view, setView] = useState<View>('staff');
   const [notice, setNotice] = useState<Notice | null>(null);
   const [tempo, setTempo] = useState('');
   const [selected, setSelected] = useState<string>();
@@ -67,16 +69,9 @@ export function MelodyScore({ draft, state, change, play, onError }: {
   const transform = (op: 'stripChords' | 'tempo' | 'instrumental', value = 0) => attempt(async () => change({ abc: await call<string>('melody.transform', { abc, op, tempo: value }) }));
   const commitTempo = () => { const value = Number(tempo); if (inspection?.tempo && value && value !== inspection.tempo) void transform('tempo', value); else setTempo(inspection?.tempo ? String(inspection.tempo) : ''); };
   const plan = () => attempt(() => call('melody.plan', draft));
-  // 试听：用已装的音色库把谱渲染成音频，放进底部播放器，不经过推理。
-  const [listening, setListening] = useState(false);
-  const listen = async () => {
-    setListening(true);
-    await attempt(async () => {
-      const { fileName } = await call<{ fileName: string }>('melody.listen', { abc });
-      play({ id: fileName, name: t('@yovoice.melody.listenName'), fileName, kind: 'outputs', subtitle: draft.title });
-    });
-    setListening(false);
-  };
+  // 试听：用已装的音色库把谱渲染成音频，在谱面里播放并显示进度，底部播放器留给歌曲。
+  const preview = useMelodyPreview(abc, fail);
+  const playing = preview.status === 'playing';
   const canPlan = !busy && !!draft.text.trim() && (draft.instrumental || !!draft.lyrics?.trim());
   // 谱里还有人声旋律时，菜单里可以把它转给乐器。
   const sung = !!inspection?.score?.tracks.some(track => track.id === 'vocal');
@@ -109,15 +104,19 @@ export function MelodyScore({ draft, state, change, play, onError }: {
         {abc.trim() ? <small className="score-summary" title={summary}>{summary || ' '}</small> : null}
       </VStack>
       {abc.trim() ? <>
-        <Button size="sm" variant="secondary" icon={listening ? <LoaderCircle className="generation-spinner" /> : <Play />} label={t(listening ? '@yovoice.melody.listening' : '@yovoice.melody.listen')} isDisabled={listening || !!inspection?.issue} onClick={() => void listen()} />
+        <Button size="sm" variant="secondary" isIconOnly className="melody-listen"
+          icon={preview.status === 'rendering' ? <LoaderCircle className="generation-spinner" /> : playing ? <Pause /> : <Play />}
+          label={t(preview.status === 'rendering' ? '@yovoice.melody.listening' : playing ? '@yovoice.melody.pause' : '@yovoice.melody.listen')}
+          tooltip={t(preview.status === 'rendering' ? '@yovoice.melody.listening' : playing ? '@yovoice.melody.pause' : '@yovoice.melody.listen')}
+          isDisabled={preview.status === 'rendering' || !!inspection?.issue} onClick={() => void preview.toggle()} />
         <label className="number-field compact" title={t('@yovoice.melody.tempo')}><input type="number" aria-label={t('@yovoice.melody.tempo')} min={30} max={300} step={1} value={tempo} disabled={!inspection?.tempo}
           onChange={event => setTempo(event.target.value)} onBlur={commitTempo} onKeyDown={event => { if (event.key === 'Enter') commitTempo(); }} /><small aria-hidden="true">BPM</small></label>
-        <SegmentedControl label={t('@yovoice.melody.view')} size="sm" value={view} onChange={value => setView(value as 'staff' | 'tracks' | 'source')}>
+        <SegmentedControl label={t('@yovoice.melody.view')} size="sm" value={view} onChange={value => setView(value as View)}>
           <SegmentedControlItem value="staff" label={t('@yovoice.melody.viewStaff')} />
           <SegmentedControlItem value="tracks" label={t('@yovoice.melody.viewTracks')} />
           <SegmentedControlItem value="source" label={t('@yovoice.melody.viewSource')} />
         </SegmentedControl>
-        <DropdownMenu hasChevron alignment="end" button={{ size: 'sm', variant: 'ghost', label: t('@yovoice.melody.more') }} items={[
+        <DropdownMenu hasChevron={false} alignment="end" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.melody.more'), tooltip: t('@yovoice.melody.more') }} items={[
           { id: 'plan', label: t('@yovoice.melody.replan'), isDisabled: !canPlan, onClick: () => void plan() },
           { id: 'cover', label: t('@yovoice.melody.cover'), isDisabled: busy, onClick: () => audio.current?.click() },
           { id: 'strip', label: t('@yovoice.melody.stripChords'), isDisabled: !inspection?.chords, onClick: () => void transform('stripChords') },
@@ -153,9 +152,10 @@ export function MelodyScore({ draft, state, change, play, onError }: {
         <CircleAlert size={16} aria-hidden="true" />
         <VStack className="grow" gap={0}><b>{t('@yovoice.melody.invalid')}</b><small>{formatMelodyIssue(t, inspection.issue)}</small></VStack>
       </HStack> : null}
-      {view === 'staff' && !inspection?.issue ? <MelodyStaff abc={abc} label={t('@yovoice.melody.viewStaff')} />
-        : view === 'tracks' && score ? <ScoreArrangement readOnly score={score} selected={selected} select={setSelected} updateTrack={() => {}} seek={() => {}}
-        label={t('@yovoice.melody.tracksLabel', { bars: inspection?.bars ?? 0 })} />
+      {view === 'staff' && !inspection?.issue ? <MelodyStaff abc={abc} label={t('@yovoice.melody.viewStaff')} time={preview.time} active={preview.status !== 'idle'} seek={preview.seek} />
+        : view === 'tracks' && score ? <ScoreArrangement readOnly score={score} selected={selected} select={setSelected} updateTrack={() => {}}
+          playhead={preview.status !== 'idle' ? { time: preview.time, playing } : undefined} seek={preview.seek}
+          label={t('@yovoice.melody.tracksLabel', { bars: inspection?.bars ?? 0 })} />
         : <TextArea className="melody-source" label={t('@yovoice.melody.source')} isLabelHidden value={abc} rows={16} hasSpellCheck={false}
           onChange={value => change({ abc: value.slice(0, maxLength) })} />}
     </>}

@@ -3005,8 +3005,8 @@
   "@yovoice.melody.listening": {
     "defaultMessage": "Preparando a prévia…"
   },
-  "@yovoice.melody.listenName": {
-    "defaultMessage": "Prévia da melodia"
+  "@yovoice.melody.pause": {
+    "defaultMessage": "Pausar a prévia"
   },
   "@yovoice.melody.view": {
     "defaultMessage": "Visualização da partitura"
