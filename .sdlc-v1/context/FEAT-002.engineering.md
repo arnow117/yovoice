@@ -438,7 +438,15 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的真实原生文件功能旅程已由主 Agent 验收通过；逐条时延按2026-10-19用户决定留作后续补测。当前3c8783f独立70项通过后发现的SCN-UI-16缺原文夹具已由同一worker修正并经主接受，待独立定向核对；SCN-UI-22新包仍未运行，正式validation保持fail / INCONCLUSIVE，Review未执行。历史smoke失败与旧验证/评审均保留其版本边界。物理Mic与真实TTS听测仍NOT_RUN。
+业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的旧包真实原生文件功能旅程已通过；逐条时延按2026-10-19用户决定留作后续补测。当前候选5718277的SCN-UI-16已由独立定向核对闭合，其余必要确定性检查已有对应证据；唯一剩余SCN-UI-22新包真实旅程NOT_RUN，正式validation保持fail / INCONCLUSIVE，Review未执行。历史smoke失败与旧验证/评审均保留其版本边界。物理Mic与真实TTS听测仍NOT_RUN。
+
+### 2026-10-19 5718277独立增量通过，唯一待新包原生旅程
+
+原独立验证者在干净且已push的57182772d7e6d4b0a5137f9994d01520285ec5f6实际执行两项必要增量检查：Go合同 `go test -json -race -p 1 ./internal/workbench -run '^TestApplySpeakerBindingReferenceTextRequirements$' -count=1 -timeout=30s`，UTC15:12:19.596–15:12:22.357，exit0、2.769秒，1顶层及3子例全部通过；两语言故事 `E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --grep '^生成拒绝无绑定' --target mac-zh-1280,mac-en-390 --workers 1 --retries 0 --strict-cache --output e2e-results/formal-validation-5718277`，UTC15:12:22.367–15:12:35.512，exit0、13.154秒，run01a154b8-8a5a-77b0-98b4-6636e575e424为2/2、0skip/retry/model，cleanup complete。主已亲读两条command JSON和实际report核对。原件 `artifacts/verification/feature-002-formal-validation-20261019/independent-001/incremental-5718277/`；环境、argv、cwd和计数均在该原件。15:13:10Z PID/PGID62661/62707已退出，4173/49620/49621无监听，未启动App/模型。
+
+SCN-UI-16在当前声明范围COVERED，新增合同与页面实际请求/错误恢复一致；其余68项只是本次过滤，按前轮独立70/70的同输入结果复用，不称本轮全量执行。完整Go232/12与147/173statements、browser59、Swift17/脚本24等保留其原范围，不推导新增后的完整计数或branch百分比。当前App完全匹配原始receipt，源码与receipt的差异只有测试、文档及SDLC，不编入运行时；不冒称strict源码相同。
+
+独立结论仅剩SCN-UI-22当前新包真实旅程，故主按请求记录本轮validation fail / INCONCLUSIVE，对应5718277；不能用旧CUA包替代。主已准备新包/固定资产预检并提出一次最多2启动/5提取、CPU1、T=.6/M=.05/120秒、总20分钟、首个验收断言失败停止的授权问题，当前仍未收到答复，零新增启动/提取；预期删除存储失败提示是有意负例，断言应通过，随后只恢复自有私有目录权限并明确重试。正式Review待实际使用必要证据齐全后执行，当前不宣称feature验收完成。
 
 ### 2026-10-19 缺参考原文合同修正的Build验收
 
