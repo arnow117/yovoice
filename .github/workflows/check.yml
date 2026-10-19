@@ -121,6 +121,8 @@ jobs:
           # 仅正式发布签名；未配置证书时脚本跳过签名。
           WINDOWS_SIGN_PFX_BASE64: ${{ inputs.release && secrets.WINDOWS_SIGN_PFX_BASE64 || '' }}
           WINDOWS_SIGN_PASSWORD: ${{ inputs.release && secrets.WINDOWS_SIGN_PASSWORD || '' }}
+          # 日常构建的 CUDA 安装包不上传，改用快速压缩（zip/1）省下大部分压缩时间；正式发布仍用 lzma2。
+          YOVOICE_CUDA_SETUP_COMPRESSION: ${{ !inputs.release && 'zip/1' || '' }}
         # PR 构建跳过 CUDA 版以提速；合并到 main 后仍打包 CUDA 版，避免发布时才第一次发现 CUDA 打包问题。
         run: |
           if ('${{ inputs.release || github.event_name == 'push' }}' -eq 'true') {

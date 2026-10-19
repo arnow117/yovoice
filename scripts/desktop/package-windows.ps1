@@ -67,6 +67,8 @@ if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notm
 $output = Join-Path (Get-Location) 'artifacts'
 $arguments = @("/DAppVersion=$Version", "/DAppDir=$source", "/DOutputDir=$output", "/DOutputName=$name", "/DBootstrapper=$bootstrapper")
 if ($Kind -eq 'update') { $arguments += '/DAppOnly' }
+# 日常 CI 的 CUDA 安装包只验证能打出来、不上传，可通过环境变量改用更快的压缩方式。
+if ($Kind -like 'cuda*' -and $env:YOVOICE_CUDA_SETUP_COMPRESSION) { $arguments += "/DCompression=$env:YOVOICE_CUDA_SETUP_COMPRESSION" }
 try {
     & $compilerPath @arguments "desktop/windows/installer/yovoice.iss"
     if ($LASTEXITCODE -ne 0) { throw "Setup 编译失败" }
