@@ -37,7 +37,7 @@ func (w *Workbench) newAssistantServer() *mcp.Server {
 	mcp.AddTool(server, &mcp.Tool{Name: "update_work", Description: "按字段补丁修改作品：标题、台词/文本、歌词与纯音乐、演唱语言、故事配音的角色台词、乐谱（与写谱同一套校验）、YuE2 旋律谱 abc；右侧检查器里的全部声音设置与高级参数（模型、音色、声音设计描述、情绪、语速、温度、modelOptions 等）放在 settings；characterId 套用声音库角色；故事配音的每个角色用 speakerSettings。返回修改后的摘要。"}, w.updateWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "list_characters", Description: "列出声音库里的角色（id、名称、模型、参考音色、声音设计描述）。给作品或故事角色套用角色前先调用。"}, w.listCharactersTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "save_character", Description: "新建或修改声音库里的角色（声音配置：模型、参考音色、声音设计描述、全部参数）。新建可用 fromWork 以某个作品当前的声音设置为起点，再用 settings 改动；修改已有角色传 id。不会改动任何作品，也不会切换界面。删除角色走 propose_action。"}, w.saveCharacterTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "generate_work", Description: "对一个作品发起生成（语音、音乐或编曲渲染），立即返回；生成前先用 list_models 确认模型已安装。进度与结果用 get_generation_status 查询。"}, w.generateWorkTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "generate_work", Description: "对一个作品发起生成（语音、音乐或编曲渲染），立即返回；生成前先用 list_models 确认模型已安装。进度与结果用 get_generation_status 查询。YuE2 作品选的是按旋律谱生成却还没有谱时会被拒绝：先 plan_melody 写谱、填入作品，等用户看过试听过并同意后再生成。"}, w.generateWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "get_generation_status", Description: "查询作品当前的生成进度与最近一次生成的结果（时长与是否完成）。"}, w.getGenerationStatusTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "open_work", Description: "让界面打开某个作品。"}, w.openWorkTool)
 	mcp.AddTool(server, &mcp.Tool{Name: "open_page", Description: "让界面切换页面：text（语音生成）、story（故事配音）、music（音乐生成）、score（编曲）、characters（声音库）、settings（设置）。"}, w.openPageTool)
@@ -550,10 +550,27 @@ func applySpeakerVoices(d *schema.Draft, assignments []workSpeakerVoice) error {
 }
 
 // generateWorkInput 的动作名按作品类型显示（语音/音乐/渲染）。
-func (w *Workbench) generateWorkTool(ctx context.Context, req *mcp.CallToolRequest, in workIDInput) (*mcp.CallToolResult, any, error) {
+type generateWorkInput struct {
+	ID           string `json:"id" jsonschema:"作品 ID"`
+	WithoutScore bool   `json:"withoutScore,omitempty" jsonschema:"仅当用户明确说不看谱、直接生成时为 true：YuE2 生成时自己写谱，生成后填入作品"`
+}
+
+// needsScoreReview 判断 YuE2 作品是否选了按旋律谱生成（或纯音乐）但还没有谱：这时助手应先出谱让用户确认。
+func needsScoreReview(d schema.Draft) bool {
+	if m, e := catalog.Lookup(d.ModelID); workKindOf(d) != "music" || e != nil || m.Family != "yue2" || strings.TrimSpace(d.Abc) != "" {
+		return false
+	}
+	mode, _ := d.ModelOptions["yue2"]["cot"].(string)
+	return d.Instrumental || mode != "off"
+}
+
+func (w *Workbench) generateWorkTool(ctx context.Context, req *mcp.CallToolRequest, in generateWorkInput) (*mcp.CallToolResult, any, error) {
 	d, err := w.assistantWork(in.ID)
 	if err != nil {
 		return nil, nil, err
+	}
+	if !in.WithoutScore && needsScoreReview(d) {
+		return nil, nil, fmt.Errorf("这首歌选的是按旋律谱生成，但作品还没有谱。先用 plan_melody 写谱，get_generation_status 读到 melody.abc 后用 update_work 填入作品，然后请用户在旋律谱里查看、点“试听”听一遍，用户确认后再 generate_work；用户明确说不看谱直接生成时才传 withoutScore=true")
 	}
 	action, actionEN := "生成语音", "generate voice"
 	switch workKindOf(d) {

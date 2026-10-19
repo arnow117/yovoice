@@ -2948,6 +2948,9 @@
   "@yovoice.error.coverModelRequired": {
     "defaultMessage": "곡에서 멜로디를 추출하려면 SheetSage2 모델이 필요합니다. 설정 › 음악 모델에서 다운로드하세요."
   },
+  "@yovoice.error.melodySoundFontRequired": {
+    "defaultMessage": "멜로디 악보를 미리 들으려면 사운드폰트가 필요합니다. \"설정 › 악보 사운드 폰트\"에서 다운로드하세요."
+  },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "곡의 멜로디와 코드를 악보로 채보해 YuE2 커버에 사용합니다."
   },
@@ -2996,11 +2999,23 @@
   "@yovoice.melody.tempo": {
     "defaultMessage": "템포"
   },
+  "@yovoice.melody.listen": {
+    "defaultMessage": "미리 듣기"
+  },
+  "@yovoice.melody.listening": {
+    "defaultMessage": "미리 듣기 만드는 중…"
+  },
+  "@yovoice.melody.listenName": {
+    "defaultMessage": "멜로디 악보 미리 듣기"
+  },
   "@yovoice.melody.view": {
     "defaultMessage": "악보 보기"
   },
   "@yovoice.melody.viewTracks": {
     "defaultMessage": "트랙"
+  },
+  "@yovoice.melody.viewStaff": {
+    "defaultMessage": "오선보"
   },
   "@yovoice.melody.viewSource": {
     "defaultMessage": "ABC"

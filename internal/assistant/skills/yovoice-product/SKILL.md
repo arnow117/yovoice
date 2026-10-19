@@ -148,6 +148,7 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.melodyInvalid` 旋律谱有误：{issue}
 - `error.melodyEmpty` 模型没有写出旋律谱，请重试或调整歌词。
 - `error.coverModelRequired` 从歌曲提取旋律需要 SheetSage2 模型，请在“设置 › 音乐模型”中下载。
+- `error.melodySoundFontRequired` 试听旋律谱需要一个音色库，请在“设置 › 编曲音色库”中下载。
 - `error.engineUpgradeRequired` 该模型需要 {version} 及以上的推理内核，请在设置中更新内核。
 - `error.aiProviderInvalid` AI 服务配置无效，请检查地址、名称和模型。
 - `error.aiNotConfigured` 还没有可用的 AI 服务，请在“设置 › AI”中添加服务并选择模型。

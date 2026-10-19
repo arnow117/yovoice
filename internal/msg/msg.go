@@ -115,10 +115,11 @@ const (
 	ErrScoreTooLong          Code = "@yovoice.error.scoreTooLong"
 	ErrMidiInvalid           Code = "@yovoice.error.midiInvalid"
 	// 旋律谱：谱面不合方言（参数含小节与声部）、引擎没有写出谱、扒谱模型未下载。
-	ErrMelodyInvalid         Code = "@yovoice.error.melodyInvalid"
-	ErrMelodyEmpty           Code = "@yovoice.error.melodyEmpty"
-	ErrCoverModelRequired    Code = "@yovoice.error.coverModelRequired"
-	ErrEngineUpgradeRequired Code = "@yovoice.error.engineUpgradeRequired"
+	ErrMelodyInvalid           Code = "@yovoice.error.melodyInvalid"
+	ErrMelodyEmpty             Code = "@yovoice.error.melodyEmpty"
+	ErrCoverModelRequired      Code = "@yovoice.error.coverModelRequired"
+	ErrMelodySoundFontRequired Code = "@yovoice.error.melodySoundFontRequired"
+	ErrEngineUpgradeRequired   Code = "@yovoice.error.engineUpgradeRequired"
 	// AI 服务（可选）：未配置、鉴权、限流、网络、响应异常与结果无效。
 	ErrAIProviderInvalid Code = "@yovoice.error.aiProviderInvalid"
 	ErrAINotConfigured   Code = "@yovoice.error.aiNotConfigured"
@@ -219,7 +220,7 @@ func All() []Code {
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
-		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired,
+		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired, ErrMelodySoundFontRequired,
 		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout, ErrAssistantMissing, ErrAssistantProvider,
 		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess, ErrCodexMissing, ErrCodexLoggedOut, ErrCodexFailed, ErrCodexLimit, ErrCodexNoImage,
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,

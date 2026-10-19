@@ -216,3 +216,54 @@ func TestAssistantMelodyTools(t *testing.T) {
 		t.Fatal("非 YuE2 作品不应出谱")
 	}
 }
+
+// 试听旋律谱：用已装的音色库渲染，不进历史；只保留最近一次的试听文件；没有音色库时提示下载。
+func TestListenMelody(t *testing.T) {
+	wb, _ := yueWorkbench(t)
+	var ce *msg.CallError
+	if _, err := wb.ListenMelody(context.Background(), testkit.ABC); !errors.As(err, &ce) || ce.Code != msg.ErrMelodySoundFontRequired {
+		t.Fatal(err)
+	}
+	font := filepath.Join(wb.Store.Root, "models", "test.sf2")
+	must(t, os.WriteFile(font, testkit.SoundFont(), 0600))
+	must(t, wb.Store.Update(func(s *schema.State) {
+		s.Models = append(s.Models, schema.InstalledModel{ID: "generaluser-gs-sf2", Path: font})
+	}, true))
+	first, err := wb.ListenMelody(context.Background(), testkit.ABC)
+	must(t, err)
+	second, err := wb.ListenMelody(context.Background(), testkit.ABC)
+	must(t, err)
+	if _, err := os.Stat(filepath.Join(wb.Store.Root, "outputs", second)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(wb.Store.Root, "outputs", first)); !os.IsNotExist(err) {
+		t.Fatal("旧的试听文件应删除", err)
+	}
+	if len(wb.Store.Read().History) != 0 {
+		t.Fatal("试听不进历史")
+	}
+	if _, err := wb.ListenMelody(context.Background(), strings.Replace(testkit.ABC, "c16|", "c8|", 1)); !errors.As(err, &ce) || ce.Code != msg.ErrMelodyInvalid {
+		t.Fatal(err)
+	}
+}
+
+// 助手为按谱生成的 YuE2 作品发起生成前必须先有谱；自由发挥或用户明确不看谱时直接生成。
+func TestAssistantGenerateNeedsScore(t *testing.T) {
+	wb, d := yueWorkbench(t)
+	d.ID = schema.NewID()
+	must(t, wb.Store.Update(func(s *schema.State) { s.Drafts = []schema.Draft{d} }, true))
+	if _, _, err := wb.generateWorkTool(context.Background(), nil, generateWorkInput{ID: d.ID}); err == nil || !strings.Contains(err.Error(), "plan_melody") {
+		t.Fatal("没谱时应先出谱", err)
+	}
+	variant := func(change func(*schema.Draft)) schema.Draft { v := d; change(&v); return v }
+	free := func(v *schema.Draft) { v.ModelOptions = map[string]map[string]any{"yue2": {"cot": "off"}} }
+	if !needsScoreReview(variant(func(v *schema.Draft) { free(v); v.Instrumental = true })) {
+		t.Fatal("纯音乐总是按谱")
+	}
+	if needsScoreReview(variant(free)) || needsScoreReview(variant(func(v *schema.Draft) { v.Abc = testkit.ABC })) || needsScoreReview(variant(func(v *schema.Draft) { v.ModelID = "ace-step-1.5-turbo-q8" })) {
+		t.Fatal("自由发挥、已有谱或 ACE-Step 不需要先出谱")
+	}
+	_, _, err := wb.generateWorkTool(context.Background(), nil, generateWorkInput{ID: d.ID, WithoutScore: true})
+	must(t, err)
+	<-wb.Done()
+}

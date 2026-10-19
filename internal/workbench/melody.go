@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
 	"slices"
 	"time"
 	"yovoice/internal/audio"
@@ -221,4 +222,43 @@ func (w *Workbench) DismissMelody(id string) error {
 			s.Melody = nil
 		}
 	}, false)
+}
+
+// ListenMelody 用已安装的音色库把旋律谱渲染成试听音频，不经过推理引擎：人声旋律、器乐旋律、和弦与低音各一轨。
+// 试听文件放在 outputs 下、以 audition- 开头，不进历史，只保留最近一次，下次启动时清理。
+func (w *Workbench) ListenMelody(ctx context.Context, abc string) (string, error) {
+	parsed, e := score.ParseABC(abc)
+	if e != nil {
+		return "", melodyIssue(e)
+	}
+	soundFont := ""
+	for _, m := range w.Store.Read().Models {
+		if c, e := catalog.Lookup(m.ID); e == nil && c.Family == "soundfont" {
+			soundFont = m.Path
+			break
+		}
+	}
+	if soundFont == "" {
+		return "", msg.Err(msg.ErrMelodySoundFontRequired, nil)
+	}
+	sf, e := score.LoadSoundFont(soundFont)
+	if e != nil {
+		return "", msg.Err(msg.ErrModelMoved, nil)
+	}
+	file := "audition-melody-" + schema.NewID() + ".wav"
+	path, e := w.Store.MediaPath("outputs", file)
+	if e != nil {
+		return "", e
+	}
+	if e = score.Render(ctx, sf, parsed.Score(), path, "", func(int, int) {}); e != nil {
+		_ = os.Remove(path)
+		return "", e
+	}
+	old, _ := filepath.Glob(filepath.Join(filepath.Dir(path), "audition-melody-*.wav"))
+	for _, f := range old {
+		if filepath.Base(f) != file {
+			_ = os.Remove(f)
+		}
+	}
+	return file, nil
 }

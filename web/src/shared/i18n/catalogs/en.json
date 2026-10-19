@@ -2948,6 +2948,9 @@
   "@yovoice.error.coverModelRequired": {
     "defaultMessage": "Extracting a melody needs the SheetSage2 model. Download it in Settings › Music models."
   },
+  "@yovoice.error.melodySoundFontRequired": {
+    "defaultMessage": "Listening to a melody score needs a sound font. Download one in Settings › Arrangement sound fonts."
+  },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transcribes the melody and chords of a song into a score, used for covers with YuE2."
   },
@@ -2996,11 +2999,23 @@
   "@yovoice.melody.tempo": {
     "defaultMessage": "Tempo"
   },
+  "@yovoice.melody.listen": {
+    "defaultMessage": "Listen"
+  },
+  "@yovoice.melody.listening": {
+    "defaultMessage": "Rendering preview…"
+  },
+  "@yovoice.melody.listenName": {
+    "defaultMessage": "Melody score preview"
+  },
   "@yovoice.melody.view": {
     "defaultMessage": "Score view"
   },
   "@yovoice.melody.viewTracks": {
     "defaultMessage": "Tracks"
+  },
+  "@yovoice.melody.viewStaff": {
+    "defaultMessage": "Staff"
   },
   "@yovoice.melody.viewSource": {
     "defaultMessage": "ABC"

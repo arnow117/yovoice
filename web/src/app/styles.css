@@ -655,6 +655,9 @@
   .melody-score .score-arrangement { margin: 0; max-height: 40vh; }
   .score-arrangement[data-readonly] { --score-head: calc(var(--spacing-10) * 4); }
   .score-arrangement[data-readonly] .score-track-head > .score-role-dot { flex: none; margin-inline: var(--spacing-1); }
+  /* 五线谱：白底细框，按宽度自适应排版，谱面颜色跟随正文。 */
+  .melody-staff { max-height: 60vh; padding: var(--spacing-4) var(--spacing-5); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); color: var(--app-ink); overflow-y: auto; }
+  .melody-staff svg { display: block; }
   .melody-source textarea { font-family: var(--app-mono); font-size: var(--app-small-font); line-height: 1.6; white-space: pre; overflow-x: auto; }
   .melody-progress { padding: var(--spacing-2) var(--spacing-3); border-radius: var(--radius-element); background: var(--app-surface); color: var(--app-muted); }
   .melody-notice { padding: var(--spacing-2) var(--spacing-3); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-element); background: var(--app-surface); line-height: 1.6; }

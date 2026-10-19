@@ -2948,6 +2948,9 @@
   "@yovoice.error.coverModelRequired": {
     "defaultMessage": "Cần mô hình SheetSage2 để trích xuất giai điệu. Hãy tải trong Cài đặt › Mô hình âm nhạc."
   },
+  "@yovoice.error.melodySoundFontRequired": {
+    "defaultMessage": "Cần một bộ âm thanh (SoundFont) để nghe thử giai điệu. Hãy tải trong “Cài đặt › SoundFont cho bản nhạc”."
+  },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Chép giai điệu và hợp âm của bài hát thành bản nhạc, dùng để cover với YuE2."
   },
@@ -2996,11 +2999,23 @@
   "@yovoice.melody.tempo": {
     "defaultMessage": "Nhịp độ"
   },
+  "@yovoice.melody.listen": {
+    "defaultMessage": "Nghe thử"
+  },
+  "@yovoice.melody.listening": {
+    "defaultMessage": "Đang tạo bản nghe thử…"
+  },
+  "@yovoice.melody.listenName": {
+    "defaultMessage": "Nghe thử bản nhạc giai điệu"
+  },
   "@yovoice.melody.view": {
     "defaultMessage": "Chế độ xem bản nhạc"
   },
   "@yovoice.melody.viewTracks": {
     "defaultMessage": "Bản nhạc theo track"
+  },
+  "@yovoice.melody.viewStaff": {
+    "defaultMessage": "Khuông nhạc"
   },
   "@yovoice.melody.viewSource": {
     "defaultMessage": "ABC"

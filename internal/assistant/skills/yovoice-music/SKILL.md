@@ -16,10 +16,11 @@ YuE2 renders a song from a style prompt, lyrics and, optionally, a two-voice mel
 
 | Request | What to do |
 | --- | --- |
-| A song from style and lyrics | `update_work` style + lyrics, then `generate_work`. Without a score YuE2 writes one itself; the take stores it and the work's empty score is filled with it after generation. To let the user review the score before singing, use the next row instead. |
-| A melody to review or edit before singing | `plan_melody` → `get_generation_status` until `melody` appears → `update_work` {"abc": melody.abc} → edit → `generate_work`. |
+| A song in score mode (the default: `cot` is not `off`, or instrumental) | `update_work` style + lyrics → `plan_melody` → `get_generation_status` until `melody` appears → `update_work` {"abc": melody.abc}. Then stop and ask the user to review: the score is in the 旋律谱 section, where they can read it and press 试听 (listen). Call `generate_work` only after they approve or ask for changes you have made. `generate_work` refuses a score-mode YuE2 work without a score. |
+| The user explicitly wants to skip reviewing the score (直接生成) | `generate_work` {"id","withoutScore":true}: YuE2 writes the score itself while singing, and it is filled into the work afterwards. |
+| Free mode (`cot` is `off`) | `update_work` style + lyrics, then `generate_work`; there is no score to review. |
 | Cover a song (翻唱) | `cover_melody` {"id","path"} with a local audio file (needs SheetSage2; propose installing it otherwise) → apply its `melody.abc` → new style and lyrics → `generate_work`. Keeps the melody, not the singer's voice. |
-| Instrumental (纯音乐) | `update_work` {"instrumental": true}; lyrics optional (section tags only). Generating writes a score if there is none, moves the vocal melody to Ins and plays it. `transform_melody` {"op":"instrumental"} converts the stored score in place. |
+| Instrumental (纯音乐) | `update_work` {"instrumental": true}; lyrics optional (section tags only). Write and review the score first as in the first row; generating moves the vocal melody to Ins and plays it. `transform_melody` {"op":"instrumental"} converts the stored score in place. |
 | Skip the score | `update_work` settings `{"modelOptions":{"yue2":{"cot":"off"}}}`; the take then has no editable score. `"auto"` goes back to score-based generation. |
 | Keep the melody, let YuE2 re-arrange | `transform_melody` {"op":"stripChords"}. Change the tempo with {"op":"tempo","tempo":96}. |
 | Change harmony, style, lyrics or structure | Read [references/editing.md](references/editing.md) first. |

@@ -2948,6 +2948,9 @@
   "@yovoice.error.coverModelRequired": {
     "defaultMessage": "Zum Extrahieren einer Melodie wird das Modell SheetSage2 benötigt. Lade es unter Einstellungen › Musikmodelle herunter."
   },
+  "@yovoice.error.melodySoundFontRequired": {
+    "defaultMessage": "Zum Anhören der Melodie wird ein SoundFont benötigt. Lade einen unter „Einstellungen › SoundFonts für Partituren“ herunter."
+  },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transkribiert Melodie und Akkorde eines Songs in Noten, für Coverversionen mit YuE2."
   },
@@ -2996,11 +2999,23 @@
   "@yovoice.melody.tempo": {
     "defaultMessage": "Tempo"
   },
+  "@yovoice.melody.listen": {
+    "defaultMessage": "Anhören"
+  },
+  "@yovoice.melody.listening": {
+    "defaultMessage": "Vorschau wird erstellt…"
+  },
+  "@yovoice.melody.listenName": {
+    "defaultMessage": "Melodie-Vorschau"
+  },
   "@yovoice.melody.view": {
     "defaultMessage": "Notenansicht"
   },
   "@yovoice.melody.viewTracks": {
     "defaultMessage": "Spuren"
+  },
+  "@yovoice.melody.viewStaff": {
+    "defaultMessage": "Notenbild"
   },
   "@yovoice.melody.viewSource": {
     "defaultMessage": "ABC"

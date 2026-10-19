@@ -2948,6 +2948,9 @@
   "@yovoice.error.coverModelRequired": {
     "defaultMessage": "從歌曲擷取旋律需要 SheetSage2 模型，請在「設定 › 音樂模型」中下載。"
   },
+  "@yovoice.error.melodySoundFontRequired": {
+    "defaultMessage": "試聽旋律譜需要一個音色庫，請在「設定 › 編曲音色庫」中下載。"
+  },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "把歌曲的旋律與和弦扒成譜，搭配 YuE2 做翻唱。"
   },
@@ -2996,11 +2999,23 @@
   "@yovoice.melody.tempo": {
     "defaultMessage": "速度"
   },
+  "@yovoice.melody.listen": {
+    "defaultMessage": "試聽"
+  },
+  "@yovoice.melody.listening": {
+    "defaultMessage": "正在算繪試聽…"
+  },
+  "@yovoice.melody.listenName": {
+    "defaultMessage": "旋律譜試聽"
+  },
   "@yovoice.melody.view": {
     "defaultMessage": "譜面檢視"
   },
   "@yovoice.melody.viewTracks": {
     "defaultMessage": "軌道"
+  },
+  "@yovoice.melody.viewStaff": {
+    "defaultMessage": "五線譜"
   },
   "@yovoice.melody.viewSource": {
     "defaultMessage": "ABC 譜面"

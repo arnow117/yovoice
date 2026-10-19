@@ -452,7 +452,7 @@ func TestChatGenerateAndOpenPage(t *testing.T) {
 	_, created, err := w.createWorkTool(context.Background(), toolReq, createWorkInput{Kind: "text", Title: "旁白"})
 	must(t, err)
 	id := created.(map[string]any)["id"].(string)
-	if _, _, err = w.generateWorkTool(context.Background(), toolReq, workIDInput{ID: id}); err == nil {
+	if _, _, err = w.generateWorkTool(context.Background(), toolReq, generateWorkInput{ID: id}); err == nil {
 		t.Fatal("缺少推理内核应报错", err)
 	} else {
 		var ce *msg.CallError

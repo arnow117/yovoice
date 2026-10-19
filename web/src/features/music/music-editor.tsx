@@ -7,14 +7,14 @@ import { TextArea } from '@astryxdesign/core/TextArea';
 import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Lightbulb } from 'lucide-react';
-import { isUntitled, isYuE, type Draft, type State, type UiLocale } from '../../shared/workbench';
+import { isUntitled, isYuE, type Draft, type State, type Track, type UiLocale } from '../../shared/workbench';
 import { createMusicDraft, instrumentalSections, lyricSections, splitTags } from './music-draft';
 import { MelodyScore } from './melody-score';
 
 // 音乐创作区：从上到下是“风格 → 歌词”，生成的版本在“版本记录”里查看；让 AI 写风格和歌词走创作助手。
 // 纯音乐与填写歌词是并列的两种模式。YuE2 还可以先出旋律谱、改谱后再生成。
-export function MusicEditor({ draft, state, change, locale }: {
-  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale;
+export function MusicEditor({ draft, state, change, locale, play }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; locale: UiLocale; play: (track: Track) => void;
 }) {
   const t = useTranslator();
   // YuE2 的纯音乐先出谱，再把人声旋律交给乐器演奏；歌词可留空，或只写段落标记安排结构。
@@ -118,6 +118,6 @@ export function MusicEditor({ draft, state, change, locale }: {
         : <TextArea ref={lyrics} className="music-lyrics" label={t('@yovoice.music.lyrics')} isLabelHidden value={draft.lyrics ?? ''} maxLength={4000} rows={draft.instrumental ? 6 : 14} hasSpellCheck={false} placeholder={t(draft.instrumental ? '@yovoice.music.structurePlaceholder' : '@yovoice.music.lyricsPlaceholder')} onChange={value => change({ lyrics: value.slice(0, 4000) })} />}
     </VStack>
     {/* YuE2 的流程是“歌词 → 旋律谱 → 整首歌”，谱放在歌词之后。 */}
-    {yue ? <MelodyScore draft={draft} state={state} change={change} /> : null}
+    {yue ? <MelodyScore draft={draft} state={state} change={change} play={play} /> : null}
   </VStack>;
 }

@@ -243,6 +243,15 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 			return nil, e
 		}
 		return true, w.CoverMelody(input.ProjectID, bytes.NewReader(b))
+	case "melody.listen":
+		var input struct {
+			Abc string `json:"abc"`
+		}
+		if e := json.Unmarshal(data, &input); e != nil {
+			return nil, e
+		}
+		file, e := w.ListenMelody(ctx, input.Abc)
+		return map[string]string{"fileName": file}, e
 	case "melody.dismiss":
 		return true, w.DismissMelody(p.ID)
 	case "melody.inspect", "melody.transform":

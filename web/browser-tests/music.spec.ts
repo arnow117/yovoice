@@ -127,6 +127,12 @@ test('YuE2 旋律谱：导入 ABC，看轨道与谱面，调速度、只留旋�
   await expect(page.getByRole('button', { name: '生成歌曲', exact: true })).toBeVisible();
   await page.getByLabel('ABC 谱文件').setInputFiles({ name: 'song.abc', mimeType: 'text/plain', buffer: Buffer.from(melodyABC) });
   await expect(page.getByText(/C · 120 BPM · 4\/4 · 2 小节 · 00:04 · 带和弦/)).toBeVisible();
+  // 默认用五线谱显示，可以切到轨道或 ABC 谱面。
+  await expect(page.getByRole('img', { name: '五线谱' }).locator('svg')).toBeVisible();
+  // 试听要用编曲音色库渲染；没装音色库时提示去下载。
+  await page.getByRole('button', { name: '试听', exact: true }).click();
+  await expect(page.getByText('试听旋律谱需要一个音色库')).toBeVisible();
+  await page.getByRole('radio', { name: '轨道' }).click();
   await expect(page.getByRole('group', { name: '旋律谱轨道，共 2 小节' })).toBeVisible();
   await expect(page.getByRole('button', { name: '按旋律谱生成', exact: true })).toBeVisible();
   await page.getByRole('group', { name: '旋律谱轨道，共 2 小节' }).scrollIntoViewIfNeeded();

@@ -2948,6 +2948,9 @@
   "@yovoice.error.coverModelRequired": {
     "defaultMessage": "Per estrarre una melodia serve il modello SheetSage2. Scaricalo in Impostazioni › Modelli musicali."
   },
+  "@yovoice.error.melodySoundFontRequired": {
+    "defaultMessage": "Per ascoltare la melodia serve un banco di suoni. Scaricane uno in «Impostazioni › Sound font per partiture»."
+  },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Trascrive melodia e accordi di un brano in spartito, per le cover con YuE2."
   },
@@ -2996,11 +2999,23 @@
   "@yovoice.melody.tempo": {
     "defaultMessage": "Tempo"
   },
+  "@yovoice.melody.listen": {
+    "defaultMessage": "Ascolta"
+  },
+  "@yovoice.melody.listening": {
+    "defaultMessage": "Preparazione dell’ascolto…"
+  },
+  "@yovoice.melody.listenName": {
+    "defaultMessage": "Ascolto della melodia"
+  },
   "@yovoice.melody.view": {
     "defaultMessage": "Vista spartito"
   },
   "@yovoice.melody.viewTracks": {
     "defaultMessage": "Tracce"
+  },
+  "@yovoice.melody.viewStaff": {
+    "defaultMessage": "Spartito"
   },
   "@yovoice.melody.viewSource": {
     "defaultMessage": "ABC"

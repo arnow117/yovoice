@@ -2948,6 +2948,9 @@
   "@yovoice.error.coverModelRequired": {
     "defaultMessage": "Для извлечения мелодии нужна модель SheetSage2. Загрузите её в «Настройки › Музыкальные модели»."
   },
+  "@yovoice.error.melodySoundFontRequired": {
+    "defaultMessage": "Для прослушивания мелодии нужен банк звуков. Скачайте его в «Настройки › Звуковые банки для партитур»."
+  },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Записывает мелодию и аккорды песни в ноты для каверов с YuE2."
   },
@@ -2996,11 +2999,23 @@
   "@yovoice.melody.tempo": {
     "defaultMessage": "Темп"
   },
+  "@yovoice.melody.listen": {
+    "defaultMessage": "Прослушать"
+  },
+  "@yovoice.melody.listening": {
+    "defaultMessage": "Готовим прослушивание…"
+  },
+  "@yovoice.melody.listenName": {
+    "defaultMessage": "Прослушивание мелодии"
+  },
   "@yovoice.melody.view": {
     "defaultMessage": "Вид нот"
   },
   "@yovoice.melody.viewTracks": {
     "defaultMessage": "Дорожки"
+  },
+  "@yovoice.melody.viewStaff": {
+    "defaultMessage": "Ноты"
   },
   "@yovoice.melody.viewSource": {
     "defaultMessage": "ABC"
