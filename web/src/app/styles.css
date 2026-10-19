@@ -432,6 +432,9 @@
   .score-editor { flex: 1; min-height: 0; overflow-y: auto; padding-block: var(--spacing-4) var(--spacing-6); }
   .score-editor h2 { font-size: var(--app-ui-font); }
   .score-summary { color: var(--app-muted); font-family: var(--font-family-code); font-variant-numeric: tabular-nums; }
+  /* 旋律谱标题下的概要只占一行，放不下时省略，完整内容在悬停提示里（不换行写在后面的排版层里）。 */
+  .melody-heading { flex: 1 1 0; min-width: calc(var(--spacing-10) * 3); }
+  .melody-score .score-summary { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .score-empty { padding: var(--spacing-8) var(--spacing-4); border-radius: var(--radius-container); background: var(--app-surface); color: var(--app-muted); text-align: center; line-height: 1.8; }
   .score-sections { border-radius: var(--radius-container); background: var(--app-surface); }
   /* 设置页：每组一张白卡片，行高、内边距和字号统一；标题与说明左对齐，控件右对齐。 */
@@ -1025,6 +1028,7 @@
   /* 换行：标题均衡，正文避免孤字成行。 */
   h1, h2, h3, .assistant-empty-title { text-wrap: balance; }
   p, small, .subtitle, .helper, .assistant-answer, .assistant-notice, .assistant-nudge-text, .assistant-empty-hint { text-wrap: pretty; }
+  .melody-score .score-summary { text-wrap: nowrap; }
   /* 助手输入框：层次与聚焦反馈。 */
   .assistant-composer > div { box-shadow: var(--app-shadow-composer); transition: box-shadow 220ms var(--app-ease-swift); }
   .assistant-composer:hover > div { box-shadow: var(--app-shadow-composer-hover); }

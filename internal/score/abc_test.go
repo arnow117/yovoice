@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"yovoice/internal/schema"
 )
 
 const sampleABC = `X:1
@@ -196,5 +197,52 @@ B32|e32-|e32|Z|`, 1)
 		if !slices.Contains(after.Ins().Notes, n) {
 			t.Fatalf("人声音符 %+v 没有原样保留\n%s", n, out)
 		}
+	}
+}
+
+// 谱中途夹一小节更长的拍子（4/4 里的 9/8）时，转换出的编曲乐谱仍然合规，音按绝对时间排进 4/4 小节网格。
+func TestABCScoreWithLongerMeterBar(t *testing.T) {
+	text := `X:1
+T:
+M:4/4
+L:1/32
+Q:1/4=69
+V: Vocal clef=treble name="Vocal Melody" snm="Vocal"
+V: Ins clef=treble name="Ins Melody" snm="Inst."
+K:G
+% verse
+V: Vocal
+"Em"E32|
+V: Ins
+Z|
+V: Vocal
+M:9/8
+"Am7"z6D2E4G4"D"A4G4F4D4B,4|
+V: Ins
+M:9/8
+Z|
+% outro
+V: Vocal
+M:4/4
+"D"D8z8G8E8|
+V: Ins
+M:4/4
+Z|
+`
+	s, e := ParseABC(text)
+	if e != nil {
+		t.Fatal(e)
+	}
+	score := s.Score()
+	if issue := schema.ScoreIssue(&score); issue != "" {
+		t.Fatal(issue)
+	}
+	// 第三小节的 D 从第 4+4.5=8.5 拍之后开始，落在网格第 3 小节第 1.5 拍。
+	last := score.Tracks[0].Notes[len(score.Tracks[0].Notes)-3]
+	if last.Pitch != 62 || last.Bar != 3 || last.Beat != 1.5 {
+		t.Fatalf("%+v", score.Tracks[0].Notes)
+	}
+	if len(score.Sections) != 2 || score.Sections[1].Start != 3 || score.Sections[1].End != 4 {
+		t.Fatalf("%+v", score.Sections)
 	}
 }

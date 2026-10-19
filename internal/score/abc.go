@@ -581,7 +581,14 @@ func chordPitches(name string) (int, []int, bool) {
 func (s *ABCScore) Score() schema.Score {
 	out := schema.Score{Tempo: float64(s.Tempo), TimeSignature: []int{s.Meter[0], s.Meter[1]}, Key: abcKeyName(s.Key)}
 	bars := s.Vocal().Bars
+	// 编曲乐谱只有一个拍号：谱中途改成更长的拍子（如 4/4 里夹一小节 9/8）时，改按绝对时间排到固定小节网格上，
+	// 保证每个音都落在小节内、试听时间不变；只有这种谱的小节号会与谱面略有出入。
+	grid := s.Meter[0] * ABCTicksPerWhole / s.Meter[1]
+	regular := !slices.ContainsFunc(bars, func(b ABCBar) bool { return b.Length > grid })
 	locate := func(at int) (int, float64) {
+		if !regular {
+			return at/grid + 1, 1 + float64(at%grid)/abcQuarter
+		}
 		i, _ := slices.BinarySearchFunc(bars, at, func(b ABCBar, t int) int {
 			if t < b.Start {
 				return 1
@@ -593,6 +600,15 @@ func (s *ABCScore) Score() schema.Score {
 		})
 		i = min(i, len(bars)-1)
 		return i + 1, 1 + float64(at-bars[i].Start)/abcQuarter
+	}
+	// barEnd 是 at 所在小节的结束位置，和弦铺底在这里切开。
+	barEnd := func(at int) int {
+		if !regular {
+			return (at/grid + 1) * grid
+		}
+		bar, _ := locate(at)
+		b := bars[bar-1]
+		return b.Start + b.Length
 	}
 	melody := func(id, name, role string, program, velocity int, notes []ABCNote) {
 		if len(notes) == 0 {
@@ -623,8 +639,7 @@ func (s *ABCScore) Score() schema.Score {
 		}
 		for at := ch.At; at < stop; {
 			bar, beat := locate(at)
-			b := bars[bar-1]
-			until := min(stop, b.Start+b.Length)
+			until := min(stop, barEnd(at))
 			length := float64(until-at) / abcQuarter
 			for _, p := range tones {
 				pad.Notes = append(pad.Notes, schema.ScoreNote{Bar: bar, Beat: beat, Pitch: p, Length: length, Velocity: 64})
@@ -636,13 +651,23 @@ func (s *ABCScore) Score() schema.Score {
 	if len(pad.Notes) > 0 {
 		out.Tracks = append(out.Tracks, pad, bass)
 	}
-	for i, section := range s.Sections {
-		last := s.Bars()
-		if i+1 < len(s.Sections) {
-			last = s.Sections[i+1].Bar - 1
+	// 段落起止换算到同一套小节号上。
+	at := func(bar int) int {
+		if bar > len(bars) {
+			return s.Vocal().time
 		}
-		if last >= section.Bar {
-			out.Sections = append(out.Sections, schema.ScoreSection{Name: section.Name, Start: section.Bar, End: last})
+		return bars[bar-1].Start
+	}
+	lastBar, _ := locate(max(s.Vocal().time-1, 0))
+	for i, section := range s.Sections {
+		start, _ := locate(at(section.Bar))
+		last := lastBar
+		if i+1 < len(s.Sections) {
+			next, _ := locate(at(s.Sections[i+1].Bar))
+			last = next - 1
+		}
+		if last >= start {
+			out.Sections = append(out.Sections, schema.ScoreSection{Name: section.Name, Start: start, End: last})
 		}
 	}
 	return out

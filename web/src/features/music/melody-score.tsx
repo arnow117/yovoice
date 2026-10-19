@@ -32,15 +32,14 @@ function useInspection(abc: string) {
 
 // 旋律谱：YuE2 先按歌词写出旋律与和弦（或从一首歌提取旋律做翻唱），在这里看轨道、改谱面或让创作助手改，
 // 然后按谱生成整首歌。参照 YuE 官方的 ABC 方言：人声行带和弦、伴奏行写配器动机，两行成组。
-export function MelodyScore({ draft, state, change, play }: {
-  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; play: (track: Track) => void;
+export function MelodyScore({ draft, state, change, play, onError }: {
+  draft: Draft; state: State; change: (patch: Partial<Draft>) => void; play: (track: Track) => void; onError: (message: string) => void;
 }) {
   const t = useTranslator();
   const abc = draft.abc ?? '';
   const inspection = useInspection(abc);
   const [view, setView] = useState<'staff' | 'tracks' | 'source'>('staff');
   const [notice, setNotice] = useState<Notice | null>(null);
-  const [error, setError] = useState('');
   const [tempo, setTempo] = useState('');
   const [selected, setSelected] = useState<string>();
   const audio = useRef<HTMLInputElement>(null);
@@ -52,8 +51,9 @@ export function MelodyScore({ draft, state, change, play }: {
   const pending = state.melody?.projectId === draft.id ? state.melody : undefined;
   useEffect(() => { setTempo(inspection?.tempo ? String(inspection.tempo) : ''); }, [inspection?.tempo]);
 
-  const fail = (e: unknown) => setError(formatCallError(t, e));
-  const attempt = async (job: () => Promise<unknown>) => { setError(''); try { await job(); } catch (e) { fail(e); } };
+  // 操作失败走全局的错误提示，不在谱面区域插入提示条。
+  const fail = (e: unknown) => onError(formatCallError(t, e));
+  const attempt = async (job: () => Promise<unknown>) => { try { await job(); } catch (e) { fail(e); } };
   const apply = (melody: MelodyResult) => {
     change({ abc: melody.abc });
     setNotice(melody.truncated ? { kind: 'truncated' } : melody.source === 'cover' ? { kind: 'cover' } : null);
@@ -92,7 +92,7 @@ export function MelodyScore({ draft, state, change, play }: {
       const picked = event.target.files?.[0]; event.target.value = '';
       if (!picked) return;
       if (picked.size > maxLength) { fail(new CallError('@yovoice.error.melodyInvalid', { code: 'length' })); return; }
-      change({ abc: (await picked.text()).replace(/\r\n?/g, '\n') }); setNotice(null); setError('');
+      change({ abc: (await picked.text()).replace(/\r\n?/g, '\n') }); setNotice(null);
     }} />
   </>;
   const progress = working ? <HStack className="melody-progress" gap={2} vAlign="center" role="status">
@@ -104,9 +104,9 @@ export function MelodyScore({ draft, state, change, play }: {
   return <VStack className="music-block melody-score" gap={3}>
     {pickers}
     <HStack vAlign="center" gap={2} wrap="wrap">
-      <VStack className="grow" gap={0}>
+      <VStack className="melody-heading" gap={0}>
         <h2>{t('@yovoice.melody.title')}</h2>
-        {abc.trim() ? <small className="score-summary">{summary || ' '}</small> : null}
+        {abc.trim() ? <small className="score-summary" title={summary}>{summary || ' '}</small> : null}
       </VStack>
       {abc.trim() ? <>
         <Button size="sm" variant="secondary" icon={listening ? <LoaderCircle className="generation-spinner" /> : <Play />} label={t(listening ? '@yovoice.melody.listening' : '@yovoice.melody.listen')} isDisabled={listening || !!inspection?.issue} onClick={() => void listen()} />
@@ -136,7 +136,6 @@ export function MelodyScore({ draft, state, change, play }: {
     </HStack> : null}
 
     {progress}
-    {error ? <HStack className="melody-notice" data-tone="danger" gap={2} vAlign="start" role="alert"><CircleAlert size={16} aria-hidden="true" /><small className="grow">{error}</small></HStack> : null}
 
     {/* 还没有谱时只留三个来源按钮，不再放说明文字。 */}
     {!abc.trim() ? working ? null : <HStack className="melody-empty" gap={2} wrap="wrap" vAlign="center">
