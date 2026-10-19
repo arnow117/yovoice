@@ -45,7 +45,9 @@ export const applyPresetTags = (preset: StylePreset, currentTags: readonly strin
 // 标签的界面语言释义，降低理解门槛；目录键由标签派生。
 export const tagHintKey = (tag: string) => `@yovoice.music.tagHint.${tag.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}` as const;
 
-export const lyricSections = ['intro', 'verse', 'pre-chorus', 'chorus', 'bridge', 'outro'] as const;
+// 段落标记：演唱段落在前，器乐段落在后；首字母大写与 YuE2 官方写法一致，ACE-Step 不区分大小写。
+export const lyricSections = ['Intro', 'Verse', 'Pre-Chorus', 'Chorus', 'Post-Chorus', 'Hook', 'Bridge', 'Final Chorus', 'Outro'] as const;
+export const instrumentalSections = ['Interlude', 'Break', 'Guitar Solo', 'Piano Solo', 'Instrumental'] as const;
 
 // 常用演唱语言放在前面，完整列表与 Go 的 schema.MusicLanguages 一致。
 export const musicLanguages = ['zh', 'en', 'yue', 'ja', 'ko', 'es', 'fr', 'de', 'pt', 'ru', 'it'] as const;

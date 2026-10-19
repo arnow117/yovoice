@@ -66,11 +66,19 @@ func TestGenerationKeepsMelody(t *testing.T) {
 	if wb.Store.Read().Drafts[0].Abc != "" {
 		t.Fatal("作品本身的谱不被引擎结果改写")
 	}
+	// 作品没有谱时，YuE2 写的谱作为出谱结果交给界面填入。
+	if m := wb.Store.Read().Melody; m == nil || m.ProjectID != d.ID || m.Abc != testkit.ABC || m.Source != "plan" {
+		t.Fatalf("%+v", m)
+	}
+	must(t, wb.DismissMelody(wb.Store.Read().Melody.ID))
 	d.Abc, _ = score.StripABCChords(testkit.ABC)
 	must(t, wb.Generate(d))
 	<-wb.Done()
 	if h := wb.Store.Read().History; len(h) != 2 || h[0].Settings.Abc != d.Abc {
 		t.Fatalf("%+v", h[0].Settings.Abc)
+	}
+	if wb.Store.Read().Melody != nil {
+		t.Fatal("作品已有谱时不再提供出谱结果")
 	}
 	var ce *msg.CallError
 	d.Abc = strings.Replace(testkit.ABC, "c16|", "c8|", 1)

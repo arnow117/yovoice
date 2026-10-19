@@ -16,7 +16,7 @@ YuE2 renders a song from a style prompt, lyrics and, optionally, a two-voice mel
 
 | Request | What to do |
 | --- | --- |
-| A song from style and lyrics | `update_work` style + lyrics, then `generate_work`. Without a score YuE2 writes one itself; the take stores it. |
+| A song from style and lyrics | `update_work` style + lyrics, then `generate_work`. Without a score YuE2 writes one itself; the take stores it and the work's empty score is filled with it after generation. To let the user review the score before singing, use the next row instead. |
 | A melody to review or edit before singing | `plan_melody` → `get_generation_status` until `melody` appears → `update_work` {"abc": melody.abc} → edit → `generate_work`. |
 | Cover a song (翻唱) | `cover_melody` {"id","path"} with a local audio file (needs SheetSage2; propose installing it otherwise) → apply its `melody.abc` → new style and lyrics → `generate_work`. Keeps the melody, not the singer's voice. |
 | Instrumental (纯音乐) | `update_work` {"instrumental": true}; lyrics optional (section tags only). Generating writes a score if there is none, moves the vocal melody to Ins and plays it. `transform_melody` {"op":"instrumental"} converts the stored score in place. |

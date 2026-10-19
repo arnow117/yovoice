@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strings"
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/diag"
@@ -234,6 +235,10 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 			return e
 		}
 		keep = true
+		// 作品还没有谱时，把 YuE2 这次自己写的谱交给界面填入旋律谱，和“先写旋律谱”的结果一样处理。
+		if generatedScore != "" && strings.TrimSpace(d.Abc) == "" {
+			_ = w.offerMelody(d.ID, "plan", generatedScore, false)
+		}
 		diag.Log(w.Store.Root, "generation.saved", "project_id", d.ID, "generation_id", id, "model_id", part.model.ID, "duration", duration)
 		if d.Kind == "" || d.Kind == "text" {
 			w.pruneTextVersions(d.ID, textVersionLimit)

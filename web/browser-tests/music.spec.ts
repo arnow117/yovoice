@@ -31,8 +31,8 @@ test('新建音乐作品：示例、风格标签、段落标记、纯音乐与�
   const lyrics = page.getByLabel('歌词', { exact: true });
   await lyrics.evaluate((el: HTMLTextAreaElement) => el.setSelectionRange(el.value.length, el.value.length));
   await page.getByRole('button', { name: '插入段落' }).click();
-  await page.getByRole('menuitem', { name: '[bridge]', exact: true }).click();
-  await expect(lyrics).toHaveValue(/一直等\n\n\[bridge\]\n$/);
+  await page.getByRole('menuitem', { name: '[Bridge]', exact: true }).click();
+  await expect(lyrics).toHaveValue(/一直等\n\n\[Bridge\]\n$/);
 
   // 音乐作品使用独立检查器：只列音乐模型，时长与语言写入作品。
   const model = page.getByRole('combobox', { name: '模型' });
@@ -48,7 +48,7 @@ test('新建音乐作品：示例、风格标签、段落标记、纯音乐与�
   await page.reload();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('voice-workbench-v1')!).drafts.find((d: { kind?: string }) => d.kind === 'music'));
   expect(saved).toMatchObject({ kind: 'music', modelId: 'ace-step-1.5-turbo-bf16', instrumental: true, synthesisLanguage: 'yue', modelOptions: { ace_step: { duration_seconds: 120 } } });
-  expect(saved.lyrics).toContain('[bridge]');
+  expect(saved.lyrics).toContain('[Bridge]');
   await expect(page.getByRole('radio', { name: '纯音乐' })).toBeChecked();
 
   // 未安装模型时生成直接打开“音乐模型”设置；配音作品的模型列表不包含音乐模型。
