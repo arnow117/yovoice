@@ -177,6 +177,8 @@ test('各语言目录与英文目录键一致，占位符相同', () => {
   for (const { id } of uiLocales) {
     const catalog = read(id);
     expect(Object.keys(catalog).sort(), id).toEqual(Object.keys(en).sort());
-    for (const [key, { defaultMessage }] of Object.entries(en)) expect(params(catalog[key].defaultMessage), `${id} ${key}`).toBe(params(defaultMessage));
+    // 先收集占位符不一致的键再一次断言，几千条逐个 expect 很慢。
+    const mismatched = Object.entries(en).filter(([key, { defaultMessage }]) => params(catalog[key].defaultMessage) !== params(defaultMessage)).map(([key]) => key);
+    expect(mismatched, id).toEqual([]);
   }
 });

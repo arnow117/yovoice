@@ -67,11 +67,8 @@ jobs:
           fi
           echo "YOVOICE_BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
       - run: pnpm --dir web install --frozen-lockfile
-      - run: pnpm --dir web exec playwright install chromium
-        if: ${{ !inputs.release && runner.os == 'Windows' }}
-      - run: pnpm --dir web run lint
-        if: ${{ !inputs.release && runner.os == 'Windows' }}
-      - run: go test -race ./...
+      # 竞态检测只在 Linux 上跑；Windows/macOS 只验证平台相关行为，不重复加 -race。
+      - run: go test ./...
         if: ${{ !inputs.release }}
       - run: python3 scripts/desktop/check-signing.py
         if: ${{ !inputs.release && runner.os == 'macOS' }}
@@ -80,8 +77,6 @@ jobs:
         run: |
           swift test --package-path desktop/macos
           python3 scripts/desktop/check-macos-update.py
-      - run: pnpm --dir web test
-        if: ${{ !inputs.release && runner.os == 'Windows' }}
       - name: Cache audio.cpp runtime
         uses: actions/cache@v4
         with:
@@ -229,6 +224,31 @@ jobs:
           path: web/test-results/
           retention-days: 7
 
+  # 前端检查与浏览器测试与平台无关，单独在 Linux 上并行跑，不拖慢打包任务。
+  web:
+    if: ${{ !inputs.release }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm --dir web install --frozen-lockfile
+      - run: pnpm --dir web exec playwright install --with-deps chromium
+      - run: pnpm --dir web run lint
+      - run: pnpm --dir web test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-results
+          path: web/test-results/
+          retention-days: 7
   linux-cli:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
