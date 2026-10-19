@@ -92,7 +92,7 @@ test('真实 WAV 导入、播放、裁剪和空状态', async ({ page }) => {
   await expect.poll(() => page.locator('footer audio').evaluate((el: HTMLAudioElement) => el.currentTime)).toBeCloseTo(1.5, 1);
   await page.getByRole('button', { name: '适应完整音轨' }).click();
   await expect(page.getByRole('button', { name: '缩小音轨' })).toBeDisabled();
-  expect(await lane.evaluate(el => el.scrollLeft)).toBe(0);
+  await expect.poll(() => lane.evaluate(el => el.scrollLeft)).toBe(0);
   await progress.fill('1');
   await expect.poll(() => page.locator('footer audio').evaluate((el: HTMLAudioElement) => el.currentTime)).toBeCloseTo(1, 1);
   await page.getByRole('button', { name: '回到开头' }).click();

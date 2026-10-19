@@ -105,7 +105,7 @@
   .astryx-app-shell-sidenav { width: var(--app-nav); min-width: 0; padding: 0; overflow: hidden; background: var(--app-paper); }
   .astryx-app-shell-content,.astryx-layout-content { min-width: 0; min-height: 0; }
   /* 内容区像一张放在纸色桌面上的白纸。 */
-  .app-sheet { flex: 1; height: 100%; min-height: 0; min-width: 0; margin: 0 var(--spacing-2) var(--spacing-2) 0; border-radius: calc(var(--radius-container) * 1.25); background: var(--app-white); box-shadow: var(--shadow-low); overflow: hidden; }
+  .app-sheet { flex: 1; height: calc(100% - var(--spacing-2)); min-height: 0; min-width: 0; margin: 0 var(--spacing-2) var(--spacing-2) 0; border-radius: calc(var(--radius-container) * 1.25); background: var(--app-white); box-shadow: var(--shadow-low); overflow: hidden; }
   .workbench .astryx-layout-content { background: transparent; }
   .sidebar { position: relative; width: 100%; min-width: 0; padding: var(--spacing-5) var(--spacing-4) var(--spacing-3); height: 100%; box-sizing: border-box; }
   .new-project.astryx-button { border-radius: var(--radius-element); background: var(--app-ink); color: var(--app-white); min-height: var(--spacing-10); border: 0; font-weight: var(--font-weight-medium); }
