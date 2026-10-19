@@ -1,10 +1,6 @@
 ; 由打包脚本传入版本、应用目录、输出文件名和经过签名校验的 WebView2 安装器。
 ; 完整安装包携带一个内核（CPU、CUDA 12.4 或 CUDA 13.3）；定义 AppOnly 时生成只含应用本体的更新包，
 ; 覆盖安装时保留已安装的内核。
-; 默认 lzma2；CI 日常构建只验证 CUDA 包能打出来，不上传，改用快速压缩省时间。
-#ifndef Compression
-  #define Compression "lzma2"
-#endif
 #ifndef OutputName
   #define OutputName "yovoice-windows-x64-setup"
 #endif
@@ -27,7 +23,7 @@ OutputBaseFilename={#OutputName}
 SetupIconFile=..\VoiceWorkbench\Resources\AppIcon.ico
 UninstallDisplayIcon={app}\yovoice.exe
 WizardStyle=modern
-Compression={#Compression}
+Compression=lzma2
 SolidCompression=yes
 
 [Tasks]
