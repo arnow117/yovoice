@@ -5,7 +5,7 @@
 REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹页面；依赖已交付的 FEAT-001。
 有效产品与工程上下文为 `.sdlc-v1/context/REQ-002.product.md` 和 `.sdlc-v1/context/FEAT-002.engineering.md`。
 范围包含桌面私有 RPC、临时录音与文件、档案管理、显式绑定生成及独立本地验证包；不改原 CLI/v1、State 或私有档案格式。
-当前业务提交 `a001a0f` 对应的新包已由主 Agent 使用正常 LaunchServices 启动和 Computer Use 验收：原生文件面板登记 A/B、两个独立已知查询及一个未知查询均正确，删除 B 后正常重启仍只保留 A。合计2次启动、5次本地单线程提取，653秒内完成清理；普通 State/Voices、源码、App/Web和固定资产三阶段一致，自有进程均退出。当前正式独立 Validate/Review 待执行；历史 smoke 显示失败仍保留，原始证据及各层边界见工程上下文 Validation。
+当前业务提交 `a001a0f` 对应的新包已由主 Agent 使用正常 LaunchServices 启动和 Computer Use 验收：原生文件面板登记 A/B、两个独立已知查询及一个未知查询均正确，删除 B 后正常重启仍只保留 A。合计2次启动、5次本地单线程提取，715秒内完成全部清理；普通 State/Voices、源码、App/Web和固定资产三阶段一致，自有进程均退出。当前正式独立 Validate/Review 待执行；历史 smoke 显示失败仍保留，原始证据及各层边界见工程上下文 Validation。
 新的 Web runner 与本地 Mac 验证命令已实际执行，入口和证据边界见下表。
 用户已授权本轮功能分支 commit/push、必要修正与独立正式验证/评审；本次完整原生旅程已通过并消费完一次预算，不再自动启动 App 或模型。后续按已有证据适用性执行独立阶段；主线合并或二进制发行仍不在本次范围内。
 
@@ -85,6 +85,8 @@ REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹
 | TTS 自动听测 | `none` | 假引擎只验证参数/生命周期，不验证音质；目标设备上的真实生成及人工听测仍需单独准备 |
 
 ## 验证资产、环境和证据边界
+
+Go 覆盖率按原生 `go test -coverprofile` 的 statements 口径验收：recognition 至少80%；FEAT-002 新增/修改的 desktop/workbench 生产代码相交块至少80%，分母、基线与profile须同时保存，不能用整包比例替代。Go原生工具不统计分支百分比，本项目不以估算值冒充70%分支；对本次RPC入口、输入拒绝、取消/迟到、错误脱敏和持久化失败逐项记录实际行为测试与仍未覆盖分支。其他语言按已有适用测试策略和场景断言记录；无法统计的量化范围明确未验证，不声称数值达标。此为2026-10-19主Agent基于现有Go原生工具明确的工程统计口径，不取消既有69.36%缺口，必须补齐必要测试后再验。
 
 | 层 | 当前资产 / 输出 | 结论边界与准备缺口 |
 |---|---|---|

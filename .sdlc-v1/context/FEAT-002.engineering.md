@@ -4,6 +4,14 @@
 
 ## Plan
 
+### 2026-10-19 桌面 RPC 覆盖缺口补齐
+
+独立 Validate 的真实 Go profile 显示，822c0a4→f661468 的 desktop/workbench 新增或修改生产行相交块中，120/173语句执行（69.36%）；未覆盖集中在 `callSpeaker` 的登记/识别/删除/生成与取消入口及部分错误映射。整包比例不能代替改动范围，原生未插桩也不能虚增 Go 覆盖。这是具体测试缺口，不是已观察到的生产失败。所有功能通过、原始profile、失败历史和已用诊断 allowance 保留。
+
+沿同一TASK，由可用Terra worker仅补必要 Go 测试，复用现有隔离 Workbench、fake runner/engine及HTTP/RPC夹具，在真实调用入口验证合法源分流、严格解码、错误脱敏/恢复码、精确取消及无意外持久化；不为数值添加只镜像实现的断言。写边界仅 `internal/desktop/*_test.go`、必要 `internal/workbench/*_test.go`，禁止修改生产、Web/Swift、模型、公开契约及任何构建receipt。原实施者在重启后不可用，caretaker曾因模型容量失败；新worker仅承担这个可独立验收的测试补齐单元，如Terra仍不可用则如实报告，不由主替代代码实现。
+
+完成条件为关键入口/失败分支有可观察断言，定向测试、formatter/vet与完整离线race通过；重采实际新增/修改Go范围的原生覆盖，按project明确的Go原生口径，新增/修改desktop/workbench生产块statements覆盖至少80%，不把语句或全包比例冒称行覆盖。Go原生分支百分比不能统计时记录未验证及行为分支清单，不填造70%数字；主在补测结果出来之前明确此口径，沿用recognition原生覆盖惯例，仍须实际补测解决69.36%缺口，由独立Validate判断必要行为分支是否有遗漏。测试自身等待必须有限，不启动App、模型或provider，不下载；重型检查串行并核对自有资源退出。若发现生产缺陷或两次无新证据的测试修正仍不能推进，返回主，不扩大实施或循环。测试提交后，生产输入未变的原生/App/Web证据可按逐文件核对复用，独立重验修改后的Go，再Review。
+
 ### 2026-10-19 使用说明与时延证据范围调整
 
 用户明确决定“本次只验功能，逐条时延留作后续补测”，对应 REQ-002 的 SCN-UI-22 和质量要求已同步；其他22场景义务及有限超时/失败即停保持。本节 supersedes 原方案的逐条推理耗时要求：本次记录整段真实操作耗时，不作延迟基准结论，也不再启动App或模型补数据。保留全部失败历史及已用诊断 allowance。
@@ -349,6 +357,14 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 ## Build evidence
 
+### 2026-10-19 RPC 行为测试补齐
+
+Terra worker `/root/speaker_rpc_test_completion` 仅新增 `internal/desktop/speaker_rpc_test.go`。主已逐段审查：通过真实Call入口校验base64/voiceId登记与识别失败时的公开恢复错误及State/Voices/档案/临时文件不变；验证runtime/list/幂等delete/cancel公开结果、生成档案缺失、未知字段/多JSON值/调用者注入绑定/非法取消ID拒绝；通过HTTP验证第二个昂贵请求在dispatch前返回busy，首请求终态释放取消句柄。既有取消回归保持，未改生产/构建输入。
+
+worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、GOMAXPROCS=2的完整离线 `go test -json -race -p 1 ./... -count=1 -timeout=90s` exit0（约62.6秒），Go1.26.3 darwin/arm64；无自有go test/yovoice/speaker残留。原始coverage与行为清单位于 `artifacts/verification/feature-002-go-rpc-tests-20261019/`；完整检查归档继续由原worker整理，不伪造未保留的输出或时间，提交后独立Validate将实际重验Go并保存原件。
+
+主独立把新profile与原173个生产block逐项对应，无缺失block，145/173=83.815% statements，符合本项目补测前已明确的80%原生Go约定。`callSpeaker` 从47.1%提高至84.3%；原生Go分支百分比明确NOT_AVAILABLE。剩余未命中分支由原始observation列出，不把数值通过当作所有分支已覆盖；必要行为仍由完整core/RPC/E2E/native证据及独立Validate/Review判定。当前App/模型和生产代码未变化，不重建、不重跑已通过的真实旅程。测试差异和必要检查经主接受后提交，同一验证者独立重验修改后的Go。
+
 ### 2026-10-15 中断核对及配置定位
 
 上轮 `smoke-run-3/main-result.json` 为 delete confirmation 超时；`final-current/smoke-run-4-current/main-result.json` 为 speaker page runtime configuration 超时，service 日志最终于 00:58:03 正常停止。原 worker 的交接记忆停留在该文件出现前，不能以其“无 main 结果、进程仍在”的旧观察替代磁盘终态。已保留全部失败目录。
@@ -386,7 +402,24 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 ## Validation
 
-当前业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的真实原生文件功能旅程已由主 Agent 验收通过；逐条时延按2026-10-19用户决定留作后续补测。首次当前独立 Validate 的62项E2E通过，但因唯一使用文档缺少已跑通的正常启动路径而记录 fail / INCONCLUSIVE；指南已返回同一 Task 作简单文档修正，正式 Validate/Review 待后续接受。此前 smoke 初始化显示失败及旧正式验证/评审历史保留，不能代表当前提交结果。物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+当前业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的真实原生文件功能旅程已由主 Agent 验收通过；逐条时延按2026-10-19用户决定留作后续补测。当前独立 Validate 的功能检查已通过，指南缺口已在 `f661468` 消除，但覆盖率必要证据未满足而再次记录 fail / INCONCLUSIVE，返回同一Task补必要Go测试；正式 Review 未执行。此前 smoke 初始化显示失败及旧正式验证/评审历史保留，不能代表当前提交结果。物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+
+### 2026-10-19 独立 Validate 续验与覆盖缺口
+
+独立验证者在 `f66146805734c9dfa78ff423781e4b35fcd79b24`、业务干净的工作树续验，原始逐条command/cwd/env/revision/PID/起止时间与exit保存在 `artifacts/verification/feature-002-formal-validation-20261019/independent-001/resumed/`。本轮无App/模型/provider/下载，重型检查GOMAXPROCS=2、单包串行。主已核对全部14个 `*.command.json` 的真实 exitCode=0；最终记录的14个PID/PGID已退出，4173/54851/54852无监听。
+
+| 实际检查 | 结果 |
+|---|---|
+| `gofmt -l cmd internal`、`git diff --check`、离线 `go vet -p 1 ./...` | exit 0，格式输出为空 |
+| `GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local GOCACHE=/private/tmp/yovoice-feat002-formal-20261019-resumed-go-cache GOMAXPROCS=2 go test -json -race -p 1 ./... -count=1 -timeout=90s`，UTC13:08:21–13:09:52 | exit 0、90.808秒，218 pass/12既有skip/0 fail |
+| `web/` 的本地eslint、tsc -b、vite build | 全部exit 0，15项dist与原App逐文件一致 |
+| `make check-recognition`、recognition `go test -coverprofile` | Python4+1通过，Go85.3% statements，满足该模块明确>=80%要求 |
+| `swift test --package-path desktop/macos --jobs 1`、桌面脚本替身检查 | XCTest17、脚本24通过 |
+| 原包 `codesign --verify --deep --strict`、usage shell块 `sh -n` | 全部exit 0 |
+
+复用本独立阶段首轮同输入E2E62项；另外依据相同相关输入复用Build的browser59项，后者不称为本轮新执行。源码385文件与原receipt差异仅4项SDLC及usage，原App/host/service/Web、固定资产及三阶段普通State一致；当前源码严格receipt校验不适用且未声称通过。三条查询分数与FEAT-001固定样本基线差值均为0，真实Cua图像只引用主已查看的对话原件。
+
+correctness尚未通过：可统计的desktop/workbench新增或修改生产行相交块为120/173 statements=69.36%，不是行覆盖或全包比例；原生Go不输出分支百分比。原件为 `desktop-workbench.cover`、逐函数日志与 `changed-go-coverage-observation.json`。未把真实App未插桩的执行填入统计，也未为通过补写阈值。按独立结果记录validation fail；具体测试补齐范围见当前Plan，其他通过证据继续保留其适用边界。
 
 ### 2026-10-19 独立 Validate 首轮与文档修正
 
@@ -398,7 +431,7 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 用户重启后要求聚焦当前验收；此前尚未消费的“一次、失败即停”授权继续适用。Terra caretaker 在运行时返回 Selected model is at capacity，本轮不涉及代码实现，主直接完成真实桌面集成验收。原始证据在 `artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-001/`，总表为 `primary-native-assessment.json`，公开 UI 结果为 `ui-results.json`。实际使用入口为 `docs/usage.md` 的声纹档案故事：从原生文件面板选择 eval-manifest 固定的两段登记和三段独立查询样本，不注入业务 JS，不直接调用 RPC 替代界面操作。参数来自验证包既有配置，UI 确认本地 WeSpeaker、CPU 单线程、T=0.6/M=0.05/120秒。
 
-两次启动均为 `/usr/bin/env -u WORKBENCH_SMOKE_SCRIPT /usr/bin/open -W --stdout <本轮日志> --stderr <本轮日志> --env WORKBENCH_DATA=<本轮私有data> --env WORKBENCH_DEBUG=1 --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env MKL_NUM_THREADS=1 <同一最终App>`；第一次完整参数见 `launch-request.json`，重启使用相同 App/data。2026-10-19 20:12:04 开始，20:22:09 第二次正常退出，20:22:57 清理核对结束（Asia/Shanghai），共653秒，未超过20分钟；两个 open 会话均 exit 0。合计2次宿主启动、5次模型提取，无重试/云端/下载/TTS/物理麦克风。主查看 CUA 原生窗口截图及 AX；截图原件在本对话工具输出，未声称存在本地 PNG。
+两次启动均为 `/usr/bin/env -u WORKBENCH_SMOKE_SCRIPT /usr/bin/open -W --stdout <本轮日志> --stderr <本轮日志> --env WORKBENCH_DATA=<本轮私有data> --env WORKBENCH_DEBUG=1 --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env MKL_NUM_THREADS=1 <同一最终App>`；第一次完整参数见 `launch-request.json`，重启使用相同 App/data。2026-10-19 20:12:04 开始，20:22:09 第二次正常退出，20:22:57进程清理核对结束，20:23:59完成私有特征删除及记录（Asia/Shanghai）；App旅程605秒、进程核对653秒、全部清理715秒，未超过20分钟；两个 open 会话均 exit 0。合计2次宿主启动、5次模型提取，无重试/云端/下载/TTS/物理麦克风。主查看 CUA 原生窗口截图及 AX；截图原件在本对话工具输出，未声称存在本地 PNG。
 
 | 当前条件 | 实际结果 | 证据 |
 |---|---|---|
@@ -412,7 +445,7 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 当前 HEAD `f83701bc…` 及运行前工作树相对 `a001a0f` 只有 `.sdlc-v1/**` 事实记录变化；App/host/service/Web 与原 receipt 一致，strict codesign exit 0，原 receipt 不改写。完整 App 指纹仍为 `7f1e692377ffc9ecccc7c548097908671d00df8ec6d7c7987e39f33acc12ac9d`，旧构建源码385文件指纹仍按原 receipt 保存，运行时完整源码快照另外记录。当前方案改用真实 Computer Use 旅程，覆盖相同产品义务并增加原生选文件验证；不改变22场景、接口、阈值或产品语义，因此同业务输入的既有确定性 Build 证据仍适用，待独立 Validate 再判定完整覆盖。
 
-逐次推理耗时未单独保存，记为 NOT_COLLECTED，不作延迟基准结论；记录的是整段实际桌面操作和清理时间。三次查询分母为3，结果只代表固定三段样本，不外推人群准确率。原生面板首次快捷键过早、一次不支持的滚动参数和退出前 CUA stale-state 拒绝均发生在业务动作前或之后；刷新实际状态后继续同一旅程，未产生额外提取或启动，也没有失败的功能断言。刚进入重启页面时 AX 早于异步配置/列表加载，后续稳定 AX 和真实截图均确认 ready 与唯一 A。正式 Validate/Review 不能以旧通过替代当前阶段；原有失败历史、已用诊断 allowance 保留。
+逐次推理耗时未单独保存，记为 NOT_COLLECTED，不作延迟基准结论；记录的是整段实际桌面操作和清理时间。原先653秒只对应进程核对，私有特征清理后全程为715秒，原始报告已据文件完成时间更正，不改变原开始时间或预算。三次查询分母为3，结果只代表固定三段样本，不外推人群准确率。原生面板首次快捷键过早、一次不支持的滚动参数和退出前 CUA stale-state 拒绝均发生在业务动作前或之后；刷新实际状态后继续同一旅程，未产生额外提取或启动，也没有失败的功能断言。刚进入重启页面时 AX 早于异步配置/列表加载，后续稳定 AX 和真实截图均确认 ready 与唯一 A。正式 Validate/Review 不能以旧通过替代当前阶段；原有失败历史、已用诊断 allowance 保留。
 
 ### 2026-10-19 正常启动与 Computer Use 桌面显示通过
 
