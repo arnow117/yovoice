@@ -433,7 +433,6 @@
   .score-editor h2 { font-size: var(--app-ui-font); }
   .score-summary { color: var(--app-muted); font-family: var(--font-family-code); font-variant-numeric: tabular-nums; }
   /* 旋律谱标题下的概要只占一行，放不下时省略，完整内容在悬停提示里（不换行写在后面的排版层里）。 */
-  .melody-heading { flex: 1 1 0; min-width: calc(var(--spacing-10) * 3); }
   .melody-score .score-summary { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .score-empty { padding: var(--spacing-8) var(--spacing-4); border-radius: var(--radius-container); background: var(--app-surface); color: var(--app-muted); text-align: center; line-height: 1.8; }
   .score-sections { border-radius: var(--radius-container); background: var(--app-surface); }
@@ -653,8 +652,12 @@
   .music-tag-group-title { color: var(--app-muted); font-size: var(--app-small-font); font-weight: var(--font-weight-medium); }
 
   /* 旋律谱：放在歌词之后，轨道视图只读、轨头收窄；谱面源码用等宽字体，提示条按语气着色。 */
-  .melody-score .number-field.compact { gap: var(--spacing-1); color: var(--app-muted); }
-  .melody-score .number-field.compact input { width: calc(var(--spacing-10) * 1.5); min-height: var(--spacing-8); padding: 0 var(--spacing-1); }
+  /* 信息行：试听按钮、单行概要、速度输入同高对齐；速度框平时无边框，悬停或聚焦时才显出输入框。 */
+  .melody-meta { min-width: 0; }
+  .melody-score .melody-tempo { flex: none; gap: var(--spacing-1); color: var(--app-muted); }
+  .melody-score .melody-tempo input { width: calc(var(--spacing-10) * 1.2); min-height: var(--spacing-8); padding: 0 var(--spacing-1); background: transparent; border-color: transparent; color: var(--app-ink); appearance: textfield; transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard); }
+  .melody-score .melody-tempo input::-webkit-inner-spin-button, .melody-score .melody-tempo input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+  .melody-score .melody-tempo:hover input, .melody-score .melody-tempo input:focus { background: var(--app-surface); border-color: var(--app-line); }
   /* 五线谱、轨道、ABC 三种视图同一高度，切换时页面不变短，不会跳回歌词。 */
   .melody-score { --melody-view-height: max(calc(var(--spacing-10) * 8), 55vh); }
   .melody-score .score-arrangement { margin: 0; height: var(--melody-view-height); max-height: none; }

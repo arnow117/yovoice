@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
@@ -41,6 +41,24 @@ export function MelodyScore({ draft, state, change, onError }: {
   const abc = draft.abc ?? '';
   const inspection = useInspection(abc);
   const [view, setView] = useState<View>('staff');
+  const root = useRef<HTMLDivElement>(null);
+  const anchor = useRef<{ element: HTMLElement; top: number } | null>(null);
+  // WebKit 在替换视图内容时会把外层滚动区顶回上方（跳到歌词）；切换前记住滚动位置，换完后放回去。
+  const switchView = (next: View) => {
+    let element = root.current?.parentElement ?? null;
+    while (element && !(element.scrollHeight > element.clientHeight && /auto|scroll/.test(getComputedStyle(element).overflowY))) element = element.parentElement;
+    anchor.current = element ? { element, top: element.scrollTop } : null;
+    setView(next);
+  };
+  useLayoutEffect(() => {
+    const saved = anchor.current;
+    if (!saved) return;
+    const restore = () => { if (saved.element.scrollTop !== saved.top) saved.element.scrollTop = saved.top; };
+    restore();
+    const frame = requestAnimationFrame(restore);
+    const timer = setTimeout(() => { restore(); anchor.current = null; }, 300);
+    return () => { cancelAnimationFrame(frame); clearTimeout(timer); };
+  }, [view]);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [tempo, setTempo] = useState('');
   const [selected, setSelected] = useState<string>();
@@ -59,7 +77,7 @@ export function MelodyScore({ draft, state, change, onError }: {
   const apply = (melody: MelodyResult) => {
     change({ abc: melody.abc });
     setNotice(melody.truncated ? { kind: 'truncated' } : melody.source === 'cover' ? { kind: 'cover' } : null);
-    setView('tracks');
+    switchView('tracks');
     void call('melody.dismiss', { id: melody.id });
   };
   // 作品里还没有谱时，写好的谱直接填入；已有谱时等用户决定是否替换。
@@ -75,7 +93,7 @@ export function MelodyScore({ draft, state, change, onError }: {
   const canPlan = !busy && !!draft.text.trim() && (draft.instrumental || !!draft.lyrics?.trim());
   // 谱里还有人声旋律时，菜单里可以把它转给乐器。
   const sung = !!inspection?.score?.tracks.some(track => track.id === 'vocal');
-  const summary = inspection && !inspection.issue ? [inspection.key, `${inspection.tempo} BPM`, inspection.meter?.join('/'), t('@yovoice.score.barCount', { count: inspection.bars ?? 0 }), formatTime(inspection.seconds ?? 0), t(inspection.chords ? '@yovoice.melody.withChords' : '@yovoice.melody.melodyOnly')].filter(Boolean).join(' · ') : '';
+  const summary = inspection && !inspection.issue ? [inspection.key, inspection.meter?.join('/'), t('@yovoice.score.barCount', { count: inspection.bars ?? 0 }), formatTime(inspection.seconds ?? 0), t(inspection.chords ? '@yovoice.melody.withChords' : '@yovoice.melody.melodyOnly')].filter(Boolean).join(' · ') : '';
   const score = inspection?.score ? { ...inspection.score, tracks: inspection.score.tracks.map(track => ({ ...track, name: t(`@yovoice.melody.track.${track.id}`) })) } : undefined;
 
   const pickers = <>
@@ -96,22 +114,13 @@ export function MelodyScore({ draft, state, change, onError }: {
     <Button size="sm" label={t('@yovoice.action.cancel')} onClick={() => void attempt(() => call('operation.cancel'))} />
   </HStack> : null;
 
-  return <VStack className="music-block melody-score" gap={3}>
+  return <VStack ref={root} className="music-block melody-score" gap={3}>
     {pickers}
-    <HStack vAlign="center" gap={2} wrap="wrap">
-      <VStack className="melody-heading" gap={0}>
-        <h2>{t('@yovoice.melody.title')}</h2>
-        {abc.trim() ? <small className="score-summary" title={summary}>{summary || ' '}</small> : null}
-      </VStack>
+    {/* 标题行与歌词区一致：左侧标题，右侧视图切换和「⋯」谱面操作。 */}
+    <HStack vAlign="center" gap={2}>
+      <h2 className="grow">{t('@yovoice.melody.title')}</h2>
       {abc.trim() ? <>
-        <Button size="sm" variant="secondary" isIconOnly className="melody-listen"
-          icon={preview.status === 'rendering' ? <LoaderCircle className="generation-spinner" /> : playing ? <Pause /> : <Play />}
-          label={t(preview.status === 'rendering' ? '@yovoice.melody.listening' : playing ? '@yovoice.melody.pause' : '@yovoice.melody.listen')}
-          tooltip={t(preview.status === 'rendering' ? '@yovoice.melody.listening' : playing ? '@yovoice.melody.pause' : '@yovoice.melody.listen')}
-          isDisabled={preview.status === 'rendering' || !!inspection?.issue} onClick={() => void preview.toggle()} />
-        <label className="number-field compact" title={t('@yovoice.melody.tempo')}><input type="number" aria-label={t('@yovoice.melody.tempo')} min={30} max={300} step={1} value={tempo} disabled={!inspection?.tempo}
-          onChange={event => setTempo(event.target.value)} onBlur={commitTempo} onKeyDown={event => { if (event.key === 'Enter') commitTempo(); }} /><small aria-hidden="true">BPM</small></label>
-        <SegmentedControl label={t('@yovoice.melody.view')} size="sm" value={view} onChange={value => setView(value as View)}>
+        <SegmentedControl label={t('@yovoice.melody.view')} size="sm" value={view} onChange={value => switchView(value as View)}>
           <SegmentedControlItem value="staff" label={t('@yovoice.melody.viewStaff')} />
           <SegmentedControlItem value="tracks" label={t('@yovoice.melody.viewTracks')} />
           <SegmentedControlItem value="source" label={t('@yovoice.melody.viewSource')} />
@@ -127,6 +136,17 @@ export function MelodyScore({ draft, state, change, onError }: {
         ]} />
       </> : null}
     </HStack>
+    {/* 谱面信息行：试听、调号拍号等概要，右侧可直接改速度。 */}
+    {abc.trim() ? <HStack className="melody-meta" vAlign="center" gap={2}>
+      <Button size="sm" variant="secondary" isIconOnly className="melody-listen"
+        icon={preview.status === 'rendering' ? <LoaderCircle className="generation-spinner" /> : playing ? <Pause /> : <Play />}
+        label={t(preview.status === 'rendering' ? '@yovoice.melody.listening' : playing ? '@yovoice.melody.pause' : '@yovoice.melody.listen')}
+        tooltip={t(preview.status === 'rendering' ? '@yovoice.melody.listening' : playing ? '@yovoice.melody.pause' : '@yovoice.melody.listen')}
+        isDisabled={preview.status === 'rendering' || !!inspection?.issue} onClick={() => void preview.toggle()} />
+      <small className="score-summary grow" title={summary}>{summary || ' '}</small>
+      <label className="number-field compact melody-tempo" title={t('@yovoice.melody.tempo')}><input type="number" aria-label={t('@yovoice.melody.tempo')} min={30} max={300} step={1} value={tempo} disabled={!inspection?.tempo}
+        onChange={event => setTempo(event.target.value)} onBlur={commitTempo} onKeyDown={event => { if (event.key === 'Enter') commitTempo(); }} /><small aria-hidden="true">BPM</small></label>
+    </HStack> : null}
 
     {pending && abc.trim() ? <HStack className="melody-notice" data-tone="info" gap={3} vAlign="center" wrap="wrap" role="status">
       <VStack className="grow" gap={0}><b>{t(pending.source === 'cover' ? '@yovoice.melody.readyCover' : '@yovoice.melody.readyPlan')}</b><small>{t('@yovoice.melody.readyReplace')}</small></VStack>
