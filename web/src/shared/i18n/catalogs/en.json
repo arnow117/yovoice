@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "Melody score"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "YuE2 can first write the vocal melody and chords for your lyrics. Review and edit the score, then generate the song from it. You can also take the melody of an existing song for a cover."
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "Write melody score"
   },

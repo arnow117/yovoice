@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "Bản nhạc giai điệu"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "YuE2 có thể viết trước giai điệu giọng hát và hợp âm cho lời bài hát. Xem và sửa bản nhạc rồi tạo bài hát. Bạn cũng có thể lấy giai điệu của một bài có sẵn để cover."
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "Viết bản nhạc"
   },

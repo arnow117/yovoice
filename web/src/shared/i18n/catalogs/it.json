@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "Spartito della melodia"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "YuE2 può scrivere prima la melodia vocale e gli accordi del tuo testo. Rivedi e modifica lo spartito, poi genera il brano. Puoi anche prendere la melodia di un brano esistente per una cover."
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "Scrivi spartito"
   },

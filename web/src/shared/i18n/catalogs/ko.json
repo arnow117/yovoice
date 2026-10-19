@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "멜로디 악보"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "YuE2는 가사에 맞춰 보컬 멜로디와 코드를 먼저 쓸 수 있습니다. 악보를 확인하고 고친 다음 곡을 생성하세요. 기존 곡의 멜로디를 가져와 커버할 수도 있습니다."
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "멜로디 악보 쓰기"
   },

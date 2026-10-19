@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "Partitura de melodía"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "YuE2 puede escribir primero la melodía vocal y los acordes de tu letra. Revisa y edita la partitura y genera la canción a partir de ella. También puedes tomar la melodía de una canción existente para hacer una versión."
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "Escribir partitura"
   },

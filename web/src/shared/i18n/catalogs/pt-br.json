@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "Partitura da melodia"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "O YuE2 pode escrever primeiro a melodia vocal e os acordes da sua letra. Revise e edite a partitura e depois gere a música. Você também pode usar a melodia de uma música existente para fazer um cover."
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "Escrever partitura"
   },

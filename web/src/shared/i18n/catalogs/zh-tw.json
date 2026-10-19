@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "旋律譜"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "YuE2 可以先按歌詞寫出人聲旋律與和弦，你看過、改過後再按譜生成整首歌；也可以擷取一首歌的旋律來翻唱。"
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "先寫旋律譜"
   },

@@ -680,7 +680,6 @@
   .melody-notice[data-tone="danger"] { border-color: color-mix(in srgb, var(--color-text-red) 45%, var(--app-line)); }
   .melody-notice[data-tone="danger"] > svg { color: var(--color-text-red); }
   .melody-notice[data-tone="warning"] { border-color: color-mix(in srgb, var(--color-text-orange) 45%, var(--app-line)); }
-  .melody-empty small { color: var(--app-muted); }
   /* 编曲轨道视图：单行轨头固定宽度，轨道向右延伸贴紧检查器，右侧音块与段落标尺共用时间轴。 */
   /* 轨道区放在底部全宽面板里，与下方播放器同宽，横向贯穿检查器下方。 */
   .score-arrangement { min-width: 0; flex: none; max-height: 45vh; margin: var(--spacing-2) var(--spacing-3) 0; --score-head: calc(var(--spacing-10) * 5); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); overflow: hidden; }

@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "Melodienoten"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "YuE2 kann zuerst die Gesangsmelodie und Akkorde zu deinem Text schreiben. Prüfe und bearbeite die Noten und erzeuge dann den Song. Du kannst auch die Melodie eines vorhandenen Songs für ein Cover übernehmen."
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "Melodienoten schreiben"
   },

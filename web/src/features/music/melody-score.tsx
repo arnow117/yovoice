@@ -135,15 +135,12 @@ export function MelodyScore({ draft, state, change, planRequest }: {
     </HStack> : null}
     {error ? <HStack className="melody-notice" data-tone="danger" gap={2} vAlign="start" role="alert"><CircleAlert size={16} aria-hidden="true" /><small className="grow">{error}</small></HStack> : null}
 
-    {!abc.trim() ? working ? null : <VStack className="score-empty melody-empty" gap={3} hAlign="center">
-      <p>{t('@yovoice.melody.empty')}</p>
-      <HStack gap={2} wrap="wrap" hAlign="center">
-        <Button variant="primary" icon={<ListMusic />} label={t('@yovoice.melody.plan')} isDisabled={!canPlan} tooltip={canPlan ? undefined : t('@yovoice.melody.planNeeds')} onClick={() => void plan()} />
-        <Button variant="secondary" icon={<Mic2 />} label={t('@yovoice.melody.cover')} isDisabled={busy} onClick={() => audio.current?.click()} />
-        <Button variant="ghost" icon={<FileMusic />} label={t('@yovoice.melody.import')} onClick={() => file.current?.click()} />
-      </HStack>
-      <small>{t('@yovoice.melody.coverHint')}</small>
-    </VStack> : <>
+    {/* 还没有谱时只留三个来源按钮，不再放说明文字。 */}
+    {!abc.trim() ? working ? null : <HStack className="melody-empty" gap={2} wrap="wrap" vAlign="center">
+      <Button variant="primary" icon={<ListMusic />} label={t('@yovoice.melody.plan')} isDisabled={!canPlan} tooltip={canPlan ? undefined : t('@yovoice.melody.planNeeds')} onClick={() => void plan()} />
+      <Button variant="secondary" icon={<Mic2 />} label={t('@yovoice.melody.cover')} isDisabled={busy} tooltip={t('@yovoice.melody.coverHint')} onClick={() => audio.current?.click()} />
+      <Button variant="ghost" icon={<FileMusic />} label={t('@yovoice.melody.import')} onClick={() => file.current?.click()} />
+    </HStack> : <>
       {notice ? <HStack className="melody-notice" data-tone={notice.kind === 'truncated' ? 'warning' : 'info'} gap={2} vAlign="start" role="status">
         <VStack className="grow" gap={0}>
           <small>{t(`@yovoice.melody.notice.${notice.kind}`)}</small>

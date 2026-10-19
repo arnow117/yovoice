@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "メロディ譜"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "YuE2 は歌詞からボーカルのメロディとコードを先に書けます。譜面を確認・編集してから曲を生成できます。既存の曲のメロディを取り出してカバーすることもできます。"
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "メロディ譜を作成"
   },

@@ -2966,9 +2966,6 @@
   "@yovoice.melody.title": {
     "defaultMessage": "Partition mélodique"
   },
-  "@yovoice.melody.empty": {
-    "defaultMessage": "YuE2 peut d’abord écrire la mélodie vocale et les accords de vos paroles. Relisez et modifiez la partition, puis générez la chanson. Vous pouvez aussi reprendre la mélodie d’un morceau existant pour une reprise."
-  },
   "@yovoice.melody.plan": {
     "defaultMessage": "Écrire la partition"
   },
