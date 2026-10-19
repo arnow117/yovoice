@@ -20,14 +20,26 @@ export function MelodyStaff({ abc, label, time, active, seek }: {
     const timer = setTimeout(() => {
       void import('abcjs').then(({ default: abcjs }) => {
         if (!live || !host.current) return;
-        const [tune] = abcjs.renderAbc(host.current, abc, {
-          responsive: 'resize', add_classes: true, paddingtop: 0, paddingbottom: 0, paddingleft: 0, paddingright: 0, foregroundColor: 'currentColor',
-          clickListener: element => {
+        const element = host.current;
+        const render = (staffwidth: number) => abcjs.renderAbc(element, abc, {
+          responsive: 'resize', add_classes: true, paddingtop: 0, paddingbottom: 0, paddingleft: 0, paddingright: 0, foregroundColor: 'currentColor', staffwidth,
+          clickListener: clicked => {
             // 按谱面字符位置找到这个音符在时间表里的第一次出现。
-            const event = timings.current.find(item => item.startChar === element.startChar);
+            const event = timings.current.find(item => item.startChar === clicked.startChar);
             if (event) seekRef.current(event.milliseconds / 1000);
           },
         });
+        // 一行音符太密时 abcjs 会把行尾音符排到谱线外面；量出超出的比例，加宽排版宽度重排，整页按比例缩小放进框里。
+        let width = 740, [tune] = render(width);
+        for (let pass = 0; pass < 2; pass++) {
+          const svg = element.querySelector('svg');
+          if (!svg) break;
+          const box = svg.getBoundingClientRect();
+          const right = Math.max(...[...svg.querySelectorAll('.abcjs-note, .abcjs-rest, .abcjs-chord')].map(item => item.getBoundingClientRect().right));
+          if (!(box.width > 0) || right <= box.right) break;
+          width = Math.ceil(width * ((right - box.left) / box.width) * 1.02);
+          [tune] = render(width);
+        }
         lit.current = [];
         // 只取音符时间表，不启动 abcjs 自己的计时器，进度以试听音频为准。
         timings.current = tune ? new abcjs.TimingCallbacks(tune, {}).noteTimings.filter(event => event.type === 'event' && event.elements?.length) : [];

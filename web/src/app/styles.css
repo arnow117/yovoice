@@ -673,7 +673,8 @@
   .score-arrangement[data-readonly] .score-track-head > .score-role-dot { flex: none; margin-inline: var(--spacing-1); }
   /* 五线谱：白底细框，按宽度自适应排版，谱面颜色跟随正文。 */
   .melody-staff { height: var(--melody-view-height); padding: var(--spacing-4) var(--spacing-5); border: var(--border-width) solid var(--app-line); border-radius: var(--radius-container); background: var(--app-white); color: var(--app-ink); overflow-y: auto; }
-  .melody-staff svg { display: block; }
+  /* 行尾音符可能超出谱线终点，svg 不裁剪，溢出部分落在框内边距里。 */
+  .melody-staff svg { display: block; overflow: visible; }
   /* 试听进度：正在响的音符换成强调色，点音符可跳到该处。 */
   .melody-staff .abcjs-note, .melody-staff .abcjs-rest { cursor: pointer; }
   .melody-staff .melody-note-playing, .melody-staff .melody-note-playing * { fill: var(--app-accent); color: var(--app-accent); }
