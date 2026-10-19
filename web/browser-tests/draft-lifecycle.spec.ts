@@ -11,10 +11,9 @@ test('删除当前作品后不会被自动保存恢复', async ({ page }) => {
   const recent = page.locator('.recent-projects');
   await recent.getByRole('button', { name: '作品 3', exact: true }).click();
   await page.getByLabel('正文', { exact: true }).fill('刚刚修改的内容');
-  // 删除按钮悬停才出现；编辑后作品会排到最前，鼠标不一定还在这一行上，先悬停再点。
-  const remove = recent.getByRole('button', { name: '删除作品：作品 3', exact: true });
-  await remove.hover();
-  await remove.click();
+  // 删除按钮悬停在这一行上才可点；编辑后作品会排到最前，鼠标不一定还在这一行，先悬停作品名再点。
+  await recent.getByRole('button', { name: '作品 3', exact: true }).hover();
+  await recent.getByRole('button', { name: '删除作品：作品 3', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: '删除作品', exact: true }).click();
   await expect(recent.getByRole('button', { name: '作品 3', exact: true })).toHaveCount(0);
   await recent.getByRole('button', { name: '作品 1', exact: true }).click();
