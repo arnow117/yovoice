@@ -4,8 +4,16 @@
 
 ## [Unreleased]
 
-- 修复主编辑区在切换焦点或关闭浮层后偶尔整体上移一小段的问题。
-- 修复 macOS 26 上标题栏侧边栏按钮导致布局无法收敛、应用启动后闪退的问题。
+## [0.3.1] - 2026-10-19
+
+### English
+
+- Fix a crash on launch on macOS 26 caused by the sidebar button in the title bar.
+- Fix long pages on Windows being covered by a large black block; main scroll areas now show a thin, light scrollbar.
+
+### 简体中文
+
+- 修复 macOS 26 上标题栏侧边栏按钮导致应用启动后闪退的问题。
 - 修复 Windows 上内容超过一屏的页面被一大片黑色遮住的问题；主要滚动区域显示细的浅色滚动条。
 
 ## [0.3.0] - 2026-10-19
