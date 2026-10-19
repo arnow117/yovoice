@@ -4,6 +4,14 @@
 
 ## Plan
 
+### 2026-10-20 原生采证停止后仅补剩余重启
+
+用户“可以的”明确授权此前2启动/5提取、CPU1、T=.6/M=.05/120秒、20分钟、首次验收断言失败停止的一次新包旅程。主实际完成1启动/5提取和全部登记/查询/删除恢复后，正常退出，再在采证脚本的mtime断言失败处停止；未自行使用第二次启动。源码和App没有修改，保留同一Task、全部失败历史和已用诊断allowance。
+
+失败属于主的证据校验：before在新data的默认State创建前捕获，随后遗漏登记前初始化hash；post-main脚本先误用publicProfiles的array结构、再遇本机Python的可变长度小数秒解析错误，最后把正常退出重写后的mtime当成初始化时间，断言失败。已有日志和Swift/Store源码确认初始化和退出会保存，即使State内容相同也更新mtime。不能据此称App失败，也不能补造早期快照或声称完整三阶段State相等。当前实际State内容从删除前、删除故障后、成功删除至退出均相同；新包真实2known+1unknown正确及删除恢复结果保留。
+
+原独立验证者已只读确认，仅需同包、同私有data补1次重启、0提取、含收尾最多300秒：启动前对已存在的初始化State/精确A档案用既有capture脚本保存基线；正常LaunchServices+CUA确认窗口/配置、只保留原A且B不复活；正常退出后以实际JSON数组及内容指纹比较State/Voices、档案和源码/App/固定资产，不再用mtime作内容不变条件或解析登记时间。完成公开采证后清理自有进程和可丢弃私有特征。此动作不能追补早期快照，正式结论须保留该边界。主已提交新的1启动/0提取/5分钟授权问题，答复前不启动；不得重跑五次成功提取、不下载/TTS/Mic/cloud。相同源码的已通过确定性检查不重复，后续仍需独立正式Validate/Review。
+
 ### 2026-10-19 最后两项验收补证
 
 独立Validate对3c8783f集中核对并实际运行70/70后，剩余仅SCN-UI-16错误的缺原文夹具和SCN-UI-22当前包真实旅程。本节supersedes上一节关于新包原生证据可能仅分层复用的安排：REQ-002证据边界2/5明确保留当前App实际运行要求，旧包不能代替。旧实模仍只证明未改业务；新包需沿既已准备的路径申请一次最多2启动/5本地CPU1提取、20分钟预算，等待用户明确答复，首次验收断言失败停止；逐条时延仍延期。新增预算问题已提出，未获答复前不启动。保留同一Task/实施者、全部失败历史和已用诊断allowance。
@@ -438,7 +446,19 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的旧包真实原生文件功能旅程已通过；逐条时延按2026-10-19用户决定留作后续补测。当前候选5718277的SCN-UI-16已由独立定向核对闭合，其余必要确定性检查已有对应证据；唯一剩余SCN-UI-22新包真实旅程NOT_RUN，正式validation保持fail / INCONCLUSIVE，Review未执行。历史smoke失败与旧验证/评审均保留其版本边界。物理Mic与真实TTS听测仍NOT_RUN。
+当前候选5718277的必要确定性检查已由独立核对；2026-10-20新包在d34fbb1源码记录下实际完成双登记、双known精确ID正确、unknown拒绝、删除故障提示及恢复删除。因采证断言失败已停止，唯一剩余是同包同data的重启/持久化检查（NOT_RUN），正式validation保持fail / INCONCLUSIVE，Review未执行。缺失的登记前初始化hash快照如实保留，不能声称完整三阶段State相等。逐条时延延期，物理Mic与真实TTS听测仍NOT_RUN；全部旧包及历史失败保留版本边界。
+
+### 2026-10-20 新包真实主流程通过，采证断言失败后停止
+
+源码d34fbb12deeb477a632e45e2d13f7c89af7df222，App为worker-20261019-delete-feedback-fix，树41d856c082a6d2816518faf1b856b20e50977aa273b4bef9a1ca803f35e59fee，原receipt未改。独立预检确认精确包/签名、7个非运行时源码差异和固定资产；主以正常LaunchServices open-W、独立data、无smoke启动，实际host69447/service69475路径均绑定该包。CUA真实窗口导航、原生文件面板及按钮操作，无业务JS/RPC注入。配置显示T=.6/M=.05/120秒、CPU单线程：A=0467a9df94ef3467747b1948214051c8，B=bfc606fe82423206dfacbc31010ece80；独立A查询匹配A得0.8181493827733626，B查询匹配B得0.8388678724598981，未知查询无选定ID、below_threshold最高0.46485008260461286。2/2known、1/1unknown，合计1启动/5次提取，原始候选/分数见ui-results，未做TTS或物理录音。
+
+主临时将仅本私有data目录设为0500，删除B出现预期存储失败；亲看真实确认框内清晰错误和目标B，完整A/B公开列表及normalizedState保持。恢复原0700后明确重试成功，列表只剩A；此负例断言通过，不属于停止触发。主随后正常CmdQ，open会话50203实际exit0。停止触发为采证脚本的post-quit mtime断言，而非App业务失败：before.json在默认State创建前为absent；主漏采登记前初始化hash，并先后遭遇array形状、ISO小数秒解析的记录器错误，最后错误地要求退出后的backup mtime仍早于登记，AssertionError后即停，未重启。各失败实际工具输出保留在本对话，native-assessment.json明确是派生事故记录，不伪造raw日志。
+
+本轮原件位于 `artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-002-delete-feedback/`：authorization/launch-request、before、before/after-delete-failure、after-main、after-first-exit、ui-results、native-assessment、cleanup、final-process-check及独立两次assessment。截图/AX为本对话CUA输出，主亲看，未声称有本地PNG或独立验证者看过图。before→after-main→after-first-exit的文件、source、App/Web、固定资产、manifest和versions逐项相同；State从删除前至退出后hash均5ba6915a06f682a9e2a669ced6359c4e9976c77cfa01d7f36c228f54b204e48c、Voices空、State/backup内容相同。before缺初始化State不可补造，不冒称完整三阶段相等。
+
+独立只读核对UTC23:45:43.073–43.226、exit0，确认service.log初始化23:36:00.647Z及正常退出23:39:58.600Z均有draft.save，Swift退出先保存、Store即使内容相同仍重写backup/state，解释mtime变化，无State内容不等的结果。只读结论为整个原生仍INCONCLUSIVE，唯一必要新增动作为同包同data1重启/0提取/最多5分钟；无需重做五次成功提取，也不能追补早期快照。主已再次提出具体零模型预算，等待答复。
+
+本轮起点1792452954，327秒完成已识别PID退出核对，428秒完成最终采证核对及自有CUA kernel回收；最终项目命令无残留，未杀共享进程。剩余官方样本A私有特征仅留在0700 ignored data供可能授权的零提取重启，未导出向量；目录权限已恢复。当前未完成验收，正式Validate/Review不提前通过。
 
 ### 2026-10-19 5718277独立增量通过，唯一待新包原生旅程
 

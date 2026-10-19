@@ -60,11 +60,11 @@
           "updated_at": "2026-10-19T15:10:34Z"
         }
       },
-      "updated_at": "2026-10-19T15:14:27Z",
+      "updated_at": "2026-10-19T23:47:14Z",
       "validation": {
-        "at": "2026-10-19T15:14:27Z",
-        "command": "E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --grep '^生成拒绝无绑定' --target mac-zh-1280,mac-en-390 --workers 1 --retries 0 --strict-cache --output e2e-results/formal-validation-5718277",
-        "commit": "57182772d7e6d4b0a5137f9994d01520285ec5f6",
+        "at": "2026-10-19T23:47:14Z",
+        "command": "env -u WORKBENCH_SMOKE_SCRIPT /usr/bin/open -W --stdout /Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-002-delete-feedback/logs/stdout-first.log --stderr /Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-002-delete-feedback/logs/stderr-first.log --env WORKBENCH_DATA=/Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-002-delete-feedback/data --env WORKBENCH_DEBUG=1 --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env MKL_NUM_THREADS=1 /Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/speaker-validation-macos/worker-20261019-delete-feedback-fix/yovoice.app",
+        "commit": "d34fbb12deeb477a632e45e2d13f7c89af7df222",
         "result": "fail"
       }
     }
@@ -96,7 +96,7 @@
       "product_context_ref": ".sdlc-v1/context/REQ-002.product.md",
       "status": "in_delivery",
       "title": "Mac App 声纹交互验证页面",
-      "updated_at": "2026-10-19T15:14:27Z"
+      "updated_at": "2026-10-19T23:47:14Z"
     },
     "REQ-003": {
       "created_at": "2026-10-13T12:35:50Z",
