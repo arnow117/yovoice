@@ -13,13 +13,16 @@
   const controls = {
     cancelResults: [],
     enrollDelayMs: 0,
+    enrollErrorCode: null,
     enrollPostAcceptErrorCode: null,
     holdEnrollResponses: false,
     generateDelayMs: 0,
     generateErrorCode: null,
     identification: null,
     identifyDelayMs: 0,
+    identifyErrorCode: null,
     identifyStatus: null,
+    deleteErrorCode: null,
     listDelayMs: 0,
     listErrorCode: null,
     holdListResponses: false,
@@ -341,6 +344,9 @@
       return delayedResponse(response, controls.listDelayMs);
     }
     if (method === 'speaker.enroll') {
+      if (controls.enrollErrorCode) {
+        return delayedResponse(errorFor(controls.enrollErrorCode), controls.enrollDelayMs);
+      }
       const profile = profileFor(data);
       profiles.push(profile);
       const response = controls.enrollPostAcceptErrorCode
@@ -355,6 +361,9 @@
       return delayedResponse(response, controls.enrollDelayMs);
     }
     if (method === 'speaker.identify') {
+      if (controls.identifyErrorCode) {
+        return delayedResponse(errorFor(controls.identifyErrorCode), controls.identifyDelayMs);
+      }
       if (controls.identification) {
         return delayedResponse(responseFor(JSON.parse(JSON.stringify(controls.identification))), controls.identifyDelayMs);
       }
@@ -376,6 +385,7 @@
       return delayedResponse(responseFor(result), controls.identifyDelayMs);
     }
     if (method === 'speaker.delete') {
+      if (controls.deleteErrorCode) return errorFor(controls.deleteErrorCode);
       const index = profiles.findIndex(profile => profile.id === data.id);
       if (index >= 0) profiles.splice(index, 1);
       return responseFor({ id: data.id, deleted: index >= 0 });

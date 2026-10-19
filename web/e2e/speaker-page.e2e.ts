@@ -5,6 +5,19 @@ const musicSourceID = '00000000000000000000000000000011';
 const scoreSourceID = '00000000000000000000000000000022';
 const textSourceID = '00000000000000000000000000000033';
 
+type TemporaryAudioProbe = {
+  created: string[];
+  revoked: string[];
+  originalCreate: typeof URL.createObjectURL;
+  originalRevoke: typeof URL.revokeObjectURL;
+};
+
+declare global {
+  interface Window {
+    speakerTemporaryAudioProbe?: TemporaryAudioProbe;
+  }
+}
+
 async function enrollBoundProfile(screen: Screen) {
   await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
   await screen.getByTestId('speaker-profile-name').fill('Fixture A');
@@ -27,6 +40,20 @@ async function configureFixture(browser: { evaluate: <T, A>(pageFunction: (arg: 
 
 async function waitFor(browser: { evaluate: <T>(pageFunction: () => T | Promise<T>) => Promise<T> }, durationMs: number) {
   await browser.evaluate(duration => new Promise(resolve => setTimeout(resolve, duration)), durationMs);
+}
+
+async function waitForTemporaryAudioProbe(browser: Browser, expected: { created: number; revoked: number }) {
+  return browser.evaluate(async counts => {
+    const deadline = performance.now() + 2_000;
+    while (performance.now() < deadline) {
+      const probe = window.speakerTemporaryAudioProbe;
+      if (probe && probe.created.length >= counts.created && probe.revoked.length >= counts.revoked) {
+        return { created: [...probe.created], revoked: [...probe.revoked] };
+      }
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    throw new Error(`temporary audio probe did not reach ${counts.created} created and ${counts.revoked} revoked URLs`);
+  }, expected);
 }
 
 async function waitForHeldListResponse(browser: Browser) {
@@ -1096,4 +1123,295 @@ test('任一录音开始时会暂停并拦截另一输入区的预览播放', as
     return audio.paused;
   });
   expect(remainedPaused).toBe(true);
+});
+
+test('更换、清除和离开声纹页都会释放实际页面的临时试听 URL', async ({ app, browser, screen }) => {
+  await openSpeakerPage(app, screen);
+  await browser.evaluate(() => {
+    const target = globalThis as typeof globalThis & {
+      speakerTemporaryAudioProbe?: TemporaryAudioProbe;
+    };
+    const probe = {
+      created: [] as string[],
+      revoked: [] as string[],
+      originalCreate: URL.createObjectURL.bind(URL),
+      originalRevoke: URL.revokeObjectURL.bind(URL),
+    };
+    target.speakerTemporaryAudioProbe = probe;
+    URL.createObjectURL = value => {
+      const url = probe.originalCreate(value);
+      probe.created.push(url);
+      return url;
+    };
+    URL.revokeObjectURL = value => {
+      probe.revoked.push(value);
+      probe.originalRevoke(value);
+    };
+  });
+
+  const voicesBefore = await browser.evaluate(() => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.voices));
+  await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
+  await expect(screen.getByTestId('speaker-input-preview-enroll')).toBeVisible();
+  const first = await waitForTemporaryAudioProbe(browser, { created: 1, revoked: 0 });
+  expect(first.created).toHaveLength(1);
+
+  await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
+  const replaced = await waitForTemporaryAudioProbe(browser, { created: 2, revoked: 1 });
+  expect(replaced.created).toHaveLength(2);
+  expect(replaced.revoked).toEqual([first.created[0]]);
+
+  await screen.getByRole('button', /清除输入|Clear input/).tap();
+  await expect(screen.getByTestId('speaker-input-preview-enroll')).toBeHidden();
+  const cleared = await waitForTemporaryAudioProbe(browser, { created: 2, revoked: 2 });
+  expect(cleared.revoked).toEqual(cleared.created);
+
+  await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
+  await expect(screen.getByTestId('speaker-input-preview-enroll')).toBeVisible();
+  await screen.getByTestId('nav-text').tap();
+  await waitForTemporaryAudioProbe(browser, { created: 3, revoked: 3 });
+  const released = await browser.evaluate(() => {
+    const probe = window.speakerTemporaryAudioProbe;
+    if (!probe) return null;
+    URL.createObjectURL = probe.originalCreate;
+    URL.revokeObjectURL = probe.originalRevoke;
+    return { created: [...probe.created], revoked: [...probe.revoked] };
+  });
+  expect(released?.created).toHaveLength(3);
+  expect(released?.revoked).toEqual(released?.created);
+  const voicesAfter = await browser.evaluate(() => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.voices));
+  expect(voicesAfter).toBe(voicesBefore);
+});
+
+test('登记输入拒绝及识别错误或繁忙后保留可修正输入且不自动重发', async ({ app, browser, screen }) => {
+  await openSpeakerPage(app, screen);
+  const enrollmentCallsBefore = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.enroll').length);
+
+  await expect(screen.getByTestId('speaker-enroll-file')).toHaveCount(1);
+  await browser.evaluate(() => {
+    const input = document.querySelector<HTMLInputElement>('[data-testid="speaker-enroll-file"]');
+    if (!input) throw new Error('missing mounted enrollment file input');
+    const transfer = new DataTransfer();
+    const oversizedAudio = new Uint8Array(20 * 1024 * 1024 + 1);
+    transfer.items.add(new File([oversizedAudio], 'too-large.wav', { type: 'audio/wav' }));
+    Object.defineProperty(input, 'files', { configurable: true, value: transfer.files });
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    delete (input as { files?: FileList }).files;
+  });
+  await expect(screen.getByText(/所选音频超过 20 MiB|selected audio is larger than 20 MiB/)).toBeVisible();
+  await expect(screen.getByTestId('speaker-enroll')).toBeDisabled();
+  const enrollmentCallsAfterOversize = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.enroll').length);
+  expect(enrollmentCallsAfterOversize).toBe(enrollmentCallsBefore);
+
+  await configureFixture(browser, { enrollErrorCode: '@yovoice.error.speakerAudio' });
+  await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
+  await screen.getByTestId('speaker-profile-name').fill('Rejected registration');
+  await screen.getByTestId('speaker-enroll').tap();
+  await expect(screen.getByText(/这段音频不能用于声纹识别|audio cannot be used for speaker recognition/)).toBeVisible();
+  await expect(screen.getByTestId('speaker-enroll')).toBeEnabled();
+  await expect(screen.getByTestId('speaker-profile-00000000000000000000000000000001')).toBeHidden();
+  const enrollmentCallsAfterError = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.enroll').length);
+  expect(enrollmentCallsAfterError).toBe(enrollmentCallsBefore + 1);
+
+  await configureFixture(browser, { enrollErrorCode: null });
+  await screen.getByTestId('speaker-profile-name').fill('Recovered registration');
+  await screen.getByTestId('speaker-enroll').tap();
+  await expect(screen.getByTestId('speaker-profile-00000000000000000000000000000001')).toBeVisible();
+  const stateBeforeIdentifyErrors = await browser.evaluate(() => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state));
+  const profilesBeforeIdentifyErrors = await browser.evaluate(() => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.profiles));
+
+  await screen.getByTestId('speaker-identify-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
+  const identifyCallsBefore = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.identify').length);
+  await screen.getByTestId('speaker-identify').tap();
+  await expect(screen.getByTestId('speaker-result')).toHaveAttribute('data-status', 'matched');
+  const failures = [
+    ['@yovoice.error.speakerRuntime', /声纹识别尚未准备好|Speaker recognition is not ready/],
+    ['@yovoice.error.speakerFeature', /不兼容的识别版本|incompatible recognition version/],
+    ['@yovoice.error.speakerBusy', /另一个声纹操作仍在进行|Another speaker operation is still running/],
+  ] as const;
+  for (const [code, message] of failures) {
+    await configureFixture(browser, { identifyErrorCode: code });
+    await screen.getByTestId('speaker-identify').tap();
+    await expect(screen.getByText(message)).toBeVisible();
+    await expect(screen.getByTestId('speaker-result')).toBeHidden();
+    await expect(screen.getByTestId('speaker-identify')).toBeEnabled();
+  }
+  const identifyCallsAfterErrors = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.identify').length);
+  expect(identifyCallsAfterErrors).toBe(identifyCallsBefore + 1 + failures.length);
+  expect(await browser.evaluate(() => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state))).toBe(stateBeforeIdentifyErrors);
+  expect(await browser.evaluate(() => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.profiles))).toBe(profilesBeforeIdentifyErrors);
+
+  await configureFixture(browser, { identifyErrorCode: null });
+  await screen.getByTestId('speaker-identify').tap();
+  await expect(screen.getByTestId('speaker-result')).toHaveAttribute('data-status', 'matched');
+});
+
+test('删除存储失败时确认对话框保留目标、反馈可见且可关闭后重试', async ({ app, browser, screen }) => {
+  await openSpeakerPage(app, screen);
+  await enrollBoundProfile(screen);
+  await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
+  await screen.getByTestId('speaker-profile-name').fill('Fixture B');
+  await screen.getByTestId('speaker-enroll').tap();
+  const firstProfileID = '00000000000000000000000000000001';
+  const secondProfileID = '00000000000000000000000000000002';
+  await expect(screen.getByTestId(`speaker-profile-${secondProfileID}`)).toBeVisible();
+  const voicesBefore = await browser.evaluate(() => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.voices));
+
+  await configureFixture(browser, { deleteErrorCode: '@yovoice.error.speakerStorage' });
+  await screen.getByTestId(`speaker-delete-${firstProfileID}`).tap();
+  const confirm = screen.getByTestId('speaker-delete-confirm');
+  await expect(confirm).toBeVisible();
+  await confirm.tap();
+  const dialog = screen.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('alert')).toContainText(/无法保存或读取声纹档案|could not be saved or read/);
+  await expect(confirm).toBeVisible();
+  await expect(screen.getByTestId(`speaker-profile-${firstProfileID}`)).toBeVisible();
+  await expect(screen.getByTestId(`speaker-profile-${secondProfileID}`)).toBeVisible();
+
+  await screen.getByRole('button', /取消|Cancel/).tap();
+  await expect(confirm).toBeHidden();
+  await screen.getByRole('button', /刷新|Refresh/).first().tap();
+  await expect(screen.getByTestId(`speaker-profile-${firstProfileID}`)).toBeVisible();
+  await expect(screen.getByTestId(`speaker-profile-${secondProfileID}`)).toBeVisible();
+
+  await configureFixture(browser, { deleteErrorCode: null });
+  await screen.getByTestId(`speaker-delete-${firstProfileID}`).tap();
+  await screen.getByTestId('speaker-delete-confirm').tap();
+  await expect(screen.getByTestId(`speaker-profile-${firstProfileID}`)).toBeHidden();
+  await expect(screen.getByTestId(`speaker-profile-${secondProfileID}`)).toBeVisible();
+  const deletionIDs = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.delete')
+    .map(call => call.data.id));
+  expect(deletionIDs).toEqual([firstProfileID, firstProfileID]);
+  expect(await browser.evaluate(() => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.voices))).toBe(voicesBefore);
+});
+
+test('生成拒绝无绑定、失效绑定、缺参考原文、模式冲突和已删档案，且只在显式修正后恢复', async ({ app, browser, screen }) => {
+  await serveSyntheticGeneratedOutput(browser);
+  await openSpeakerPage(app, screen);
+  const generationCallsBefore = await generationCallCount(browser);
+  await expect(screen.getByTestId('speaker-generate')).toBeDisabled();
+  await expect(screen.getByText(/识别结果不会在此自动选择档案|Identification never chooses a profile here/)).toBeVisible();
+
+  await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
+  await screen.getByTestId('speaker-profile-name').fill('Unbound profile');
+  await screen.getByTestId('speaker-enroll').tap();
+  await expect(screen.getByTestId('speaker-profile-00000000000000000000000000000001')).toBeVisible();
+  await enrollBoundProfile(screen);
+
+  await screen.getByTestId('speaker-generation-profile').tap();
+  await screen.getByRole('option', /Unbound profile/).tap();
+  await expect(screen.getByText(/没有可用的绑定参考声音|no available bound reference voice/)).toBeVisible();
+  await expect(screen.getByTestId('speaker-generate')).toBeDisabled();
+  expect(await generationCallCount(browser)).toBe(generationCallsBefore);
+
+  const invalidBindingID = '00000000000000000000000000000003';
+  await browser.evaluate(id => {
+    window.__yovoiceSyntheticSpeakerFixture.profiles.push({
+      id,
+      name: 'Missing bound voice',
+      bindVoiceId: 'ffffffffffffffffffffffffffffffff',
+      createdAt: '2026-10-12T00:00:00Z',
+      modelSha256: 'synthetic-model',
+      featureVersion: 'synthetic-version',
+      dimension: 256,
+    });
+  }, invalidBindingID);
+  await screen.getByRole('button', /刷新|Refresh/).first().tap();
+  await screen.getByTestId('speaker-generation-profile').tap();
+  await screen.getByRole('option', /Missing bound voice/).tap();
+  await expect(screen.getByText(/没有可用的绑定参考声音|no available bound reference voice/)).toBeVisible();
+  await expect(screen.getByTestId('speaker-generate')).toBeDisabled();
+  expect(await generationCallCount(browser)).toBe(generationCallsBefore);
+
+  const boundProfileID = '00000000000000000000000000000002';
+  await screen.getByTestId('speaker-generation-profile').tap();
+  await screen.getByRole('option', /Fixture A/).tap();
+  await selectGenerationInputs(screen, 'Qwen3-TTS 1.7B Base');
+  await browser.locator('#speaker-generation-text').fill('Keep this target text while correcting the reference.');
+  await screen.getByTestId('speaker-generate').tap();
+  await expect(screen.getByTestId('speaker-generated-output')).toBeVisible();
+
+  await browser.evaluate(() => {
+    window.__yovoiceSyntheticSpeakerFixture.state.voices[0].referenceText = '';
+  });
+  // Qwen 的空参考原文在实际 applySpeakerBinding → schema.Validate 路径会映射为
+  // speakerRequestInvalid；fixture 只返回这一公开结果，不重写业务校验。
+  await configureFixture(browser, { generateErrorCode: '@yovoice.error.speakerRequestInvalid' });
+  await screen.getByTestId('speaker-generate').tap();
+  await expect(screen.getByText(/声纹档案请求无效|speaker profile request is invalid/)).toBeVisible();
+  await expect(screen.getByTestId('speaker-generated-output')).toBeHidden();
+  await expect(browser.locator('#speaker-generation-text')).toHaveValue('Keep this target text while correcting the reference.');
+
+  await browser.evaluate(() => {
+    window.__yovoiceSyntheticSpeakerFixture.state.voices[0].referenceText = 'repaired reference';
+  });
+  await selectGenerationInputs(screen, 'OmniVoice');
+  await screen.getByTestId('speaker-omni-mode').getByRole('radio', /设计|Voice design/).tap();
+  await configureFixture(browser, { generateErrorCode: '@yovoice.error.speakerClone' });
+  await screen.getByTestId('speaker-generate').tap();
+  await expect(screen.getByText(/所选档案或模型不能用于声音克隆|cannot be used for voice cloning/)).toBeVisible();
+  await expect(screen.getByTestId('speaker-generated-output')).toBeHidden();
+
+  const recoveredProfileID = '00000000000000000000000000000004';
+  await browser.evaluate(deletedID => {
+    const fixture = window.__yovoiceSyntheticSpeakerFixture;
+    fixture.profiles.splice(fixture.profiles.findIndex(profile => profile.id === deletedID), 1);
+  }, boundProfileID);
+  await configureFixture(browser, { generateErrorCode: '@yovoice.error.speakerProfile' });
+  await screen.getByTestId('speaker-generate').tap();
+  await expect(screen.getByText(/该声纹档案已不可用|speaker profile is no longer available/)).toBeVisible();
+  await expect(screen.getByTestId('speaker-generated-output')).toBeHidden();
+  const staleGenerationProfileIDs = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.generate')
+    .map(call => call.data.profileId));
+  expect(staleGenerationProfileIDs).toEqual([boundProfileID, boundProfileID, boundProfileID, boundProfileID]);
+
+  await browser.evaluate(replacementID => {
+    const fixture = window.__yovoiceSyntheticSpeakerFixture;
+    fixture.profiles.push({
+      id: replacementID,
+      name: 'Recovered bound profile',
+      bindVoiceId: fixture.state.voices[0].id,
+      createdAt: '2026-10-12T00:00:00Z',
+      modelSha256: 'synthetic-model',
+      featureVersion: 'synthetic-version',
+      dimension: 256,
+    });
+  }, recoveredProfileID);
+  await configureFixture(browser, { generateErrorCode: null });
+  await screen.getByRole('button', /刷新|Refresh/).first().tap();
+  await expect(screen.getByTestId('speaker-generate')).toBeDisabled();
+  expect(await generationCallCount(browser)).toBe(generationCallsBefore + 4);
+
+  await screen.getByTestId('speaker-generation-profile').tap();
+  await screen.getByRole('option', /Recovered bound profile/).tap();
+  const recoveredCloneMode = screen
+    .getByTestId('speaker-omni-mode')
+    .getByRole('radio', /^(音色克隆|Voice clone)$/);
+  await recoveredCloneMode.tap();
+  await expect(recoveredCloneMode).toHaveAttribute('aria-checked', 'true');
+  const recoveryCallCount = await generationCallCount(browser);
+  await screen.getByTestId('speaker-generate').tap();
+  const recoveredRequest = await latestGenerationSnapshot(browser, {
+    previousCallCount: recoveryCallCount,
+    modelID: 'omnivoice-q8',
+  });
+  await expect(screen.getByTestId('speaker-generated-output')).toBeVisible();
+  expect(recoveredRequest.draft.voiceMode).toBe('clone');
+  const generationProfileIDs = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.generate')
+    .map(call => call.data.profileId));
+  expect(generationProfileIDs).toEqual([
+    boundProfileID,
+    boundProfileID,
+    boundProfileID,
+    boundProfileID,
+    recoveredProfileID,
+  ]);
 });

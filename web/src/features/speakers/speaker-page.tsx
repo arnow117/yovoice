@@ -105,6 +105,7 @@ export function SpeakerPage({ voices, models, catalog, draft, runtimeReady, onGe
   const [recordingTarget, setRecordingTarget] = useState<'enroll' | 'identify' | null>(null);
   const [recordingError, setRecordingError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<SpeakerProfile | null>(null);
+  const [deleteError, setDeleteError] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [generationProfileId, setGenerationProfileId] = useState('');
   const [generatedOutput, setGeneratedOutput] = useState<Generation | null>(null);
@@ -405,18 +406,31 @@ export function SpeakerPage({ voices, models, catalog, draft, runtimeReady, onGe
   cancelPendingRef.current = cancelPending;
 
   async function removeProfile() {
-    if (!deleteTarget) return;
+    const target = deleteTarget;
+    if (!target) return;
+    setDeleteError('');
     setDeleting(true);
     try {
-      await call('speaker.delete', { id: deleteTarget.id });
+      await call('speaker.delete', { id: target.id });
+      setDeleteError('');
       setDeleteTarget(null);
-      if (generationProfileId === deleteTarget.id) setGenerationProfileId('');
+      if (generationProfileId === target.id) setGenerationProfileId('');
       await refresh();
     } catch (error) {
-      setNotice(formatCallError(t, error));
+      setDeleteError(formatCallError(t, error));
     } finally {
       setDeleting(false);
     }
+  }
+
+  function openDelete(profile: SpeakerProfile) {
+    setDeleteError('');
+    setDeleteTarget(profile);
+  }
+
+  function closeDelete() {
+    setDeleteError('');
+    setDeleteTarget(null);
   }
 
   const profileOptions = profiles.map(profile => ({ value: profile.id, label: `${profile.name} · ${profile.id.slice(0, 8)}` }));
@@ -484,7 +498,7 @@ export function SpeakerPage({ voices, models, catalog, draft, runtimeReady, onGe
             <small>{t('@yovoice.speakers.profileVersion', { version: profile.featureVersion })}</small>
             <small>{profile.bindVoiceId ? t('@yovoice.speakers.bound', { id: profile.bindVoiceId }) : t('@yovoice.speakers.unbound')}</small>
           </VStack>
-          <Button data-testid={`speaker-delete-${profile.id}`} label={t('@yovoice.speakers.deleteProfile', { name: profile.name })} isIconOnly icon={<Trash2 size={16} />} variant="ghost" onClick={() => setDeleteTarget(profile)} />
+          <Button data-testid={`speaker-delete-${profile.id}`} label={t('@yovoice.speakers.deleteProfile', { name: profile.name })} isIconOnly icon={<Trash2 size={16} />} variant="ghost" onClick={() => openDelete(profile)} />
         </HStack>
       ))}
     </VStack>
@@ -516,7 +530,18 @@ export function SpeakerPage({ voices, models, catalog, draft, runtimeReady, onGe
     </VStack>
     <input data-testid="speaker-enroll-file" hidden ref={enrollInputRef} type="file" accept="audio/*,.aac,.m4a,.mp3,.wav,.flac,.ogg,.opus,.aiff,.aif,.wma,.webm" onChange={event => { chooseFile('enroll', event.target.files?.[0]); event.target.value = ''; }} />
     <input data-testid="speaker-identify-file" hidden ref={identifyInputRef} type="file" accept="audio/*,.aac,.m4a,.mp3,.wav,.flac,.ogg,.opus,.aiff,.aif,.wma,.webm" onChange={event => { chooseFile('identify', event.target.files?.[0]); event.target.value = ''; }} />
-    {deleteTarget ? <ConfirmDelete title={t('@yovoice.speakers.deleteTitle')} description={t('@yovoice.speakers.deleteBody', { name: deleteTarget.name })} confirmLabel={t('@yovoice.speakers.deleteConfirm')} confirmTestId="speaker-delete-confirm" busy={deleting} onClose={() => setDeleteTarget(null)} onConfirm={() => void removeProfile()} /> : null}
+    {deleteTarget ? (
+      <ConfirmDelete
+        title={t('@yovoice.speakers.deleteTitle')}
+        description={t('@yovoice.speakers.deleteBody', { name: deleteTarget.name })}
+        confirmLabel={t('@yovoice.speakers.deleteConfirm')}
+        confirmTestId="speaker-delete-confirm"
+        busy={deleting}
+        error={deleteError}
+        onClose={closeDelete}
+        onConfirm={() => void removeProfile()}
+      />
+    ) : null}
   </VStack>;
 }
 

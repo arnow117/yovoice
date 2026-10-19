@@ -5,8 +5,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -283,6 +285,68 @@ func TestSpeakerHTTPRejectsConcurrentRequestBeforeDispatch(t *testing.T) {
 	state := handler.Workbench.Store.Read()
 	if len(state.Voices) != 0 || len(state.History) != 0 {
 		t.Fatalf("blocked speaker request mutated public State: %+v", state)
+	}
+}
+
+func TestSpeakerDeleteStorageFailureIsPublicAndKeepsProfile(t *testing.T) {
+	// Windows 的目录权限不保证阻止 CreateTemp/Rename；这个测试只在 POSIX 上
+	// 使用真实目录权限注入私有档案写入失败，不能把该注入误称为跨平台行为。
+	if runtime.GOOS == "windows" {
+		t.Skip("directory permission storage-failure injection requires POSIX semantics")
+	}
+
+	wb, err := workbench.New(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer wb.Close()
+
+	profileID := strings.Repeat("f", 32)
+	config := recognition.Config{
+		ModelSHA256:    strings.Repeat("a", 64),
+		FeatureVersion: "storage-failure-test",
+	}
+	embedding := make([]float64, recognition.Dimension)
+	embedding[0] = 1
+	profile, err := recognition.NewProfile(profileID, "保存失败档案", "", config, embedding)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := recognition.NewRepository(wb.Store.Root).Save(context.Background(), []recognition.Profile{profile}); err != nil {
+		t.Fatal(err)
+	}
+
+	profilesBefore, err := wb.ListSpeakers()
+	if err != nil || len(profilesBefore) != 1 || profilesBefore[0].ID != profileID {
+		t.Fatalf("stored profiles before deletion = %+v, %v", profilesBefore, err)
+	}
+	stateBefore := wb.Store.Read()
+
+	if err := os.Chmod(wb.Store.Root, 0500); err != nil {
+		t.Fatal(err)
+	}
+	restored := false
+	restoreRoot := func() {
+		if restored {
+			return
+		}
+		restored = true
+		if err := os.Chmod(wb.Store.Root, 0700); err != nil {
+			t.Fatalf("restore workbench root permissions: %v", err)
+		}
+	}
+	t.Cleanup(restoreRoot)
+
+	_, callErr := Call(context.Background(), wb, "speaker.delete", json.RawMessage(`{"id":"`+profileID+`"}`))
+	restoreRoot()
+	requireSpeakerCallError(t, callErr, msg.ErrSpeakerStorage)
+
+	profilesAfter, err := wb.ListSpeakers()
+	if err != nil || !reflect.DeepEqual(profilesAfter, profilesBefore) {
+		t.Fatalf("storage failure changed profiles: before=%+v after=%+v err=%v", profilesBefore, profilesAfter, err)
+	}
+	if stateAfter := wb.Store.Read(); !reflect.DeepEqual(stateAfter, stateBefore) {
+		t.Fatalf("storage failure changed public State: before=%+v after=%+v", stateBefore, stateAfter)
 	}
 }
 

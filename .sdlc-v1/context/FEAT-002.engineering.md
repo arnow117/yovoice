@@ -4,6 +4,34 @@
 
 ## Plan
 
+### 2026-10-19 错误提示修复后的证据适用性
+
+本节明确最新最小修复的验证策略，保留同一Task、实施者、全部失败历史和已用诊断allowance。最终生产diff只改SpeakerPage的删除错误状态及现成ConfirmDelete error接线；Go业务/识别/持久化、Swift宿主、公开协议、配置、模型资产及页面可见性CSS均未改。原真实登记/识别、成功删除及重启证据保留其原App/源码身份；新增删除失败由真实Call存储故障测试与实际页面对话框alert、保留列表及显式重试断言共同覆盖，不把合成桥接称为本地模型运行。
+
+新包已在全新worker-20261019-delete-feedback-fix路径构建。主在任何后续文档修改前实际执行原始receipt核对与严格codesign核对，两者exit0；原始receipt不重写。主接手CHANGELOG/唯一usage及事实记录；这些后续差异不编入运行时，按逐文件对照说明适用性，不冒称修改后的完整源码仍与receipt逐字相同。完整E2E70项及修正合法恢复模式后的2目标定向证据、browser59项与完整Go race/原生coverage交独立Validate集中核对22场景。未改的必要Swift/脚本/识别检查在相同相关输入下复用已有真实命令及结果。
+
+不因新包标识变化自动重复已通过的整段模型旅程；独立Validate须按上述实际变更判断旧原生证据对未改行为是否仍适用。若确认仍缺必要原生证据，保持未通过，先提出缺口及最小有限预算，再由用户决定；原2次启动/5次提取预算已用完，不能自行启动。用户已明确本次只验功能，逐条时延仍NOT_COLLECTED、后续补测。主资源采样时无项目常驻进程但全机CPU负载偏高，当前不增加模型或并行重型验证。
+
+### 2026-10-19 删除错误必须在当前确认框可感知
+
+本节 supersedes 四组补测的“禁止生产修改”边界，仅允许下述已经实际定位的最小修复；同一Task/同一Terra实施者、失败历史与已用诊断allowance保留。单目标E2E run `01a1547c-792c-7516-b573-a932f45f951e` 在打开的删除框内找不到存储错误alert，exit1；主亲看失败截图，确认框保持而错误只在模糊背景status。源码因果链为removeProfile catch只setNotice，而现成ConfirmDelete/AppDialog虽支持error及框内role=alert，SpeakerPage未传。不是根据静态猜测扩修。
+
+最小修正限 `web/src/features/speakers/speaker-page.tsx`：维护本次删除的专用错误，把格式化后的公开错误传给既有ConfirmDelete error；打开新目标、关闭、明确重试与成功时按现成对话框语义清理。失败保持当前目标、列表和生成选择；重试仍显式发起，成功后才移除/刷新；不能把其他操作旧notice显示为本次删除错误。复用既有AppDialog，不新增组件/公共错误字段、不改Go/持久化/识别/取消或布局框架。
+
+同一worker完成该红测试转绿及上一节四组全部必要补测，修正主集中审查指出的假阳性风险：先成功再拒绝以证明清旧成功，真实切换冲突模式，stale已删档案先收到拒绝再刷新/改选，公开错误与真实Go拒绝码一致；URL生命周期使用有限可观察终态而非固定短睡眠。Go目录权限故障注入须标明不支持平台边界，保留Windows原测试可编译/运行兼容，不改CI。除SpeakerPage及必要CHANGELOG/唯一usage说明，生产写边界不扩大；其他实际生产红证据仍先返回主。
+
+必须串行完成完整E2E/browser、Web lint/typecheck/build、受影响Go定向/完整race及原生coverage，必要脚本/Swift证据按相关输入未变复用；从启动时保存真实日志/报告/完整计数及资源清理。完成后用现有build入口在全新 `artifacts/speaker-validation-macos/worker-20261019-delete-feedback-fix/` 生成App与最终签名sidecar，原包/失败产物保留，绑定本轮源码、最终App/host/service/Web与固定资产。该阶段禁止实际启动App/模型/TTS/Mic/provider或下载。主在可审查代码、检查和新包全部就绪后，再处理必要的有限新包运行授权；原来2次App/5次提取预算已消费，不自动复用。旧真实识别结果继续只在原声明输入范围保留，不能冒充新包已经运行。
+
+### 2026-10-19 22场景集中核对后的四组补测
+
+本节 supersedes 下一段测试补齐范围，保留同一Task/实施者、全部失败历史与已用诊断allowance。独立Validate在40bc37b实际完整race和原生coverage已通过，并完成22场景集中核对，剩下四组必要测试证据缺口：临时试听URL的更换/清除/离开释放；登记输入拒绝、识别运行时/特征错误及busy页面恢复；删除失败的页面保留/精确目标/重试和公开RPC存储错误传播；不可生成条件的拒绝、无回退及改选恢复。当前未观察到生产缺陷，不预先修改生产代码，也不只追求测试数量或数值。
+
+同一Terra worker集中完成四组测试：复用既有tester-army/E2E、browser及合成bridge，增加显式、确定性的公开错误注入而非第二份业务算法；真实Call/RPC存储失败测试使用自有隔离资料，不运行模型。URL释放在实际页面使用临时Blob并观察create/revoke，不以录音controller清理替代。页面错误断言包含对应公开原因、旧成功清除、输入可修改、无自动重发/意外持久化、无其他音色回退和明确恢复；生成条件与现有真实Go拒绝语义对应，不让宽松fixture成功代替拒绝。删除失败必须仍保留目标及完整列表，并可重试/刷新后恢复。
+
+测试写边界为 `web/e2e/speaker-page.e2e.ts`、`web/e2e/synthetic-native-bridge.js`、必要现有或新增 `web/browser-tests/*temporary*` 测试，以及 `internal/desktop/*_test.go`、必要 `internal/workbench/*_test.go`。生产Web/Go/Swift、schema/DTO、配置/依赖、App/receipt均禁止改；若确定性测试揭示实际实现异常，保留红证据与因果链后返回主，不扩大修复。测试内可观察探针只存在合成环境，不增加产品开关或通用框架。
+
+单worker、零模型/零重试，实际执行完整E2E与browser、必要Web lint/typecheck、受影响Go定向及完整race/coverage；所有命令启动时保存raw日志、argv/env/cwd/时间/退出码，分清包含子例与顶层计数。Go覆盖按既有80%statements口径，未变生产/Web/App/资产的原生证据保持适用，不重建或重跑App/模型/TTS/Mic/provider/下载。重型检查串行、先后核对自有资源。四组结果及22场景对应一次性返回，同一worker完成必要测试更正；两次无新证据或验收进展即停。主审查后提交，独立Validate核对该批证据并完成Review。
+
 ### 2026-10-19 桌面 RPC 覆盖缺口补齐
 
 独立 Validate 的真实 Go profile 显示，822c0a4→f661468 的 desktop/workbench 新增或修改生产行相交块中，120/173语句执行（69.36%）；未覆盖集中在 `callSpeaker` 的登记/识别/删除/生成与取消入口及部分错误映射。整包比例不能代替改动范围，原生未插桩也不能虚增 Go 覆盖。这是具体测试缺口，不是已观察到的生产失败。所有功能通过、原始profile、失败历史和已用诊断 allowance 保留。
@@ -402,7 +430,38 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-当前业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的真实原生文件功能旅程已由主 Agent 验收通过；逐条时延按2026-10-19用户决定留作后续补测。当前独立 Validate 的功能检查已通过，指南缺口已在 `f661468` 消除，但覆盖率必要证据未满足而再次记录 fail / INCONCLUSIVE，返回同一Task补必要Go测试；正式 Review 未执行。此前 smoke 初始化显示失败及旧正式验证/评审历史保留，不能代表当前提交结果。物理 Mic 与真实 TTS 听测仍为 NOT_RUN。
+业务提交 `a001a0fa74e97a4923c44f5637525f79ff97d15c` 的真实原生文件功能旅程已由主 Agent 验收通过；逐条时延按2026-10-19用户决定留作后续补测。指南和Go覆盖已补齐，四组集中补测及其发现的删除错误提示修复现由主接受Build交付，待干净提交后的独立Validate；当前正式validation仍保留上一轮fail / INCONCLUSIVE，Review未执行。历史smoke失败与旧验证/评审均保留其版本边界。物理Mic与真实TTS听测仍NOT_RUN。
+
+### 2026-10-19 四组补测与删除提示修复的Build验收
+
+主接受同一Terra实施者在40bc37b基础上的四文件交付：SpeakerPage仅改删除专用错误及现成ConfirmDelete接线；其他三个文件为测试/合成fixture。以下补证对应下一节已集中列出的四组缺口，不替代原22场景映射：实际页面Blob URL在替换/清除/离开时释放且无Voice写入；超20MiB不发请求，登记输入拒绝无新档案，先成功识别后runtime/feature/busy错误清旧成功、保留可修正输入、无自动重发/意外持久化并可恢复；删除失败在当前dialog内有alert且保留目标/列表，关闭刷新和精确ID重试恢复，真实macOS Call存储故障公开传播speakerStorage并保持档案/State；无绑定/失效绑定、缺原文、真实Omni设计模式冲突和stale已删档案均拒绝且无回退，最终恢复明确切回clone并核对请求voiceMode。Windows仅该POSIX权限注入诚实skip，未排除既有测试。
+
+完整命令、cwd/env、退出与已采集时间见 `artifacts/verification/feature-002-ui-evidence-completion-20261019/execution-records.json`，raw/profile/JUnit同目录；未采到的wall-clock start保留null，不补造。主亲核对完整E2E report run `01a1548d-f03b-759d-8bc1-92639fe71358`：14:25:50.874–14:29:09.852Z、70/70、0fail/skip/retry/model；主指出恢复仍保留冲突模式的假阳性后，同一worker最终定向run `01a1549c-884d-7f52-9fe6-5b8b5e88257b` 于22:41:47+08开始，12.50秒2/2、exit0，其余68项相关输入未变。browser JUnit59/59、0fail/skip；eslint、tsc、Vite2141模块、gofmt、vet、diff-check均exit0。
+
+完整离线env为GOMAXPROCS=2、GOPROXY=off、GOSUMDB=off、GOTOOLCHAIN=local、GOCACHE=/private/tmp/yovoice-feat002-formal-20261019-resumed-go-cache；`go test -json -race -p 1 ./... -coverprofile=artifacts/verification/feature-002-ui-evidence-completion-20261019/full-go.cover -count=1 -timeout=90s` 于14:37:48.342–14:38:52.638Z实际exit0，232pass/12既有skip含子例，顶层143pass/2skip，18包通过。固定173 statements分母命中147＝84.9711%；新命中delete存储失败传播与公开映射，recognition85.3%，Go branch百分比NOT_AVAILABLE。逐块匹配及严格解码/legacy映射等未命中分支见 `changed-go-coverage-observation-final.json`，不声称全分支覆盖。
+
+首次删除框红run `01a1547c-792c-7516-b573-a932f45f951e`、首轮full67/70、各定向测试修正前的失败以及sandbox loopback拒绝均留原件；实际DOM/定位因果修正后通过，不覆盖历史。报告移入既有ignored `web/e2e-results/`，映射见 `e2e-results-relocation.json`，原始命令的output参数不改，整目录相对trace/截图仍保留。
+
+新包为 `artifacts/speaker-validation-macos/worker-20261019-delete-feedback-fix/yovoice.app`，原始同级receipt保留；构建7.92秒exit0。构建前后386文件源码sha256=`85ce0ed36f0820ef7d3ae09d10dbeb69d51b839d86d40ebd3d56fb2cc5b5b5ca`，App树=`41d856c082a6d2816518faf1b856b20e50977aa273b4bef9a1ca803f35e59fee`，receipt文件=`ef5652658988b91ccdea0ec0a0293f001a16b7154553161edfff3ca2de3bc4b8`。主在后续文档修改前独立实际执行capture脚本的`--verify-build-receipt --receipt <app>.receipt.json --app <app>`及`codesign --verify --deep --strict <app>`，均exit0；host/service/Web最终散列以receipt原件为准。随后只有CHANGELOG、usage及SDLC事实修改，不编入运行时；不重写receipt，由独立Validate逐文件判断适用性。
+
+本轮未启动App/服务或模型。worker最后一次ps被sandbox拒绝，主于14:53:11Z补核对项目命令无匹配，4173与所有报告22个临时端口均无监听，未杀共享进程；原件 `primary-post-build-resource-check.json`。新包实际原生运行仍NOT_RUN，旧包真实3/3查询、删除重启及715秒清理保留精确版本。必要Swift/脚本等未改输入复用既有独立证据；下一次Validate按有效Plan判断分层证据，不足时保持未通过并说明最小预算。
+
+### 2026-10-19 40bc37b 独立Go通过与22场景集中缺口
+
+独立验证者在 `40bc37b408693767262914a6e907149d5c7f211a`、干净工作树实际执行完整离线race+coverage，UTC13:35:59–13:37:08，exit0、69.709秒。代表命令为既有离线env加 `go test -json -race -p 1 -coverprofile=<本轮>/full-go.cover ./... -count=1 -timeout=90s`。原始命令JSON、完整输出/profile和解析结果在 `artifacts/verification/feature-002-formal-validation-20261019/independent-001/final-go-40bc37b/`；主已直接解析raw JSON核对231 pass/12既有skip/0 fail（含子例），顶层142 pass/2 skip，不能沿用worker基线加新顶层推导的221口径。format/diff-check/vet/cover工具均exit0。
+
+同一173个生产block完整对应，145/173=83.815% statements、recognition85.3%，项目Go原生阈值满足，branch百分比NOT_AVAILABLE；未把该比例当全部必要行为已验。源码386文件相对旧receipt只差4项SDLC、usage和不编入App的新测试，App/host/service/Web仍完全一致，当前源码strict verifier未声称通过。原生2known+1unknown/delete/restart/State及715秒完整清理证据继续适用；现有其他同输入检查沿独立结果保留。UTC13:42:22核对5个自有PID/PGID均退出，项目/Vite无残留、4173无监听。
+
+独立验证者对22场景完成一次集中核对，01–04、06–09、12、15、17、19–22可在已声明分层范围对应；05、10、11、13、14、16、18存在以下四组必要证据缺口，均尚未证明生产错误，故记录validation fail / INCONCLUSIVE并集中返回同一实施者：
+
+| 关联场景 | 缺失实际断言 |
+|---|---|
+| 05/RULE02 | 临时试听Blob URL在更换、清除和离开页释放；现有tracks/timer/controller检查不能替代页面hook |
+| 10/11/18/RULE09/10 | 登记提交前输入拒绝、identify执行/特征版本错误与busy页面反馈；错误不伪装unknown、旧成功清除、输入可修正、无自动重发/意外持久化及恢复 |
+| 13/RULE06 | delete失败后保留准确目标/列表、可重试或刷新恢复；公开RPC删除存储错误传播，不能只用list失败替代 |
+| 14/16/RULE08 | 无绑定/失效绑定/已删档案/缺必要参考原文/模式冲突在页面的拒绝、无音色回退及改选恢复；现有宽松fixture成功/wire保留不能代替服务拒绝体验 |
+
+测试补齐写边界及必要检查见最新有效Plan；没有按中间消息逐项派工。完整四组结果应一次性返回，不更改产品规则或已通过的原生输入，也不重复App/模型运行。
 
 ### 2026-10-19 独立 Validate 续验与覆盖缺口
 
