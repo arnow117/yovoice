@@ -4,6 +4,9 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  # 每周全量跑一次浏览器测试，包括日常提交不跑的已封存用例。
+  schedule:
+    - cron: '0 3 * * 1'
   workflow_call:
     inputs:
       release:
@@ -22,6 +25,7 @@ concurrency:
   cancel-in-progress: ${{ !inputs.release }}
 jobs:
   package:
+    if: ${{ github.event_name != 'schedule' }}
     strategy:
       fail-fast: false
       matrix:
@@ -243,6 +247,9 @@ jobs:
       - run: pnpm --dir web exec playwright install --with-deps chromium
       - run: pnpm --dir web run lint
       - run: pnpm --dir web test
+        env:
+          # 定时与手动触发时全量运行，包括已封存的用例。
+          PW_ALL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -250,6 +257,7 @@ jobs:
           path: web/test-results/
           retention-days: 7
   linux-cli:
+    if: ${{ github.event_name != 'schedule' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:

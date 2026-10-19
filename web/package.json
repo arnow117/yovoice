@@ -8,6 +8,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "test": "playwright test",
+    "test:all": "PW_ALL=1 playwright test",
     "lint": "eslint .",
     "check": "pnpm run lint && pnpm run build && pnpm test"
   },
