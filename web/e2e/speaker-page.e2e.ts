@@ -897,6 +897,70 @@ test('迟到的档案读取或错误不会覆盖最新删除后的刷新结果',
   await expect(screen.getByRole('alert')).toHaveCount(0);
 });
 
+test('删除成功后即使列表或运行时刷新失败也立即移除精确档案', async ({ app, browser, screen }) => {
+  await openSpeakerPage(app, screen);
+  await enrollBoundProfile(screen);
+
+  const firstProfileID = '00000000000000000000000000000001';
+  const secondProfileID = '00000000000000000000000000000002';
+  const thirdProfileID = '00000000000000000000000000000003';
+  const generationProfile = screen.getByRole('combobox', /选择已绑定档案|Choose a bound profile/);
+
+  for (const name of ['Fixture B', 'Fixture C']) {
+    await screen.getByTestId('speaker-enroll-file').setInputFiles('e2e/fixtures/speaker-fixture.wav');
+    await screen.getByTestId('speaker-profile-name').fill(name);
+    await screen.getByTestId('speaker-profile-bind-voice').tap();
+    await screen.getByRole('option', 'Bound voice').tap();
+    await screen.getByTestId('speaker-enroll').tap();
+  }
+  await expect(screen.getByTestId(`speaker-profile-${thirdProfileID}`)).toBeVisible();
+
+  await screen.getByTestId('speaker-generation-profile').tap();
+  await screen.getByRole('option', /Fixture A/).tap();
+  await expect(generationProfile).toContainText(/Fixture A/);
+
+  await configureFixture(browser, { listErrorCode: '@yovoice.error.runtimeFailed' });
+  await screen.getByTestId(`speaker-delete-${firstProfileID}`).tap();
+  await screen.getByTestId('speaker-delete-confirm').tap();
+  await expect(screen.getByTestId('speaker-profiles')).toHaveAttribute('data-state', 'error');
+  await expect(screen.getByTestId('speaker-profiles').getByRole('alert')).toBeVisible();
+  await expect(screen.getByTestId(`speaker-profile-${firstProfileID}`)).toHaveCount(0);
+  await expect(screen.getByTestId(`speaker-profile-${secondProfileID}`)).toBeVisible();
+  await expect(screen.getByTestId(`speaker-profile-${thirdProfileID}`)).toBeVisible();
+  await expect(generationProfile).toContainText(/选择已绑定档案|Choose a bound profile/);
+
+  await screen.getByTestId('speaker-generation-profile').tap();
+  await expect(screen.getByRole('option', /Fixture A/)).toHaveCount(0);
+  await screen.getByRole('option', /Fixture B/).tap();
+  await expect(generationProfile).toContainText(/Fixture B/);
+
+  await configureFixture(browser, { listErrorCode: null });
+  await screen.getByRole('button', /刷新|Refresh/).first().tap();
+  await expect(screen.getByTestId('speaker-profiles')).toHaveAttribute('data-state', 'ready');
+
+  await configureFixture(browser, { runtimeErrorCode: '@yovoice.error.runtimeFailed' });
+  await screen.getByTestId(`speaker-delete-${thirdProfileID}`).tap();
+  await screen.getByTestId('speaker-delete-confirm').tap();
+  await expect(screen.getByTestId('speaker-profiles')).toHaveAttribute('data-state', 'error');
+  await expect(screen.getByTestId('speaker-profiles').getByRole('alert')).toBeVisible();
+  await expect(screen.getByTestId(`speaker-profile-${thirdProfileID}`)).toHaveCount(0);
+  await expect(screen.getByTestId(`speaker-profile-${secondProfileID}`)).toBeVisible();
+  await expect(generationProfile).toContainText(/Fixture B/);
+
+  const deletionIDs = await browser.evaluate(() => window.__yovoiceSyntheticSpeakerFixture.calls
+    .filter(call => call.method === 'speaker.delete')
+    .map(call => call.data.id));
+  expect(deletionIDs).toEqual([firstProfileID, thirdProfileID]);
+
+  await configureFixture(browser, { runtimeErrorCode: null });
+  await screen.getByRole('button', /刷新|Refresh/).first().tap();
+  await expect(screen.getByTestId('speaker-profiles')).toHaveAttribute('data-state', 'ready');
+  await expect(screen.getByTestId(`speaker-profile-${firstProfileID}`)).toHaveCount(0);
+  await expect(screen.getByTestId(`speaker-profile-${secondProfileID}`)).toBeVisible();
+  await expect(screen.getByTestId(`speaker-profile-${thirdProfileID}`)).toHaveCount(0);
+  await expect(screen.getByRole('alert')).toHaveCount(0);
+});
+
 test('没有可用 TTS 时登记仍可用，生成提示保留正文且不发起假生成', async ({ app, browser, screen }) => {
   await app.open();
   await browser.evaluate(() => localStorage.setItem('yovoice-synthetic-no-tts-models', 'true'));

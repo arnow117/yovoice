@@ -27,6 +27,7 @@
     listErrorCode: null,
     holdListResponses: false,
     runtime: null,
+    runtimeErrorCode: null,
     runtimeConfigured: true,
   };
   const initialLocale = navigator.language.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en';
@@ -320,6 +321,7 @@
   function respond(method, data) {
     if (method === 'state.get') return responseFor({ state, catalog, engine: { version: '', minimum: '' }, desktop: true });
     if (method === 'speaker.runtime') {
+      if (controls.runtimeErrorCode) return errorFor(controls.runtimeErrorCode);
       const runtime = controls.runtime ?? {
         configured: controls.runtimeConfigured,
         threshold: 0.6,

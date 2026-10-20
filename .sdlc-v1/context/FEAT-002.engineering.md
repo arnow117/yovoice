@@ -4,6 +4,22 @@
 
 ## Plan
 
+### 2026-10-20 正式评审返修：删除成功后的列表一致性
+
+新的独立Review对7833fba完整业务diff仅提出一个必须修复P2。主只读核对removeProfile和refresh：speaker.delete成功后没有按已知目标更新profiles；随后的Promise.all(runtime/list)任何一项失败会保留旧profiles，已删目标仍在档案行/生成options。RULE-UI-06明确成功后不得继续列出，该因果链足以定位，不能以后台已拒绝失效生成代替正确UI。上一轮真实删除/重启只覆盖刷新成功，不覆盖此恢复边界；原有证据与失败历史均保留，已用诊断allowance不重置。
+
+本节仅替代“无实现变化、直接结束评审”的当前安排，沿同一TASK/同一Terra实施者做最小返修。收到删除成功时，立即按精确target ID移除本地已知档案，再刷新；当前生成选择若仍为该目标则清空，已切到其他目标时保留。删除失败仍保留列表、选择、确认框和显式重试；刷新失败显示错误、保留其他档案，之后明确刷新可恢复；不让迟到旧刷新复活目标。不改Go/Swift/识别/持久化/配置/公开协议或依赖，不加自动删除/登记重试。
+
+worker仅修改speaker-page.tsx、既有speaker-page E2E及确有必要的同目录合成bridge测试控制；主负责CHANGELOG/现有上下文/state。先以实际旧实现的失败断言复现delete成功→list/runtime刷新失败，再作最小修改并验证两个语言/尺寸目标的新回归及已有删除失败/旧响应乱序故事；执行项目必需Web lint/build/browser、格式检查，其他未改域按相关输入相同复用，不重复Go/模型。串行运行、保留原始命令时间/退出与精确自有资源收尾。用既有构建入口生成新的独立包/receipt并严格核对，不启动App/模型。主接受diff/证据并提交后，由原独立Validate核对影响和证据适用性，再由同一独立Review复审该P2；若当前包仍需额外原生动作，先准备具体最小预算再请用户判断，不能自行复用已完成的一次运行。
+
+独立验证者只读影响分析确认：本缺陷由确定性故障测试覆盖，未改模型、Go、Swift、输入、enroll/identify的原实模证据继续证明其原版本/未改部分；但REQ-002证据边界2/5明确要求当前页面/当前构建，不能直接把旧App计作新包SCN-UI-22通过。主保持当前产品口径，不缩减验收条件：修正提交并完成独立增量检查后，准备新包一次2登记/3查询、最多2启动/5本地CPU1提取、含清理20分钟、首次失败停止的具体授权请求；无新增授权前不启动。初始化完成后、登记前立即保存State基线，避免重演早期采证遗漏，正常主流程/重启后按内容和指纹比较，不用mtime。不增加TTS/Mic/cloud/download，不补逐条时延。
+
+### 2026-10-20 零模型重启补证完成，进入独立验收
+
+用户解锁并明确授权本次1启动/0提取、含清理最多300秒、首次失败停止。CUA禁止控制Codex自身，故仅以已运行Finder的Desktop AX确认桌面可访问，未尝试绕过该工具限制。之后沿同一包、同一私有data执行正常LaunchServices启动，独立监督180秒即回收精确归属进程，为全程300秒留出余量；没有调用内嵌smoke或业务JS/RPC。主亲看实际声纹页面就绪和原A唯一保留，正常CmdQ退出，完成State/公开档案/输入比较及私有特征清理，全程255.841秒。此结果补齐上一轮缺失的可见重启证据，不替换锁屏或早先失败记录，不重建App、不重跑模型，不追补登记前缺失的初始化快照。
+
+当前没有新的实现变更或原生运行计划。沿现有Task完成独立正式Validate，主核对并登记实际结果后，由新的独立reviewer只读评审完整Feature业务diff及证据。复用检查须保持相关源码、配置和环境输入相同；不能为记录提交号变化重复已通过检查。逐条时延继续延期，物理Mic/真实TTS听测明确NOT_RUN；主线合并和发行不在范围内。
+
 ### 2026-10-20 零模型重启遇锁屏后停止
 
 用户明确答复“授权一次零模型重启，失败即停”，主在b18e4b3完成既有State/A、原receipt包及固定输入预检后，只启动同包一次、0次提取。实际宿主/服务路径核对正确，但Computer Use返回Mac已锁定且自动解锁失败，未观察到实际窗口；主停止本轮，没有继续业务动作或重试。仅对重新核对精确命令的自有79322/79324发送SIGTERM，两者均消失，open-W退出0。清理完成距启动310.927秒，超出300秒10.927秒，明确不算预算通过；之后只做无App的元数据采证。保留同一Task、全部失败历史和已用诊断allowance，不修改生产实现来应对锁屏。
@@ -452,7 +468,43 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-当前候选5718277的必要确定性检查已由独立核对；2026-10-20新包在d34fbb1源码记录下实际完成双登记、双known精确ID正确、unknown拒绝、删除故障提示及恢复删除。后续b18e4b3下的一次零模型重启遇Mac锁屏，已停止并回收自有进程，0提取；清理310.927秒超出300秒，窗口可见及正常退出仍未验证。磁盘State/A及运行时输入一致不能代替UI证据，正式validation保持fail，归因为ENV_BLOCKED并保留执行超预算事实，Review未执行。缺失的登记前初始化hash快照如实保留，不能声称完整三阶段State相等。逐条时延延期，物理Mic与真实TTS听测仍NOT_RUN；全部旧包及历史失败保留版本边界。
+当前工作树的删除刷新P2返修已由主接受Build，原7833fba的通过仅属于该原版本；当前候选须完成新的独立增量Validate及新包实模SCN-UI-22，未因此提前通过。以下保留所有历史版本结论。
+
+### 2026-10-20 删除成功刷新失败返修Build证据
+
+同一Terra实施者仅修改三个Web文件：SpeakerPage成功接受点按target.id过滤profiles，并以functional setter仅清仍指向目标的生成选择；现有E2E新增一故事覆盖list/runtime两种刷新错误、目标行/生成选项移除、其他档案/选择保留和明确刷新恢复，synthetic bridge仅增加公开runtime错误注入。主审查完整diff，无Go/Swift/模型/配置/持久化/协议变化，无额外抽象；唯一usage既有操作路径/参数不变，CHANGELOG合并到原删除修复条目。
+
+原件`artifacts/verification/feature-002-post-delete-refresh-20261020/`保存实际命令、时间、退出及原始日志。旧实现红run01a156d1-9831-7e43-ac78-52b4cdda0f38，两语言均因成功删除后目标行预期0实际1而exit1；首个选择器命令的原件亦保留。最小修正后run01a156d2-dbdf-7d0a-9a5e-b45600775bab为2/2、14.79秒exit0；已有迟到刷新run01a156d3-e95e-7bfd-a5c4-d3f0cfdbe462为2/2、17.04秒exit0；删除失败重试run01a156d4-78a4-7844-a0c0-eee2ef476cbe为2/2、11.70秒exit0。没有把这6目标称为当前全量72执行，未改故事仍须按输入适用性复用。
+
+pnpm lint包装器在启动ESLint前fetch failed、exit1的原件保留；使用现有本地ESLint直接执行exit0，tsc-b/Vite build exit0，完整browser59/59、约2分钟exit0。全部串行、无下载或模型；browser专属Vite收尾143不冒称测试失败，测试本体exit0。01:13:03Z精确资源核对无本任务E2E/Vite/WebEngine/App/service残留，工作树/formatter检查exit0。实际被测为7833fba上的三个Web候选diff，主已有SDLC/CHANGELOG修改未覆盖，未将该候选冒称为7833原提交。
+
+新包`artifacts/speaker-validation-macos/worker-20261020-post-delete-refresh-fix/yovoice.app`构建exit0、严格codesign及receipt verify exit0，未启动。source before/after386文件均5ac077b641a6064c3d58cb346c5070245b1193e60fb9fa2689ba9093867d237d，App25文件cb984c0ad36812f60a2d1141fe442b24bd842dfc7ec7723e3d8b1c54147cd305；receipt文件c0d3a49fc81e6562c2961230739eb702f66e3022011b41c6fc11fd79426a0f47。host3822565dff56fe8f635e960f5e9c9caf5344d8676a360c24a37fa08e9d7d3c7c、servicef59ecae69968b4f5840ddec7fe8f3452c187e6072973a1a439202e0045b60acd、Webb287e02aa2d17ae16e8aa211048baf699a590f3f5da31ec8e781ecaf52641b99。主在本次元数据更新前独立调用verify_build_receipt成功，primary-package-check.json保存正确schema下的散列；worker首个摘要用错字段而显示None不影响实际严格校验exit0，未为摘要重跑构建。原receipt不改，后续只有SDLC事实变化须明确适用性。
+
+主接受本P2实现/必要测试，请求TASK恢复done并提交功能分支。独立增量及当前新包真实旅程仍待完成，既有旧包实模不能替代新包要求；目前零新增App/模型运行，native-request仅是未授权方案。
+
+当前7833fba的独立正式Validate已由主接受为PASS，22场景的必要功能证据齐全；正式Review待独立评审。新包d34下双登记、双known精确ID正确、unknown拒绝、删除故障提示及恢复删除，与7833下同包同data的可见ready重启、原A唯一/B缺失及正常退出共同覆盖真实功能路径。重启State/公开档案/输入严格一致，1启动/0提取/含预检收尾255.841秒，自有进程和私有测试特征均已清理；历史锁屏和超预算失败不覆盖、不删除。登记前初始化hash快照仍NOT_COLLECTED，不声称完整三阶段State相等；逐条时延延期，物理Mic/真实TTS听测仍NOT_RUN。全部证据保留各自版本和适用范围。
+
+### 2026-10-20 独立正式Validate通过 — 7833fba
+
+原独立验证者speaker_formal_validation_final只读核对7833fba4f18c79f861c6c310049a6987c12d157c及全部现有验收映射/原件，请求record-validation pass；主接受。TASK均done，业务工作树干净，运行后的待提交变化仅engineering/project两项SDLC记录，不影响被测业务。唯一docs/usage入口、故事、固定参数来源和实际LaunchServices/CUA证据相符，22场景均有适用的必要功能证据，没有新增测试/模型/App运行。
+
+独立者重算并核对restart-only-002的255.841秒、before/after、正常CmdQ及supervisor actions=[]/open-W exit0、自有89433/89453消失和私有speakers文件移除；完整package精确匹配原receipt，State/A与前次新包主流程相同，源码差异限已述非运行时文件。主亲看UI/截图的事实与独立者读取公开原件的范围分别保留，不声称独立者重新观察桌面。
+
+复用范围为独立全量70中未改68项，加修正后的独立2目标；browser59、完整Go232pass/12既有skip及新增合同定向证据，Web lint/typecheck/build、Swift17、脚本24、Python4+1均有实际命令及exit0。覆盖重算147/173 statements=84.9711%，recognition85.3%，branch百分比NOT_AVAILABLE。不把本次只读复核写成在7833重新执行全套。原始命令、时间、退出及源码适用性分别见下文对应既有Build/Validate记录，避免另建验收表或报告。
+
+早期登记前State快照缺失继续NOT_COLLECTED；默认初始化日志、真实核心的无State/Voices副作用断言及随后原生内容比较共同支持当前功能要求，不回填快照或作三阶段全等结论。逐条时延按用户决定延期，物理Mic和真实TTS听测NOT_RUN，Windows/发行/公证不在验收范围。主据实际代表启动命令登记validation pass并推进新的独立Review，不因此增加App或模型预算。
+
+### 2026-10-20 同包零模型重启和正常退出通过
+
+原件为`artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-002-delete-feedback/restart-only-002/`。实际被测HEAD7833fba4f18c79f861c6c310049a6987c12d157c，运行中工作树干净；App仍为worker-20261019-delete-feedback-fix，完整树41d856c082a6d2816518faf1b856b20e50977aa273b4bef9a1ca803f35e59fee，原receipt未修改。开始前对已存在State/A保存before，且核对State/档案与上次退出相同、package等于原receipt、无项目旧进程。CUA的Codex自身访问被工具安全规则拒绝，不是Mac锁屏；允许的Finder Desktop AX随后确认桌面可访问，没有操作其文件。
+
+实际LaunchServices argv/env/cwd及open PID见launch-command.json；不设置WORKBENCH_SMOKE_SCRIPT，同一私有data、WORKBENCH_DEBUG=1、OMP/OPENBLAS/MKL均1。独立监督只追踪精确新包路径的宿主89433/服务89453，180秒自动收尾期限未触发。主亲看真实窗口进入声纹页面，异步加载完成后显示阈值0.6、差值0.05、超时120秒；完整AX及实际滚动后的截图均只有验收A/0467a9df94ef3467747b1948214051c8，原B不在。没有选择音频或点击登记/识别/生成/录音，0次提取。正常super+q后open-W实际exit0、supervisor reason=normal_launchservices_exit/actions=[]，精确自有PID均已消失，不以被动终止冒充正常退出。
+
+before→after的完整normalizedState、公开档案数组、sourceCandidate、App/Web、files、固定资产、recognition manifest和版本逐项相等，assertions全部true；State hash仍5ba6915a06f682a9e2a669ced6359c4e9976c77cfa01d7f36c228f54b204e48c，Voices空、原A唯一、B缺失。两次既有capture实际exit0。相对上一轮只增加三个SDLC记录文件变化，不冒称跨提交完整source相同；当前续验自身源码严格相同。after公开采证后重新核对PID缺失及私有speakers.json只有原官方样本A，再仅删除该文件；无私有profile文件残留，data0700，日志/公开原件和包保留，未导出embedding，CUA kernel已回收。
+
+supervisor记录启动至正常退出和进程核对32.576秒，私有特征清理完成79.270秒；full-timing依据本会话rollout中首个CUA实际时间戳2026-10-20T00:37:38.358Z，至全部清理/CUA reset后epoch1792456914.19893为255.841秒，withinBudget=true，覆盖预检而非仅从App启动计时。首个Codex访问拒绝和Finder Desktop检查的原始CUA输出均在主会话；页面AX/截图亦在该会话，主亲看，没有本地PNG或独立验证者看图的声明。授权、完整launch、before/after、owned-processes、supervisor-result、assertions、cleanup和full-timing保存上述事实；本轮没有失败验收断言或自动重试。
+
+本证据只补重启和正常退出；前一轮新包五次真实提取及删除恢复保留其d34源码/包/样本身份，与本轮运行时输入相同。早期登记前初始化hash缺失仍NOT_COLLECTED，不能回填或声称完整三阶段State相等。逐条推理时延仍按用户决定延期，真实Mic/真实TTS听测未运行。独立Validate须核对本次与已有必要检查的适用性后再请求生命周期结果。
 
 ### 2026-10-20 零模型重启：Mac锁屏，未通过
 
@@ -664,6 +716,10 @@ physicalMic/humanTTS 为 NOT_RUN。12 个 Go skip 是既有 10 项音乐/音色�
 2026-10-17 Goal 工作树原生证据：`artifacts/verification/feature-002-goal-acceptance-20261017/attempt-001/smoke/report.json`，wrapper exit 0、27 秒，源码 `41d8d2f5d0b4a60cdec1697286940d47ef2eb6976ca3bddb84e97906783a4535`，App `9c81fa604406442d276ee44a0553d5bc94d86440ce52379354e54432777d1748`。CPU 单线程提取 5 次；两段已知查询分别精确 matched 两个新登记 ID（分数 0.818149/0.838868），未知查询 0.464850、无选定 ID；删除 B 后重启只剩 A。主亲自查看 initialize/main/restart 三张截图，页面完整可见；独立比较原始 before/main/restart 的 source/App/Web/固定资产/识别 manifest 和完整普通 State 一致，Voices 未增加，固定资产与 sherpa 版本符合要求。自有进程已退出，物理 Mic/真实 TTS 听测未执行。此项证明本版本的真实文件识别与重启路径，但截图暴露候选 ID 字段缺失，完整验收仍为未通过；修正后必须重新验证相关 UI，不能直接登记正式 pass。上次旧 App 和预检目录冲突的失败证据全部保留。
 
 ## Review
+
+2026-10-20 新的独立正式评审`/root/speaker_feature_final_review`，绑定validation commit7833fba4f18c79f861c6c310049a6987c12d157c，结论changes_requested。唯一必须修复P2为speaker-page.tsx:414–418删除成功后仅关闭框/清选择再refresh，而:180–183的刷新失败保留旧profiles，导致已删档案行/生成选项残留，违反RULE-UI-06。主已核实静态调用链并接受；必要新回归为成功删除后list/runtime刷新失败时精确目标消失、其他档案/选择保留、明确刷新恢复，继续保留原删除失败与旧响应乱序断言。
+
+本次完整diff检查qa/architect/client-dev/server-dev/security/design/ai-readiness，未发现其他必须修复的正确性、安全、跨端契约或源码可读性项，未发现有证据支持的重复实现或可避免工程债。实际只读git入口检查和原件比对均完成，未运行新测试/App/模型；第一次统计Go日志时遇PTY前缀解析失败，调整解析后确认232/12，不是产品测试失败。评审确认当前包25文件等于原receipt及七项非运行时源码差异；没有亲看父CUA截图，早期快照/逐条时延/Mic/TTS边界如Validation保留。返修仅覆盖本P2，后续须适用Validate和同一reviewer复审，不因发现新边界重跑未改域或扩大功能。
 
 2026-10-17 独立正式评审 `/root/speaker_formal_review`，绑定 validation commit `767b65ce18f75752a55ebb610e52ffc712950ed3`，结论 **changes_requested**。三个未处理 P2：`speaker-page.tsx:169` 迟到刷新覆盖删除后的列表；`:491` 模型切换遗漏原 Inspector 已有的语言兼容规则，普通文本 ja 进入 Index 2 后被 `schema/validate.go:114–123` 拒绝；`build-speaker-validation-macos.sh:118` 的 FFmpeg 路径没有按 shell 字面量转义。主逐项核对当前源代码并接受，实际行为合同见当前 Plan。
 

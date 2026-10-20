@@ -412,9 +412,10 @@ export function SpeakerPage({ voices, models, catalog, draft, runtimeReady, onGe
     setDeleting(true);
     try {
       await call('speaker.delete', { id: target.id });
+      setProfiles(current => current.filter(profile => profile.id !== target.id));
       setDeleteError('');
       setDeleteTarget(null);
-      if (generationProfileId === target.id) setGenerationProfileId('');
+      setGenerationProfileId(current => current === target.id ? '' : current);
       await refresh();
     } catch (error) {
       setDeleteError(formatCallError(t, error));

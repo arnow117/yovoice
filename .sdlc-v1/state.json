@@ -57,15 +57,15 @@
           "id": "TASK-001",
           "status": "done",
           "title": "实现原 Mac App 声纹页面、定向取消和本地验证构建",
-          "updated_at": "2026-10-19T15:10:34Z"
+          "updated_at": "2026-10-20T01:15:05Z"
         }
       },
-      "updated_at": "2026-10-20T00:36:52Z",
+      "updated_at": "2026-10-20T01:15:05Z",
       "validation": {
-        "at": "2026-10-20T00:36:52Z",
-        "command": "env -u WORKBENCH_SMOKE_SCRIPT /usr/bin/open -W --stdout /Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-002-delete-feedback/restart-only-001/stdout.log --stderr /Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-002-delete-feedback/restart-only-001/stderr.log --env WORKBENCH_DATA=/Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-002-delete-feedback/data --env WORKBENCH_DEBUG=1 --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env MKL_NUM_THREADS=1 /Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/speaker-validation-macos/worker-20261019-delete-feedback-fix/yovoice.app",
-        "commit": "b18e4b32ad1f1daa166cf63e1f0b02d9e5aace3b",
-        "result": "fail"
+        "at": null,
+        "command": null,
+        "commit": null,
+        "result": "pending"
       }
     }
   },
@@ -96,7 +96,7 @@
       "product_context_ref": ".sdlc-v1/context/REQ-002.product.md",
       "status": "in_delivery",
       "title": "Mac App 声纹交互验证页面",
-      "updated_at": "2026-10-20T00:36:52Z"
+      "updated_at": "2026-10-20T01:15:05Z"
     },
     "REQ-003": {
       "created_at": "2026-10-13T12:35:50Z",
