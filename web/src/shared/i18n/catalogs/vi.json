@@ -3850,5 +3850,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "Độ chính xác"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Tính năng"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Khi tắt, mục tương ứng sẽ ẩn khỏi thanh bên và menu Tạo mới. Tác phẩm hiện có và mô hình đã tải không bị ảnh hưởng."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Nhập văn bản hoặc phụ đề và lồng tiếng từng câu theo nhân vật."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Bài hát, nhạc không lời và bản phối, cùng cài đặt mô hình và soundfont tương ứng."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "Trợ lý nổi, lối vào trên thanh tiêu đề và các gợi ý. Cài đặt dịch vụ AI vẫn giữ nguyên, các tính năng AI khác vẫn dùng được."
   }
 }

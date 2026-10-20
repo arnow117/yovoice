@@ -36,7 +36,7 @@ import { dismissSplash } from '../shared/lib/splash';
 import { IntroScreen } from './intro-screen';
 import { GuideTour } from './guide-tour';
 import { formatNotice } from '../shared/i18n/format';
-import { isAligner, isKokoroModel, isYuE, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab, preferredModel } from '../shared/workbench';
+import { isAligner, isKokoroModel, isYuE, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab, preferredModel, featureHidden } from '../shared/workbench';
 // 助手（含形象与点阵动画）首屏后再加载，不占主包。
 const AssistantDock = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantDock })));
 const AssistantTitleButton = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantTitleButton })));
@@ -102,7 +102,10 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     try { localStorage.setItem('yovoice-assistant-launcher', show ? 'shown' : 'hidden'); } catch { /* 存储不可用时只在本次生效 */ }
   };
   useEffect(() => { try { localStorage.setItem('yovoice-assistant-open', String(assistantOpen)); localStorage.setItem('yovoice-assistant-expanded', String(assistantExpanded)); } catch { /* 存储不可用时只在本次生效 */ } }, [assistantOpen, assistantExpanded]);
+  // 在设置中隐藏 Ocho 后，浮窗、各处入口、快捷键与主动提示都不再出现。
+  const assistantHidden = featureHidden(state.preferences, 'assistant');
   useEffect(() => {
+    if (assistantHidden) return;
     const onKey = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); setAssistantOpen(open => !open); }
     };
@@ -110,7 +113,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     window.addEventListener('keydown', onKey);
     window.addEventListener('workbench-toggle-assistant', onToggle);
     return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('workbench-toggle-assistant', onToggle); };
-  }, []);
+  }, [assistantHidden]);
   // 编辑页的当前页面键（text/story/music/score），其余页面直接用页面名。
   const assistantPage = page === 'create' || page === 'history' ? projectKind(draft) : page === 'voices' ? 'voices' : page;
   const askAssistantPanel = { openWork: (workId: string) => { const target = state.drafts.find(item => item.id === workId); if (target) selectDraft(target); }, openSettings: () => openSettings(draft.modelId, 'ai') };
@@ -164,7 +167,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   }, [page, toggleInspectorPanel]);
   // 标题栏的右侧面板开关由宿主绘制：离开工作区时让宿主隐藏它。
   useEffect(() => { if (isDesktop) void call('inspector.available', { available: page === 'create' }).catch(() => undefined); }, [page]);
-  useEffect(() => { if (isDesktop) void call('assistant.entry', { visible: launcherHidden && !assistantOpen }).catch(() => undefined); }, [launcherHidden, assistantOpen]);
+  useEffect(() => { if (isDesktop) void call('assistant.entry', { visible: launcherHidden && !assistantOpen && !assistantHidden }).catch(() => undefined); }, [launcherHidden, assistantOpen, assistantHidden]);
   const editor = useRef<HTMLTextAreaElement>(null); const previousHistory = useRef<string | undefined>(undefined); const knownHistory = useRef(new Set<string>());
   const onError = useCallback((message: string) => setError(message), [setError]);
   useEffect(() => {
@@ -281,7 +284,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   useEffect(() => trackAssistantFocus(), []);
   // 主动提示：面板关着、开着主动提示且助手可用时，生成或下载结束会在右下角冒出建议。
   const assistantReady = !state.assistantMissing && !!state.aiProviders?.find(item => item.id === state.aiProviderID)?.model;
-  const [nudge, dismissNudge] = useAssistantNudge(state, assistantReady && !assistantOpen && !state.preferences.assistantQuiet);
+  const [nudge, dismissNudge] = useAssistantNudge(state, assistantReady && !assistantHidden && !assistantOpen && !state.preferences.assistantQuiet);
   const actOnNudge = (next: Nudge) => {
     dismissNudge();
     setAssistantOpen(true);
@@ -397,7 +400,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const scoring = projectKind(draft) === 'score';
   // 音乐与编曲作品都不使用配音时间线和“存为声音”。
   const instrumental = music || scoring;
-  const sidebar = <SidebarNav page={page} setPage={setPage} newDraft={<NewProject locale={state.preferences.uiLocale} modelId={defaultModelId} modelFor={modelFor} create={newDraft} onError={onError} button={{ 'data-testid': 'nav-new', className: 'new-project', width: '100%', size: 'md' }} />} state={state} draft={draft} selectDraft={selectDraft} removeDraft={setDeleteTarget} resizable={navigation.props} />;
+  const sidebar = <SidebarNav page={page} setPage={setPage} newDraft={<NewProject hidden={state.preferences.hiddenFeatures} locale={state.preferences.uiLocale} modelId={defaultModelId} modelFor={modelFor} create={newDraft} onError={onError} button={{ 'data-testid': 'nav-new', className: 'new-project', width: '100%', size: 'md' }} />} state={state} draft={draft} selectDraft={selectDraft} removeDraft={setDeleteTarget} resizable={navigation.props} />;
   const currentCharacter = state.characters.find(c => c.id === (activeSpeaker?.characterId ?? selectedCharacter));
   const currentPerformance = activeSpeaker ? activeCue?.performance : draft.performance;
   const performances = currentCharacter?.performances ?? [];
@@ -441,7 +444,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     : <Button size="sm" variant="primary" label={generateLabel} aria-keyshortcuts="Control+Enter" isDisabled={!generateReady} onClick={generate} />;
   return <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px` } as CSSProperties} gap={0}>
     {!isDesktop ? <HStack as="header" className="browser-titlebar" gap={2} vAlign="center"><Button label={navigation.isCollapsed ? t('@yovoice.app.expandSidebar') : t('@yovoice.app.collapseSidebar')} isIconOnly variant="ghost" size="sm" icon={<PanelLeft size={17} />} aria-expanded={!navigation.isCollapsed} onClick={toggleSidebar} /><b>yovoice</b><small>{t('@yovoice.app.browserPreview')}</small>
-      {ready && launcherHidden && !assistantOpen ? <Suspense fallback={null}><AssistantTitleButton state={state} open={assistantOpen} toggle={() => setAssistantOpen(open => !open)} /></Suspense> : null}
+      {ready && !assistantHidden && launcherHidden && !assistantOpen ? <Suspense fallback={null}><AssistantTitleButton state={state} open={assistantOpen} toggle={() => setAssistantOpen(open => !open)} /></Suspense> : null}
       {page === 'create' ? <Button label={inspectorCollapsed ? t('@yovoice.app.expandInspector') : t('@yovoice.app.collapseInspector')} isIconOnly variant="ghost" size="sm" icon={<PanelRight size={17} />} aria-expanded={!inspectorCollapsed} onClick={toggleInspectorPanel} /> : null}</HStack> : null}
     <AppShell variant="elevated" sideNav={navigation.isCollapsed ? undefined : sidebar} mobileNav={{ breakpoint: 'none' }} height="fill"><VStack className="app-sheet" gap={0}>
       {characterEditor ? <VStack style={{ display: page === 'characters' ? 'flex' : 'none', height: '100%', minHeight: 0 }} gap={0}><PageBoundary name="character-editor"><CharacterEditor active={page === 'characters'} initial={characterEditor} state={state} catalog={catalog} settings={openSettings} apply={characterOrigin.current ? async saved => { const origin = characterOrigin.current!; await applyToTarget(saved, origin.draftId, origin.speakerId); setCharacterEditor(null); } : undefined} close={() => { setCharacterEditor(null); setPage(characterReturnPage.current); }} /></PageBoundary></VStack> : null}
@@ -478,7 +481,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
 
       </VStack>} /></VStack>
     </VStack></AppShell>
-    {ready ? <Suspense fallback={null}><AssistantDock state={state} open={assistantOpen} setOpen={setAssistantOpen} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} actions={askAssistantPanel} launcherHidden={launcherHidden} showLauncher={showLauncher} nudge={nudge} onNudge={actOnNudge} dismissNudge={dismissNudge} /></Suspense> : null}
+    {ready && !assistantHidden ? <Suspense fallback={null}><AssistantDock state={state} open={assistantOpen} setOpen={setAssistantOpen} context={{ ...assistantContext, page: assistantContext.page === 'create' ? 'text' : assistantContext.page }} expanded={assistantExpanded} quickActions={quickActions(t, assistantPage === 'create' ? 'text' : assistantPage)} onToggleExpand={() => setAssistantExpanded(expanded => !expanded)} actions={askAssistantPanel} launcherHidden={launcherHidden} showLauncher={showLauncher} nudge={nudge} onNudge={actOnNudge} dismissNudge={dismissNudge} /></Suspense> : null}
     <Notifications error={error} clearError={() => setError('')} activity={activity} modelActivity={state.modelActivity} draftId={draft.id} page={page} cancel={() => run(() => call('operation.cancel'))} cancelModel={() => run(() => call('model.cancel'))}
       aiTask={state.aiTask} aiTitle={state.drafts.find(item => item.id === state.aiTask?.projectId)?.title} openAITask={() => { const target = state.drafts.find(item => item.id === state.aiTask?.projectId); if (target) selectDraft(target); }}><UpdateNotice /></Notifications>
     <UpdateDialogHost />
@@ -493,6 +496,6 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     {voicePicker ? <Suspense fallback={<p role="status">{t('@yovoice.app.loadingVoicePicker')}</p>}><VoicePicker adding={voicePicker === 'add'} voices={state.voices} onClose={() => setVoicePicker(null)} onSelect={voice => { if ((activeSpeaker || draft.performance) && voicePicker !== 'add') { changeSpeaker(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); } else selectVoice(voice); }} /></Suspense> : null}
     {pronunciation ? <PronunciationDialog pronunciation={pronunciation} setPronunciation={setPronunciation} draft={draft} change={change} editor={editor} /> : null}
     {showIntro ? <IntroScreen onStart={finishIntro} /> : null}
-    {showTour ? <GuideTour onClose={finishTour} /> : null}
+    {showTour ? <GuideTour hidden={state.preferences.hiddenFeatures} onClose={finishTour} /> : null}
   </VStack>;
 }

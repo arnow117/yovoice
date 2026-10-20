@@ -3850,5 +3850,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "Precision"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Features"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Turning a feature off hides its entries in the sidebar and the New menu. Existing works and downloaded models stay as they are."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Import text or subtitles and voice each line by character."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Songs, instrumentals and scores, plus their model and sound font settings."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "The floating assistant, its title bar entry and suggestions. AI service settings stay, so other AI features keep working."
   }
 }

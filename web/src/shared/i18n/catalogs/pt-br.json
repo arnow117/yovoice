@@ -3850,5 +3850,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "Precisão"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Recursos"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Desativar um recurso oculta seus atalhos na barra lateral e no menu Novo. Obras existentes e modelos baixados não são alterados."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Importe texto ou legendas e dê voz a cada linha por personagem."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Músicas, instrumentais e partituras, além das configurações de modelos e bancos de som."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "O assistente flutuante, seu atalho na barra de título e as sugestões. As configurações do serviço de IA continuam e os outros recursos de IA seguem funcionando."
   }
 }

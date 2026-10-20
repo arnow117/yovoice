@@ -120,6 +120,8 @@ Kokoro generates speech with built-in voices and does not require reference audi
 
 The official models support Chinese, American/British English, Spanish, French, Hindi, Italian, and Brazilian Portuguese. Version 1.1-zh uses different voice IDs from version 1.0.
 
+The first Kokoro download also fetches the pronunciation libraries (eSpeak NG and MeCab, about 10 MB) from PyPI, or from the Aliyun PyPI mirror when the download source is ModelScope or the mirror. They are shared by all Kokoro models.
+
 ### Generate speech
 
 ```sh

@@ -3850,5 +3850,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "Точность"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Функции"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Отключённые функции скрываются из боковой панели и меню «Создать». Существующие работы и загруженные модели остаются без изменений."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Импорт текста или субтитров и озвучка каждой реплики по персонажам."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Песни, инструментальная музыка и партитуры, а также настройки их моделей и звуковых банков."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "Плавающий помощник, его кнопка в заголовке окна и подсказки. Настройки ИИ-сервиса сохраняются, остальные функции ИИ продолжают работать."
   }
 }

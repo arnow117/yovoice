@@ -3850,5 +3850,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "Precisione"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Funzioni"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Disattivando una funzione, i suoi accessi spariscono dalla barra laterale e dal menu Nuovo. Le opere esistenti e i modelli scaricati restano invariati."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Importa testo o sottotitoli e dai voce a ogni battuta per personaggio."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Canzoni, basi strumentali e partiture, con le relative impostazioni di modelli e banchi di suoni."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "L’assistente flottante, il suo accesso nella barra del titolo e i suggerimenti. Le impostazioni del servizio IA restano e le altre funzioni IA continuano a funzionare."
   }
 }

@@ -120,6 +120,8 @@ Kokoro 使用内置音色生成语音，不需要参考录音。
 
 官方模型支持中文、英语（美式与英式）、西班牙语、法语、印地语、意大利语和巴西葡萄牙语。1.1-zh 的音色 ID 与 1.0 不通用。
 
+第一次下载 Kokoro 模型时会一并下载发音库（eSpeak NG 与 MeCab，约 10 MB），下载源为 Hugging Face 时取自 PyPI，ModelScope 或镜像源时取自阿里云 PyPI 镜像；所有 Kokoro 模型共用。
+
 ### 生成语音
 
 ```sh

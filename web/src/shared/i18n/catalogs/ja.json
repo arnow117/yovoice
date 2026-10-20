@@ -3850,5 +3850,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "機能の表示"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "オフにするとサイドバーと新規作成メニューから入口が隠れます。既存の作品とダウンロード済みのモデルはそのまま残ります。"
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "テキストや字幕を読み込み、キャラクターごとに一行ずつ吹き替えます。"
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "歌、インスト、スコアの生成と、対応するモデルとサウンドフォントの設定。"
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "フローティングアシスタント、タイトルバーの入口、提案。AI サービスの設定は残り、他の AI 機能は引き続き使えます。"
   }
 }
