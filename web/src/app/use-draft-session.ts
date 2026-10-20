@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { call } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
-import { createDraft, normalizeDraft, type Draft, type State } from '../shared/workbench';
+import { createDraft, type Draft, type State } from '../shared/workbench';
 import { writeLocal } from '../shared/lib/local-store';
 
 const unknownPrefix = '@yovoice.error.unknown::';
@@ -53,7 +53,7 @@ export function useDraftSession(ready: boolean, state: State, onError: (message:
     });
   }, [active, ready, onError]);
 
-  const change = (patch: Partial<Draft>) => { setDraftPersisted(true); setDraft(current => normalizeDraft({ ...current, ...patch })); };
+  const change = (patch: Partial<Draft>) => { setDraftPersisted(true); setDraft(current => ({ ...current, ...patch })); };
 
   // 取消待执行的自动保存，排在已发出的保存之后立即写入。
   async function persistDraft(next: Draft) {

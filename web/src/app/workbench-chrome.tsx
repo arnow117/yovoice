@@ -36,7 +36,7 @@ import { dismissSplash } from '../shared/lib/splash';
 import { IntroScreen } from './intro-screen';
 import { GuideTour } from './guide-tour';
 import { formatNotice } from '../shared/i18n/format';
-import { isAligner, isKokoroModel, isYuE, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab, preferredModel, featureHidden } from '../shared/workbench';
+import { isAligner, isKokoroModel, isYuE, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab, preferredModel, featureHidden } from '../shared/workbench';
 // 助手（含形象与点阵动画）首屏后再加载，不占主包。
 const AssistantDock = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantDock })));
 const AssistantTitleButton = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantTitleButton })));
@@ -131,7 +131,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     if (!update) return;
     if (update.workId !== draft.id || page !== 'create' || session.saving || window.__workbenchDraft !== undefined) return;
     const fresh = state.drafts.find(item => item.id === update.workId);
-    if (fresh) { setDraft(normalizeDraft(fresh)); setDraftPersisted(true); }
+    if (fresh) { setDraft(fresh); setDraftPersisted(true); }
   });
   // 新请求先记入状态，与同一次推送里的作品列表一起渲染后再处理，打开刚创建的作品时才能找到它。
   const [liveRequest, setLiveRequest] = useState<Pick<NonNullable<State['assistantLive']>, 'nav' | 'update'>>({});
@@ -228,7 +228,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   };
   // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来；开场画面与启动动画同一造型，直接接续。
   useEffect(() => { if (error || showIntro) dismissSplash(true); else if (ready) dismissSplash(); }, [ready, error, showIntro]);
-  useEffect(() => { if (ready) setDraft(current => Timeline.accept(normalizeDraft(current), state.history)); }, [state.history, draft.id, ready, setDraft]);
+  useEffect(() => { if (ready) setDraft(current => Timeline.accept(current, state.history)); }, [state.history, draft.id, ready, setDraft]);
   const generate = () => {
     if (state.activity?.status === 'running') return;
     // 还没准备好时：缺参考音频直接打开声音选择，缺模型或推理引擎跳到设置里对应的页面。
@@ -256,14 +256,14 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   }, []);
   async function newDraft(next: Draft) {
     if (draftPersisted) await persistDraft(draft); await persistDraft(next);
-    setDraft(normalizeDraft(next)); setPage('create');
+    setDraft(next); setPage('create');
   }
   // 整本书导入的多个章节作品：倒序保存让第一章排在最前，最后打开第一章。
   async function importBook(drafts: Draft[]) {
     for (const item of drafts.slice(1).reverse()) await call('draft.save', item);
     await newDraft(drafts[0]);
   }
-  function selectDraft(item: Draft) { run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(normalizeDraft(item.id === draft.id ? draft : item)); setDraftPersisted(true); setPage('create'); }); }
+  function selectDraft(item: Draft) { run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(item.id === draft.id ? draft : item); setDraftPersisted(true); setPage('create'); }); }
   function selectVoice(voice: Voice) { if (voicePicker !== 'add') change(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); }
   function annotate(selection: TextSelection) {
     setPronunciation({ ...selection, sound: '' });
@@ -310,7 +310,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const projectList = state.drafts.map(d => d.id === draft.id ? { ...draft, createdAt: d.createdAt, updatedAt: d.updatedAt } : d);
   const [voiceQuery, setVoiceQuery] = useState('');
   const [historyQuery, setHistoryQuery] = useState('');
-  const openHistory = (item: Draft) => run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(normalizeDraft(item)); setDraftPersisted(true); setHistoryQuery(''); setPreviewTrack(null); setPage('history'); });
+  const openHistory = (item: Draft) => run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(item); setDraftPersisted(true); setHistoryQuery(''); setPreviewTrack(null); setPage('history'); });
   const [characterEditor, setCharacterEditor] = useState<Character | null>(null);
   const characterActive = !!characterEditor && page === 'characters';
   const characterReturnPage = useRef('create');
@@ -337,7 +337,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     const source = draftId === 'new' ? { ...createDraft(false, state.preferences.uiLocale), kind: 'text' as const } : projectList.find(d => d.id === draftId);
     if (!source || (source.subtitles && !source.subtitles.speakers.some(s => s.id === speakerId))) throw new Error('@yovoice.error.draftIDInvalid');
     const next = source.subtitles ? { ...source, subtitles: { ...source.subtitles, cues: source.subtitles.cues.map(cue => cue.speakerId === speakerId ? { ...cue, performance: undefined } : cue), speakers: source.subtitles.speakers.map(s => s.id === speakerId ? { ...s, characterId: voice.id, settings: structuredClone(voice.settings) } : s) } } : { ...source, ...structuredClone(voice.settings), characterId: voice.id, performance: undefined };
-    if (draftId === draft.id) { await persistDraft(next); setDraft(normalizeDraft(next)); setPage('create'); }
+    if (draftId === draft.id) { await persistDraft(next); setDraft(next); setPage('create'); }
     else await newDraft(next);
     if (next.subtitles) setCueSelection(current => ({ draftId: next.id, index: Math.max(0, next.subtitles!.cues.findIndex(c => c.speakerId === speakerId)), revision: (current?.revision ?? 0) + 1 }));
   }

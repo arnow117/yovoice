@@ -160,7 +160,7 @@ export interface AssistantMemo { id: string; text: string; createdAt: string }
 export interface AssistantBlock { kind: 'text' | 'thinking' | 'tool'; text?: string; card?: AssistantToolCard }
 /** 助手消息：blocks 为按顺序的内容块，text 为文本块拼接；tools 只出现在旧版本记录里。 */
 export interface AssistantMessage {
-  id: string; role: AssistantMessageRole; text?: string; blocks?: AssistantBlock[]; tools?: AssistantToolCard[];
+  id: string; role: AssistantMessageRole; text?: string; blocks?: AssistantBlock[];
   status?: 'completed' | 'cancelled' | 'failed'; errorCode?: MessageCode; errorParams?: MessageParams; createdAt: string;
 }
 /** 拼接内容块里的文本块，段与段之间空一行，与 Go 的 blocksText 一致。 */
@@ -267,13 +267,4 @@ export const isReferenceModel = (id: string) => id.startsWith('omnivoice-') || i
 export const isBreezeModel = (id: string) => id.startsWith('breeze-tts-');
 export const requiresVoice = (draft: Draft) => isKokoroModel(draft.modelId) || !isVoiceModel(draft.modelId) ? false : draft.modelId.startsWith('qwen3-tts-') ? !/customvoice|voicedesign/.test(draft.modelId) : draft.modelId.startsWith('omnivoice-') || isBreezeModel(draft.modelId) ? draft.voiceMode === 'clone' : !isVoxModel(draft.modelId) || ['clone', 'continuation'].includes(draft.voxMode ?? 'design');
 
-// 旧字幕的身份与 Go 保持一致，编辑后不再依赖数组位置。
 export const emptyScore = (): Score => ({ tempo: 100, timeSignature: [4, 4], key: '', sections: [], tracks: [] });
-
-// 打开或修改作品时统一补齐旧数据：台词补上稳定 ID，缺少乐谱的编曲作品补一份空乐谱，避免渲染时崩溃。
-export function normalizeDraft(draft: Draft): Draft {
-  let next = draft;
-  if (next.kind === 'score' && !Array.isArray(next.score?.tracks)) next = { ...next, score: { ...emptyScore(), ...next.score, tracks: [] } };
-  if (!next.subtitles || next.subtitles.cues.every(c => c.id)) return next;
-  return { ...next, subtitles: { ...next.subtitles, cues: next.subtitles.cues.map((cue, index) => ({ ...cue, id: cue.id ?? `legacy-${next.id}-${index}` })) } };
-}

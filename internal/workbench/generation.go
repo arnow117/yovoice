@@ -125,7 +125,7 @@ func (w *Workbench) startGeneration(d schema.Draft, previewID, cueID, clipID str
 	if d.Kind == "score" {
 		return w.startScore(d, saveDraft)
 	}
-	d.EnsureCueIDs()
+	d.Normalize()
 	original := d
 	if cueID != "" {
 		if d.Subtitles == nil {
