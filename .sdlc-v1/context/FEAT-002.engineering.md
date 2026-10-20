@@ -4,6 +4,12 @@
 
 ## Plan
 
+### 2026-10-20 零模型重启遇锁屏后停止
+
+用户明确答复“授权一次零模型重启，失败即停”，主在b18e4b3完成既有State/A、原receipt包及固定输入预检后，只启动同包一次、0次提取。实际宿主/服务路径核对正确，但Computer Use返回Mac已锁定且自动解锁失败，未观察到实际窗口；主停止本轮，没有继续业务动作或重试。仅对重新核对精确命令的自有79322/79324发送SIGTERM，两者均消失，open-W退出0。清理完成距启动310.927秒，超出300秒10.927秒，明确不算预算通过；之后只做无App的元数据采证。保留同一Task、全部失败历史和已用诊断allowance，不修改生产实现来应对锁屏。
+
+重启前后实际JSON内容及包/资产/源码相同，精确A仍在、B未恢复，但磁盘事实不能代替窗口可见和正常退出的证据。正式Validate仍未通过，不启动Review。下一次仅在用户解锁并重新明确授权后补1启动/0提取：先通过Computer Use读取已经运行的Codex窗口确认桌面可访问，再启动yovoice；进程监督独立于CUA调用，以较早的停止期限预留回收和采证时间，含收尾仍最多300秒。首次失败停止，不重跑五次成功提取、不补造登记前初始化快照。当前没有新的App启动授权，剩余私有官方样本A仅以0700留存供该检查，未导出向量。
+
 ### 2026-10-20 原生采证停止后仅补剩余重启
 
 用户“可以的”明确授权此前2启动/5提取、CPU1、T=.6/M=.05/120秒、20分钟、首次验收断言失败停止的一次新包旅程。主实际完成1启动/5提取和全部登记/查询/删除恢复后，正常退出，再在采证脚本的mtime断言失败处停止；未自行使用第二次启动。源码和App没有修改，保留同一Task、全部失败历史和已用诊断allowance。
@@ -446,7 +452,17 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-当前候选5718277的必要确定性检查已由独立核对；2026-10-20新包在d34fbb1源码记录下实际完成双登记、双known精确ID正确、unknown拒绝、删除故障提示及恢复删除。因采证断言失败已停止，唯一剩余是同包同data的重启/持久化检查（NOT_RUN），正式validation保持fail / INCONCLUSIVE，Review未执行。缺失的登记前初始化hash快照如实保留，不能声称完整三阶段State相等。逐条时延延期，物理Mic与真实TTS听测仍NOT_RUN；全部旧包及历史失败保留版本边界。
+当前候选5718277的必要确定性检查已由独立核对；2026-10-20新包在d34fbb1源码记录下实际完成双登记、双known精确ID正确、unknown拒绝、删除故障提示及恢复删除。后续b18e4b3下的一次零模型重启遇Mac锁屏，已停止并回收自有进程，0提取；清理310.927秒超出300秒，窗口可见及正常退出仍未验证。磁盘State/A及运行时输入一致不能代替UI证据，正式validation保持fail，归因为ENV_BLOCKED并保留执行超预算事实，Review未执行。缺失的登记前初始化hash快照如实保留，不能声称完整三阶段State相等。逐条时延延期，物理Mic与真实TTS听测仍NOT_RUN；全部旧包及历史失败保留版本边界。
+
+### 2026-10-20 零模型重启：Mac锁屏，未通过
+
+被测源码b18e4b32ad1f1daa166cf63e1f0b02d9e5aace3b，工作树在运行中未变；同一worker-20261019-delete-feedback-fix包及原receipt未改。只读负载预检无项目残留，CPU约76%空闲、当次无换页；原私有data为0700，已存在初始化State且精确A为0467a9df94ef3467747b1948214051c8。既有capture命令实际exit0，before与上一轮退出的State/公开档案/固定输入相同，App完整package等于原receipt。相对d34只有三个SDLC文件变化，不声称跨提交完整source相等。
+
+实际命令为`env -u WORKBENCH_SMOKE_SCRIPT /usr/bin/open -W --stdout <attempt>/restart-only-001/stdout.log --stderr <attempt>/restart-only-001/stderr.log --env WORKBENCH_DATA=<attempt>/data --env WORKBENCH_DEBUG=1 --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env MKL_NUM_THREADS=1 <app>`；attempt和app沿用下节的绝对对象，完整argv见本轮launch-command.json（依据实际工具调用整理，非原始终端日志）。startEpoch1792453865.186435，宿主79322/服务79324实际可执行路径均在该包。CUA getApp精确路径返回“The Mac is locked and automatic unlock could not unlock it”，没有AX/截图或实际窗口观察。记录ENV_BLOCKED，不能归因为App闪退或界面空白；本轮1启动/0提取，不继续模型或重新启动。
+
+停止后逐PID核对实际命令，仅向79322/79324发送SIGTERM并确认均不存在；open会话2860退出0，此退出码只证明启动命令结束，不等于正常CmdQ验收通过。清理完成epoch1792454176.113，elapsed310.927秒，within300Seconds=false；超出10.927秒如实保留。自有CUA kernel已重置，无共享进程清理。之后capture元数据命令exit0，before→after-cleanup的normalizedState、完整公开档案、sourceCandidate、App/Web、files/固定资产、manifest及版本均严格相同；A仍唯一、B缺失、Voices空，State hash仍5ba6915a06f682a9e2a669ced6359c4e9976c77cfa01d7f36c228f54b204e48c。这只证明磁盘和输入稳定，实际可见及正常退出条件仍缺。
+
+原件在`artifacts/verification/feature-002-goal-acceptance-20261019/cua-acceptance-002-delete-feedback/restart-only-001/`：authorization、before、owned-processes-running、result、after-cleanup、post-cleanup-comparisons与stdout/stderr；CUA锁屏输出在主会话，没有本地PNG。剩余私有A特征有意保留在原0700 ignored data，供可能明确授权的零模型检查，未输出embedding。必要条件尚未通过，不能完成Feature或进入正式Review；不重复相同确定性检查、不自动再次启动。
 
 ### 2026-10-20 新包真实主流程通过，采证断言失败后停止
 
