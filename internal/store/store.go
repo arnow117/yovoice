@@ -202,7 +202,15 @@ func clone(s schema.State) schema.State {
 }
 func (s *Store) Read() schema.State { s.mu.Lock(); defer s.mu.Unlock(); return clone(s.state) }
 
-// Update 在内存副本上应用修改；persist 为真时先把变化的记录在一个事务中写入数据库，提交成功后才替换内存状态。
+// ReadJSON 直接返回当前状态的 JSON，供状态推送使用，省去 Read 复制后再序列化的一轮。
+func (s *Store) ReadJSON() ([]byte, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return json.Marshal(s.state)
+}
+
+// Update 应用修改：persist 为真时在内存副本上修改，先把变化的记录在一个事务中写入数据库，提交成功后才替换内存状态；
+// 否则只修改内存中的状态。
 func (s *Store) Update(change func(*schema.State), persist bool) (err error) {
 	defer func() {
 		if err != nil {
@@ -211,46 +219,53 @@ func (s *Store) Update(change func(*schema.State), persist bool) (err error) {
 	}()
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if persist {
-		if e := s.checkWritable(); e != nil {
-			return e
-		}
+	// 只在内存中更新的进度与实时状态每秒会有多次，直接修改当前状态，不再整份复制。
+	if !persist {
+		change(&s.state)
+		s.notify()
+		return nil
+	}
+	if e := s.checkWritable(); e != nil {
+		return e
 	}
 	next := clone(s.state)
 	change(&next)
-	if persist {
-		snap, e := encode(&next)
-		if e != nil {
-			return e
-		}
-		changed, e := commit(s.db, s.saved, snap)
-		if e != nil {
-			return s.writeError(e)
-		}
-		s.saved = snap
-		if changed {
-			if next.Preferences.UiLocale != s.state.Preferences.UiLocale {
-				s.state.Preferences.UiLocale = next.Preferences.UiLocale
-				if e = s.writeHostPreferences(); e != nil {
-					diag.Log(s.Root, "state.host_preferences_failed", "error", diag.Error(e))
-				}
+	snap, e := encode(&next)
+	if e != nil {
+		return e
+	}
+	changed, e := commit(s.db, s.saved, snap)
+	if e != nil {
+		return s.writeError(e)
+	}
+	s.saved = snap
+	if changed {
+		if next.Preferences.UiLocale != s.state.Preferences.UiLocale {
+			s.state.Preferences.UiLocale = next.Preferences.UiLocale
+			if e = s.writeHostPreferences(); e != nil {
+				diag.Log(s.Root, "state.host_preferences_failed", "error", diag.Error(e))
 			}
-			if time.Since(s.backedUp) >= backupInterval {
-				if e = backup(s.db, filepath.Join(s.Root, backupFile)); e != nil {
-					diag.Log(s.Root, "state.backup_failed", "error", diag.Error(e))
-				}
-				s.backedUp = time.Now()
+		}
+		if time.Since(s.backedUp) >= backupInterval {
+			if e = backup(s.db, filepath.Join(s.Root, backupFile)); e != nil {
+				diag.Log(s.Root, "state.backup_failed", "error", diag.Error(e))
 			}
+			s.backedUp = time.Now()
 		}
 	}
 	s.state = next
+	s.notify()
+	return nil
+}
+
+// notify 通知订阅者状态已变化；通道只缓冲一次，来不及处理的多次变化合并为一次推送。
+func (s *Store) notify() {
 	for ch := range s.subscribers {
 		select {
 		case ch <- struct{}{}:
 		default:
 		}
 	}
-	return nil
 }
 
 // writeHostPreferences 写出原生宿主需要的界面语言，结构与旧版 state.json 的 preferences 保持一致。

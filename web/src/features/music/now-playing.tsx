@@ -21,9 +21,14 @@ const skipStep = 10;
 // 校准时撤销一行后往回退的秒数，方便重新听到这一句的开头。
 const undoRewind = 3;
 
+// 超过这个时长（秒）的音频不再整段解码分析，避免长音频占满内存拖住界面（#92）；封面不起伏、歌词按时长估算。
+const analyseLimit = 15 * 60;
+
 // 读取整首音频：算出每 50ms 的响度（0~1）给动效用，并找出有人声的片段给歌词定位；失败时不起伏、歌词按时长估算。
-async function analyse(url: string): Promise<{ envelope: number[]; activity?: VocalActivity; duration?: number }> {
-  const context = new AudioContext();
+// 人声检测本就在 16 kHz 上进行，直接按 16 kHz 解码，解码后的数据只有 48 kHz 的三分之一。
+async function analyse(url: string, duration: number): Promise<{ envelope: number[]; activity?: VocalActivity; duration?: number }> {
+  if (duration > analyseLimit) return { envelope: [] };
+  const context = new AudioContext({ sampleRate: 16000 });
   try {
     const response = await fetch(url); if (!response.ok) return { envelope: [] };
     const buffer = await context.decodeAudioData(await response.arrayBuffer());
@@ -129,14 +134,14 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
       resource = value;
       if (disposed) { if (value.startsWith('blob:')) URL.revokeObjectURL(value); return; }
       setUrl(value);
-      void analyse(value).then(result => {
+      void analyse(value, item.duration).then(result => {
         if (disposed) return;
         envelope.current = result.envelope;
         if (result.activity && result.duration) setVoice({ activity: result.activity, duration: result.duration });
       });
     }, (error: Error) => { if (!disposed) onError(error.message); });
     return () => { disposed = true; if (resource.startsWith('blob:')) URL.revokeObjectURL(resource); };
-  }, [item.fileName, onError]);
+  }, [item.fileName, item.duration, onError]);
   // 弹窗打开时焦点落在播放页本身，不选中关闭按钮，空格直接控制播放。
   useEffect(() => {
     const frame = requestAnimationFrame(() => stage.current?.focus({ preventScroll: true }));

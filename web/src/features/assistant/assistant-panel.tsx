@@ -17,6 +17,7 @@ import { Selector } from '../../shared/selector';
 import voiceArt from '../../assets/assistant/empty-voice.webp';
 import musicArt from '../../assets/assistant/empty-music.webp';
 import storyArt from '../../assets/assistant/empty-story.webp';
+import { useAssistantLive } from '../../shared/lib/assistant-live';
 
 // 助手面板：浮在工作区上的对话卡片，拖标题栏移动、拖左上边角缩放；放大只拉长到窗口高度、宽度不变，向下箭头收起成入口。
 // 对话按会话组织（标题处切换历史），发送、停止、新建、删除经 assistant.* RPC；运行中的一轮按内容块实时渲染。
@@ -38,7 +39,7 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
   onToggleExpand: () => void; onClose: () => void; actions: AssistantPanelActions;
 }) {
   const t = useTranslator();
-  const live = state.assistantLive;
+  const live = useAssistantLive();
   const running = !!live?.turn;
   const sessions = state.assistantSessions?.sessions ?? [];
   const current = sessions.find(session => session.id === state.assistantSessions?.currentId);

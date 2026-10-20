@@ -1463,6 +1463,9 @@
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "沒有符合的結果"
   },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "顯示更早的 {n} 筆"
+  },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 種語言 · 49 種音色 · 不含日語"
   },

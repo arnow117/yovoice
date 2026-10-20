@@ -1463,6 +1463,9 @@
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "Aucun résultat"
   },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "Afficher {n} plus anciens"
+  },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 langues · 49 voix · pas de japonais"
   },

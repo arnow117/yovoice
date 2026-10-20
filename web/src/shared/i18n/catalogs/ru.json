@@ -1463,6 +1463,9 @@
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "Ничего не найдено"
   },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "Показать ещё {n} более ранних"
+  },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 языков · 49 голосов · без японского"
   },

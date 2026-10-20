@@ -50,6 +50,7 @@ import { UpdateDialogHost } from '../features/update/update-dialog';
 import { UpdateNotice } from '../features/update/update-notice';
 import { PronunciationDialog, type Pronunciation } from './pronunciation-dialog';
 import type { DraftSession } from './use-draft-session';
+import { watchAssistantLive } from '../shared/lib/assistant-live';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
 const VoicePicker = lazy(() => import('../features/media/voice-picker').then(module => ({ default: module.VoicePicker })));
 
@@ -120,19 +121,13 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   // 编辑页的当前页面键（text/story/music/score），其余页面直接用页面名。
   const assistantPage = page === 'create' || page === 'history' ? projectKind(draft) : page === 'voices' ? 'voices' : page;
   const askAssistantPanel = { openWork: (workId: string) => { const target = state.drafts.find(item => item.id === workId); if (target) selectDraft(target); }, openSettings: () => openSettings(draft.modelId, 'ai') };
-  // 助手要求界面跳转：open_work/open_page 事件各消费一次。
+  // 助手要求界面跳转（open_work/open_page）与保存了正打开的作品，各消费一次；只订阅变化，流式输出时不重绘整个界面。
   const consumedNav = useRef<string | undefined>(undefined);
   const applyAssistantNav = useEffectEvent((nav: NonNullable<State['assistantLive']>['nav']) => {
     if (!nav) return;
     if (nav.workId) askAssistantPanel.openWork(nav.workId);
     else if (nav.page) setPage(nav.page);
   });
-  useEffect(() => {
-    const nav = state.assistantLive?.nav;
-    if (!nav || nav.id === consumedNav.current) return;
-    consumedNav.current = nav.id;
-    applyAssistantNav(nav);
-  }, [state.assistantLive?.nav]);
   // 助手保存了正打开的作品：本地没有未保存修改时，编辑器即时换上新内容。
   const consumedUpdate = useRef<string | undefined>(undefined);
   const applyAssistantUpdate = useEffectEvent((update: NonNullable<State['assistantLive']>['update']) => {
@@ -141,12 +136,15 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     const fresh = state.drafts.find(item => item.id === update.workId);
     if (fresh) { setDraft(normalizeDraft(fresh)); setDraftPersisted(true); }
   });
-  useEffect(() => {
-    const update = state.assistantLive?.update;
-    if (!update || update.id === consumedUpdate.current) return;
-    consumedUpdate.current = update.id;
-    applyAssistantUpdate(update);
-  }, [state.assistantLive?.update]);
+  // 新请求先记入状态，与同一次推送里的作品列表一起渲染后再处理，打开刚创建的作品时才能找到它。
+  const [liveRequest, setLiveRequest] = useState<Pick<NonNullable<State['assistantLive']>, 'nav' | 'update'>>({});
+  useEffect(() => watchAssistantLive(live => {
+    const nav = live?.nav, update = live?.update;
+    if (nav && nav.id !== consumedNav.current) { consumedNav.current = nav.id; setLiveRequest(current => ({ ...current, nav })); }
+    if (update && update.id !== consumedUpdate.current) { consumedUpdate.current = update.id; setLiveRequest(current => ({ ...current, update })); }
+  }), []);
+  useEffect(() => applyAssistantNav(liveRequest.nav), [liveRequest.nav]);
+  useEffect(() => applyAssistantUpdate(liveRequest.update), [liveRequest.update]);
 
   // 宽屏下右侧检查器的收起状态，跨作品、跨启动保留。
   const [inspectorCollapsed, setInspectorCollapsed] = useState(() => { try { return localStorage.getItem('workbench-inspector-collapsed') === '1'; } catch { return false; } });
@@ -447,7 +445,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     : <Button size="sm" variant="primary" label={generateLabel} aria-keyshortcuts="Control+Enter" isDisabled={!generateReady} onClick={generate} />;
   return <VStack className={`workbench ${isDesktop ? 'desktop' : 'preview'}`} style={{ '--app-nav': `${navigation.size}px` } as CSSProperties} gap={0}>
     {!isDesktop ? <HStack as="header" className="browser-titlebar" gap={2} vAlign="center"><Button label={navigation.isCollapsed ? t('@yovoice.app.expandSidebar') : t('@yovoice.app.collapseSidebar')} isIconOnly variant="ghost" size="sm" icon={<PanelLeft size={17} />} aria-expanded={!navigation.isCollapsed} onClick={toggleSidebar} /><b>yovoice</b><small>{t('@yovoice.app.browserPreview')}</small>
-      {ready && !assistantHidden && launcherHidden && !assistantOpen ? <Suspense fallback={null}><AssistantTitleButton state={state} open={assistantOpen} toggle={() => setAssistantOpen(open => !open)} /></Suspense> : null}
+      {ready && !assistantHidden && launcherHidden && !assistantOpen ? <Suspense fallback={null}><AssistantTitleButton open={assistantOpen} toggle={() => setAssistantOpen(open => !open)} /></Suspense> : null}
       {page === 'create' ? <Button label={inspectorCollapsed ? t('@yovoice.app.expandInspector') : t('@yovoice.app.collapseInspector')} isIconOnly variant="ghost" size="sm" icon={<PanelRight size={17} />} aria-expanded={!inspectorCollapsed} onClick={toggleInspectorPanel} /> : null}</HStack> : null}
     <AppShell variant="elevated" sideNav={navigation.isCollapsed ? undefined : sidebar} mobileNav={{ breakpoint: 'none' }} height="fill"><VStack className="app-sheet" gap={0}>
       {characterEditor ? <VStack style={{ display: page === 'characters' ? 'flex' : 'none', height: '100%', minHeight: 0 }} gap={0}><PageBoundary name="character-editor"><CharacterEditor active={page === 'characters'} initial={characterEditor} state={state} catalog={catalog} settings={openSettings} apply={characterOrigin.current ? async saved => { const origin = characterOrigin.current!; await applyToTarget(saved, origin.draftId, origin.speakerId); setCharacterEditor(null); } : undefined} close={() => { setCharacterEditor(null); setPage(characterReturnPage.current); }} /></PageBoundary></VStack> : null}

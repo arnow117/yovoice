@@ -1463,6 +1463,9 @@
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "Không có kết quả phù hợp"
   },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "Hiện thêm {n} mục cũ hơn"
+  },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 ngôn ngữ · 49 giọng · Không có tiếng Nhật"
   },
