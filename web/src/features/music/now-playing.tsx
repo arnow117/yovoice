@@ -2,7 +2,8 @@ import { useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState, 
 import { Button } from '@astryxdesign/core/Button';
 import { Dialog } from '@astryxdesign/core/Dialog';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
-import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, Download, FastForward, Maximize, Minimize, Pause, Play, Rewind, Sparkles } from 'lucide-react';
 import { call, mediaUrl, saveText, releaseMediaUrl } from '../../shared/lib/client';
@@ -271,13 +272,13 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
   const lineState = (index: number) => index === current ? 'current' : index < current ? 'past' : 'next';
   // 滚动歌词只把当前句拆成逐字，其余行是整句文字。
   const lineText = (line: LyricLine, index: number) => line.instrumental ? '• • •'
-    : !sync && index === current && line.words ? line.words.map((word, k) => <span key={k} className="now-playing-word" data-word-start={word.start} data-word-end={word.end}>{word.text}</span>) : line.text;
+    : !sync && index === current && line.words ? line.words.map((word, k) => <Text type="inherit" color="inherit" key={k} className="now-playing-word" data-word-start={String(word.start)} data-word-end={String(word.end)}>{word.text}</Text>) : line.text;
   // 浮光样式只显示上一句（正在飘走）、当前句和下一句预告；每句按行号保持同一个元素，换句时在三个位置之间过渡。
   const phrase = (index: number) => {
     const line = lines[index], words = line.words ?? [{ text: line.text, start: line.start, end: line.end }];
     return <p key={index} className="now-playing-phrase" data-slot={index < current ? 'past' : index === current ? 'current' : 'next'} data-instrumental={line.instrumental || undefined} aria-hidden={index !== current || undefined}>
-      {line.instrumental ? <span className="now-playing-rest">• • •</span> : words.map((word, k) => <span key={k} className="now-playing-glyph" data-word-start={word.start} data-word-end={word.end}
-        style={{ '--glyph-tilt': `${jitter(index * 97 + k) * 14}deg`, '--glyph-drift': jitter(index * 131 + k * 7 + 3), '--glyph-size': 1 + jitter(index * 17 + k * 29 + 5) * .3 } as CSSProperties}>{word.text}</span>)}
+      {line.instrumental ? <Text type="inherit" color="inherit" className="now-playing-rest">• • •</Text> : words.map((word, k) => <Text type="inherit" color="inherit" key={k} className="now-playing-glyph" data-word-start={String(word.start)} data-word-end={String(word.end)}
+        style={{ '--glyph-tilt': `${jitter(index * 97 + k) * 14}deg`, '--glyph-drift': jitter(index * 131 + k * 7 + 3), '--glyph-size': 1 + jitter(index * 17 + k * 29 + 5) * .3 } as CSSProperties}>{word.text}</Text>)}
     </p>;
   };
   return <Dialog className="now-playing-dialog" isOpen variant="fullscreen" padding={0} aria-label={t('@yovoice.music.nowPlayingTitle', { title })}
@@ -314,7 +315,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
           {document.fullscreenEnabled ? <Button className="now-playing-glass now-playing-round" label={t(fullscreen ? '@yovoice.music.exitFullscreen' : '@yovoice.music.fullscreen')} isIconOnly variant="ghost" icon={fullscreen ? <Minimize /> : <Maximize />} onClick={toggleFullscreen} /> : null}
         </HStack>
       </HStack>
-      {staged ? <span className="now-playing-shapes" aria-hidden>{shapes.map((shape, index) => <span key={index} className="now-playing-shape" data-shape={shape} style={{ '--shape-index': index, '--shape-x': `${(index * 37 + 8) % 90}%`, '--shape-y': `${(index * 53 + 12) % 80}%`, '--shape-scale': 1.2 + (index * 7 % 5) * .5 } as CSSProperties} />)}</span> : null}
+      {staged ? <StackItem as="span" className="now-playing-shapes" aria-hidden>{shapes.map((shape, index) => <StackItem as="span" key={index} className="now-playing-shape" data-shape={shape} style={{ '--shape-index': index, '--shape-x': `${(index * 37 + 8) % 90}%`, '--shape-y': `${(index * 53 + 12) % 80}%`, '--shape-scale': 1.2 + (index * 7 % 5) * .5 } as CSSProperties} />)}</StackItem> : null}
       <HStack className={`now-playing-stage ${lines.length ? '' : 'now-playing-solo'}`.trim()} gap={0} vAlign="center">
         <VStack className="now-playing-side" gap={6}>
           <VStack className="now-playing-art" gap={0}><SongCover seed={item.id} animated={playing} size={640} /></VStack>

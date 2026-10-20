@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { ChatComposer, ChatMessage, ChatMessageBubble, ChatMessageList, ChatSendButton } from '@astryxdesign/core/Chat';
-import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
 import { List, ListItem } from '@astryxdesign/core/List';
+import { Text } from '@astryxdesign/core/Text';
 import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { ChevronDown, ChevronLeft, Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen, SquarePen, TextQuote, Trash2 } from 'lucide-react';
@@ -120,10 +121,10 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
   };
 
   return <VStack className={`assistant-panel${expanded ? ' expanded' : ''}`} gap={0} style={style} data-moving={frame.moving || undefined} data-testid="assistant-panel" data-open="true" role="complementary" aria-label={t('@yovoice.assistant.title')}>
-    <span className="assistant-resize" data-edge="left" aria-hidden onPointerDown={frame.begin('left')} />
+    <StackItem as="span" className="assistant-resize" data-edge="left" aria-hidden onPointerDown={frame.begin('left')} />
     {expanded ? null : <>
-      <span className="assistant-resize" data-edge="top" aria-hidden onPointerDown={frame.begin('top')} />
-      <span className="assistant-resize" data-edge="top-left" aria-hidden onPointerDown={frame.begin('top-left')} />
+      <StackItem as="span" className="assistant-resize" data-edge="top" aria-hidden onPointerDown={frame.begin('top')} />
+      <StackItem as="span" className="assistant-resize" data-edge="top-left" aria-hidden onPointerDown={frame.begin('top-left')} />
     </>}
     <HStack className="assistant-header" vAlign="center" gap={1}
       onPointerDown={frame.begin('move')}
@@ -132,7 +133,8 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
       <Button data-testid="assistant-history-toggle" size="sm" variant="ghost" isIconOnly icon={historyOpen ? <PanelLeftClose size={15} /> : <PanelLeftOpen size={15} />} label={t('@yovoice.assistant.history')}
         aria-expanded={historyOpen} onClick={() => { setHistoryOpen(open => !open); setDeleting(null); }} />
       <AssistantAvatar working={running} size={24} />
-      <span className="assistant-title grow" title={t('@yovoice.assistant.move')}>{title}</span>
+      {/* Text 的属性类型不含 title，拖动提示用展开写法原样传给 DOM。 */}
+      <Text type="inherit" color="inherit" className="assistant-title grow" {...{ title: t('@yovoice.assistant.move') }}>{title}</Text>
       {live?.queued ? <small className="assistant-queued">{t('@yovoice.assistant.queued', { count: live.queued })}</small> : null}
       <Button size="sm" variant="ghost" isIconOnly icon={<SquarePen size={15} />} label={t('@yovoice.assistant.newChat')} isDisabled={running} onClick={newSession} />
       <Button size="sm" variant="ghost" isIconOnly icon={expanded ? <Minimize2 size={15} /> : <Maximize2 size={15} />} label={expanded ? t('@yovoice.assistant.collapse') : t('@yovoice.assistant.expand')} onClick={onToggleExpand} />
@@ -160,9 +162,9 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
       </ChatMessageList>}
     </VStack>
     {runtimeMissing ? <HStack className="assistant-notice" role="alert" gap={2} vAlign="center">
-      <span className="grow">{t('@yovoice.ai.assistantMissing')}</span>
+      <Text type="inherit" color="inherit" className="grow">{t('@yovoice.ai.assistantMissing')}</Text>
     </HStack> : !configured ? <HStack className="assistant-notice" gap={2} vAlign="center">
-      <span className="grow">{t('@yovoice.assistant.setup')}</span>
+      <Text type="inherit" color="inherit" className="grow">{t('@yovoice.assistant.setup')}</Text>
       <Button size="sm" variant="secondary" label={t('@yovoice.ai.configure')} onClick={actions.openSettings} />
     </HStack> : <VStack className="assistant-dock-bottom" gap={0}>
       <ChatComposer className="assistant-composer" density="compact" value={draft} onChange={setDraft}
@@ -178,12 +180,12 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
     </VStack>}
     {/* 历史是从左侧滑出的抽屉，右边留一条遮罩露出当前对话，点遮罩或返回即收起。 */}
     {historyOpen ? <>
-      <span className="assistant-scrim" aria-hidden onClick={() => setHistoryOpen(false)} />
+      <StackItem as="span" className="assistant-scrim" aria-hidden onClick={() => setHistoryOpen(false)} />
       <VStack className="assistant-history" gap={0} data-testid="assistant-history" role="dialog" aria-label={t('@yovoice.assistant.history')}>
         {/* 抽屉头：左侧返回，右侧新对话；列表每行一条会话，标题单行截断，条数和时间在下一行，删除按钮悬停时出现。 */}
         <HStack className="assistant-history-header" vAlign="center" gap={1}>
           <Button size="sm" variant="ghost" isIconOnly icon={<ChevronLeft size={16} />} label={t('@yovoice.assistant.back')} onClick={() => setHistoryOpen(false)} />
-          <span className="assistant-title grow">{t('@yovoice.assistant.history')}</span>
+          <Text type="inherit" color="inherit" className="assistant-title grow">{t('@yovoice.assistant.history')}</Text>
           <Button size="sm" variant="ghost" isIconOnly icon={<SquarePen size={15} />} label={t('@yovoice.assistant.newChat')} tooltip={t('@yovoice.assistant.newChat')} isDisabled={running} onClick={newSession} />
         </HStack>
         <VStack className="assistant-history-list" gap={0}>
