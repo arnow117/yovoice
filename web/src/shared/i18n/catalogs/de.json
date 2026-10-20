@@ -2738,6 +2738,42 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "Liedtext exportieren (LRC)"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "Liedtextstil"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "Scrollend"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "Der ganze Text scrollt mit, die aktuelle Zeile leuchtet Wort für Wort auf"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "Spotlight"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "Eine Zeile pro Bild, jedes Wort springt hervor und leuchtet. Ideal für Bildschirmaufnahmen"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "Liedtext mit Wortzeiten exportieren"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "Erweitertes LRC mit Zeitstempel pro Wort, für Player mit Karaoke-Liedtexten"
+  },
+  "@yovoice.music.alignLyrics": {
+    "defaultMessage": "Automatisch ausrichten"
+  },
+  "@yovoice.music.aligningLyrics": {
+    "defaultMessage": "Wird ausgerichtet"
+  },
+  "@yovoice.music.alignLyricsHint": {
+    "defaultMessage": "Trennt den Gesang ab und richtet jedes Wort des Textes am Gesang aus; wird mit dieser Version gespeichert"
+  },
+  "@yovoice.music.alignLyricsDownload": {
+    "defaultMessage": "Lade zuerst den optionalen Liedtext-Aligner herunter (ca. 1,3 GB)"
+  },
+  "@yovoice.music.lyricsAligned": {
+    "defaultMessage": "Liedtext Wort für Wort am Gesang ausgerichtet; zum Feinjustieren synchronisieren"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Songtext-Timing aus dem Gesang ermittelt; zum Verfeinern synchronisieren"
   },
@@ -2951,6 +2987,21 @@
   "@yovoice.activity.transcribe": {
     "defaultMessage": "Melodie wird aus dem Song extrahiert"
   },
+  "@yovoice.activity.separateVocals": {
+    "defaultMessage": "Gesang wird getrennt"
+  },
+  "@yovoice.activity.alignLyrics": {
+    "defaultMessage": "Liedtext wird ausgerichtet ({done}/{total})"
+  },
+  "@yovoice.error.alignModelRequired": {
+    "defaultMessage": "Lade zuerst den Liedtext-Aligner unter Musikmodelle in den Einstellungen herunter"
+  },
+  "@yovoice.error.alignLyrics": {
+    "defaultMessage": "Diese Version hat keinen Liedtext zum Ausrichten"
+  },
+  "@yovoice.error.alignEmpty": {
+    "defaultMessage": "Der Liedtext ließ sich nicht dem Gesang zuordnen; synchronisiere ihn von Hand"
+  },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "Die Melodienoten enthalten einen Fehler: {issue}"
   },
@@ -2965,6 +3016,9 @@
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transkribiert Melodie und Akkorde eines Songs in Noten, für Coverversionen mit YuE2."
+  },
+  "@yovoice.settings.modelDesc.lyricAlign": {
+    "defaultMessage": "Optional: trennt den Gesang ab und richtet den Liedtext Wort für Wort am Gesang aus, für Wort-für-Wort-Animationen und den Export als Wort-LRC. Unterstützt 11 Sprachen, darunter Chinesisch, Englisch, Japanisch und Koreanisch."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Aus Melodienoten erzeugen"

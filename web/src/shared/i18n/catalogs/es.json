@@ -2738,6 +2738,42 @@
   "@yovoice.music.exportLrc": {
     "defaultMessage": "Exportar letra (LRC)"
   },
+  "@yovoice.music.lyricStyle": {
+    "defaultMessage": "Estilo de letra"
+  },
+  "@yovoice.music.lyricStyleScroll": {
+    "defaultMessage": "Desplazamiento"
+  },
+  "@yovoice.music.lyricStyleScrollHint": {
+    "defaultMessage": "La letra completa se desplaza y la línea actual se ilumina palabra por palabra"
+  },
+  "@yovoice.music.lyricStyleStage": {
+    "defaultMessage": "Foco"
+  },
+  "@yovoice.music.lyricStyleStageHint": {
+    "defaultMessage": "Una línea a la vez; cada palabra salta y brilla. Ideal para grabar la pantalla"
+  },
+  "@yovoice.music.exportWordLrc": {
+    "defaultMessage": "Exportar letra por palabras"
+  },
+  "@yovoice.music.exportWordLrcHint": {
+    "defaultMessage": "LRC mejorado con marca de tiempo por palabra, para reproductores con letras karaoke"
+  },
+  "@yovoice.music.alignLyrics": {
+    "defaultMessage": "Alinear automáticamente"
+  },
+  "@yovoice.music.aligningLyrics": {
+    "defaultMessage": "Alineando"
+  },
+  "@yovoice.music.alignLyricsHint": {
+    "defaultMessage": "Separa la voz y alinea cada palabra de la letra con el canto; se guarda con esta versión"
+  },
+  "@yovoice.music.alignLyricsDownload": {
+    "defaultMessage": "Descarga primero el alineador de letras opcional (unos 1,3 GB)"
+  },
+  "@yovoice.music.lyricsAligned": {
+    "defaultMessage": "Letra alineada palabra por palabra con la voz; sincroniza para ajustar"
+  },
   "@yovoice.music.lyricsAnalyzed": {
     "defaultMessage": "Tiempos de la letra situados a partir de la voz; sincroniza para afinarlos"
   },
@@ -2951,6 +2987,21 @@
   "@yovoice.activity.transcribe": {
     "defaultMessage": "Extrayendo la melodía de la canción"
   },
+  "@yovoice.activity.separateVocals": {
+    "defaultMessage": "Separando la voz"
+  },
+  "@yovoice.activity.alignLyrics": {
+    "defaultMessage": "Alineando la letra ({done}/{total})"
+  },
+  "@yovoice.error.alignModelRequired": {
+    "defaultMessage": "Descarga primero el alineador de letras en Modelos de música, en Ajustes"
+  },
+  "@yovoice.error.alignLyrics": {
+    "defaultMessage": "Esta versión no tiene letra para alinear"
+  },
+  "@yovoice.error.alignEmpty": {
+    "defaultMessage": "No se pudo hacer coincidir la letra con la voz; prueba a sincronizar a mano"
+  },
   "@yovoice.error.melodyInvalid": {
     "defaultMessage": "La partitura de la melodía tiene un problema: {issue}"
   },
@@ -2965,6 +3016,9 @@
   },
   "@yovoice.settings.modelDesc.sheetsage2": {
     "defaultMessage": "Transcribe la melodía y los acordes de una canción a partitura, para versiones con YuE2."
+  },
+  "@yovoice.settings.modelDesc.lyricAlign": {
+    "defaultMessage": "Opcional: separa la voz y alinea la letra palabra por palabra con el canto, para animar la letra palabra a palabra y exportar LRC por palabras. Admite 11 idiomas, entre ellos chino, inglés, japonés y coreano."
   },
   "@yovoice.music.generateFromMelody": {
     "defaultMessage": "Generar desde la partitura"

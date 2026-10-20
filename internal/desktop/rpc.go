@@ -19,7 +19,7 @@ import (
 var audited = map[string]bool{
 	"draft.delete": true, "project.export": true, "project.import": true, "score.import": true, "score.export": true,
 	"character.save": true, "character.delete": true, "voice.fromGeneration": true, "voice.update": true, "voice.import": true,
-	"voice.record": true, "timeline.import": true, "media.rename": true, "media.delete": true, "generation.lyricTimes": true,
+	"voice.record": true, "timeline.import": true, "media.rename": true, "media.delete": true, "generation.lyricTimes": true, "generation.alignLyrics": true,
 	"preferences.save": true, "storage.relocate": true, "storage.cleanup": true, "model.directory": true, "model.download": true,
 	"model.forget": true, "runtime.install": true, "ai.provider.save": true, "ai.provider.delete": true, "ai.provider.use": true,
 	"ai.test": true, "ai.connect": true, "ai.codex.login": true, "melody.plan": true, "melody.cover": true, "melody.dismiss": true, "ai.dismiss": true,
@@ -159,6 +159,15 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return w.ImagePreview(p.ID)
 	case "generation.lyricTimes":
 		return true, w.SetLyricTimes(p.ID, p.Times)
+	case "generation.alignLyrics":
+		var in struct {
+			ID     string                 `json:"id"`
+			Chunks []workbench.LyricChunk `json:"chunks"`
+		}
+		if e := json.Unmarshal(data, &in); e != nil {
+			return nil, msg.Err(msg.ErrRequestInvalid, nil)
+		}
+		return true, w.AlignLyrics(in.ID, in.Chunks)
 	case "preferences.save":
 		preferences := schema.Preferences{DownloadSource: "modelscope", Backend: "cpu", UiLocale: schema.UiLocaleZhCN}
 		if e := json.Unmarshal(data, &preferences); e != nil {

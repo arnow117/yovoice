@@ -1,4 +1,5 @@
-import { syllables, type LyricRow } from './lyric-timing';
+import type { AlignedWord } from '../../shared/workbench';
+import { estimateWords, lyricTokens, syllables, type LyricLine, type LyricRow, type LyricWord } from './lyric-timing';
 
 // 用音频给歌词定位：先找出有人声的片段，再按每行的音节数把歌词行对到这些片段上。
 // 生成模型不返回逐句时间，这里只依赖混音后的音频，结果用于初始化播放页的歌词时间，仍可手动校准。
@@ -20,6 +21,8 @@ export interface VocalActivity {
   voiced: Uint8Array;
   // 有人声与无人声两类分得开的程度（0~1），太低时说明判断不可靠。
   separation: number;
+  // 每帧居中人声频段能量（对数），逐字对齐时找起音用。
+  energy: Float32Array;
 }
 
 // 原地基 2 FFT。
@@ -127,7 +130,7 @@ export function vocalActivity(left: Float32Array, right: Float32Array, sampleRat
     }
   };
   fill(1, minRun); fill(0, gapFill);
-  return { step: frameSeconds, voiced, separation };
+  return { step: frameSeconds, voiced, separation, energy: Float32Array.from(level) };
 }
 
 // 歌词行的开始时间：动态规划在候选时间点里为每行选一个开始，让每行覆盖的演唱时长与音节数成比例，
@@ -196,4 +199,99 @@ export function alignLyrics(rows: LyricRow[], activity: VocalActivity, duration:
     if (Number.isFinite(value) && (!result || value < result.cost)) result = { cost: value, path: option.path };
   }
   return result && result.cost / rows.length <= maxCost ? result.path : null;
+}
+
+// 人声判断做过约 0.2 秒的滑动平均，片段结尾比实际收声晚约半个窗口，逐字分配时扣掉（秒）。
+const smoothingLag = .1;
+
+// 一行里逐字的时间。先按人声找出这一行实际在唱的部分（去掉行首行尾的空白），再在有人声的帧上按音节数分配，
+// 行内的停顿基本不占字。伴奏里的鼓点同样落在声像正中，按能量起伏找字头并不可靠，所以只用人声片段。人声太少时退回按音节均分。
+export function alignWords(line: LyricLine, activity: VocalActivity): LyricWord[] {
+  const { step, voiced } = activity, tokens = lyricTokens(line.text);
+  const total = tokens.reduce((sum, token) => sum + token.weight, 0);
+  const frame = (time: number) => Math.max(0, Math.min(voiced.length, Math.round(time / step)));
+  const a = frame(line.start), b = frame(line.end);
+  let first = a, last = b, sung = 0;
+  while (first < b && !voiced[first]) first++;
+  while (last > first && !voiced[last - 1]) last--;
+  for (let f = first; f < last; f++) sung += voiced[f];
+  // 行首空白超过 1 秒多半是人声判断漏了，仍从行开始算。
+  if (first - a > 1 / step) first = a;
+  last = Math.max(first + tokens.length, last - Math.round(smoothingLag / step));
+  if (!tokens.length || sung * step < Math.min(total * .12, (line.end - line.start) * .3)) return estimateWords(line);
+  // 有人声的帧按 1 计，停顿按 0.2 计，避免一个字跨过长停顿。
+  const cumulative = new Float64Array(last - first + 1);
+  for (let f = first; f < last; f++) cumulative[f - first + 1] = cumulative[f - first] + (voiced[f] ? 1 : .2);
+  const length = cumulative[last - first], starts: number[] = [];
+  let weight = 0, cursor = 0;
+  for (const token of tokens) {
+    const target = weight / total * length;
+    while (cursor < last - first && cumulative[cursor + 1] <= target) cursor++;
+    starts.push(first + cursor);
+    weight += token.weight;
+  }
+  return tokens.map((token, index) => {
+    const start = starts[index], next = starts[index + 1] ?? last;
+    // 字在下一字开始前的停顿处结束，至少保留一帧。
+    let end = next;
+    while (end > start + 1 && !voiced[end - 1]) end--;
+    return { text: token.text, start: Math.max(line.start, start * step), end: Math.min(line.end, Math.max(end, start + 1) * step) };
+  });
+}
+
+// 给演唱行补上逐字时间：人声判断可靠时按音频对齐，否则按音节均分。
+export function withWords(lines: LyricLine[], activity?: VocalActivity): LyricLine[] {
+  const usable = activity && activity.separation >= .4 ? activity : undefined;
+  return lines.map(line => line.instrumental || !line.text ? line : { ...line, words: usable ? alignWords(line, usable) : estimateWords(line) });
+}
+
+// 只比较文字本身：去掉标点和空格，拉丁文不分大小写。对齐模型返回的词不带标点。
+const letters = (text: string) => text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+
+// 把歌词对齐模型的逐字结果放回歌词行。模型可能把一个词拆开或把几个字合并，所以按文字长度累计对应：
+// 每个逐字单元取覆盖它的那些词的开始与结束。文字总量对不上（歌词改过）时返回 null，交给自动定位或估算。
+export function alignedTimeline(rows: LyricRow[], aligned: AlignedWord[], duration: number): LyricLine[] | null {
+  const sung = rows.map(row => row.instrumental ? [] : lyricTokens(row.text).map(token => ({ text: token.text, size: letters(token.text).length })));
+  const total = sung.flat().reduce((sum, token) => sum + token.size, 0);
+  const words = aligned.map(word => ({ ...word, size: letters(word.word).length })).filter(word => word.size && word.end >= word.start);
+  const found = words.reduce((sum, word) => sum + word.size, 0);
+  if (!total || !words.length || Math.abs(found - total) > total * .1) return null;
+  let index = 0, used = 0, consumed = 0;
+  const timed = sung.map(tokens => tokens.map(token => {
+    // 这个单元从当前词开始，一直取到累计文字长度覆盖它为止。
+    const first = words[Math.min(index, words.length - 1)];
+    consumed += token.size;
+    let last = first;
+    while (index < words.length && used + words[index].size <= consumed) { used += words[index].size; last = words[index]; index++; }
+    if (index < words.length && used < consumed) last = words[index];
+    return { text: token.text, start: first.start, end: Math.max(first.start, last.end) };
+  }));
+  const lines: LyricLine[] = [];
+  rows.forEach((row, i) => {
+    const words = timed[i];
+    if (row.instrumental) { lines.push({ text: '', instrumental: true, start: 0, end: 0 }); return; }
+    if (words.length) lines.push({ text: row.text, start: words[0].start, end: words.at(-1)!.end, words });
+  });
+  // 行一直显示到下一行开始；器乐间隔从上一句唱完开始。
+  for (let i = 0; i < lines.length; i++) {
+    const next = lines.slice(i + 1).find(line => !line.instrumental)?.start ?? duration;
+    if (lines[i].instrumental) { lines[i].start = lines[i - 1]?.end ?? 0; lines[i].end = Math.max(lines[i].start, next); }
+    else lines[i].end = lines[i + 1]?.instrumental ? lines[i].end : Math.max(lines[i].end, next);
+  }
+  // 第一句之前留出前奏，显示为省略号。
+  return lines[0] && !lines[0].instrumental && lines[0].start > 1 ? [{ text: '', start: 0, end: lines[0].start, instrumental: true }, ...lines] : lines;
+}
+
+// 对齐模型一次最多处理约 5 分钟；长歌按现有的逐行时间切成几段，每段前后多留几秒余量。短歌整首一段，不切。
+const alignChunk = 280, alignMargin = 3;
+export function alignChunks(lines: LyricLine[], duration: number) {
+  if (duration <= alignChunk) return [];
+  const chunks: { text: string; start: number; end: number }[] = [];
+  for (const line of lines) {
+    if (line.instrumental || !line.text) continue;
+    const start = Math.max(0, line.start - alignMargin), end = Math.min(duration, line.end + alignMargin), last = chunks.at(-1);
+    if (last && end - last.start <= alignChunk + 2 * alignMargin) { last.text += `\n${line.text}`; last.end = end; }
+    else { const from = Math.max(start, last?.end ?? 0); chunks.push({ text: line.text, start: from, end: Math.min(from + 300, Math.max(end, from + 1)) }); }
+  }
+  return chunks;
 }
