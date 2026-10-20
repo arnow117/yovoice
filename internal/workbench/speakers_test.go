@@ -22,6 +22,7 @@ import (
 	"yovoice/internal/msg"
 	"yovoice/internal/recognition"
 	"yovoice/internal/schema"
+	"yovoice/internal/testkit"
 )
 
 func TestApplySpeakerBindingUsesBoundVoiceWithoutChangingCallerEmotion(t *testing.T) {
@@ -1190,7 +1191,7 @@ func TestWaitSpeakerOperationKeepsAcceptedSuccessAfterCallerCancellation(t *test
 func TestApplySpeakerBindingRejectsUnsupportedModels(t *testing.T) {
 	voice := schema.Voice{ID: strings.Repeat("a", 32)}
 	draft := schema.DefaultDraft()
-	draft.ModelID = "kokoro-1.0-q8"
+	draft.ModelID = "kokoro-82m-q8"
 	if err := applySpeakerBinding(&draft, voice); SpeakerErrorCode(err) != "unsupported_clone" {
 		t.Fatalf("%v", err)
 	}
@@ -1204,6 +1205,11 @@ func TestProfileOperationFinalPersistenceFailureIsRedacted(t *testing.T) {
 	defer workbench.Close()
 
 	release := make(chan struct{})
+	var releaseOnce sync.Once
+	releaseOperation := func() {
+		releaseOnce.Do(func() { close(release) })
+	}
+	defer releaseOperation()
 	op, err := workbench.startProfileOperation("generate", msg.ActivityGenerate, nil, nil, func(context.Context) error {
 		<-release
 		return nil
@@ -1212,14 +1218,9 @@ func TestProfileOperationFinalPersistenceFailureIsRedacted(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	backup := filepath.Join(workbench.Store.Root, "state.backup.json")
-	if err = os.Remove(backup); err != nil {
-		t.Fatal(err)
-	}
-	if err = os.Mkdir(backup, 0700); err != nil {
-		t.Fatal(err)
-	}
-	close(release)
+	const marker = "test-profile-final-state-save-failure"
+	testkit.FailSettingsUpdate(t, workbench.Store.Root, "activity", "completed", marker)
+	releaseOperation()
 	<-op.done
 
 	var callError *msg.CallError
@@ -1238,7 +1239,7 @@ func TestProfileOperationFinalPersistenceFailureIsRedacted(t *testing.T) {
 		if readErr != nil {
 			t.Fatal(readErr)
 		}
-		if strings.Contains(string(content), workbench.Store.Root) || strings.Contains(string(content), "detail") {
+		if strings.Contains(string(content), workbench.Store.Root) || strings.Contains(string(content), "detail") || strings.Contains(string(content), marker) {
 			t.Fatalf("profile persistence failure leaked into %s: %s", name, content)
 		}
 	}

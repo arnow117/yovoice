@@ -12,6 +12,48 @@ type TemporaryAudioProbe = {
   originalRevoke: typeof URL.revokeObjectURL;
 };
 
+type FixtureProject = {
+  id: string;
+  page: 'text' | 'story' | 'music' | 'score';
+  title: string;
+  sourceText: string;
+  visibleText: string;
+  story?: boolean;
+  designModes?: boolean;
+};
+
+const musicProject: FixtureProject = {
+  id: musicSourceID,
+  page: 'music',
+  title: 'Synthetic music source',
+  sourceText: 'warm synthwave',
+  visibleText: 'warm synthwave',
+};
+
+const scoreProject: FixtureProject = {
+  id: scoreSourceID,
+  page: 'score',
+  title: 'Synthetic score source',
+  sourceText: 'score-only text',
+  visibleText: '120 BPM',
+};
+
+const textProject: FixtureProject = {
+  id: textSourceID,
+  page: 'text',
+  title: 'Synthetic text source',
+  sourceText: 'A normal text project.',
+  visibleText: 'A normal text project.',
+};
+
+const storyProject: FixtureProject = {
+  ...textProject,
+  page: 'story',
+  sourceText: 'Synthetic story narration for the speaker page.',
+  visibleText: 'old cue',
+  story: true,
+};
+
 declare global {
   interface Window {
     speakerTemporaryAudioProbe?: TemporaryAudioProbe;
@@ -77,6 +119,72 @@ async function openSpeakerPage(app: { open: () => Promise<void> }, screen: Scree
   await screen.getByTestId('nav-speakers').tap();
 }
 
+async function prepareFixtureProject(app: { open: () => Promise<void> }, browser: Browser, project: FixtureProject) {
+  await app.open();
+  await browser.evaluate(next => {
+    localStorage.setItem('yovoice-active-project', next.id);
+    localStorage.setItem('yovoice-active-page', next.page);
+
+    if (next.story) localStorage.setItem('yovoice-synthetic-story-source', next.id);
+    else localStorage.removeItem('yovoice-synthetic-story-source');
+
+    if (next.designModes) localStorage.setItem('yovoice-synthetic-text-source-modes', 'design');
+    else localStorage.removeItem('yovoice-synthetic-text-source-modes');
+  }, project);
+  await browser.reload();
+}
+
+async function openFixtureProject(browser: Browser, project: FixtureProject) {
+  if (project.page !== 'text') {
+    await browser.locator(`#projects-${project.page}-panel`).getByRole('button', project.title).tap();
+  }
+
+  const editor = await browser.evaluate(async expected => {
+    const deadline = performance.now() + 2_000;
+    const isVisible = (element: Element | null) => {
+      if (!element || !element.getClientRects().length) return false;
+      for (let current: Element | null = element; current; current = current.parentElement) {
+        const style = getComputedStyle(current);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+      }
+      return true;
+    };
+    const readEditor = () => {
+      const title = document.querySelector<HTMLInputElement>('.document-title');
+      const text = document.querySelector<HTMLInputElement>('.music-style-field')
+        ?? document.querySelector<HTMLTextAreaElement>('.script-editor');
+      const structuredEditor = document.querySelector('.subtitle-editor, .score-editor');
+      return {
+        title: title?.value ?? '',
+        visible: isVisible(title),
+        visibleText: text instanceof HTMLInputElement || text instanceof HTMLTextAreaElement
+          ? text.value
+          : structuredEditor?.textContent ?? '',
+      };
+    };
+
+    while (performance.now() < deadline) {
+      const current = readEditor();
+      if (current.visible && current.title === expected.title && current.visibleText.includes(expected.visibleText)) {
+        return current;
+      }
+      await new Promise(resolve => setTimeout(resolve, 25));
+    }
+    return readEditor();
+  }, project);
+
+  expect(editor.visible).toBe(true);
+  expect(editor.title).toBe(project.title);
+  expect(editor.visibleText).toContain(project.visibleText);
+}
+
+async function openSpeakerProject(screen: Screen, browser: Browser, project: FixtureProject) {
+  await screen.getByTestId('nav-speakers').tap();
+  await expect(screen.getByTestId('speaker-enroll')).toBeVisible();
+  const sourceText = await browser.evaluate(() => document.querySelector<HTMLTextAreaElement>('#speaker-generation-text')?.value ?? '');
+  expect(sourceText).toBe(project.sourceText);
+}
+
 async function serveSyntheticGeneratedOutput(browser: Browser) {
   const fulfillAudio = () => ({
     path: 'e2e/fixtures/generated-output.wav',
@@ -94,7 +202,6 @@ async function generationCallCount(browser: Browser) {
 interface GenerationExpectation {
   previousCallCount: number;
   modelID: string;
-  sourceID?: string;
 }
 
 async function latestGenerationSnapshot(browser: Browser, expectation: GenerationExpectation) {
@@ -124,12 +231,8 @@ async function latestGenerationSnapshot(browser: Browser, expectation: Generatio
           throw new Error(`speaker.generate model was ${String(draft.modelId)}, expected ${expected.modelID}`);
         }
 
-        const source = expected.sourceID
-          ? fixture.state.drafts.find(item => item.id === expected.sourceID) ?? null
-          : null;
         return JSON.parse(JSON.stringify({
           requestId: requestID,
-          source,
           draft,
           callCount: calls.length,
         }));
@@ -205,27 +308,15 @@ test('合成桌面桥接下的声纹页保持显式输入与独立档案', async
 });
 
 test('进入声纹页再返回原作品时保留正文与原项目', async ({ app, browser, screen }) => {
-  await app.open();
-  await browser.evaluate(id => localStorage.setItem('yovoice-active-project', id), textSourceID);
-  await browser.reload();
+  await prepareFixtureProject(app, browser, textProject);
   const sourceBefore = await browser.evaluate(id => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id)), textSourceID);
 
   await screen.getByTestId('nav-speakers').tap();
   await expect(screen.getByTestId('speaker-enroll')).toBeVisible();
   await screen.getByTestId('nav-text').tap();
-  await screen.getByRole('button', 'Synthetic text source').first().tap();
+  await openFixtureProject(browser, textProject);
 
-  const editor = await browser.evaluate(() => {
-    const element = document.querySelector<HTMLTextAreaElement>('.script-editor');
-    if (!element) return null;
-    const style = getComputedStyle(element);
-    return {
-      text: element.value,
-      visible: style.display !== 'none' && style.visibility !== 'hidden',
-    };
-  });
   const sourceAfter = await browser.evaluate(id => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id)), textSourceID);
-  expect(editor).toEqual({ text: 'A normal text project.', visible: true });
   expect(sourceAfter).toBe(sourceBefore);
 });
 
@@ -233,14 +324,14 @@ test('音乐和编曲作品的声纹生成发送独立的 TTS 草稿', async ({ 
   await serveSyntheticGeneratedOutput(browser);
   const sources = [
     {
-      id: musicSourceID,
+      project: musicProject,
       kind: 'music',
       modelName: 'Qwen3-TTS 1.7B Base',
       modelId: 'qwen3-tts-base-q8',
       options: { text_chunk_size: 256, text_chunk_mode: 'tag_aware' },
     },
     {
-      id: scoreSourceID,
+      project: scoreProject,
       kind: 'score',
       modelName: 'Index TTS 2.5',
       modelId: 'index-2.5-q8',
@@ -249,29 +340,27 @@ test('音乐和编曲作品的声纹生成发送独立的 TTS 草稿', async ({ 
   ];
 
   for (const source of sources) {
-    await app.open();
-    await browser.evaluate(id => localStorage.setItem('yovoice-active-project', id), source.id);
-    await browser.reload();
-    await screen.getByTestId('nav-speakers').tap();
-    const originalSource = await browser.evaluate(id => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id)), source.id);
+    await prepareFixtureProject(app, browser, source.project);
+    const originalSource = await browser.evaluate(id => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id)), source.project.id);
+    await openFixtureProject(browser, source.project);
+    await openSpeakerProject(screen, browser, source.project);
     await enrollBoundProfile(screen);
     await selectGenerationInputs(screen, source.modelName);
-    await browser.locator('#speaker-generation-text').fill(`TTS output for ${source.id}`);
+    await browser.locator('#speaker-generation-text').fill(`TTS output for ${source.project.id}`);
     const previousCallCount = await generationCallCount(browser);
     await screen.getByTestId('speaker-generate').tap();
 
     const request = await latestGenerationSnapshot(browser, {
       previousCallCount,
       modelID: source.modelId,
-      sourceID: source.id,
     });
+    const sourceAfter = await browser.evaluate(id => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id)), source.project.id);
 
     expect(request.requestId).toMatch(/^[a-f0-9]{32}$/);
-    expect(request.source?.id).toBe(source.id);
-    expect(request.source?.kind).toBe(source.kind);
-    expect(JSON.stringify(request.source)).toBe(originalSource);
+    expect(request.draft.text).toBe(`TTS output for ${source.project.id}`);
+    expect(sourceAfter).toBe(originalSource);
     expect(request.draft.kind).toBe('text');
-    expect(request.draft.id === source.id).toBe(false);
+    expect(request.draft.id === source.project.id).toBe(false);
     expect(Object.hasOwn(request.draft, 'score')).toBe(false);
     expect(Object.hasOwn(request.draft, 'subtitles')).toBe(false);
     expect(Object.hasOwn(request.draft, 'timeline')).toBe(false);
@@ -291,11 +380,10 @@ test('音乐和编曲作品的声纹生成发送独立的 TTS 草稿', async ({ 
 
 test('普通文本作品的声纹生成保留合法的 TTS 设置和作品关联', async ({ app, browser, screen }) => {
   await serveSyntheticGeneratedOutput(browser);
-  await app.open();
-  await browser.evaluate(id => localStorage.setItem('yovoice-active-project', id), textSourceID);
-  await browser.reload();
-  await screen.getByTestId('nav-speakers').tap();
+  await prepareFixtureProject(app, browser, textProject);
   const originalSource = await browser.evaluate(id => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id)), textSourceID);
+  await openFixtureProject(browser, textProject);
+  await openSpeakerProject(screen, browser, textProject);
   await enrollBoundProfile(screen);
   await selectGenerationInputs(screen, 'Qwen3-TTS 1.7B Base');
   await browser.locator('#speaker-generation-text').fill('A normal TTS result.');
@@ -305,11 +393,11 @@ test('普通文本作品的声纹生成保留合法的 TTS 设置和作品关联
   const request = await latestGenerationSnapshot(browser, {
     previousCallCount,
     modelID: 'qwen3-tts-base-q8',
-    sourceID: textSourceID,
   });
+  const sourceAfter = await browser.evaluate(id => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id)), textSourceID);
 
   expect(request.requestId).toMatch(/^[a-f0-9]{32}$/);
-  expect(JSON.stringify(request.source)).toBe(originalSource);
+  expect(sourceAfter).toBe(originalSource);
   expect(request.draft.id).toBe(textSourceID);
   expect(request.draft.synthesisLanguage).toBe('en');
   expect(request.draft.modelOptions).toEqual({ index_tts2: { text_chunk_size: 512, text_chunk_mode: 'default' } });
@@ -317,13 +405,7 @@ test('普通文本作品的声纹生成保留合法的 TTS 设置和作品关联
 
 test('故事作品生成时不把旧字幕或时间线带入声纹 TTS 请求', async ({ app, browser, screen }) => {
   await serveSyntheticGeneratedOutput(browser);
-  await app.open();
-  await browser.evaluate(id => {
-    localStorage.setItem('yovoice-synthetic-story-source', id);
-    localStorage.setItem('yovoice-active-project', id);
-  }, textSourceID);
-  await browser.reload();
-  await screen.getByTestId('nav-speakers').tap();
+  await prepareFixtureProject(app, browser, storyProject);
   const originalSource = await browser.evaluate(id => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id)), textSourceID);
   const storySource = await browser.evaluate(id => window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id), textSourceID);
   expect(storySource?.kind).toBe('story');
@@ -333,6 +415,8 @@ test('故事作品生成时不把旧字幕或时间线带入声纹 TTS 请求', 
     id: 'story-clip',
     generationId: 'old-story-generation',
   });
+  await openFixtureProject(browser, storyProject);
+  await openSpeakerProject(screen, browser, storyProject);
   await enrollBoundProfile(screen);
   await selectGenerationInputs(screen, 'Index TTS 2.5');
   await browser.locator('#speaker-generation-text').fill('Speaker page story target body.');
@@ -342,7 +426,6 @@ test('故事作品生成时不把旧字幕或时间线带入声纹 TTS 请求', 
   const request = await latestGenerationSnapshot(browser, {
     previousCallCount,
     modelID: 'index-2.5-q8',
-    sourceID: textSourceID,
   });
   const sourceAfter = await browser.evaluate(id => JSON.stringify(window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id)), textSourceID);
 
@@ -400,35 +483,32 @@ test('Index 2.5 的日语切换到 Index 2.0 时回退为可提交的中文', as
 
 test('声纹生成保留 OmniVoice 和 VoxCPM 的用户模式，不自动改为克隆', async ({ app, browser, screen }) => {
   await serveSyntheticGeneratedOutput(browser);
-  await app.open();
-  await browser.evaluate(id => {
-    const source = window.__yovoiceSyntheticSpeakerFixture.state.drafts.find(item => item.id === id);
-    if (!source) throw new Error('missing synthetic text source');
-    source.voiceMode = 'design';
-    source.voxMode = 'design';
-  }, textSourceID);
-  await screen.getByRole('button', 'Synthetic text source').first().tap();
-  await screen.getByTestId('nav-speakers').tap();
+  const designProject = { ...textProject, designModes: true };
+  await prepareFixtureProject(app, browser, designProject);
+  await openFixtureProject(browser, designProject);
+  await openSpeakerProject(screen, browser, designProject);
   await enrollBoundProfile(screen);
 
   await selectGenerationInputs(screen, 'OmniVoice');
+  await expect(screen.getByTestId('speaker-omni-mode').getByRole('radio', /设计|Voice design/i)).toHaveAttribute('aria-checked', 'true');
   const omniCallCount = await generationCallCount(browser);
   await screen.getByTestId('speaker-generate').tap();
   const omniRequest = await latestGenerationSnapshot(browser, {
     previousCallCount: omniCallCount,
     modelID: 'omnivoice-q8',
-    sourceID: textSourceID,
   });
 
   await selectGenerationInputs(screen, 'VoxCPM 2');
+  await expect(screen.getByTestId('speaker-vox-mode').getByRole('radio', /设计|Voice design/i)).toHaveAttribute('aria-checked', 'true');
   const voxCallCount = await generationCallCount(browser);
   await screen.getByTestId('speaker-generate').tap();
   const voxRequest = await latestGenerationSnapshot(browser, {
     previousCallCount: voxCallCount,
     modelID: 'voxcpm2-q8',
-    sourceID: textSourceID,
   });
 
+  expect(omniRequest.draft.id).toBe(textSourceID);
+  expect(voxRequest.draft.id).toBe(textSourceID);
   expect(omniRequest.draft.voiceMode).toBe('design');
   expect(voxRequest.draft.voxMode).toBe('design');
   expect(voxRequest.requestId).not.toBe(omniRequest.requestId);

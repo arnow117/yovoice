@@ -33,9 +33,11 @@
   const initialLocale = navigator.language.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en';
   let storySourceID = null;
   let noTTSModels = false;
+  let textSourceUsesDesignModes = false;
   try {
     storySourceID = localStorage.getItem('yovoice-synthetic-story-source');
     noTTSModels = localStorage.getItem('yovoice-synthetic-no-tts-models') === 'true';
+    textSourceUsesDesignModes = localStorage.getItem('yovoice-synthetic-text-source-modes') === 'design';
   } catch (_) {
     // 注入脚本还可能在 about:blank 执行；该 origin 没有 localStorage。
   }
@@ -152,6 +154,8 @@
         numBeams: 3,
         lengthPenalty: 0,
         seed: null,
+        voiceMode: textSourceUsesDesignModes ? 'design' : '',
+        voxMode: textSourceUsesDesignModes ? 'design' : '',
         modelOptions: {
           index_tts2: { text_chunk_size: 512, text_chunk_mode: 'default' },
         },

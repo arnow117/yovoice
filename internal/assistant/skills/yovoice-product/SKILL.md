@@ -75,6 +75,18 @@ Errors reach you as stable codes (in <ui_context>, get_generation_status, get_re
 - `error.voiceDescriptionRequired` 请填写声音描述。
 - `error.omniAttributes` OmniVoice 仅接受预定义音色属性，同一类别只能选择一个。
 - `error.speakerInvalid` 请选择有效的内置音色。
+- `error.speakerRequestInvalid` 声纹档案请求无效，请检查选中的输入后重试。
+- `error.speakerRuntime` 声纹识别尚未准备好。请检查本地识别配置，重启应用后重试。
+- `error.speakerAudio` 这段音频不能用于声纹识别。请选择 1 到 60 秒的有效单人录音。
+- `error.speakerInputTooLarge` 所选音频超过 20 MiB，请选择更小的文件。
+- `error.speakerBusy` 另一个声纹操作仍在进行。请等待它完成，或取消该操作。
+- `error.speakerCancelled` 声纹操作已取消。
+- `error.speakerTimeout` 声纹识别已超时。请检查本地运行环境后重试。
+- `error.speakerProfile` 该声纹档案已不可用。请刷新档案列表后选择其他档案。
+- `error.speakerVoice` 绑定的参考声音不可用。请选择绑定了可用参考声音的档案。
+- `error.speakerClone` 所选档案或模型不能用于声音克隆。
+- `error.speakerStorage` 无法保存或读取声纹档案。请刷新后重试。
+- `error.speakerFeature` 该声纹档案使用了不兼容的识别版本。请在当前配置下重新登记。
 - `error.busy` 请等待当前操作结束，或先取消。
 - `error.proxyURL` 请输入有效的 HTTP、HTTPS 或 SOCKS5 代理地址及端口，不包含路径或账号密码。
 - `error.modelDirAbsolute` 模型目录必须是绝对路径。

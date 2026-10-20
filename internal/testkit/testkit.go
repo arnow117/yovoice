@@ -2,21 +2,57 @@
 package testkit
 
 import (
+	"database/sql"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
+
+	_ "modernc.org/sqlite"
 )
 
 func Must(t testing.TB, err error) {
 	t.Helper()
 	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// FailSettingsUpdate 在隔离 SQLite 库安装 trigger，拒绝 JSON 载荷包含指定状态的
+// settings 更新。它覆盖 Store 的真实事务写路径，不改变生产备份语义。
+func FailSettingsUpdate(t testing.TB, root, key, status, marker string) {
+	t.Helper()
+	abs, err := filepath.Abs(filepath.Join(root, "yovoice.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.ToSlash(abs)
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	dsn := (&url.URL{Scheme: "file", Path: path}).String() + "?_pragma=busy_timeout(5000)"
+	db, err := sql.Open("sqlite", dsn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	quote := func(value string) string {
+		return "'" + strings.ReplaceAll(value, "'", "''") + "'"
+	}
+	pattern := "%\"status\":\"" + status + "\"%"
+	trigger := "CREATE TRIGGER test_fail_settings_update " +
+		"BEFORE UPDATE ON settings " +
+		"WHEN NEW.key = " + quote(key) + " AND NEW.data LIKE " + quote(pattern) + " " +
+		"BEGIN SELECT RAISE(ABORT, " + quote(marker) + "); END"
+	if _, err = db.Exec(trigger); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -121,7 +157,6 @@ func RunFakeEngine() {
 			}
 		}
 		options, _ := p.Request["options"].(map[string]any)
-		audio, _ := p.Request["audio"].(string)
 		language, _ := p.Request["language"].(string)
 		// 歌词对齐：分离任务返回人声分轨；对齐任务把每个非空白字符记作一个字，每字 0.25 秒（16 kHz 样本数）。
 		switch config.Models[0].Task {
@@ -138,12 +173,15 @@ func RunFakeEngine() {
 			return
 		}
 		result := map[string]any{}
-		// YuE2 自己规划（cot 非 off 且未给谱）或 SheetSage2 扒谱时附带旋律谱；只出谱或扒谱时没有音频。
+		// YuE2 自己规划（cot 非 off 且未给谱）和 SheetSage2 扒谱会附带旋律谱。
+		// VoxCPM2 continuation 也带 audio 作为提示，但仍是 TTS，必须返回 WAV。
 		_, given := options["abc"]
-		if (options["cot"] != nil && options["cot"] != "off" && !given) || audio != "" {
+		scoreOnly := config.Models[0].Task == "midi"
+		plansScore := config.Models[0].Task == "gen" && options["cot"] != nil && options["cot"] != "off" && !given
+		if scoreOnly || plansScore {
 			result["artifacts"] = []any{map[string]any{"id": "score", "kind": "custom", "payload": base64.StdEncoding.EncodeToString([]byte(ABC)), "meta": map[string]string{"format": "abc", "truncated": "false"}}}
 		}
-		if options["stop_after"] != "abc" && audio == "" {
+		if !scoreOnly && options["stop_after"] != "abc" {
 			result["audio"] = base64.StdEncoding.EncodeToString(WAV())
 		}
 		_ = json.NewEncoder(w).Encode(result)

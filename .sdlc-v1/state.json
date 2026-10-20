@@ -64,12 +64,12 @@
             "TASK-001"
           ],
           "id": "TASK-002",
-          "status": "in_progress",
+          "status": "done",
           "title": "合并最新上游并验证声纹与新存储/并发/界面兼容",
-          "updated_at": "2026-10-20T05:16:49Z"
+          "updated_at": "2026-10-20T11:17:21Z"
         }
       },
-      "updated_at": "2026-10-20T05:16:49Z",
+      "updated_at": "2026-10-20T11:17:21Z",
       "validation": {
         "at": null,
         "command": null,
@@ -105,7 +105,7 @@
       "product_context_ref": ".sdlc-v1/context/REQ-002.product.md",
       "status": "in_delivery",
       "title": "Mac App 声纹交互验证页面",
-      "updated_at": "2026-10-20T05:16:49Z"
+      "updated_at": "2026-10-20T11:17:21Z"
     },
     "REQ-003": {
       "created_at": "2026-10-13T12:35:50Z",

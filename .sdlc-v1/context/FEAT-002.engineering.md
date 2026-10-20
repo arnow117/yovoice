@@ -4,6 +4,30 @@
 
 ## Plan
 
+### 2026-10-20 剩余回归返修与复验（TASK-002，当前有效安排）
+
+用户明确选择保留上游设计，继续修好剩余回归并再跑验证。Impeccable的9项告警均与2415813逐字一致，属于上游歌词、开场、助手及引导样式；本轮不改这些样式、不扩大UI优化。当前HEAD为a95529e，工作树干净，沿同一TASK与同一Terra实施者恢复已定位的返修；先前容量失败、中断、所有红证据与波形段已用的一次诊断均保留，不重新计数，也不重复上游拉取/合并。
+
+修正范围为确定性测试/夹具与已有内嵌skill生成：SQLite故障注入改为私有测试库settings真实写入的受控失败，保持普通最终保存错误detail和profile/RPC稳定错误脱敏；fake engine按真实task区分转谱与Vox参考音频，保留上游音乐/score行为；不支持克隆测试使用现存Kokoro模型ID；沿已有入口生成新增错误码说明。recognition两例先用隔离race观察实际提前结果和runner边界，不把2秒预算直接认定为根因或放宽生产超时。只有可复现新证据才扩展最小修复；两轮无因果定位或验收进展按既有停止规则收尾。
+
+同一实施者完成定向红绿及必要完整Go race/vet/format、修正后72项声纹E2E与PW_ALL封存浏览器用例、Swift及尚缺的macOS隔离脚本和recognition纯Python检查。复用相同输入下已有27项采证脚本、Web lint/type/build及发行说明证据；若改变相应输入则做适当重验。先检查自有资源和当前负载，重型任务串行，Go为GOMAXPROCS=2/-p2，浏览器最多2worker、0自动重试，单套有限超时并预留清理；本工程段先限定35分钟含收尾，若有新定位但尚缺检查由主据事实评估，时间估计不授权盲重跑。原始日志/命令/退出码/源码及资源清理写入新build-002目录，旧原件不覆盖。
+
+恢复中发现build-002已存在`workbench-baseline-race.log`，mtime为06:43:17 UTC，是上轮中断后留下的旧输出，并非本轮重新执行。旧“未新增命令产物”的判断不完整；实际旧定向race在ProfileOperationFinalPersistenceFailure测试删除旧备份失败后Fatal，defer Close等待未释放的action通道，至Go默认10分钟超时（604.691秒）。因此本轮还须修正相关测试的提前失败释放顺序，不能以晚于defer Close的t.Cleanup代替有效释放；同类generation hook一并核对。保留旧raw不覆盖，本轮产物用不同文件名或子目录，不冒称新的运行。Agent中断不作为OS进程清理证据，当前启动前和最终仍按实际PID/命令/归属核对。
+
+完整E2E在10:32:41 UTC返回66通过/6失败（run `01a158d9-f5b3-747c-b50f-9e9bf37f483a`），原始report/JUnit/6组trace与截图已复制保全。主与只读explorer据trace和上游源码定位：新上游`WorkbenchChrome`的text导航直接打开当前/最近语音作品，默认text页会把恢复中的音乐/故事切为普通text，没有text时创建新随机ID；测试只设active-project、不控制实际导航/打开状态，生成前实际用错源。另390宽度隐藏recent-projects，两个失败trace却已经显示正确标题/正文后继续等仅桌面可见的最近作品button。不是生成算法或上游样式的新缺陷，不能改auto/ID断言放过，也不能把查询fixture.state.drafts.find(expectedID)当实际已选中该源的证据。
+
+同一worker修正现有E2E准备/导航：音乐、编曲、故事从各自实际可见的作品列表明确打开目标，生成前用当前编辑器可观察标题/正文或关联状态确认准确源；故事的fixture变体与初始非text页面在bootstrap前确定，避免quick-opening意外创建普通作品。普通text用新nav-text直接续开后断言编辑器，无需窄屏隐藏的recent按钮；模式准备必须在源装载前确定或通过受控已有fixture状态更新并验证实际控件模式，不能只删点击。原独立ID、合法语言、source不变、剥离字幕/时间轴、显式模式/请求与正文断言保留。只改既有speaker-page E2E和必要最小synthetic bridge，不改生产UI/业务/样式。先定向受影响四故事的双目标，再一次完整72；其他已过且输入未变的Go/Swift/Python/脚本证据复用。基于这组新观察和剩余必要检查，原35分钟工程估计延至本轮总55分钟含收尾，不重置失败/诊断历史、不追加App/模型次数；任何两轮无新因果或验收进展仍按停止规则处理。
+
+定向8/8与完整72/72已在修正后通过。Playwright默认服务启动60秒超时没有执行测试；本地回退预检又确认4173由另一个library-prototype项目的Python12358占用，禁止复用或终止。主核对浏览器用例没有写死应用4173，4174无监听；允许只在忽略产物目录创建临时配置，导入原配置，保持原testDir、testMatch、PW_ALL封存集合、viewport、reducedMotion、断言与CLI并发/重试，只把baseURL改为自有4174并禁用配置自动webServer。当前源码Vite直接在4174提供，有限HTTP就绪与cwd/命令/PID核对后运行完整套件，结束回收精确自有服务。原源码配置不修改，端口冲突和原启动失败保留；这次可定位环境调整不重置失败历史或扩大原生权限。
+
+4174上的全套实际109/111，两个library长旅程均在末段耗尽默认30秒：一例600宽导航已经可见稳定并开始click，另一例编辑器按钮已通过inViewport后于boundingBox时全局timeout关闭页面，不能仅据超时断言产品缺陷或环境问题。主限定这两个新失败段的一次最小诊断：同一源码/断言/30秒预算、仅两例、workers1/retries0/max-failures1、trace on和JSON reporter、含服务清理最多3分钟，观察各action时间、目标命中和最终业务终态。假设为并发时长旅程耗尽总预算，反例为单例仍在固定动作卡住；不改UI、styles、断言或timeout。若诊断未定位则保留证据停止该段；若有实际时间线证实并通过，可按原有最多2worker约定降为1，对完整111再执行一次并记录区别，不当作零重试原全套通过。本次工程估计据已完成72与新PW原件调整为总75分钟含收尾，不刷新失败/诊断计数，不追加原生/模型。只读explorer核对library与上游源码的关系，主汇总接受。
+
+诊断入口两次返回No tests found，实施者已按未收敛规则停下；第一次raw被第二次同错误覆盖，生命周期日志各自保留，不能伪称原件全齐。主随后只读原脚本和本次JSON实际配置，发现诊断命令漏传PW_ALL=1，JSON的testIgnore明确包含library.spec.ts；改文件过滤路径不能解决。已安装Playwright1.63的_grepTitleWithTags又把父级路径与标题拼接，原仅故事名的^...$正则同样不匹配。该新观察定位到启动包装错误，不是对两个业务超时的诊断结论；一次业务诊断额度仍保留原两例观测边界，不能借此追加更多定位。恢复先以PW_ALL=1和无首尾锚的两个独有故事名做一次只收集核对，恰好2项才启动原定单线程观测；保持3分钟执行/清理上限、所有断言/30秒不变。收集或业务观测再失败且无定位则停止并报告，不再试第三种入口。两个原失败和全部调用历史保留。
+
+主已接受同一实施者的最终修正、72/72及单worker完整111/111、Go/Swift/Python/脚本结果与自有资源清理；全部7个代码/测试blob与独立有界审查末次快照相同。TASK-002的Build完成后保存干净实现提交，进入独立Validate：最多15分钟含清理，串行新执行Go -json/-race/-count1及coverage、当前已提交72项E2E、27项采证脚本与发行说明2项，其他输入相同的111浏览器/Swift/Web静态/隔离脚本按原件复用。验证者只读实现、不改测试/state/Plan；主接受并写实际验证结果，SCN-UI-22缺失时只能INCONCLUSIVE/fail，不进入正式Review批准。
+
+主独占Plan/project/state，代码worker不写生命周期。新原生SCN-UI-22依当前产品口径仍NOT_RUN，不将旧b3d114a的真实旅程视为合并后App通过。本次继续指令授权确定性修正/复验，不新增App、实模、TTS、Mic、云端或下载预算；未补的完整Feature条件如实保留未通过，禁止伪造PASS。已有功能分支commit/push及PR #90更新授权保持，不推main、不合并PR、不发行。
+
 ### 2026-10-20 上游集成（TASK-002，当前有效增量）
 
 用户明确要求拉取上游、解决冲突并推送到 fork，继续更新上游 PR #90。固定集成输入为本分支84b9581与upstream/main 24158137015f7b2809102d4a7d9cb3a2d357b75c，共同基线c9d6e578。只合入当前功能分支，不推main、不合并上游PR、不发行；已有原生/模型预算均已结束，不启动App、真实模型或用户数据迁移。既有b3d114a原生PASS及独立结果保留其原版本，不声称证明合并后的新包。上游合并预检22文件冲突，需要重新做实现集成和相关自动化检查；原正式验收不会被当作新实现的当前验收。
@@ -475,6 +499,27 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 ## Build evidence
 
+### 2026-10-20 上游集成剩余回归返修 — build-002
+
+同一Terra实施者在a95529e工作树上修正测试/夹具和生成的助手错误码说明，没有改生产UI、生成算法或上游样式。SQLite受控trigger打中真实settings最终写事务，普通生成保留保存错误detail，profile/RPC仍只公开稳定persistence_failed；测试钩子的幂等释放先于Workbench.Close，防止提前Fatal阻塞退出。fake engine按模型task区分midi、gen和TTS，不再将Vox参考audio误判为转谱；普通生成自身结果回归改用共享主操作槽的后继生成，保留独立下载槽语义。独立只读审查提出的清理顺序、Windows file URI和Web可见性三项均修正复核，最终未见must-fix；这不等于正式Feature Review批准。
+
+原始日志均在`artifacts/verification/feature-002-upstream-merge-20261020/build-002/`，包含UTC起止/命令/退出。Go全套使用GOMAXPROCS=2、-p2；浏览器最多2worker、零自动重试，未运行真实App/模型/录音/TTS或下载。旧失败不覆盖：06:43旧604秒超时、当前首轮Go后继槽失败、E2E66/72及其完整304文件证据、Playwright服务启动60秒超时分别留存。
+
+| 检查 | 实际命令与结果 |
+|---|---|
+| Go完整race/coverage | 10:20:45–10:21:21 UTC，`env -u YOVOICE_SMOKE_MODEL -u YOVOICE_OCHO_PATH -u ANTHROPIC_BASE_URL -u ANTHROPIC_API_KEY GOMAXPROCS=2 go test -race -p 2 -covermode=atomic -coverprofile=artifacts/verification/feature-002-upstream-merge-20261020/build-002/go-race-atomic-final.cover ./...`，exit0；多数包使用相同输入缓存，workbench32.524秒。不伪造缺失的逐测试数量 |
+| 最后helper修正 | Windows URI规范化发生于完整Go后，随后`sqlite-fault-helper-uri-race.log`覆盖全部直接使用者workbench2.369秒/remote3.196秒，exit0；`format-diff-vet-final.log`为gofmt、diff检查、vet exit0，10:26:25 UTC结束 |
+| 覆盖率 | 上述成功profile，recognition250/293=85.32%；相对upstream24158137015f7b2809102d4a7d9cb3a2d357b75c新增行相交的desktop/workbench生产statement块503/605=83.14%，440个块；排除_test.go，按block起止行与新增hunk相交统计。两者达80%，不称Go分支百分比 |
+| Web lint/type/build | `./node_modules/.bin/eslint . && ./node_modules/.bin/tsc -b && ./node_modules/.bin/vite build`，10:26:49–10:26:56 UTC，exit0；后续测试文件变动需补相应静态检查，产物业务源码未变 |
+| 声纹E2E | 新导航/正确源准备、可见编辑器有限终态等待修正后，定向4故事×2目标8/8；完整`E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --workers 1 --retries 0 --strict-cache --output e2e-results/feature-002-upstream-merge-20261020-build-002-full-final`于10:46:02–10:51:11 UTC exit0，72/72，run01a158eb-113e-772b-856c-b2d5dc82e9d8；中1280×840/英390×600，原auto/ID/正文/原源不变/字段剥离/模式断言保留 |
+| Python识别纯单元 | `make check-recognition`，10:35:21 UTC，4+1/5通过，exit0；不执行模型 |
+| macOS隔离脚本 | `python3 -B scripts/desktop/check-macos-run.py`、`check-macos-update.py`、`check-signing.py`，10:35:30–10:35:39 UTC，分别exit0；仅隔离替身 |
+| Swift | `swift test --package-path desktop/macos --jobs 1`，10:35:58–10:36:04 UTC，17 XCTest通过，exit0；另一个Swift Testing runner显示0不抹除17项实际执行 |
+| Playwright首轮与收尾 | `PW_ALL=1`、原套件临时4174配置、workers2/retries0，10:57:06–11:02:56 UTC，109通过/2失败（library两例总预算30秒超时），exit1；自有Vite87985正常回收，4174已无监听，未停止其他项目4173。raw为`playwright-full-4174-final.log`与`playwright-4174-lifecycle.log`；两个error-context保存在独立test-results-4174。lint/tsc补检exit0，两例后续完整结果见下文 |
+| 新原生SCN-UI-22 | NOT_RUN；合并前b3d114a真实旅程仅证明旧版本，当前不具备新的App/模型运行预算 |
+
+最后浏览器复验补证：修正诊断包装的PW_ALL/grep后，只收集恰好2例；同一30秒/断言的串行trace为2/2通过（5328ms、5553ms），覆盖最终1440/600几何和导航。`playwright-library-diagnosis-attempt3.json`、actions log、trace和独立lifecycle保留。第一轮并发失败与本次隔离通过支持累计时长/共享资源假设，但不能据此声称已证明唯一负载原因；没有放宽测试timeout或修改library/生产代码。随后在原最多2worker限制下降为1，完整PW_ALL收集111项/22文件，`playwright-full-4174-serial-final.log`为111/111通过、exit0、零重试，11:11:48–11:15:27 UTC；原两例分别4.3秒/5.0秒。`playwright-4174-serial-final-lifecycle.log`核对源码工具指纹/cwd/ready及回收97227，4174无残留监听。主接受本次单worker完整结果，保留首轮109/111及两次no-tests历史；不将两例绿结果替代完整套件。最终代码静态检查见`web-lint-typecheck-after-pw.log`（exit0），源码自该检查后未变。
+
 ### 2026-10-19 RPC 行为测试补齐
 
 Terra worker `/root/speaker_rpc_test_completion` 仅新增 `internal/desktop/speaker_rpc_test.go`。主已逐段审查：通过真实Call入口校验base64/voiceId登记与识别失败时的公开恢复错误及State/Voices/档案/临时文件不变；验证runtime/list/幂等delete/cancel公开结果、生成档案缺失、未知字段/多JSON值/调用者注入绑定/非法取消ID拒绝；通过HTTP验证第二个昂贵请求在dispatch前返回busy，首请求终态释放取消句柄。既有取消回归保持，未改生产/构建输入。
@@ -520,7 +565,7 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-当前b3d114a的独立正式Validate PASS和独立Review approved均已由主接受，Feature功能验收完成，无未处理必须修复项。删除刷新P2返修57a2b22的独立6/6增量及当前新包完整原生旅程共同覆盖22场景必要功能要求。真实2启动/5提取、534.548秒，两个known精确正确、unknown拒绝、删除及可见重启一致，初始化基线至最终退出完整State/输入相等，资源及私有测试特征已清理。旧版本的失败、通过和采证边界分别保留；逐条时延延期、Mic/TTS听测NOT_RUN，不能扩展为未执行范围的通过。
+当前有效范围为TASK-002合并2415813后的集成源码，正式Validate尚未完成，SCN-UI-22的新包真实旅程NOT_RUN。下方b3d114a的独立Validate PASS、Review approved及534.548秒原生证据只证明合并前版本，不能作为当前Feature已通过。该旧旅程实际完成两次启动/五次提取、两个known精确正确、unknown拒绝、删除及可见重启一致，初始化基线至最终退出完整State/输入相等，资源及私有测试特征已清理；这些事实和全部旧失败分别保留。逐条时延延期、Mic/TTS听测NOT_RUN，不能扩展为未执行范围的通过。本次确定性返修的完整证据在Build evidence及后续独立Validate记录中更新。
 
 ### 2026-10-20 独立正式Validate通过 — b3d114a
 

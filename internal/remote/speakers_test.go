@@ -17,6 +17,7 @@ import (
 	"yovoice/internal/msg"
 	"yovoice/internal/recognition"
 	"yovoice/internal/schema"
+	"yovoice/internal/testkit"
 	"yovoice/internal/workbench"
 )
 
@@ -300,18 +301,18 @@ func TestSpeakerGenerationRouteUsesBindingAndRedactsPrivateDiagnostics(t *testin
 		}
 	}
 
-	backup := filepath.Join(service.Store.Root, "state.backup.json")
-	if err = os.Remove(backup); err != nil {
-		t.Fatal(err)
-	}
-	if err = os.Mkdir(backup, 0700); err != nil {
-		t.Fatal(err)
-	}
+	const persistenceMarker = "test-remote-profile-final-state-save-failure"
+	testkit.FailSettingsUpdate(t, service.Store.Root, "activity", "completed", persistenceMarker)
 	request = speakerRequest(http.MethodPost, "/v1/speakers/"+profile.ID+"/generate", api.Token, `{"text":"状态保存失败","modelId":"index-2.5-q8"}`)
 	recorder = httptest.NewRecorder()
 	api.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusInternalServerError || !strings.Contains(recorder.Body.String(), `"persistence_failed"`) {
-		t.Fatalf("profile state save failure = %d %s", recorder.Code, recorder.Body.String())
+	persistenceBody := recorder.Body.String()
+	hasPersistenceCode := strings.Contains(persistenceBody, `"persistence_failed"`)
+	leaksPersistenceDetail := strings.Contains(persistenceBody, persistenceMarker) ||
+		strings.Contains(persistenceBody, service.Store.Root) ||
+		strings.Contains(persistenceBody, "detail")
+	if recorder.Code != http.StatusInternalServerError || !hasPersistenceCode || leaksPersistenceDetail {
+		t.Fatalf("profile state save failure = %d %s", recorder.Code, persistenceBody)
 	}
 }
 

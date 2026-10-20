@@ -49,6 +49,7 @@ func TestSynthesizePrioritizesFinalStateSaveFailure(t *testing.T) {
 	releaseSaved := func() {
 		releaseOnce.Do(func() { close(release) })
 	}
+	defer releaseSaved()
 	t.Cleanup(releaseSaved)
 	workbench.afterGenerationSaved = func() {
 		close(saved)
@@ -72,16 +73,15 @@ func TestSynthesizePrioritizesFinalStateSaveFailure(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatal("generation history was not saved")
 	}
-	backup := filepath.Join(workbench.Store.Root, "state.backup.json")
-	must(t, os.Remove(backup))
-	must(t, os.Mkdir(backup, 0700))
+	const marker = "test-final-state-save-failure"
+	testkit.FailSettingsUpdate(t, workbench.Store.Root, "activity", "completed", marker)
 	releaseSaved()
 	select {
 	case err = <-result:
 	case <-time.After(2 * time.Second):
 		t.Fatal("synthesis did not finish after release")
 	}
-	if err == nil || !strings.Contains(err.Error(), string(msg.ErrStateSaveFailed)) || !strings.Contains(err.Error(), "state.backup.json") {
+	if err == nil || !strings.Contains(err.Error(), string(msg.ErrStateSaveFailed)) || !strings.Contains(err.Error(), marker) {
 		t.Fatalf("final save failure = %v", err)
 	}
 	activity := workbench.Store.Read().Activity
@@ -108,6 +108,18 @@ func TestSynthesizeReturnsOwnResultAfterAnotherOperationStarts(t *testing.T) {
 	allowFinish := make(chan struct{})
 	decisionReady := make(chan struct{})
 	allowDecision := make(chan struct{})
+	var finishOnce sync.Once
+	releaseFinish := func() {
+		finishOnce.Do(func() { close(allowFinish) })
+	}
+	var decisionOnce sync.Once
+	releaseDecision := func() {
+		decisionOnce.Do(func() { close(allowDecision) })
+	}
+	// 两个 defer 都注册在 Workbench.Close 之后，提前失败时先放行测试钩子，
+	// 再等待后台操作收尾。
+	defer releaseFinish()
+	defer releaseDecision()
 	workbench.afterGenerationSaved = func() {
 		close(saved)
 		<-allowFinish
@@ -133,14 +145,16 @@ func TestSynthesizeReturnsOwnResultAfterAnotherOperationStarts(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatal("first generation was not saved")
 	}
-	close(allowFinish)
+	releaseFinish()
 	select {
 	case <-decisionReady:
 	case <-time.After(2 * time.Second):
 		t.Fatal("first synthesis did not reach result return")
 	}
 
-	successor, err := workbench.start("download", msg.ActivityDownload, nil, nil, func(ctx context.Context) error {
+	// 模型下载拥有独立的 Activity 槽；这里需启动共享主槽中的后续操作，
+	// 才能验证同步生成不会把别的主操作结果误认为自己的结果。
+	successor, err := workbench.start("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error {
 		<-ctx.Done()
 		return ctx.Err()
 	})
@@ -150,11 +164,11 @@ func TestSynthesizeReturnsOwnResultAfterAnotherOperationStarts(t *testing.T) {
 		<-successor.done
 	}()
 	activity := workbench.Store.Read().Activity
-	if activity == nil || activity.Status != "running" || activity.Code != msg.ActivityDownload {
+	if activity == nil || activity.Status != "running" || activity.Code != msg.ActivityGenerate {
 		t.Fatalf("successor activity = %+v", activity)
 	}
 
-	close(allowDecision)
+	releaseDecision()
 	select {
 	case received := <-result:
 		if received.err != nil {
