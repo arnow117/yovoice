@@ -6,7 +6,18 @@
 
 - 音乐播放页逐字点亮当前句：按音频里的人声自动分出每个字的时间；新增一句一屏的“浮光”歌词样式，字随演唱逐个跃出并发光，适合录屏；可导出逐字 LRC。
 - 新增可选下载的歌词对齐模型（BS-RoFormer 人声分离 + Qwen3 Forced Aligner，约 1.3 GB）：播放页“智能对齐”先分离人声再把歌词逐字对到演唱上，结果随版本保存。
-- 修复主编辑区在切换焦点或关闭浮层后偶尔整体上移一小段的问题。
+
+## [0.3.1] - 2026-10-19
+
+### English
+
+- Fix a crash on launch on macOS 26 caused by the sidebar button in the title bar.
+- Fix long pages on Windows being covered by a large black block; main scroll areas now show a thin, light scrollbar.
+
+### 简体中文
+
+- 修复 macOS 26 上标题栏侧边栏按钮导致应用启动后闪退的问题。
+- 修复 Windows 上内容超过一屏的页面被一大片黑色遮住的问题；主要滚动区域显示细的浅色滚动条。
 
 ## [0.3.0] - 2026-10-19
 

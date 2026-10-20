@@ -38,6 +38,8 @@
   /* 隐藏滚动条外观，保留滚轮、触控板和键盘滚动。 */
   * { scrollbar-width: none; }
   *::-webkit-scrollbar { display: none; }
+  /* 主要的纵向滚动区保留一条细的浅色滚动条，提示内容还能往下滚、也方便拖动；标准属性生效时 Chromium 不再采用上面的 ::-webkit-scrollbar。 */
+  :is(.inspector-scroll, .recent-projects, .assistant-body, .assistant-history-list, .library-page > .library-content, .settings-page > [role="tabpanel"], .music-editor, .score-editor, .subtitle-editor, .ai-detail) { scrollbar-width: thin; scrollbar-color: var(--color-border-emphasized) transparent; }
   body, input, textarea, button { font-family: var(--app-font); }
   body { -webkit-font-smoothing: antialiased; color: var(--app-ink); background: var(--app-paper); font-size: var(--app-ui-font); }
   h1,h2,h3,h4,p { margin: 0; }
@@ -1112,9 +1114,10 @@
   @keyframes app-block-in { from { opacity: 0; filter: blur(3px); transform: translateY(var(--spacing-1)); } }
   /* 滚动边缘渐隐：内容滚出可视区时在上下沿平滑淡出，替代生硬的截断。
      用 7 档非线性透明度避免高分屏上的色阶断层；渐隐尺寸随滚动位置从 0 渐变到满，所以在顶部和底部不会盖住内容。
-     浏览器不支持滚动驱动动画时保持原样（无渐隐）。 */
+     浏览器不支持滚动驱动动画时保持原样（无渐隐）。
+     Windows 上 WebView2/Chrome 合成这层蒙版时会把整块可视区画成黑色，只剩渐隐处透出内容，因此在 Windows 上不加渐隐。 */
   @supports (animation-timeline: scroll()) {
-    .inspector-scroll, .recent-projects, .assistant-body, .assistant-history-list, .library-page > .library-content, .settings-page > [role="tabpanel"], .music-editor, .score-editor, .subtitle-editor, .ai-detail {
+    :root:not([data-os="windows"]) :is(.inspector-scroll, .recent-projects, .assistant-body, .assistant-history-list, .library-page > .library-content, .settings-page > [role="tabpanel"], .music-editor, .score-editor, .subtitle-editor, .ai-detail) {
       animation: app-fade-top linear both, app-fade-bottom linear both;
       animation-timeline: scroll(self block), scroll(self block);
       animation-range: 0 var(--app-fade-size), calc(100% - var(--app-fade-size)) 100%;
