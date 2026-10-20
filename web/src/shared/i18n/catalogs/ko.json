@@ -3864,6 +3864,6 @@
     "defaultMessage": "노래, 연주곡, 편곡 생성과 관련 모델 및 사운드폰트 설정."
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "플로팅 어시스턴트, 제목 표시줄 항목과 제안. AI 서비스 설정은 유지되어 다른 AI 기능은 계속 사용할 수 있습니다."
+    "defaultMessage": "플로팅 어시스턴트, 제목 표시줄 항목과 제안. 음악 생성도 끄면 AI 서비스 설정과 책의 AI 배역 지정도 함께 숨겨집니다."
   }
 }

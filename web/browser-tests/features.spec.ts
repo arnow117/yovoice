@@ -19,6 +19,8 @@ test('设置里隐藏故事配音、音乐生成和 Ocho 后入口消失，重�
   for (const id of ['nav-story', 'nav-music', 'assistant-toggle']) await expect(page.getByTestId(id)).toHaveCount(0);
   await expect(page.getByRole('tab', { name: '音乐模型' })).toHaveCount(0);
   await expect(page.getByRole('tab', { name: 'Ocho' })).toHaveCount(0);
+  // Ocho 与音乐生成都关闭时，AI 服务一并隐藏。
+  await expect(page.getByRole('tab', { name: 'AI 服务' })).toHaveCount(0);
   // 新建菜单只保留语音生成与导入。
   await page.getByTestId('nav-new').click();
   await expect(page.getByRole('menuitem', { name: '语音生成' })).toBeVisible();
@@ -32,5 +34,6 @@ test('设置里隐藏故事配音、音乐生成和 Ocho 后入口消失，重�
   await page.getByTestId('nav-settings').click();
   await page.getByRole('switch', { name: '音乐生成' }).click();
   await expect(page.getByTestId('nav-music')).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'AI 服务' })).toBeVisible();
   await expect.poll(() => saved(page)).toEqual(['story', 'assistant']);
 });

@@ -3864,6 +3864,6 @@
     "defaultMessage": "Bài hát, nhạc không lời và bản phối, cùng cài đặt mô hình và soundfont tương ứng."
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "Trợ lý nổi, lối vào trên thanh tiêu đề và các gợi ý. Cài đặt dịch vụ AI vẫn giữ nguyên, các tính năng AI khác vẫn dùng được."
+    "defaultMessage": "Trợ lý nổi, lối vào trên thanh tiêu đề và các gợi ý. Khi tắt cả tạo nhạc, cài đặt dịch vụ AI và phân vai bằng AI cho sách cũng bị ẩn."
   }
 }

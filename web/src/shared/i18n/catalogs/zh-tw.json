@@ -3864,6 +3864,6 @@
     "defaultMessage": "歌曲、純音樂與編曲生成，以及對應的模型和音色庫設定。"
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "浮窗助手、標題列入口和主動提示；AI 服務設定保留，其他 AI 功能仍可使用。"
+    "defaultMessage": "浮窗助手、標題列入口和主動提示。與音樂生成都關閉時，AI 服務設定和有聲書的 AI 分配角色也一併隱藏。"
   }
 }

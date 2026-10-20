@@ -3864,6 +3864,6 @@
     "defaultMessage": "Canciones, instrumentales y partituras, junto con sus ajustes de modelos y bancos de sonido."
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "El asistente flotante, su acceso en la barra de título y sus sugerencias. Los ajustes del servicio de IA se mantienen y las demás funciones de IA siguen disponibles."
+    "defaultMessage": "El asistente flotante, su acceso en la barra de título y sus sugerencias. Si también desactivas la generación de música, se ocultan los ajustes del servicio de IA y el reparto con IA de libros."
   }
 }

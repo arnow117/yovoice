@@ -3864,6 +3864,6 @@
     "defaultMessage": "歌、インスト、スコアの生成と、対応するモデルとサウンドフォントの設定。"
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "フローティングアシスタント、タイトルバーの入口、提案。AI サービスの設定は残り、他の AI 機能は引き続き使えます。"
+    "defaultMessage": "フローティングアシスタント、タイトルバーの入口、提案。音楽生成もオフにすると、AI サービスの設定と書籍の AI 配役も隠れます。"
   }
 }
