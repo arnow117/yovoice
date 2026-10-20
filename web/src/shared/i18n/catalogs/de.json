@@ -3864,6 +3864,6 @@
     "defaultMessage": "Songs, Instrumentals und Partituren samt Modell- und Soundfont-Einstellungen."
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "Der schwebende Assistent, sein Eintrag in der Titelleiste und seine Vorschläge. Die KI-Dienst-Einstellungen bleiben, andere KI-Funktionen funktionieren weiter."
+    "defaultMessage": "Der schwebende Assistent, sein Eintrag in der Titelleiste und seine Vorschläge. Ist auch die Musikgenerierung aus, werden die KI-Dienst-Einstellungen und die KI-Rollenvergabe für Bücher ebenfalls ausgeblendet."
   }
 }

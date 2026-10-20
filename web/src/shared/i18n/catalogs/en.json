@@ -3864,6 +3864,6 @@
     "defaultMessage": "Songs, instrumentals and scores, plus their model and sound font settings."
   },
   "@yovoice.settings.featureAssistantHint": {
-    "defaultMessage": "The floating assistant, its title bar entry and suggestions. AI service settings stay, so other AI features keep working."
+    "defaultMessage": "The floating assistant, its title bar entry and suggestions. With music generation also off, AI service settings and AI casting for books are hidden too."
   }
 }

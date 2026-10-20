@@ -9,7 +9,7 @@ import { AppDialog } from '../../shared/ui/app-dialog';
 import { Selector } from '../../shared/selector';
 import { call } from '../../shared/lib/client';
 import { formatCallError } from '../../shared/i18n/format';
-import { createDraft, formatTime, type Draft, type State } from '../../shared/workbench';
+import { aiServiceHidden, createDraft, formatTime, type Draft, type State } from '../../shared/workbench';
 import { Player } from '../media/player';
 import { SpeakerAvatar } from '../create/subtitles';
 import { bookDrafts, castRoles, manuscriptAccept, proposeCast, readManuscript, scriptChapters, type CastRole, type Manuscript, type ScriptChapter } from '../create/manuscript';
@@ -162,7 +162,7 @@ function BookDialog({ book, state, modelId, configureAI, create, close }: { book
         <b>{t('@yovoice.book.summary', { chapters: script.length, roles: roles.filter(r => r.name !== unknownKey).length, lines: script.reduce((sum, c) => sum + c.lines.length, 0) })}</b>
         <small className="muted">{running && task ? t('@yovoice.book.aiRunning', { model: task.model, done: task.done ?? 0, total: task.total || '…', time: formatTime(Math.floor((Date.now() - Date.parse(task.startedAt)) / 1000)) }) : t('@yovoice.book.castHelp')}</small>
       </VStack>
-      {running ? <><LoaderCircle className="generation-spinner" size={16} aria-hidden /><Button size="sm" label={t('@yovoice.create.cancelGenerate')} onClick={() => void call('ai.cancel')} /></>
+      {aiServiceHidden(state.preferences) ? null : running ? <><LoaderCircle className="generation-spinner" size={16} aria-hidden /><Button size="sm" label={t('@yovoice.create.cancelGenerate')} onClick={() => void call('ai.cancel')} /></>
         : provider?.model ? <Button size="sm" variant="secondary" icon={<Sparkles />} label={t('@yovoice.book.aiCast')} isDisabled={elsewhere} onClick={() => void runAI()} />
         : <Button size="sm" variant="secondary" icon={<Settings2 />} label={t('@yovoice.ai.configure')} onClick={() => { dismiss(); configureAI(); }} />}
     </HStack>
