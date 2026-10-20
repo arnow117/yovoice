@@ -4,15 +4,8 @@
 
 ## [Unreleased]
 
-- 新增 Breeze TTS 2（中英，Q4 / Q8 / BF16）：可用文字描述设计音色，或用参考音频和原文克隆并以描述调整语速、情绪和语气；默认缩短分段、限制单段生成长度并在显卡上使用 bf16 推理，减少拖音和长段静音。模型需要 v0.9.1 内核，权重仅限非商业用途。
-- 新建作品菜单新增“导入文件配音”：导入 TXT 或 Markdown 文本直接生成语音作品，导入 SRT、VTT、ASS 字幕生成故事作品；自动识别 UTF-8、UTF-16 与 GBK 编码，Markdown 的标记符号会被去掉。
-- CLI 新增 `yovoice mcp`，以 stdio 方式提供 MCP，Claude Desktop、Cursor 等本机客户端可直接作为子进程启动，无需令牌；结果直接返回生成音频的本机路径，`upload_voice` 也可按本机路径导入参考音频。
-- 设置 › 常规新增“本机接口”：开启后在 127.0.0.1 上提供与 `yovoice serve` 相同的 HTTP / MCP 接口（默认端口 8080，可修改），本机其他软件凭访问令牌即可调用桌面应用里的模型生成语音；令牌可复制、重置，端口被占用时直接提示。
-- AI 服务新增 OrcaRouter（兼容 OpenAI 接口）：点“免费连接 OrcaRouter”在浏览器登录并同意授权后自动添加，默认使用免费模型，不用复制密钥；免费模型被拒绝时分别提示还需等待几秒、内容超过免费长度上限或需要绑定 GitHub。
-- Windows 与 macOS 应用内更新提示：发现新版本时弹出提示并在侧栏显示下载进度，可查看对应语言的更新内容，下载完成后一键重启更新；设置页新增“版本与更新”，可随时检查更新，更新后首次启动会提示新版本内容。
-- 修复语音生成面板中“更多情绪”与“微调情绪”折叠按钮残留边框与背景的问题，统一为轻量幽灵折叠外观。
-- 修复缺少乐谱数据的旧编曲作品在启动或打开时导致整个窗口白屏的问题，这类作品会自动补上空乐谱。
-- 侧栏导航与新建作品菜单将“语音生成”置于首位（排在“故事配音”上方）；桌面端重新打开时默认展示作品列表（不自动打开内容页），并记住离开前所在的分类页面。
+- 音乐播放页逐字点亮当前句：按音频里的人声自动分出每个字的时间；新增一句一屏的“浮光”歌词样式，字随演唱逐个跃出并发光，适合录屏；可导出逐字 LRC。
+- 新增可选下载的歌词对齐模型（BS-RoFormer 人声分离 + Qwen3 Forced Aligner，约 1.3 GB）：播放页“智能对齐”先分离人声再把歌词逐字对到演唱上，结果随版本保存。
 
 ### Added
 
@@ -33,14 +26,60 @@
 - 简体中文：macOS 声纹验证冒烟现在会把规范化后的本地运行路径传给 App 宿主；本地识别配置被拒绝时仅记录脱敏后的字段与原因分类。
 - English: Speaker-profile CLI generation now imports an independent IndexTTS emotion reference, reports native generation failures as `runtime_failed`, and distinguishes caller cancellation from a generation timeout.
 - 简体中文：声纹档案 CLI 生成现在会导入独立的 IndexTTS 情绪参考音频；原生生成失败返回 `runtime_failed`，并能区分调用方取消和生成超时。
-- 修复删除最后一个作品时的保存与残留问题，切换历史版本或新建作品失败时显示更具体的错误信息。
-- 新作品优先使用已安装模型，创作页模型选择器减少未安装模型干扰。
-- 远程服务的每次生成请求不再新建作品，避免长期运行后状态文件持续增大；生成失败时返回具体错误码。
-- 生成历史不再重复保存作品时间轴，减小状态文件体积。
-- macOS 退出时作品保存失败会提示并取消退出，不再静默丢失最后的编辑；Windows 本地服务意外停止后可以正常退出，并可备份当前作品；退出流程出错时可选择“仍要退出”，不再只能用任务管理器结束。
-- 失败提示保留具体原因（如文件不存在、下载连接超时），不再只显示“出了点问题”；长提示在窄窗口中正常换行。
-- 修复部分界面尺寸失效：音量滑块过宽挤掉“保存为角色”按钮、窄屏导航与空状态留白异常。
-- 重新安装或切换推理后端后清理旧的运行时，过时的更新安装包不再保留，启动时回收中断操作遗留的临时文件。
+- English: Speaker profiles now follow data-directory relocation and reject writes to a frozen directory; validation snapshots read SQLite State consistently.
+- 简体中文：声纹档案现在随数据目录迁移，并拒绝向已冻结的目录写入；验证快照从 SQLite 一致读取状态。
+
+## [0.3.1] - 2026-10-19
+
+### English
+
+- Fix a crash on launch on macOS 26 caused by the sidebar button in the title bar.
+- Fix long pages on Windows being covered by a large black block; main scroll areas now show a thin, light scrollbar.
+
+### 简体中文
+
+- 修复 macOS 26 上标题栏侧边栏按钮导致应用启动后闪退的问题。
+- 修复 Windows 上内容超过一屏的页面被一大片黑色遮住的问题；主要滚动区域显示细的浅色滚动条。
+
+## [0.3.0] - 2026-10-19
+
+### English
+
+- Meet Ocho, the built-in AI assistant (⌘J / Ctrl+J): create and edit projects, write lyrics and scores, pick voices, tune parameters and start generations by chatting. It sees your selection and recent results, remembers preferences, and asks before anything destructive.
+- YuE2 songs can start from a melody score: write or extract the melody and chords, view them as staff notation, tracks or ABC, preview with a sound font (notes light up as they play), edit, undo, export `.abc`, then generate from the score. Adds instrumental songs, covers via SheetSage2, and song forms that vary from song to song.
+- Novel import for story narration (TXT, Markdown, EPUB), SRT/WebVTT subtitle export, LRC lyrics export, and side-by-side comparison of song versions on the playback page.
+- New settings pages: Resources to find and clean up unused audio, Logs with diagnostic bundles, separate Speech and Music model pages with one row per model and a precision switch, and ChatGPT (Codex) as an AI provider.
+- The interface now speaks Traditional Chinese, Japanese, Korean, Spanish, French, German, Portuguese (Brazil), Russian, Italian and Vietnamese, with an opening animation, a feature tour and smoother motion throughout.
+- New projects default to downloaded models; `yovoice serve` serves interactive API docs at `/docs/`; Score projects move under Music as "Score generation".
+
+### 简体中文
+
+- 新增 AI 助手 Ocho（⌘J / Ctrl+J）：用对话新建和修改作品、写词写谱、挑音色、调参数、发起生成；能看到你的选中内容和最近结果，记住偏好，删除等操作先确认再执行。
+- YuE2 歌曲可以先写旋律谱：按歌词写谱或从歌曲提取，用五线谱、轨道或 ABC 查看，用音色库试听（谱面跟随高亮）、修改、撤回、导出 `.abc`，再按谱生成整首歌；新增纯音乐、SheetSage2 翻唱，写词时按曲风选择不同曲式。
+- 故事配音支持导入小说（TXT、Markdown、EPUB）和导出 SRT/WebVTT 字幕；音乐播放页可导出 LRC 歌词，并在同一作品的各版本间对比试听。
+- 设置新增“资源”页（查找并清理未使用的音频）、“日志”页（可导出诊断包），模型分为“语音模型”和“音乐模型”两页，每个模型一行、切换精度下载；AI 服务新增 ChatGPT (Codex)。
+- 界面新增繁體中文、日本語、한국어、Español、Français、Deutsch、Português (Brasil)、Русский、Italiano 和 Tiếng Việt，加入开场动画、功能引导和更顺滑的动效。
+- 新建作品默认使用已下载的模型；`yovoice serve` 在 `/docs/` 提供交互式 API 文档；「编曲」更名为「编曲生成」并入「音乐生成」。
+
+## [0.2.1] - 2026-10-16
+
+### English
+
+- Add direct Kokoro-82M 1.1-zh downloads from Hugging Face and ModelScope, and simplify model management to downloads from the app or CLI.
+- Add first-run preparation guidance, faster speech generation, batch reference-audio deletion, readable generated-audio filenames, and safer shared-file cleanup.
+- Add a full music playback page with synchronized lyrics, vocal alignment and calibration, plus improved score limits, AI naming, and style editing.
+- Move projects, voices, models and settings to transactional SQLite storage with backups, migration from `state.json`, storage relocation, recovery, and lifecycle cleanup.
+- Improve desktop reliability across Windows and macOS, including service recovery, process cleanup, tray behavior, narrow-window layouts, localized Windows UI, signing checks, and automatic updates.
+- Add Breeze TTS 2, text and subtitle file import, local MCP and API integration improvements, OrcaRouter, and clearer audio, migration, disk, and save-error handling.
+
+### 简体中文
+
+- 新增从 Hugging Face 和 ModelScope 直接下载 Kokoro-82M 1.1-zh，模型统一通过应用或 CLI 下载，并自动识别模型目录中的完整模型。
+- 新增首次生成准备清单、快速语音合成、参考音频批量删除、可读的生成音频文件名和更安全的共享文件清理。
+- 新增带歌词同步、人声定位与校准的音乐播放页，改进编曲时长限制、AI 自动命名和风格编辑。
+- 作品、音色、模型和设置迁移到带事务与备份的 SQLite，支持从 `state.json` 迁移、存储位置迁移、故障恢复和生命周期清理。
+- 提升 Windows 与 macOS 桌面可靠性，涵盖本地服务恢复、进程清理、托盘行为、窄窗口布局、Windows 界面本地化、签名校验和自动更新。
+- 新增 Breeze TTS 2、文本与字幕文件导入，改进本机 MCP 与 API、OrcaRouter，以及音频、迁移、磁盘和保存失败提示。
 
 ## [0.2.0] - 2026-10-11
 

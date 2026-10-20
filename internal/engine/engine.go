@@ -15,10 +15,14 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
+	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/catalog"
+	"yovoice/internal/diag"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
@@ -26,16 +30,43 @@ import (
 
 // Engine 可被并发调用：同一时间只运行一个推理请求，停止会等待当前请求结束。
 type Engine struct {
-	mu            sync.Mutex
-	root          string
-	process       *exec.Cmd
-	done          chan error
+	mu      sync.Mutex
+	root    string
+	process *exec.Cmd
+	done    chan error
+	// stopping 标记当前进程是被主动结束的，退出日志据此区分正常停止与意外退出。
+	stopping      *atomic.Bool
 	endpoint, key string
 	client        *http.Client
 }
 
 func New(root string) *Engine {
+	ReapOrphan(root)
 	return &Engine{root: root, client: &http.Client{Transport: &http.Transport{Proxy: nil}}}
+}
+
+func pidPath(root string) string { return filepath.Join(root, "runtime", "engine.pid") }
+
+// ReapOrphan 结束上次服务异常退出后残留的推理进程：它仍占用显存和端口，Windows 上还会锁住内核文件。
+// 只结束命令行包含本数据目录 server.json 的进程，避免误杀 PID 被复用的其他程序；
+// 数据目录由 service.lock 独占，此时不可能有其他服务正在使用这个推理进程。
+func ReapOrphan(root string) {
+	path := pidPath(root)
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return
+	}
+	defer os.Remove(path)
+	pid, err := strconv.Atoi(strings.TrimSpace(string(b)))
+	if err != nil || pid <= 1 || pid == os.Getpid() {
+		return
+	}
+	command, err := platform.ProcessCommand(pid)
+	if err != nil || !strings.Contains(command, filepath.Join(root, "runtime", "server.json")) {
+		return
+	}
+	platform.KillGroup(pid)
+	diag.Log(root, "engine.orphan_killed", "pid", pid)
 }
 func (e *Engine) Stop() {
 	e.mu.Lock()
@@ -46,10 +77,12 @@ func (e *Engine) Stop() {
 // stop 要求调用方持有 mu。
 func (e *Engine) stop() {
 	if e.process != nil {
+		e.stopping.Store(true)
 		platform.KillProcess(e.process)
 		<-e.done
 		e.process = nil
 		e.key = ""
+		_ = os.Remove(pidPath(e.root))
 	}
 }
 func (e *Engine) start(ctx context.Context, executable, model string, definition catalog.ModelPackage, backend string, encoderSamples int, restrictedDiagnostics bool, progress func(msg.Code, msg.Params)) error {
@@ -129,14 +162,15 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		c.Stdout = io.Discard
 		c.Stderr = io.Discard
 	} else {
-		out, createErr := os.Create(filepath.Join(e.root, "logs", "engine.log.out"))
-		if createErr != nil {
-			return createErr
+		// 推理日志追加写入，崩溃后重试重新启动引擎时，上一轮的出错原因仍保留在同一文件中。
+		out, err := diag.OpenProcessLog(filepath.Join(e.root, "logs", "engine.log.out"), "engine "+family)
+		if err != nil {
+			return err
 		}
 		defer out.Close()
-		stderr, createErr := os.Create(filepath.Join(e.root, "logs", "engine.log"))
-		if createErr != nil {
-			return createErr
+		stderr, err := diag.OpenProcessLog(filepath.Join(e.root, "logs", "engine.log"), "engine "+family)
+		if err != nil {
+			return err
 		}
 		defer stderr.Close()
 		c.Stdout = out
@@ -145,10 +179,31 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 	if err = c.Start(); err != nil {
 		return err
 	}
+	// 服务崩溃或被强制结束时不能留下推理进程：Windows 绑定作业对象，其他系统记录 PID 供下次启动清理。
+	if err := platform.TieToParent(c); err != nil {
+		diag.Log(e.root, "engine.tie_failed", "error", diag.Error(err))
+	}
+	_ = os.WriteFile(pidPath(e.root), []byte(strconv.Itoa(c.Process.Pid)), 0600)
 	e.process = c
 	e.done = make(chan error, 1)
-	done := e.done
-	go func() { done <- c.Wait(); close(done) }()
+	e.stopping = new(atomic.Bool)
+	done, stopping, pid, launched := e.done, e.stopping, c.Process.Pid, time.Now()
+	diag.Log(e.root, "engine.started", "family", family, "task", task, "backend", backend, "pid", pid)
+	go func() {
+		err := c.Wait()
+		event := "engine.exited"
+		if stopping.Load() {
+			event = "engine.stopped"
+		}
+		exit := ""
+		if err != nil {
+			exit = err.Error()
+		}
+		// 意外退出时 engine.log 里有推理进程自己的错误输出。
+		diag.Log(e.root, event, "family", family, "pid", pid, "uptime_s", int(time.Since(launched).Seconds()), "exit", exit)
+		done <- err
+		close(done)
+	}()
 	e.endpoint = fmt.Sprintf("http://127.0.0.1:%d/", port)
 	attempts := 120
 	if family == "kokoro_tts" {
@@ -162,6 +217,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		select {
 		case <-e.done:
 			e.process = nil
+			diag.Log(e.root, "engine.start_failed", "family", family, "pid", pid)
 			return msg.Err(msg.ErrEngineStartFailed, nil)
 		default:
 		}
@@ -175,6 +231,7 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		cancel()
 		if healthy {
 			e.key = key
+			diag.Log(e.root, "engine.ready", "family", family, "pid", pid, "startup_ms", time.Since(launched).Milliseconds())
 			return nil
 		}
 		select {
@@ -183,18 +240,21 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 		case <-time.After(250 * time.Millisecond):
 		}
 	}
+	diag.Log(e.root, "engine.start_timeout", "family", family, "pid", pid, "attempts", attempts)
 	return msg.Err(msg.ErrEngineStartTimeout, nil)
 }
-func (e *Engine) Generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) error {
+
+// Generate 生成音频写入 output；YuE2 自己规划旋律时一并返回这次所用的旋律谱，其余模型返回空串。
+func (e *Engine) Generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) (score string, err error) {
 	return e.generate(ctx, executable, m, backend, d, voice, emotion, output, false, progress)
 }
 
-// GenerateProfile 使用受限诊断路径，避免私有档案请求把原生输出写入日志。
-func (e *Engine) GenerateProfile(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) error {
+// GenerateProfile 使用受限诊断路径，避免私有档案请求把原生输出写入日志或错误正文。
+func (e *Engine) GenerateProfile(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, progress func(msg.Code, msg.Params)) (score string, err error) {
 	return e.generate(ctx, executable, m, backend, d, voice, emotion, output, true, progress)
 }
 
-func (e *Engine) generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, restrictedDiagnostics bool, progress func(msg.Code, msg.Params)) (err error) {
+func (e *Engine) generate(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, voice, emotion, output string, restrictedDiagnostics bool, progress func(msg.Code, msg.Params)) (score string, err error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	defer func() {
@@ -205,11 +265,11 @@ func (e *Engine) generate(ctx context.Context, executable string, m schema.Insta
 	}()
 	payload, err := BuildRequest(d, voice, emotion)
 	if err != nil {
-		return err
+		return "", err
 	}
 	definition, err := catalog.Lookup(m.ID)
 	if err != nil {
-		return err
+		return "", err
 	}
 	encoderSamples := 0
 	if definition.Family == "voxcpm2" {
@@ -217,31 +277,276 @@ func (e *Engine) generate(ctx context.Context, executable string, m schema.Insta
 		if d.RequiresVoice() {
 			duration, audioErr := audio.Duration(voice)
 			if audioErr != nil {
-				return audioErr
+				return "", audioErr
 			}
 			if duration < 1 || duration > 60 {
-				return msg.Err(msg.ErrAudioDuration, nil)
+				return "", msg.Err(msg.ErrAudioDuration, nil)
 			}
 			// VoxCPM2 先重采样到 16 kHz，再按 4 × 640 个采样点补齐；长参考音频按需扩容。
 			encoderSamples = max(encoderSamples, int(math.Ceil(duration*16000/2560))*2560)
 		}
 	}
 	if err = e.start(ctx, executable, m.Path, definition, backend, encoderSamples, restrictedDiagnostics, progress); err != nil {
-		return err
+		return "", err
+	}
+	// YuE2 纯音乐：没谱时先在同一个会话里出谱，再把人声旋律移到器乐声部后生成；
+	// 返回实际演奏的谱，存进这一版，之后可以载入编辑。
+	played := ""
+	if definition.Family == "yue2" && d.Instrumental {
+		if strings.TrimSpace(d.Abc) == "" {
+			plan, _ := payload["request"].(map[string]any)["options"].(map[string]any)
+			plan["stop_after"] = "abc"
+			progress(msg.ActivityPlanMelody, nil)
+			planned, err := e.run(ctx, payload, restrictedDiagnostics)
+			if err != nil {
+				return "", err
+			}
+			if d.Abc, _, _ = planned.score(); d.Abc == "" {
+				return "", msg.Err(msg.ErrMelodyEmpty, nil)
+			}
+		}
+		if played, err = instrumentalScore(d.Abc); err != nil {
+			return "", err
+		}
+		if payload, err = BuildRequest(d, voice, emotion); err != nil {
+			return "", err
+		}
 	}
 	progress(msg.ActivitySynthesizing, nil)
-	b, err := json.Marshal(payload)
+	result, err := e.run(ctx, payload, restrictedDiagnostics)
+	if err != nil {
+		return "", err
+	}
+	if result.Audio == "" {
+		return "", msg.Err(msg.ErrEngineNoAudio, nil)
+	}
+	progress(msg.ActivitySavingAudio, nil)
+	wav, err := base64.StdEncoding.DecodeString(result.Audio)
+	if err != nil {
+		return "", err
+	}
+	if err = os.WriteFile(output+".part", wav, 0600); err != nil {
+		return "", err
+	}
+	if _, err = audio.Duration(output + ".part"); err != nil {
+		return "", err
+	}
+	if err = ctx.Err(); err != nil {
+		return "", err
+	}
+	if score, _, _ = result.score(); played != "" {
+		score = played
+	}
+	return score, os.Rename(output+".part", output)
+}
+
+// PlanMelody 只运行 YuE2 的规划阶段（stop_after=abc），返回带和弦的旋律谱和是否因长度上限被截断。
+func (e *Engine) PlanMelody(ctx context.Context, executable string, m schema.InstalledModel, backend string, d schema.Draft, progress func(msg.Code, msg.Params)) (score string, truncated bool, err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	d.Abc = ""
+	payload, err := BuildRequest(d, "", "")
+	if err != nil {
+		return "", false, err
+	}
+	definition, err := catalog.Lookup(m.ID)
+	if err != nil {
+		return "", false, err
+	}
+	if definition.Family != "yue2" {
+		return "", false, msg.Err(msg.ErrModelUnsupported, nil)
+	}
+	payload["request"].(map[string]any)["options"].(map[string]any)["stop_after"] = "abc"
+	if err = e.start(ctx, executable, m.Path, definition, backend, 0, false, progress); err != nil {
+		return "", false, err
+	}
+	progress(msg.ActivityPlanMelody, nil)
+	result, err := e.run(ctx, payload, false)
+	if err != nil {
+		return "", false, err
+	}
+	score, truncated, ok := result.score()
+	if !ok {
+		return "", false, msg.Err(msg.ErrMelodyEmpty, nil)
+	}
+	return score, truncated, nil
+}
+
+// Transcribe 用 SheetSage2 把一首歌扒成旋律谱；wav 是已转换好的本地音频路径。
+func (e *Engine) Transcribe(ctx context.Context, executable string, m schema.InstalledModel, backend, wav string, progress func(msg.Code, msg.Params)) (score string, err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	definition, err := catalog.Lookup(m.ID)
+	if err != nil {
+		return "", err
+	}
+	if definition.Family != "sheetsage2" {
+		return "", msg.Err(msg.ErrModelUnsupported, nil)
+	}
+	if err = e.start(ctx, executable, m.Path, definition, backend, 0, false, progress); err != nil {
+		return "", err
+	}
+	progress(msg.ActivityTranscribe, nil)
+	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": wav}}, false)
+	if err != nil {
+		return "", err
+	}
+	score, _, ok := result.score()
+	if !ok {
+		return "", msg.Err(msg.ErrMelodyEmpty, nil)
+	}
+	return score, nil
+}
+
+// AlignedWord 是强制对齐给出的一个字（拉丁文为一个词）及其起止秒数。
+type AlignedWord struct {
+	Word  string  `json:"word"`
+	Start float64 `json:"start"`
+	End   float64 `json:"end"`
+}
+
+// alignerRate 是 Qwen3 Forced Aligner 的输入采样率，返回的时间也以这个采样率的样本数计。
+const alignerRate = 16000
+
+// lyricStage 在歌词对齐模型包里找出某一步的模型文件，并给出启动内核所需的家族与任务。
+func lyricStage(m schema.InstalledModel, prefix, family, task string) (string, catalog.ModelPackage, error) {
+	definition, err := catalog.Lookup(m.ID)
+	if err != nil {
+		return "", definition, err
+	}
+	if definition.Family != "lyric_align" {
+		return "", definition, msg.Err(msg.ErrModelUnsupported, nil)
+	}
+	for _, f := range definition.Files {
+		if strings.HasPrefix(f.Path, prefix) {
+			return filepath.Join(m.Path, filepath.FromSlash(f.Path)), catalog.ModelPackage{ID: definition.ID, Family: family, Task: task}, nil
+		}
+	}
+	return "", definition, msg.Err(msg.ErrModelUnsupported, nil)
+}
+
+// SeparateVocals 用歌词对齐模型包里的 BS-RoFormer 从混音分出人声，写到 output；input 须为 44.1 kHz WAV。
+func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema.InstalledModel, backend, input, output string, progress func(msg.Code, msg.Params)) (err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	path, definition, err := lyricStage(m, "BS-RoFormer", "bs_roformer", "sep")
 	if err != nil {
 		return err
+	}
+	if err = e.start(ctx, executable, path, definition, backend, 0, false, progress); err != nil {
+		return err
+	}
+	progress(msg.ActivitySeparateVocals, nil)
+	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": input}}, false)
+	if err != nil {
+		return err
+	}
+	for _, stem := range result.Stems {
+		if stem.ID != "vocals" {
+			continue
+		}
+		b, err := base64.StdEncoding.DecodeString(stem.Audio)
+		if err != nil || len(b) <= 44 {
+			return msg.Err(msg.ErrEngineNoAudio, nil)
+		}
+		return os.WriteFile(output, b, 0600)
+	}
+	return msg.Err(msg.ErrEngineNoAudio, nil)
+}
+
+// AlignWords 用歌词对齐模型包里的 Qwen3 Forced Aligner 把 text 逐字对到 wav（16 kHz 人声）上；
+// language 是 Chinese、English 这类英文语言名。返回的时间相对于 wav 开头。
+func (e *Engine) AlignWords(ctx context.Context, executable string, m schema.InstalledModel, backend, wav, text, language string, progress func(msg.Code, msg.Params)) (words []AlignedWord, err error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	defer func() {
+		if err != nil {
+			e.stop()
+		}
+	}()
+	path, definition, err := lyricStage(m, "Qwen3-ForcedAligner", "qwen3_forced_aligner", "align")
+	if err != nil {
+		return nil, err
+	}
+	if err = e.start(ctx, executable, path, definition, backend, 0, false, progress); err != nil {
+		return nil, err
+	}
+	result, err := e.run(ctx, map[string]any{"model": "index", "request": map[string]any{"audio": wav, "text": text, "language": language,
+		"options": map[string]string{"clamp_timestamps_to_audio": "true"}}}, false)
+	if err != nil {
+		return nil, err
+	}
+	for _, w := range result.Words {
+		words = append(words, AlignedWord{Word: w.Word, Start: float64(w.StartSample) / alignerRate, End: float64(w.EndSample) / alignerRate})
+	}
+	return words, nil
+}
+
+// taskResult 是 /v1/tasks/run 的结果：音频为 base64 WAV，附加产物（如 ABC 谱）也以 base64 承载；
+// 分离任务的各个分轨在 named_audio_outputs，对齐任务的逐字时间在 words（以样本数计）。
+type taskResult struct {
+	Audio string `json:"audio"`
+	Stems []struct {
+		ID    string `json:"id"`
+		Audio string `json:"audio"`
+	} `json:"named_audio_outputs"`
+	Words []struct {
+		Word        string `json:"word"`
+		StartSample int64  `json:"start_sample"`
+		EndSample   int64  `json:"end_sample"`
+	} `json:"words"`
+	Artifacts []struct {
+		ID      string            `json:"id"`
+		Payload string            `json:"payload"`
+		Meta    map[string]string `json:"meta"`
+	} `json:"artifacts"`
+}
+
+// score 取出 ABC 格式的产物；YuE2 只在自己规划时附带，按给定谱演唱时没有。
+func (r taskResult) score() (string, bool, bool) {
+	for _, a := range r.Artifacts {
+		if a.Meta["format"] != "abc" {
+			continue
+		}
+		b, err := base64.StdEncoding.DecodeString(a.Payload)
+		if err != nil || len(bytes.TrimSpace(b)) == 0 {
+			continue
+		}
+		return string(b), a.Meta["truncated"] == "true", true
+	}
+	return "", false, false
+}
+
+// run 要求调用方持有 mu 且引擎已启动。
+func (e *Engine) run(ctx context.Context, payload map[string]any, restrictedDiagnostics bool) (taskResult, error) {
+	var result taskResult
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return result, err
 	}
 	req, err := http.NewRequestWithContext(ctx, "POST", e.endpoint+"v1/tasks/run", bytes.NewReader(b))
 	if err != nil {
-		return err
+		return result, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := e.client.Do(req)
 	if err != nil {
-		return err
+		return result, err
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
@@ -251,30 +556,8 @@ func (e *Engine) generate(ctx context.Context, executable string, m schema.Insta
 			b, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
 			_ = os.WriteFile(filepath.Join(e.root, "logs", "last-inference-error.txt"), b, 0600)
 		}
-		return msg.Err(msg.ErrGenerateFailed, nil)
+		return result, msg.Err(msg.ErrGenerateFailed, nil)
 	}
-	var result struct {
-		Audio string `json:"audio"`
-	}
-	if err = json.NewDecoder(io.LimitReader(res.Body, 256<<20)).Decode(&result); err != nil {
-		return err
-	}
-	if result.Audio == "" {
-		return msg.Err(msg.ErrEngineNoAudio, nil)
-	}
-	progress(msg.ActivitySavingAudio, nil)
-	wav, err := base64.StdEncoding.DecodeString(result.Audio)
-	if err != nil {
-		return err
-	}
-	if err = os.WriteFile(output+".part", wav, 0600); err != nil {
-		return err
-	}
-	if _, err = audio.Duration(output + ".part"); err != nil {
-		return err
-	}
-	if err = ctx.Err(); err != nil {
-		return err
-	}
-	return os.Rename(output+".part", output)
+	err = json.NewDecoder(io.LimitReader(res.Body, 256<<20)).Decode(&result)
+	return result, err
 }

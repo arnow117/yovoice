@@ -33,12 +33,12 @@ func TestRemoteAPI(t *testing.T) {
 	if w := request("GET", "/v1/models", "", ""); w.Code != 401 {
 		t.Fatal(w.Code)
 	}
-	if w := request("POST", "/api/call", `{"method":"model.import"}`, "Bearer "+token); w.Code != 404 {
+	if w := request("POST", "/api/call", `{"method":"model.download"}`, "Bearer "+token); w.Code != 404 {
 		t.Fatal(w.Code)
 	}
 	r := httptest.NewRequest("GET", "/v1/models", nil)
 	r.Header.Set("Authorization", "Bearer "+token)
-	r.Header.Set("Origin", "https://example.com")
+	r.Header.Set("Origin", "https://evil.test")
 	rejected := httptest.NewRecorder()
 	api.ServeHTTP(rejected, r)
 	if rejected.Code != 403 {

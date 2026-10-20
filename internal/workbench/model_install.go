@@ -7,10 +7,12 @@ import (
 	"slices"
 	"strings"
 	"yovoice/internal/catalog"
+	"yovoice/internal/diag"
 	"yovoice/internal/download"
 	"yovoice/internal/msg"
 	"yovoice/internal/platform"
 	"yovoice/internal/schema"
+	"yovoice/internal/store"
 )
 
 func (w *Workbench) register(id, path string, managed bool) error {
@@ -29,6 +31,15 @@ func (w *Workbench) DownloadModel(id string) error {
 		return e
 	}
 	s := w.Store.Read()
+	// 重新下载已安装的模型会替换正在使用的文件，需等生成结束；未安装的模型可与生成同时下载。
+	if slices.ContainsFunc(s.Models, func(installed schema.InstalledModel) bool { return installed.ID == id }) {
+		w.mu.Lock()
+		busy := w.cancel != nil
+		w.mu.Unlock()
+		if busy {
+			return msg.Err(msg.ErrBusy, nil)
+		}
+	}
 	files := m.PackageFiles()
 	urls := make([]string, len(files))
 	for i, f := range files {
@@ -75,7 +86,7 @@ func (w *Workbench) DownloadModel(id string) error {
 				if done+r == m.Size {
 					code, params = msg.ActivityVerifying, nil
 				}
-				w.progress(code, params, done+r, m.Size)
+				w.progressOf("download", code, params, done+r, m.Size)
 			}); e != nil {
 				return e
 			}
@@ -84,69 +95,53 @@ func (w *Workbench) DownloadModel(id string) error {
 		return w.register(id, dest, true)
 	})
 }
-func (w *Workbench) ImportModel(path string) error {
-	return w.begin("import", msg.ActivityImport, nil, nil, func(ctx context.Context) error {
-		paths := []string{path}
-		info, e := os.Stat(path)
-		if e != nil {
-			return e
-		}
-		if info.IsDir() {
-			paths, e = filepath.Glob(filepath.Join(path, "*.gguf"))
-			if e != nil {
-				return e
-			}
-		}
-		count := 0
-		for _, p := range paths {
-			if e = ctx.Err(); e != nil {
-				return e
-			}
-			size := download.FileSize(p)
-			if !slices.ContainsFunc(catalog.Models, func(m catalog.ModelPackage) bool {
-				return slices.ContainsFunc(m.PackageFiles(), func(f catalog.ModelFile) bool { return f.SHA256 == m.SHA256 && f.Size == size })
-			}) {
-				continue
-			}
-			hash, e := download.Hash(ctx, p)
-			if e != nil {
-				return e
-			}
-			for _, m := range catalog.Models {
-				if m.SHA256 == hash {
-					path := p
-					if len(m.Files) > 0 {
-						// 多文件模型只认完整的模型目录：主模型旁需有其余文件。
-						if path = packageRoot(m, p); path == "" {
-							continue
-						}
-					}
-					if e = w.register(m.ID, path, false); e != nil {
-						return e
-					}
-					count++
-				}
-			}
-		}
-		if count == 0 {
-			return msg.Err(msg.ErrModelImportNone, nil)
-		}
-		return nil
-	})
-}
 
-// ForgetModel 移除模型登记，不删除用户导入的文件。下载其他模型不占用推理引擎，可同时移除。
+// ForgetModel 移除模型登记。应用自己下载的模型同时删除文件释放空间；模型目录中原有的模型只解除登记，保留本地文件。
+// 生成等主操作进行中不能移除（会停止推理引擎）；下载其他模型时可同时移除。
 func (w *Workbench) ForgetModel(id string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	activity := w.Store.Read().Activity
-	if w.cancel != nil && (activity == nil || activity.Kind != "download" || activity.ModelID == nil || *activity.ModelID == id) {
+	state := w.Store.Read()
+	activity := state.ModelActivity
+	if w.cancel != nil || (w.installCancel != nil && (activity == nil || activity.Kind != "download" || activity.ModelID == nil || *activity.ModelID == id)) {
 		return msg.Err(msg.ErrModelForgetBlocked, nil)
 	}
 	w.engine.Stop()
-	return w.Store.Update(func(s *schema.State) {
+	if err := w.Store.Update(func(s *schema.State) {
 		s.Models = slices.DeleteFunc(s.Models, func(m schema.InstalledModel) bool { return m.ID == id })
-	}, true)
+	}, true); err != nil {
+		return err
+	}
+	if path := managedModelPath(state, w.Store.Root, id); path != "" {
+		if err := os.RemoveAll(path); err != nil {
+			diag.Log(w.Store.Root, "model.files_remove_failed", "model_id", id, "error", diag.Error(err))
+		}
+	}
+	return nil
+}
+
+// managedModelPath 返回可安全删除的下载模型路径：必须是应用下载的模型，位于模型目录内部（不是目录本身），
+// 且没有其他已登记模型使用同一位置；否则返回空串，只解除登记。
+func managedModelPath(s schema.State, root, id string) string {
+	i := slices.IndexFunc(s.Models, func(m schema.InstalledModel) bool { return m.ID == id })
+	if i < 0 || !s.Models[i].Managed || s.Models[i].Path == "" {
+		return ""
+	}
+	path := filepath.Clean(s.Models[i].Path)
+	dirs := []string{filepath.Join(root, "models")}
+	if dir := value(s.Preferences.ModelDirectory); dir != "" {
+		dirs = append(dirs, dir)
+	}
+	inside := slices.ContainsFunc(dirs, func(dir string) bool { return store.Within(dir, path) && !store.SamePath(dir, path) })
+	if !inside {
+		return ""
+	}
+	for j, m := range s.Models {
+		if j != i && m.Path != "" && (store.Within(path, m.Path) || store.Within(m.Path, path)) {
+			return ""
+		}
+	}
+	return path
 }
 
 // packageRoot 根据主模型文件位置推出多文件模型包的目录，文件不全时返回空串。

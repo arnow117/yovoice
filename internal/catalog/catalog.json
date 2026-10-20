@@ -398,78 +398,14 @@
     "revision": "0a104324546d2622985e3c676a4b5550cc772127"
   },
   {
-    "id": "kokoro-1.0-q8",
-    "name": "Kokoro-82M 1.0",
-    "family": "kokoro_tts",
-    "version": "1.0",
-    "precision": "Q8",
-    "remotePath": "",
-    "size": 932660384,
-    "sha256": "baa011591541e003e62a194c01cd9dbcae7f8867e2f116d2cabaf90774b6f958",
-    "voices": [
-      "af_alloy",
-      "af_aoede",
-      "af_bella",
-      "af_heart",
-      "af_jessica",
-      "af_kore",
-      "af_nicole",
-      "af_nova",
-      "af_river",
-      "af_sarah",
-      "af_sky",
-      "am_adam",
-      "am_echo",
-      "am_eric",
-      "am_fenrir",
-      "am_liam",
-      "am_michael",
-      "am_onyx",
-      "am_puck",
-      "am_santa",
-      "bf_alice",
-      "bf_emma",
-      "bf_isabella",
-      "bf_lily",
-      "bm_daniel",
-      "bm_fable",
-      "bm_george",
-      "bm_lewis",
-      "ef_dora",
-      "em_alex",
-      "em_santa",
-      "ff_siwis",
-      "hf_alpha",
-      "hf_beta",
-      "hm_omega",
-      "hm_psi",
-      "if_sara",
-      "im_nicola",
-      "jf_alpha",
-      "jf_gongitsune",
-      "jf_nezumi",
-      "jf_tebukuro",
-      "jm_kumo",
-      "pf_dora",
-      "pm_alex",
-      "pm_santa",
-      "zf_xiaobei",
-      "zf_xiaoni",
-      "zf_xiaoxiao",
-      "zf_xiaoyi",
-      "zm_yunjian",
-      "zm_yunxi",
-      "zm_yunxia",
-      "zm_yunyang"
-    ]
-  },
-  {
     "id": "kokoro-1.1-zh-q8",
     "name": "Kokoro-82M 1.1-zh",
     "family": "kokoro_tts",
     "version": "1.1-zh",
     "precision": "Q8",
-    "remotePath": "",
+    "repo": "leemysw/yovoice-model",
+    "modelScope": "leemysw/yovoice-model",
+    "remotePath": "Kokoro-82M-GGUF/kokoro-82m-1.1-zh-multilingual-q8_0.gguf",
     "size": 255319008,
     "sha256": "44d58f231606d7cb9c17eee649ed195a680f356de368068d03a83d9f188ec9c7",
     "voices": [
@@ -576,7 +512,8 @@
       "zm_097",
       "zm_098",
       "zm_100"
-    ]
+    ],
+    "revision": "84e0e4b1afe9020fd4639d41439995cb4e1632b8"
   },
   {
     "id": "ace-step-1.5-turbo-bf16",
@@ -785,6 +722,44 @@
         "path": "yue2-vae-f16.gguf",
         "size": 265218656,
         "sha256": "d4f4a05d8f291ae820cd1e43609da3fa91b56465810091a2b08c3350b751719d"
+      }
+    ]
+  },
+  {
+    "id": "sheetsage2-orig",
+    "name": "SheetSage2",
+    "family": "sheetsage2",
+    "task": "midi",
+    "engineMinimum": "v0.9.1",
+    "version": "2",
+    "precision": "F32",
+    "repo": "audio-cpp/SheetSage2-GGUF",
+    "revision": "4e88814450385334524e50df43724af583f74206",
+    "remotePath": "sheetsage2-orig.gguf",
+    "size": 2708224256,
+    "sha256": "d858bfdf5ac7be16261ac6ee38754d6fca502149131b44a5262b4039fb72876e"
+  },
+  {
+    "id": "lyric-align-q8",
+    "name": "Lyric Aligner",
+    "family": "lyric_align",
+    "task": "align",
+    "engineMinimum": "v0.9.1",
+    "version": "1",
+    "precision": "Q8",
+    "directory": "Lyric-Align-GGUF",
+    "remotePath": "Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf",
+    "size": 1302498752,
+    "files": [
+      {
+        "path": "BS-RoFormer-ep368-GGUF/bs-roformer-ep368-q8_0.gguf",
+        "size": 172532256,
+        "sha256": "9a55a8cad369d00f6e0fb208bb0cd87e30e25430772b8491e20a4eace6423ad2"
+      },
+      {
+        "path": "Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf",
+        "size": 1129966496,
+        "sha256": "75209490b11cec2b0db749ca5f4ff92266f58efd30f7fd04d9eb2a3ac9cc929f"
       }
     ]
   },

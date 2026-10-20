@@ -166,7 +166,7 @@
       { id: 'voxcpm2-q8', managed: false },
     ],
     history: [],
-    preferences: { downloadSource: 'modelscope', backend: 'cpu', modelDirectory: null, uiLocale: initialLocale },
+    preferences: { downloadSource: 'modelscope', backend: 'cpu', modelDirectory: null, uiLocale: initialLocale, introSeen: true, tourSeen: true },
     // 这是 fixture 标志，不是宿主路径；页面仅据此显示已就绪状态。
     runtimePath: 'synthetic-runtime',
     runtimeBackend: 'cpu',

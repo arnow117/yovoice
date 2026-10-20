@@ -15,6 +15,8 @@
 
 - FFmpeg 8.1.2：https://ffmpeg.org/ ，LGPL-2.1-or-later。构建时从校验摘要的官方源码裁剪，只保留音频解码与 WAV 输出，作为独立可执行程序随 App/CLI 分发。许可证与构建参数位于安装包 `tools/FFmpeg-LICENSE.txt`、`tools/build.json`（macOS App 为 `Contents/Resources/tools/`）；对应源码与构建脚本随 Release 的 `yovoice-<版本>-ffmpeg-source.tar.gz` 提供。
 
+- ocho（https://github.com/leemysw/ocho-release ）：Apache-2.0，源码不公开，以二进制形式的独立可执行程序随 yovoice 分发、作为子进程运行；许可随包位于 `tools/ocho/LICENSE.txt`（macOS App 为 `Contents/Resources/tools/ocho/`）。
+
 - VoxCPM2：https://github.com/OpenBMB/VoxCPM ，模型不随应用分发，使用 Apache-2.0 许可：https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE 。
 
 ## OmniVoice and Qwen3-TTS
@@ -34,11 +36,10 @@
 
 ## Kokoro 与发音资源
 
-- [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) 和 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh)：Apache-2.0，模型单独导入，不随应用安装包分发。
+- [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) 和 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh)：Apache-2.0，模型单独下载，不随应用安装包分发。
 - [eSpeak-ng 1.52.0](https://github.com/espeak-ng/espeak-ng/tree/4870adfa25b1a32b4361592f1be8a40337c58d6c)：GPL-3.0-or-later。原生库来自 espeakng-loader 0.2.4，许可证位于 `tools/kokoro/espeak-ng-COPYING.txt`。完整对应源码见[固定版本源码](https://github.com/espeak-ng/espeak-ng/archive/4870adfa25b1a32b4361592f1be8a40337c58d6c.tar.gz)，构建方法见[上游构建脚本](https://github.com/thewh1teagle/espeakng-loader/blob/e5e9200dc3fd894b7415942c2602fc31526d60fc/build.sh)。由独立 audio.cpp 进程加载，Go 服务不链接该库。
 - [MeCab](https://taku910.github.io/mecab/)：BSD / LGPL / GPL 多许可，按 BSD 条款分发；原生库来自 fugashi 1.5.2，`LICENSE.mecab` 与 fugashi 的许可随库保留。
 - [Misaki](https://github.com/hexgrad/misaki)：Apache-2.0；[jieba](https://github.com/fxsjy/jieba) 和 [pypinyin](https://github.com/mozillazg/python-pinyin)：MIT。模型中的字词发音映射由这些组件生成，对应许可内嵌在模型资源中。
-- [UniDic 3.1.0](https://github.com/polm/unidic-py)：日文词典与许可内嵌在 v1.0 多语言模型包中。模型版本与语言支持见 [Kokoro 说明](docs/models_zh.md#kokoro)。
 
 ## MCP
 

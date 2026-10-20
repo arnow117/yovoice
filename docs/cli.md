@@ -41,13 +41,7 @@ yovoice models download index-2.5-q8
 
 GPU backends require compatible hardware and drivers. Run `setup` again to switch backends.
 
-Model downloads use ModelScope by default. Add `--source huggingface` or `--source mirror` to change the source. Downloads resume after interruption and are verified automatically. To register an existing supported GGUF file:
-
-```sh
-yovoice models import /absolute/path/model.gguf
-```
-
-Only model packages recognized by yovoice are accepted. See [model selection](models.md) for input requirements and examples.
+Model downloads use ModelScope by default. Add `--source huggingface` or `--source mirror` to change the source. Downloads resume after interruption and are verified automatically. Only the model packages listed by yovoice can be installed; see [model selection](models.md) for input requirements and examples.
 
 ## Generate speech
 
@@ -140,7 +134,7 @@ Use the full path to the executable if it is not on the client's PATH, and add `
 
 ## Data directory
 
-The default directory is `~/.yovoice`. Only one app, CLI command, or server can use a directory at a time. Quit the app, or use a separate directory with `--data-dir DIR` on every command:
+The default directory is the same as the desktop app's: `~/.yovoice`, or the new location if you moved it in Settings › Storage. Only one app, CLI command, or server can use a directory at a time. Quit the app, or use a separate directory with `--data-dir DIR` on every command:
 
 ```sh
 yovoice setup --data-dir ./voice-data

@@ -34,7 +34,6 @@ const usage = `yovoice：独立本地语音生成，无需桌面 App。
   yovoice setup [--backend metal|cpu|vulkan|cuda|cuda13]
   yovoice models list
   yovoice models download MODEL [--source modelscope|huggingface|mirror]
-  yovoice models import FILE
   yovoice voices list
   yovoice voices import FILE [--name NAME]
   yovoice speakers enroll (--file AUDIO|--voice ID) [--name NAME] [--bind-voice ID]
@@ -100,13 +99,13 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		}
 	}
 	switch command {
-	case "serve", "mcp", "status", "setup", "models list", "models download", "models import", "voices list", "voices import", "speakers enroll", "speakers identify", "speakers list", "speakers delete", "generate":
+	case "serve", "mcp", "status", "setup", "models list", "models download", "voices list", "voices import", "speakers enroll", "speakers identify", "speakers list", "speakers delete", "generate":
 	default:
 		return fmt.Errorf("未知命令 %q；使用 --help 查看用法", command)
 	}
 	fs := flag.NewFlagSet(command, flag.ContinueOnError)
 	fs.SetOutput(progress)
-	root := fs.String("data-dir", "", "数据目录，默认 ~/.yovoice")
+	root := fs.String("data-dir", "", "数据目录，默认与桌面应用相同（未迁移时为 ~/.yovoice）")
 	fs.Bool("json", false, "JSON 输出（默认）")
 	backend, source, name := "", "", ""
 	address, cert, key := "", "", ""
@@ -219,7 +218,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	if fs.NArg() != 0 {
 		return fmt.Errorf("多余参数：%s", strings.Join(fs.Args(), " "))
 	}
-	if (command == "models download" || command == "models import" || command == "voices import" || command == "speakers delete") && operand == "" {
+	if (command == "models download" || command == "voices import" || command == "speakers delete") && operand == "" {
 		return fmt.Errorf("缺少模型 ID 或文件路径")
 	}
 	if command == "speakers enroll" || command == "speakers identify" {
@@ -389,7 +388,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 	}
 	if *root == "" {
 		var err error
-		*root, err = store.DefaultDirectory()
+		*root, err = defaultDataDir()
 		if err != nil {
 			return err
 		}
@@ -416,7 +415,14 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		if e := start(); e != nil {
 			return e
 		}
-		return waitOperation(ctx, w, progress)
+		return waitOperation(ctx, w, progress, func(s schema.State) *schema.Activity { return s.Activity })
+	}
+	// 模型下载与导入记录在独立的 ModelActivity 中。
+	waitModel := func(start func() error) error {
+		if e := start(); e != nil {
+			return e
+		}
+		return waitOperation(ctx, w, progress, func(s schema.State) *schema.Activity { return s.ModelActivity })
 	}
 	var result any
 	switch command {
@@ -441,9 +447,6 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		result, err = w.EnrollSpeakerNamed(ctx, workbench.SpeakerSource{FilePath: speakerFile, VoiceID: speakerVoice}, name, nameProvided, bindVoice)
 	case "speakers identify":
 		result, err = w.IdentifySpeaker(ctx, workbench.SpeakerSource{FilePath: speakerFile, VoiceID: speakerVoice})
-	case "models import":
-		err = wait(func() error { return w.ImportModel(operand) })
-		result = w.Store.Read().Models
 	case "setup":
 		p := w.Store.Read().Preferences
 		p.Backend = backend
@@ -455,7 +458,7 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 		p := w.Store.Read().Preferences
 		p.DownloadSource = source
 		if err = w.SavePreferences(p); err == nil {
-			err = wait(func() error { return w.DownloadModel(operand) })
+			err = waitModel(func() error { return w.DownloadModel(operand) })
 		}
 		result = w.Store.Read().Models
 	case "generate":
@@ -536,7 +539,16 @@ func run(ctx context.Context, args []string, out, progress io.Writer) error {
 }
 
 // 订阅前后都读取状态，避免短任务结束时丢失通知；取消会等待核心收尾。
-func waitOperation(ctx context.Context, w *workbench.Workbench, out io.Writer) error {
+// defaultDataDir 返回与桌面应用相同的数据目录：在“设置 › 存储”迁移过数据目录时使用迁移后的位置，
+// 否则为 ~/.yovoice。迁移后旧目录会被删除，命令行若仍用旧路径会在空目录中重新开始。
+func defaultDataDir() (string, error) {
+	if cfg, err := store.ReadConfig(); err == nil && cfg.DataPath != "" {
+		return cfg.DataPath, nil
+	}
+	return store.DefaultDirectory()
+}
+
+func waitOperation(ctx context.Context, w *workbench.Workbench, out io.Writer, activity func(schema.State) *schema.Activity) error {
 	events, unsubscribe := w.Store.Subscribe()
 	defer unsubscribe()
 	ticker := time.NewTicker(time.Second)
@@ -547,7 +559,7 @@ func waitOperation(ctx context.Context, w *workbench.Workbench, out io.Writer) e
 			w.Close()
 			return err
 		}
-		a := w.Store.Read().Activity
+		a := activity(w.Store.Read())
 		if a == nil {
 			return fmt.Errorf("操作未启动")
 		}

@@ -148,7 +148,13 @@ func (w *Workbench) DeleteCharacter(id string) error {
 	if index < 0 {
 		return msg.Err(msg.ErrCharacterInvalid, nil)
 	}
-	if err := w.Store.Update(func(s *schema.State) { s.Characters = slices.Delete(s.Characters, index, index+1) }, true); err != nil {
+	if err := w.Store.Update(func(s *schema.State) {
+		s.Characters = slices.Delete(s.Characters, index, index+1)
+		// 作品保留已复制的合成设置，仅解除对已删除角色的关联，避免界面指向不存在的角色。
+		for i := range s.Drafts {
+			detachCharacter(&s.Drafts[i], id)
+		}
+	}, true); err != nil {
 		return err
 	}
 	w.removePreviewFile(state.Characters[index].Preview)
@@ -224,11 +230,9 @@ func (w *Workbench) UpdateVoice(id, name, referenceText string) error {
 	}, true)
 }
 
+// removePreviewFile 删除不再被任何记录引用的试听文件；调用方需已提交移除记录的状态修改。
 func (w *Workbench) removePreviewFile(p *schema.CharacterPreview) {
-	if p == nil {
-		return
-	}
-	if path, err := w.Store.MediaPath("outputs", p.FileName); err == nil {
-		_ = os.Remove(path)
+	if p != nil {
+		w.deleteUnreferenced("outputs", []string{p.FileName}, nil)
 	}
 }

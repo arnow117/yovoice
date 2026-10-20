@@ -1,10 +1,15 @@
 package engine
 
 import (
+	"errors"
 	"math"
+	"strings"
 	"testing"
 	"yovoice/internal/catalog"
+	"yovoice/internal/msg"
 	"yovoice/internal/schema"
+	"yovoice/internal/score"
+	"yovoice/internal/testkit"
 )
 
 func TestVoxCPMRequest(t *testing.T) {
@@ -23,12 +28,14 @@ func TestVoxCPMRequest(t *testing.T) {
 			must(t, err)
 			r := p["request"].(map[string]any)
 			o := r["options"].(map[string]any)
-			if len(o) != 2 || o["guidance_scale"] != float64(2) || o["num_inference_steps"] != 10 {
+			if len(o) != 3 || o["guidance_scale"] != float64(2) || o["num_inference_steps"] != 10 || o["text_chunk_size"] != 200 {
 				t.Fatal(o)
 			}
 			_, voice := r["voice_ref"]
 			_, transcript := r["reference_text"]
-			if voice != (mode != "design") || transcript != (mode == "continuation") {
+			// 精细克隆必须同时把参考音频作为续写提示，否则引擎不使用原文。
+			_, prompt := r["audio"]
+			if voice != (mode != "design") || transcript != (mode == "continuation") || prompt != (mode == "continuation") || (prompt && r["audio"] != "voice.wav") {
 				t.Fatal(r)
 			}
 			want := "(" + d.VoiceDescription + ")" + d.Text
@@ -49,6 +56,9 @@ func TestVoxCPMRequest(t *testing.T) {
 		func(d *schema.Draft) { d.VoxMode = "continuation"; d.ReferenceText = " " },
 		func(d *schema.Draft) { d.GuidanceScale = math.NaN() },
 		func(d *schema.Draft) { d.InferenceSteps = 51 },
+		func(d *schema.Draft) {
+			d.ModelOptions = map[string]map[string]any{"voxcpm2": {"text_chunk_size": float64(4096)}}
+		},
 	} {
 		invalid := d
 		patch(&invalid)
@@ -114,10 +124,21 @@ func TestModelVariantsAndOptions(t *testing.T) {
 			if m.Family == "soundfont" {
 				t.Skip("音色库由编曲渲染使用，不经过推理引擎")
 			}
+			if m.Family == "sheetsage2" || m.Family == "lyric_align" {
+				d := schema.DefaultDraft()
+				d.ModelID = m.ID
+				if schema.Validate(d) == nil {
+					t.Fatal("扒谱、歌词对齐模型不能作为作品的生成模型")
+				}
+				return
+			}
 			d := schema.DefaultDraft()
 			d.ModelID = m.ID
 			d.VoiceDescription = "female, young adult"
 			d.ModelOptions = map[string]map[string]any{m.Family: {"text_chunk_size": float64(512), "text_chunk_mode": "tag_aware"}}
+			if m.Family == "voxcpm2" {
+				d.ModelOptions[m.Family]["text_chunk_size"] = float64(300)
+			}
 			if m.Family == "kokoro_tts" {
 				delete(d.ModelOptions[m.Family], "text_chunk_mode")
 				d.ModelOptions[m.Family]["text_chunk_size"] = float64(120)
@@ -174,7 +195,7 @@ func TestYuE2Request(t *testing.T) {
 	must(t, err)
 	r := p["request"].(map[string]any)
 	o := r["options"].(map[string]any)
-	if r["text"] != "[verse]\n晚风吹过招牌" || o["lyrics"] != r["text"] || o["style"] != d.Text || o["seed"] != 9 || len(o) != 3 {
+	if r["text"] != "[verse]\n晚风吹过招牌" || o["lyrics"] != r["text"] || o["style"] != d.Text || o["seed"] != 9 || o["cot"] != "full" || len(o) != 4 {
 		t.Fatal(r)
 	}
 	if d.RequiresVoice() {
@@ -182,14 +203,66 @@ func TestYuE2Request(t *testing.T) {
 	}
 	for _, patch := range []func(*schema.Draft){
 		func(d *schema.Draft) { d.Lyrics = " " },
-		func(d *schema.Draft) { d.Instrumental = true },
 		func(d *schema.Draft) { d.Text = "" },
+		func(d *schema.Draft) { d.ModelOptions = map[string]map[string]any{"yue2": {"cot": "nope"}} },
 	} {
 		invalid := d
 		patch(&invalid)
 		if _, err := BuildRequest(invalid, "", ""); err == nil {
 			t.Fatal("无效的 YuE2 草稿应失败", invalid)
 		}
+	}
+	// 有谱时按谱演唱：带和弦用 full，去掉和弦后用 melody；谱面错误带上小节号。
+	withScore := d
+	withScore.Abc = testkit.ABC
+	p, err = BuildRequest(withScore, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["abc"] != testkit.ABC || o["cot"] != "full" {
+		t.Fatal(o)
+	}
+	withScore.Abc, err = score.StripABCChords(testkit.ABC)
+	must(t, err)
+	p, err = BuildRequest(withScore, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "melody" {
+		t.Fatal(o)
+	}
+	// 规划模式与采样参数：off 不经过谱，melody 先去掉和弦。
+	withScore.Abc = testkit.ABC
+	withScore.ModelOptions = map[string]map[string]any{"yue2": {"cot": "off", "num_inference_steps": float64(32)}}
+	p, err = BuildRequest(withScore, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "off" || o["abc"] != nil || o["num_inference_steps"] != float64(32) {
+		t.Fatal(o)
+	}
+	withScore.ModelOptions = map[string]map[string]any{"yue2": {"cot": "melody"}}
+	p, err = BuildRequest(withScore, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "melody" || strings.Contains(o["abc"].(string), `"C"`) {
+		t.Fatal(o)
+	}
+	// 纯音乐：没谱时是出谱请求，歌词可空、用段落骨架；有谱时人声旋律移到器乐，歌词只剩段落标记，自由生成不适用。
+	instrumental := d
+	instrumental.Instrumental, instrumental.Lyrics = true, ""
+	instrumental.ModelOptions = map[string]map[string]any{"yue2": {"cot": "off"}}
+	p, err = BuildRequest(instrumental, "", "")
+	must(t, err)
+	if o := p["request"].(map[string]any)["options"].(map[string]any); o["cot"] != "full" || o["lyrics"] != planningLyrics || !strings.HasSuffix(o["style"].(string), "instrumental, no vocals") {
+		t.Fatal(o)
+	}
+	instrumental.Abc = testkit.ABC
+	p, err = BuildRequest(instrumental, "", "")
+	must(t, err)
+	opts := p["request"].(map[string]any)["options"].(map[string]any)
+	converted, e := score.ParseABC(opts["abc"].(string))
+	must(t, e)
+	if len(converted.Vocal().Notes) != 0 || len(converted.Ins().Notes) == 0 || opts["lyrics"] != converted.SectionTags() || p["request"].(map[string]any)["text"] != opts["lyrics"] {
+		t.Fatal(opts)
+	}
+	withScore.Abc = strings.Replace(testkit.ABC, "B8G8D16", "B8G8D8", 1)
+	var ce *msg.CallError
+	if _, err = BuildRequest(withScore, "", ""); !errors.As(err, &ce) || ce.Code != msg.ErrMelodyInvalid || ce.Params["bar"] != 2 || ce.Params["voice"] != "Vocal" {
+		t.Fatal(err)
 	}
 	m, _ := catalog.Lookup("yue2-3b-bf16")
 	if len(m.Files) != 6 || m.SessionOptions["yue2.model_gguf"] != "yue2-3b-bf16.gguf" || m.Files[0].Path != m.RemotePath {

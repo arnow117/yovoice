@@ -24,15 +24,16 @@ func TestSaveDiagnostics(t *testing.T) {
 	if err = w.SaveDraft(broken); err == nil {
 		t.Fatal("应拒绝无效作品")
 	}
-	// 模拟备份文件被目录占用，保留具体的文件系统错误。
-	must(t, os.Remove(filepath.Join(w.Store.Root, "state.backup.json")))
-	must(t, os.Mkdir(filepath.Join(w.Store.Root, "state.backup.json"), 0700))
+	// 模拟回滚日志被目录占用，保留具体的数据库错误。
+	must(t, os.Mkdir(filepath.Join(w.Store.Root, "yovoice.db-journal"), 0700))
+	// 内容未变的保存不写盘，需带上改动才会触发写入。
+	d.Title = "改动后的标题"
 	if err = w.SaveDraft(d); err == nil {
 		t.Fatal("应报告写入失败")
 	}
 	b, err := os.ReadFile(filepath.Join(w.Store.Root, "logs", "service.log"))
 	must(t, err)
-	for _, marker := range []string{"draft.save", "validate_kind", "state.write_failed", "state.backup.json", "detail", d.ID} {
+	for _, marker := range []string{"draft.save", "validate_kind", "state.write_failed", "yovoice.db", "detail", d.ID} {
 		if !strings.Contains(string(b), marker) {
 			t.Fatal("缺少诊断字段", marker)
 		}
@@ -74,4 +75,22 @@ func TestDiagnosticRotationAndConcurrency(t *testing.T) {
 	must(t, os.RemoveAll(filepath.Join(w.Store.Root, "logs")))
 	must(t, os.WriteFile(filepath.Join(w.Store.Root, "logs"), nil, 0600))
 	must(t, w.SaveDraft(schema.DefaultDraft()))
+}
+
+// 无法使用的 AI 输出只记形态（长度、行数、是否代码块或 JSON），不记内容，避免歌词进入日志。
+func TestInvalidAIOutputLogsShapeOnly(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	w.logAIOutput("lyrics", "missing style", "```\n[verse]\n不该出现在日志里的歌词\n```")
+	b, err := os.ReadFile(filepath.Join(w.Store.Root, "logs", "service.log"))
+	must(t, err)
+	if strings.Contains(string(b), "不该出现在日志里的歌词") {
+		t.Fatal("日志泄露 AI 输出内容")
+	}
+	for _, field := range []string{`"msg":"ai.output_invalid"`, `"issue":"missing style"`, `"lines":4`, `"fenced":true`, `"json":false`} {
+		if !strings.Contains(string(b), field) {
+			t.Fatal("缺少字段", field, string(b))
+		}
+	}
 }

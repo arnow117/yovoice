@@ -1,6 +1,7 @@
 package workbench
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -89,6 +90,9 @@ func (w *Workbench) DeleteSpeaker(ctx context.Context, id string) error {
 	}
 	w.edit.Lock()
 	defer w.edit.Unlock()
+	if err := w.Store.CheckWritable(); err != nil {
+		return err
+	}
 	profiles, err := w.speakerRepository().Load()
 	if err != nil {
 		return err
@@ -147,6 +151,9 @@ func (w *Workbench) enrollSpeaker(ctx context.Context, source SpeakerSource, nam
 		if w.beforeSpeakerCommit != nil {
 			w.beforeSpeakerCommit()
 		}
+		if writableErr := w.Store.CheckWritable(); writableErr != nil {
+			return writableErr
+		}
 		if saveErr := w.speakerRepository().Save(operationCtx, append(profiles, profile)); saveErr != nil {
 			return saveErr
 		}
@@ -180,7 +187,7 @@ func (w *Workbench) EnrollSpeakerFrom(ctx context.Context, reader io.Reader, nam
 
 // EnrollSpeakerFromNamed 保留桌面端对“省略名称”和“显式空名称”的区别。
 func (w *Workbench) EnrollSpeakerFromNamed(ctx context.Context, reader io.Reader, name string, nameProvided bool, bindVoiceID string) (recognition.PublicProfile, error) {
-	path, err := w.receive(reader)
+	path, err := w.receiveSpeakerInput(ctx, reader)
 	if err != nil {
 		return recognition.PublicProfile{}, err
 	}
@@ -213,12 +220,45 @@ func (w *Workbench) IdentifySpeaker(ctx context.Context, source SpeakerSource) (
 }
 
 func (w *Workbench) IdentifySpeakerFrom(ctx context.Context, reader io.Reader) (recognition.Identification, error) {
-	path, err := w.receive(reader)
+	path, err := w.receiveSpeakerInput(ctx, reader)
 	if err != nil {
 		return recognition.Identification{}, err
 	}
 	defer os.Remove(path)
 	return w.IdentifySpeaker(ctx, SpeakerSource{FilePath: path})
+}
+
+// receiveSpeakerInput 先将受限上传读入内存，再在编辑锁内确认目录仍可写后创建临时文件。
+// 这样迁移不会在检查和落盘之间冻结旧目录；网络读取不持有编辑锁，也不会扩大普通上传的行为。
+func (w *Workbench) receiveSpeakerInput(ctx context.Context, reader io.Reader) (string, error) {
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	if err := w.Store.CheckWritable(); err != nil {
+		return "", err
+	}
+	content, err := io.ReadAll(io.LimitReader(reader, maxUpload+1))
+	if err != nil {
+		return "", err
+	}
+	if len(content) > maxUpload {
+		return "", msg.Err(msg.ErrAudioTooLarge, nil)
+	}
+	if err = ctx.Err(); err != nil {
+		return "", err
+	}
+	if w.beforeSpeakerReceiveCommit != nil {
+		w.beforeSpeakerReceiveCommit()
+	}
+	w.edit.Lock()
+	defer w.edit.Unlock()
+	if err = w.Store.CheckWritable(); err != nil {
+		return "", err
+	}
+	if err = ctx.Err(); err != nil {
+		return "", err
+	}
+	return w.receive(bytes.NewReader(content))
 }
 
 // SynthesizeSpeaker 让 profile 只提供已绑定声音与其参考原文，调用方的正文与情绪仍由调用方控制。
@@ -335,6 +375,9 @@ func (w *Workbench) copySpeakerInput(source SpeakerSource, bindVoiceID string) (
 	}
 	w.edit.Lock()
 	defer w.edit.Unlock()
+	if err := w.Store.CheckWritable(); err != nil {
+		return "", nil, err
+	}
 	if bindVoiceID != "" && !w.hasVoice(bindVoiceID) {
 		return "", nil, recognitionError("voice_missing")
 	}
@@ -448,6 +491,9 @@ func (w *Workbench) startSpeakerOperation(parent context.Context, timeout time.D
 	defer w.mu.Unlock()
 	if w.closed || w.cancel != nil {
 		return nil, msg.Err(msg.ErrBusy, nil)
+	}
+	if err := w.Store.CheckWritable(); err != nil {
+		return nil, err
 	}
 	ctx, cancel := context.WithTimeout(parent, timeout)
 	op := &operation{cancel: cancel, done: make(chan struct{})}

@@ -1,7 +1,7 @@
 package workbench
 
 import (
-	"fmt"
+	"math"
 	"os"
 	"slices"
 	"strings"
@@ -73,15 +73,65 @@ func (w *Workbench) RenameMedia(kind, id, name string) error {
 		}
 	}, true)
 }
+
+// 校准歌词最多记录的行数，与正文长度上限同一量级。
+const maxLyricTimes = 2000
+
+// SetLyricTimes 保存播放页校准的歌词时间：每行的开始秒数，按顺序不减，不超过音频时长；空列表清除校准和逐字对齐，恢复自动定位。
+func (w *Workbench) SetLyricTimes(id string, times []float64) error {
+	w.edit.Lock()
+	defer w.edit.Unlock()
+	if _, e := w.MediaFile("outputs", id); e != nil {
+		return e
+	}
+	i := slices.IndexFunc(w.Store.Read().History, func(g schema.Generation) bool { return g.ID == id })
+	if i < 0 {
+		return msg.Err(msg.ErrAudioMissing, nil)
+	}
+	duration := w.Store.Read().History[i].Duration
+	if len(times) > maxLyricTimes {
+		return msg.Err(msg.ErrRequestInvalid, nil)
+	}
+	for j, t := range times {
+		if math.IsNaN(t) || t < 0 || t > duration+1 || (j > 0 && t < times[j-1]) {
+			return msg.Err(msg.ErrRequestInvalid, nil)
+		}
+	}
+	return w.Store.Update(func(s *schema.State) {
+		for i := range s.History {
+			if s.History[i].ID == id {
+				// 手动校准比之前的逐字对齐新，两者只留一份；清除时一并清掉。
+				s.History[i].LyricTimes = slices.Clone(times)
+				s.History[i].LyricWords = nil
+				if len(times) == 0 {
+					s.History[i].LyricTimes = nil
+				}
+			}
+		}
+	}, true)
+}
 func (w *Workbench) DeleteMedia(kind, id string) error {
 	w.edit.Lock()
 	defer w.edit.Unlock()
-	path, e := w.MediaFile(kind, id)
-	if e != nil {
-		return e
-	}
 	s := w.Store.Read()
-	if kind == "outputs" && !slices.ContainsFunc(s.History, func(g schema.Generation) bool { return g.ID == id }) {
+	var file string
+	switch kind {
+	case "voices":
+		for _, v := range s.Voices {
+			if v.ID == id {
+				file = v.FileName
+			}
+		}
+	case "outputs":
+		for _, v := range s.History {
+			if v.ID == id {
+				file = v.FileName
+			}
+		}
+	default:
+		return msg.Err(msg.ErrAudioKindInvalid, nil)
+	}
+	if file == "" {
 		return msg.Err(msg.ErrAudioMissing, nil)
 	}
 	if kind == "voices" {
@@ -105,42 +155,65 @@ func (w *Workbench) DeleteMedia(kind, id string) error {
 			}
 		}
 	}
-	removed := path + ".deleted"
-	_, e = os.Stat(path)
-	exists := e == nil
-	if e != nil && !os.IsNotExist(e) {
-		return e
-	}
-	if exists {
-		if e = os.Rename(path, removed); e != nil {
-			return e
+	path, pathErr := w.Store.MediaPath(kind, file)
+	var removed string
+	exists := false
+	if pathErr == nil {
+		if _, statErr := os.Lstat(path); statErr == nil {
+			exists = true
+			removed = path + ".deleted"
+			if e := os.Rename(path, removed); e != nil {
+				if delErr := os.Remove(path); delErr == nil {
+					exists = false
+				} else {
+					return e
+				}
+			}
 		}
 	}
-	e = w.Store.Update(func(s *schema.State) {
+	e := w.Store.Update(func(s *schema.State) {
 		if kind == "outputs" {
 			s.History = slices.DeleteFunc(s.History, func(v schema.Generation) bool { return v.ID == id })
+			// 一并清掉指向这条生成的记录：时间轴的已采纳标记、由它保存出的声音的来源。
+			for i := range s.Drafts {
+				if t := s.Drafts[i].Timeline; t != nil {
+					t.AcceptedGenerations = slices.DeleteFunc(t.AcceptedGenerations, func(g string) bool { return g == id })
+				}
+			}
+			for i := range s.Voices {
+				if s.Voices[i].SourceGenerationID == id {
+					s.Voices[i].SourceGenerationID = ""
+				}
+			}
 		} else {
 			s.Voices = slices.DeleteFunc(s.Voices, func(v schema.Voice) bool { return v.ID == id })
+			// 可见引用已在前面阻止删除，这里清理的是被说话人设置覆盖的隐藏引用，避免留下悬空 ID。
 			for i := range s.Drafts {
-				if value(s.Drafts[i].VoiceID) == id {
-					s.Drafts[i].VoiceID = nil
+				s.Drafts[i].EachSettings(func(settings *schema.SynthesisSettings) { clearVoice(settings, id) })
+			}
+			for i := range s.History {
+				if value(s.History[i].Settings.VoiceID) == id {
+					s.History[i].Settings.VoiceID = nil
 				}
-				if value(s.Drafts[i].EmotionVoiceID) == id {
-					s.Drafts[i].EmotionVoiceID = nil
+				if value(s.History[i].Settings.EmotionVoiceID) == id {
+					s.History[i].Settings.EmotionVoiceID = nil
 				}
 			}
 		}
 	}, true)
 	if e != nil {
-		if exists {
-			if restore := os.Rename(removed, path); restore != nil {
-				return msg.Err(msg.ErrUnknown, msg.Params{"detail": fmt.Sprintf("%v; restore failed: %v", e, restore)})
-			}
+		if exists && removed != "" {
+			_ = os.Rename(removed, path)
 		}
 		return e
 	}
-	if exists {
-		return os.Remove(removed)
+	if exists && removed != "" {
+		// 同一文件仍被其他记录引用（例如复制作品共享的素材）时放回原处，否则删除。
+		if w.Store.Read().MediaRefs()[kind][file] {
+			_ = os.Rename(removed, path)
+		} else {
+			_ = os.Remove(removed)
+		}
 	}
 	return nil
 }

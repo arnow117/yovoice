@@ -2,9 +2,9 @@
 
 English · 简体中文
 
-This index maps the non-realtime speaker-profile workflows to their product scenarios and authoritative parameter guides. Speaker profiles are private local records, not proof of a person's identity. They store a 256-dimensional embedding outside `state.json`; normal status and voice-library responses do not include it.
+This index maps the non-realtime speaker-profile workflows to their product scenarios and authoritative parameter guides. Speaker profiles are private local records, not proof of a person's identity. They store a 256-dimensional embedding outside the ordinary State stored in `yovoice.db`; normal status and voice-library responses do not include it.
 
-本页将非实时声纹档案流程映射到产品场景与参数权威来源。声纹档案是私有本地记录，不证明现实身份；它将 256 维特征保存在 `state.json` 之外，普通状态和声音库响应不会包含该特征。
+本页将非实时声纹档案流程映射到产品场景与参数权威来源。声纹档案是私有本地记录，不证明现实身份；它将 256 维特征保存在 `yovoice.db` 中的普通 State 之外，普通状态和声音库响应不会包含该特征。
 
 | ID | Product scenarios | Scenario | Entry and parameter owner | Observable result / 恢复方式 |
 | --- | --- | --- | --- | --- |

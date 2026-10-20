@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -266,6 +267,144 @@ func TestSpeakerRequestsDoNotStartFromCancelledParent(t *testing.T) {
 	draft := schema.DefaultDraft()
 	if _, err = workbench.SynthesizeSpeaker(ctx, strings.Repeat("1", 32), draft); !errors.Is(err, context.Canceled) {
 		t.Fatalf("cancelled profile synthesis = %v", err)
+	}
+}
+
+func TestSpeakerSidecarMutationsRejectFrozenStore(t *testing.T) {
+	workbench, err := New(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer workbench.Close()
+
+	profilesPath := filepath.Join(workbench.Store.Root, "speakers.json")
+	profiles := []byte(`{"version":1,"profiles":[]}`)
+	if err = os.WriteFile(profilesPath, profiles, 0600); err != nil {
+		t.Fatal(err)
+	}
+	input := filepath.Join(t.TempDir(), "speaker.wav")
+	if err = os.WriteFile(input, []byte("input"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	workbench.Store.Freeze()
+	_, cleanup, err := workbench.copySpeakerInput(SpeakerSource{FilePath: input}, "")
+	if cleanup != nil {
+		cleanup()
+	}
+	assertStorageRestart(t, err)
+	if _, err = workbench.startSpeakerOperation(context.Background(), time.Second, func(context.Context) error { return nil }); err == nil {
+		t.Fatal("冻结后不应启动声纹操作")
+	} else {
+		assertStorageRestart(t, err)
+	}
+	if err = workbench.DeleteSpeaker(context.Background(), strings.Repeat("a", 32)); err == nil {
+		t.Fatal("冻结后不应删除声纹档案")
+	} else {
+		assertStorageRestart(t, err)
+	}
+	actual, err := os.ReadFile(profilesPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(actual, profiles) {
+		t.Fatalf("冻结后改写了声纹档案: %s", actual)
+	}
+	assertSpeakerTemporaryFilesRemoved(t, workbench)
+}
+
+func TestSpeakerReaderRequestsRejectFrozenOrClosedStoreBeforeReading(t *testing.T) {
+	tests := []struct {
+		name    string
+		prepare func(*Workbench)
+		context func() context.Context
+		invoke  func(*Workbench, context.Context, io.Reader) error
+	}{
+		{
+			name: "frozen enrollment",
+			prepare: func(workbench *Workbench) {
+				workbench.Store.Freeze()
+			},
+			context: context.Background,
+			invoke: func(workbench *Workbench, ctx context.Context, reader io.Reader) error {
+				_, err := workbench.EnrollSpeakerFromNamed(ctx, reader, "name", true, "")
+				return err
+			},
+		},
+		{
+			name: "closed identification",
+			prepare: func(workbench *Workbench) {
+				workbench.Close()
+			},
+			context: context.Background,
+			invoke: func(workbench *Workbench, ctx context.Context, reader io.Reader) error {
+				_, err := workbench.IdentifySpeakerFrom(ctx, reader)
+				return err
+			},
+		},
+		{
+			name:    "cancelled enrollment",
+			prepare: func(*Workbench) {},
+			context: func() context.Context {
+				ctx, cancel := context.WithCancel(context.Background())
+				cancel()
+				return ctx
+			},
+			invoke: func(workbench *Workbench, ctx context.Context, reader io.Reader) error {
+				_, err := workbench.EnrollSpeakerFromNamed(ctx, reader, "name", true, "")
+				return err
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			workbench, err := New(t.TempDir())
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(workbench.Close)
+			test.prepare(workbench)
+
+			reader := &readCounter{}
+			if err = test.invoke(workbench, test.context(), reader); err == nil {
+				t.Fatal("不可写状态应拒绝声纹上传")
+			}
+			if reader.reads != 0 {
+				t.Fatalf("不可写状态不应读取上传正文，实际读取 %d 次", reader.reads)
+			}
+			assertSpeakerTemporaryFilesRemoved(t, workbench)
+		})
+	}
+}
+
+func TestSpeakerReaderDoesNotWriteAfterMigrationFreezes(t *testing.T) {
+	workbench, err := New(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer workbench.Close()
+	workbench.beforeSpeakerReceiveCommit = workbench.Store.Freeze
+
+	_, err = workbench.EnrollSpeakerFromNamed(context.Background(), bytes.NewReader([]byte("speaker upload")), "name", true, "")
+	assertStorageRestart(t, err)
+	assertSpeakerTemporaryFilesRemoved(t, workbench)
+}
+
+type readCounter struct {
+	reads int
+}
+
+func (r *readCounter) Read([]byte) (int, error) {
+	r.reads++
+	return 0, io.EOF
+}
+
+func assertStorageRestart(t *testing.T, err error) {
+	t.Helper()
+	var callError *msg.CallError
+	if !errors.As(err, &callError) || callError.Code != msg.ErrStorageRestart {
+		t.Fatalf("冻结写入错误 = %v", err)
 	}
 }
 

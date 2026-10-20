@@ -1,13 +1,14 @@
 {
   "name": "yovoice",
   "license": "Apache-2.0",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "test": "playwright test",
+    "test:all": "PW_ALL=1 playwright test",
     "lint": "eslint .",
     "check": "pnpm run lint && pnpm run build && pnpm test",
     "test:e2e:collect": "E2E_TELEMETRY_DISABLED=1 e2e list --config e2e.config.ts",
@@ -17,9 +18,12 @@
     "@astryxdesign/core": "0.6.1",
     "@astryxdesign/theme-neutral": "0.6.1",
     "@stylexjs/stylex": "^0.19.0",
+    "abcjs": "6.4.4",
+    "bot-avatars": "^0.2.2",
     "lucide-react": "^0.577.0",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "thinking-orbs": "^0.3.2"
   },
   "devDependencies": {
     "@astryxdesign/cli": "0.6.1",

@@ -60,7 +60,10 @@ func RunFakeEngine() {
 		os.Exit(2)
 	}
 	var config struct {
-		Port int `json:"port"`
+		Port   int `json:"port"`
+		Models []struct {
+			Task string `json:"task"`
+		} `json:"models"`
 	}
 	if json.Unmarshal(b, &config) != nil {
 		os.Exit(2)
@@ -117,8 +120,50 @@ func RunFakeEngine() {
 				return
 			}
 		}
-		_ = json.NewEncoder(w).Encode(map[string]string{"audio": base64.StdEncoding.EncodeToString(WAV())})
+		options, _ := p.Request["options"].(map[string]any)
+		audio, _ := p.Request["audio"].(string)
+		language, _ := p.Request["language"].(string)
+		// 歌词对齐：分离任务返回人声分轨；对齐任务把每个非空白字符记作一个字，每字 0.25 秒（16 kHz 样本数）。
+		switch config.Models[0].Task {
+		case "sep":
+			_ = json.NewEncoder(w).Encode(map[string]any{"named_audio_outputs": []any{map[string]any{"id": "vocals", "audio": base64.StdEncoding.EncodeToString(WAV())}}})
+			return
+		case "align":
+			words := []any{}
+			for _, r := range strings.Join(strings.Fields(text), "") {
+				n := len(words)
+				words = append(words, map[string]any{"word": string(r), "start_sample": n * 4000, "end_sample": n*4000 + 3000, "confidence": 1})
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{"text": text, "language": language, "words": words})
+			return
+		}
+		result := map[string]any{}
+		// YuE2 自己规划（cot 非 off 且未给谱）或 SheetSage2 扒谱时附带旋律谱；只出谱或扒谱时没有音频。
+		_, given := options["abc"]
+		if (options["cot"] != nil && options["cot"] != "off" && !given) || audio != "" {
+			result["artifacts"] = []any{map[string]any{"id": "score", "kind": "custom", "payload": base64.StdEncoding.EncodeToString([]byte(ABC)), "meta": map[string]string{"format": "abc", "truncated": "false"}}}
+		}
+		if options["stop_after"] != "abc" && audio == "" {
+			result["audio"] = base64.StdEncoding.EncodeToString(WAV())
+		}
+		_ = json.NewEncoder(w).Encode(result)
 	})
 	_ = http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", config.Port), nil)
 	os.Exit(0)
 }
+
+// ABC 是模拟引擎返回的 YuE2 旋律谱：两小节，带和弦与段落。
+const ABC = `X:1
+T:
+M:4/4
+L:1/32
+Q:1/4=120
+V: Vocal clef=treble name="Vocal Melody" snm="Vocal"
+V: Ins clef=treble name="Ins Melody" snm="Inst."
+K:C
+% verse
+V: Vocal
+"C"E8G8c16|"G"B8G8D16|
+V: Ins
+Z2|
+`

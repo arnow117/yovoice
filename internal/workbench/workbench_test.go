@@ -14,9 +14,11 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
+	"yovoice/internal/assistant/fakeocho"
 	"yovoice/internal/catalog"
 	"yovoice/internal/download"
 	"yovoice/internal/engine"
@@ -109,9 +111,9 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	d.VoiceID = nil
 	d.EmotionVoiceID = nil
 	must(t, w.SaveDraft(d))
-	// 强制状态提交失败，文件和内存状态必须一起恢复。
-	must(t, os.Remove(filepath.Join(root, "state.json")))
-	must(t, os.Mkdir(filepath.Join(root, "state.json"), 0700))
+	// 强制状态提交失败（回滚日志无法创建），文件和内存状态必须一起恢复。
+	journal := filepath.Join(root, store.DatabaseFile+"-journal")
+	must(t, os.Mkdir(journal, 0700))
 	if w.DeleteMedia("voices", v.ID) == nil {
 		t.Fatal("应写入失败")
 	}
@@ -121,7 +123,7 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	if len(w.Store.Read().Voices) != 1 {
 		t.Fatal("状态被错误修改")
 	}
-	must(t, os.Remove(filepath.Join(root, "state.json")))
+	must(t, os.Remove(journal))
 	must(t, w.DeleteMedia("voices", v.ID))
 	if _, e = os.Stat(path); !os.IsNotExist(e) {
 		t.Fatal("音频未删除")
@@ -138,6 +140,23 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 		s.History = append(s.History, schema.Generation{ID: id, Title: "历史", FileName: id + ".wav", CreatedAt: time.Now(), Duration: 1, Settings: d})
 	}, true))
 	must(t, w.RenameMedia("outputs", id, "重命名历史"))
+	// 歌词校准时间：按顺序保存，乱序、负数或超过时长时拒绝，空列表清除。
+	must(t, w.SetLyricTimes(id, []float64{0.5, 0.5, 0.9}))
+	if got := w.Store.Read().History[len(w.Store.Read().History)-1].LyricTimes; !slices.Equal(got, []float64{0.5, 0.5, 0.9}) {
+		t.Fatal("歌词时间未保存", got)
+	}
+	for _, times := range [][]float64{{0.6, 0.2}, {-1}, {3}} {
+		if w.SetLyricTimes(id, times) == nil {
+			t.Fatal("未拒绝歌词时间", times)
+		}
+	}
+	if w.SetLyricTimes(schema.NewID(), nil) == nil {
+		t.Fatal("未拒绝不存在的版本")
+	}
+	must(t, w.SetLyricTimes(id, nil))
+	if w.Store.Read().History[len(w.Store.Read().History)-1].LyricTimes != nil {
+		t.Fatal("歌词时间未清除")
+	}
 	must(t, w.DeleteMedia("outputs", id))
 	if len(w.Store.Read().History) != 0 {
 		t.Fatal("历史未删除")
@@ -156,12 +175,13 @@ func TestMediaPersistenceAndRollback(t *testing.T) {
 	if _, e = w.MediaFile("voices", "../invalid"); e == nil {
 		t.Fatal("非法 ID")
 	}
-	must(t, os.Remove(filepath.Join(root, "state.backup.json")))
-	must(t, os.WriteFile(filepath.Join(root, "state.json"), []byte("broken"), 0600))
+	// 没有备份时拒绝打开损坏的状态库，也不改动原文件。
+	must(t, os.Remove(filepath.Join(root, "yovoice.backup.db")))
+	must(t, os.WriteFile(filepath.Join(root, store.DatabaseFile), []byte("broken"), 0600))
 	if _, e = store.New(root); e == nil {
 		t.Fatal("损坏状态被接受")
 	}
-	b, e := os.ReadFile(filepath.Join(root, "state.json"))
+	b, e := os.ReadFile(filepath.Join(root, store.DatabaseFile))
 	must(t, e)
 	if string(b) != "broken" {
 		t.Fatal("损坏状态被覆盖")
@@ -278,23 +298,66 @@ func TestDownloadAndArchives(t *testing.T) {
 func TestOperationCancellation(t *testing.T) {
 	w, e := New(t.TempDir())
 	must(t, e)
+	must(t, w.begin("runtime", msg.ActivityRuntimeDownload, nil, nil, func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
+	if e = w.begin("generate", msg.ActivityGenerate, nil, nil, func(context.Context) error { return nil }); e == nil {
+		t.Fatal("允许并发主操作")
+	}
+	// 模型下载使用独立槽位，可与主操作同时进行，且取消互不影响。
 	must(t, w.begin("download", msg.ActivityDownload, nil, ptr("index-2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
-	if e = w.begin("runtime", msg.ActivityRuntimeDownload, nil, nil, func(context.Context) error { return nil }); e == nil {
-		t.Fatal("允许并发操作")
+	if e = w.begin("download", msg.ActivityDownload, nil, ptr("voxcpm2-q8"), func(context.Context) error { return nil }); e == nil {
+		t.Fatal("允许并发模型安装")
+	}
+	w.CancelModel()
+	<-w.ModelDone()
+	s := w.Store.Read()
+	if s.ModelActivity.Status != "cancelled" || s.ModelActivity.Code != msg.ActivityPaused || value(s.ModelActivity.ModelID) != "index-2-q8" || s.Activity.Status != "running" {
+		t.Fatal(s.Activity, s.ModelActivity)
 	}
 	w.Cancel()
-	w.Close()
-	s := w.Store.Read()
-	if s.Activity.Status != "cancelled" || value(s.Activity.ModelID) != "index-2-q8" {
+	<-w.Done()
+	if s = w.Store.Read(); s.Activity.Status != "cancelled" {
 		t.Fatal(s.Activity)
 	}
 	w.Close()
 }
 
+// 下载未安装的模型时仍可用已安装的模型生成；正在重新下载的模型不能同时生成。
+func TestGenerateDuringModelDownload(t *testing.T) {
+	w, e := New(t.TempDir())
+	must(t, e)
+	defer w.Close()
+	must(t, w.begin("download", msg.ActivityDownload, nil, ptr("voxcpm2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
+	s := w.Store.Read()
+	if installing(s, "index-2-q8") || !installing(s, "voxcpm2-q8") {
+		t.Fatal("安装中的模型判断错误")
+	}
+	must(t, w.begin("generate", msg.ActivityGenerate, nil, nil, func(context.Context) error { return nil }))
+	<-w.Done()
+	if s = w.Store.Read(); s.Activity.Status != "completed" || s.ModelActivity.Status != "running" {
+		t.Fatal(s.Activity, s.ModelActivity)
+	}
+	// 迁移数据目录需要所有操作都结束。
+	if e = w.RelocateStorage(t.TempDir()); e == nil {
+		t.Fatal("下载中不应允许迁移数据目录")
+	}
+}
+
 // 子进程模拟真实 audio.cpp 协议，验证启动、复用和取消时的进程清理。
+// 整个包的用户目录指向临时目录：存储迁移会写全局 storage.json，
+// 绝不能改动开发者本机配置，否则真实应用会把数据目录指向测试临时目录。
 func TestMain(m *testing.M) {
+	fakeocho.Run()
 	testkit.RunFakeEngine()
-	os.Exit(m.Run())
+	home, err := os.MkdirTemp("", "yovoice-home-*")
+	if err != nil {
+		panic(err)
+	}
+	os.Setenv("HOME", home)
+	os.Setenv("USERPROFILE", home)
+	os.Setenv("APPDATA", filepath.Join(home, "AppData", "Roaming"))
+	code := m.Run()
+	os.RemoveAll(home)
+	os.Exit(code)
 }
 
 func TestForgetModelDuringDownload(t *testing.T) {
@@ -309,7 +372,7 @@ func TestForgetModelDuringDownload(t *testing.T) {
 	must(t, w.begin("download", msg.ActivityDownload, nil, ptr("voxcpm2-q8"), func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
 	err = w.ForgetModel("index-2-q8")
 	must(t, err)
-	if len(w.Store.Read().Models) != 1 || w.Store.Read().Activity.Status != "running" {
+	if len(w.Store.Read().Models) != 1 || w.Store.Read().ModelActivity.Status != "running" {
 		t.Fatal("移除其他模型不能影响下载")
 	}
 	if _, err = os.Stat(path); err != nil {
@@ -318,8 +381,8 @@ func TestForgetModelDuringDownload(t *testing.T) {
 	if err = w.ForgetModel("voxcpm2-q8"); err == nil {
 		t.Fatal("不能移除正在下载的模型")
 	}
-	w.Cancel()
-	<-w.Done()
+	w.CancelModel()
+	<-w.ModelDone()
 	must(t, w.begin("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }))
 	if err = w.ForgetModel("voxcpm2-q8"); err == nil {
 		t.Fatal("生成期间应保护模型")
@@ -340,4 +403,71 @@ func TestPackageRoot(t *testing.T) {
 	if packageRoot(m, main) != root {
 		t.Fatal("文件齐全时应返回模型目录")
 	}
+}
+
+// 更换到已有模型的目录时，按下载布局自动登记完整的模型，不完整的忽略。
+func TestSetModelDirectoryAdoptsModels(t *testing.T) {
+	w, err := New(t.TempDir())
+	must(t, err)
+	defer w.Close()
+	dir := t.TempDir()
+	var single, multi *catalog.ModelPackage
+	for i := range catalog.Models {
+		m := &catalog.Models[i]
+		if len(m.Files) == 0 && single == nil {
+			single = m
+		} else if len(m.Files) > 0 && multi == nil {
+			multi = m
+		}
+	}
+	if single == nil || multi == nil {
+		t.Skip("目录清单缺少单文件或多文件模型")
+	}
+	sparse := func(path string, size int64) {
+		must(t, os.MkdirAll(filepath.Dir(path), 0700))
+		f, err := os.Create(path)
+		must(t, err)
+		must(t, f.Truncate(size))
+		must(t, f.Close())
+	}
+	sparse(filepath.Join(dir, filepath.Base(single.RemotePath)), single.Size)
+	// 多文件模型缺一个文件，不应登记。
+	for _, f := range multi.Files[1:] {
+		sparse(filepath.Join(dir, multi.Directory, filepath.FromSlash(f.Path)), f.Size)
+	}
+	must(t, w.SetModelDirectory(dir))
+	models := w.Store.Read().Models
+	if len(models) != 1 || models[0].ID != single.ID || !models[0].Managed {
+		t.Fatalf("应只登记完整的单文件模型: %+v", models)
+	}
+	sparse(filepath.Join(dir, multi.Directory, filepath.FromSlash(multi.Files[0].Path)), multi.Files[0].Size)
+	must(t, w.SetModelDirectory(dir))
+	if len(w.Store.Read().Models) != 2 {
+		t.Fatalf("文件齐全的多文件模型应登记: %+v", w.Store.Read().Models)
+	}
+}
+
+// 接口生成被取消时只取消自己那次操作，界面随后开始的生成不受影响。
+func TestCancelOperationOnlyCancelsOwnRun(t *testing.T) {
+	w, err := New(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	cancelled := false
+	ours, other := make(chan struct{}), make(chan struct{})
+	w.mu.Lock()
+	w.cancel, w.done = func() { cancelled = true }, other
+	w.mu.Unlock()
+	w.cancelOperation(ours)
+	if cancelled {
+		t.Fatal("不应取消其他操作")
+	}
+	w.cancelOperation(other)
+	if !cancelled {
+		t.Fatal("应取消本次操作")
+	}
+	w.mu.Lock()
+	w.cancel, w.done = nil, nil
+	w.mu.Unlock()
 }

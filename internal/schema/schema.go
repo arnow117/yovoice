@@ -26,6 +26,8 @@ type SynthesisSettings struct {
 	// 音乐作品中 Text 是风格描述，歌词单独保存；纯音乐时保留歌词但不演唱。
 	Lyrics       string `json:"lyrics,omitempty"`
 	Instrumental bool   `json:"instrumental,omitempty"`
+	// Abc 是 YuE2 的旋律谱（受限 ABC 方言）：有谱时按谱演唱，随版本快照一起保存。
+	Abc string `json:"abc,omitempty"`
 
 	VoiceMode         string    `json:"voiceMode"`
 	VoxMode           string    `json:"voxMode"`
@@ -180,6 +182,17 @@ type Generation struct {
 	Duration  float64            `json:"duration"`
 	Settings  Draft              `json:"settings"`
 	Segment   *GenerationSegment `json:"segment,omitempty"`
+	// LyricTimes 是播放页校准的歌词时间：按顺序记录每一行（含器乐段落）的开始秒数。
+	LyricTimes []float64 `json:"lyricTimes,omitempty"`
+	// LyricWords 是强制对齐得到的逐字时间，按歌词顺序排列；与 LyricTimes 只保留较新的一份。
+	LyricWords []LyricWord `json:"lyricWords,omitempty"`
+}
+
+// LyricWord 是对齐到音频上的一个字（拉丁文为一个词），时间以秒计。
+type LyricWord struct {
+	Word  string  `json:"word"`
+	Start float64 `json:"start"`
+	End   float64 `json:"end"`
 }
 
 // GenerationSegment 保留单句来源；剪辑与原音频通过生成版本关联。
@@ -193,11 +206,13 @@ type GenerationSegment struct {
 	TargetClipID string `json:"targetClipId,omitempty"`
 }
 type Activity struct {
-	CueID       string     `json:"cueId,omitempty"`
-	ProjectID   string     `json:"projectId,omitempty"`
-	CharacterID string     `json:"characterId,omitempty"`
-	RequestID   string     `json:"requestId,omitempty"`
-	Kind        string     `json:"kind"`
+	CueID       string `json:"cueId,omitempty"`
+	ProjectID   string `json:"projectId,omitempty"`
+	CharacterID string `json:"characterId,omitempty"`
+	RequestID   string `json:"requestId,omitempty"`
+	Kind        string `json:"kind"`
+	// Task 区分同一类操作里的具体任务：melody 为出谱或扒谱，界面据此在旋律谱区域显示进度；align 为歌词对齐，在播放页显示。
+	Task        string     `json:"task,omitempty"`
 	Code        msg.Code   `json:"code"`
 	Params      msg.Params `json:"params"`
 	Status      string     `json:"status"`
@@ -217,13 +232,27 @@ const (
 	UiLocaleEn   UiLocale = "en"
 )
 
+// UiLocaleNames 列出支持的界面语言及其英文名（写进 AI 提示词），与 web/src/shared/i18n/locale.ts 一致。
+var UiLocaleNames = map[UiLocale]string{
+	UiLocaleZhCN: "Simplified Chinese",
+	"zh-TW":      "Traditional Chinese",
+	UiLocaleEn:   "English",
+	"ja":         "Japanese",
+	"ko":         "Korean",
+	"es":         "Spanish",
+	"fr":         "French",
+	"de":         "German",
+	"pt-BR":      "Brazilian Portuguese",
+	"ru":         "Russian",
+	"it":         "Italian",
+	"vi":         "Vietnamese",
+}
+
 func ParseUiLocale(raw string) (UiLocale, error) {
-	switch UiLocale(raw) {
-	case UiLocaleZhCN, UiLocaleEn:
-		return UiLocale(raw), nil
-	default:
+	if _, ok := UiLocaleNames[UiLocale(raw)]; !ok {
 		return "", fmt.Errorf("unsupported uiLocale %q", raw)
 	}
+	return UiLocale(raw), nil
 }
 
 type Preferences struct {
@@ -235,6 +264,12 @@ type Preferences struct {
 	UiLocale       UiLocale `json:"uiLocale"`
 	// AITimeout 是单次 AI 请求的超时秒数，0 表示默认值。
 	AITimeout int `json:"aiTimeout,omitempty"`
+	// IntroSeen 表示已看过首次启动的开场画面，之后启动只显示简短的加载动画。
+	IntroSeen bool `json:"introSeen,omitempty"`
+	// TourSeen 表示已看过或跳过首次进入主界面的功能引导。
+	TourSeen bool `json:"tourSeen,omitempty"`
+	// AssistantQuiet 关闭助手的主动提示（生成完成、失败等时刻在角落出现的气泡）。
+	AssistantQuiet bool `json:"assistantQuiet,omitempty"`
 }
 type State struct {
 	Characters     []Character        `json:"characters"`
@@ -250,10 +285,29 @@ type State struct {
 	// Runtimes 按后端记录下载安装的内核，切换计算设备后再切回时直接复用。
 	Runtimes map[string]InstalledRuntime `json:"runtimes,omitempty"`
 	Activity *Activity                   `json:"activity"`
+	// ModelActivity 是模型下载或导入：不占用推理引擎，与 Activity 中的生成等操作同时进行。
+	ModelActivity *Activity `json:"modelActivity"`
 	// AIProviders 为可选的大模型服务，AIProviderID 指向当前使用的服务。
 	AIProviders  []AIProvider `json:"aiProviders,omitempty"`
 	AIProviderID string       `json:"aiProviderID,omitempty"`
 	AITask       *AITask      `json:"aiTask,omitempty"`
+	// Melody 是最近一次出谱或扒谱的结果，等界面填入作品；只属于本次会话。
+	Melody *MelodyResult `json:"melody,omitempty"`
+	// AssistantSessions 是助手会话的持久化记录；AssistantLive 只随状态广播（进行中的一轮与界面事件）。
+	AssistantSessions *AssistantSessions `json:"assistantSessions,omitempty"`
+	AssistantLive     *AssistantLive     `json:"assistantLive,omitempty"`
+	// AssistantMemory 是助手记住的用户偏好，所有会话共用。
+	AssistantMemory []AssistantMemo `json:"assistantMemory,omitempty"`
+}
+
+// MelodyResult 是引擎写出的旋律谱：Source 为 plan（YuE2 按歌词出谱）或 cover（从歌曲扒谱）。
+type MelodyResult struct {
+	ID        string    `json:"id"`
+	ProjectID string    `json:"projectId"`
+	Source    string    `json:"source"`
+	Abc       string    `json:"abc"`
+	Truncated bool      `json:"truncated,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type InstalledRuntime struct {

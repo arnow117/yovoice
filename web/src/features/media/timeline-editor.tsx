@@ -16,10 +16,11 @@ import { AppDialog } from '../../shared/ui/app-dialog';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { SpeakerAvatar } from '../create/subtitles';
 import { encodeWav } from '../../shared/lib/sound';
-import { isDesktop, mediaUrl, saveAudio, importTimelineFile } from '../../shared/lib/client';
+import { isDesktop, mediaUrl, saveAudio, saveText, importTimelineFile } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, projectKind, type AudioLane, type AudioAsset, type AudioClip, type AudioTimeline, type Generation, type Draft } from '../../shared/workbench';
 import { Timeline, TimelineHistory } from './timeline';
+import { captionsToSrt, captionsToVtt, timelineCaptions } from './caption-export';
 
 export function TimelineEditor({ draft, busy, regenerate, exportProject, selectCue, selectedCue, cueSelectionRevision, playbackCue, value, history, change, suspended, onError }: {
   exportProject: () => Promise<void>; cueSelectionRevision?: number; selectedCue?: number; playbackCue?: (index: number) => void; draft: Draft; busy: boolean; regenerate: (cueId: string, clipId: string) => Promise<void>; selectCue: (index: number) => void;
@@ -49,6 +50,9 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
   const suppressClick = useRef(false);
   const zoomAnchor = useRef<{ time: number; x: number } | null>(null);
   const [exportScope, setExportScope] = useState('all');
+  // 导出格式：WAV 音频，或按片段实际位置生成的 SRT / WebVTT 字幕。
+  const [exportFormat, setExportFormat] = useState<'wav' | 'srt' | 'vtt'>('wav');
+  const [captionSpeaker, setCaptionSpeaker] = useState(false);
   const [preventClipping, setPreventClipping] = useState(true);
   const [peakDb, setPeakDb] = useState<number>();
 
@@ -64,6 +68,8 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [peaks, setPeaks] = useState<Record<string, number[]>>({});
+  // 读不到的音频源：片段上直接标出，不主动弹出提示；播放时仍会读取并说明原因。
+  const [unavailable, setUnavailable] = useState<Record<string, boolean>>({});
   const [zoom, setZoom] = useState(1);
   const context = useRef<AudioContext | null>(null);
   const buffers = useRef(new Map<string, AudioBuffer>());
@@ -203,9 +209,8 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
     } finally { if (url.startsWith('blob:')) URL.revokeObjectURL(url); }
   };
   const sourceIds = [...new Set(value.tracks.flatMap(track => track.clips.map(c => Timeline.sourceKey(c))))].sort().join(',');
-  // 波形只随音频源与缩放级别重算，加载与报错使用最新的回调。
+  // 波形只随音频源与缩放级别重算，加载使用最新的回调。
   const loadSource = useEffectEvent((id: string, audio: AudioContext) => load(id, audio));
-  const reportError = useEffectEvent((message: string) => onError(message));
   useEffect(() => {
     let active = true;
     const audio = context.current ??= new AudioContext();
@@ -222,7 +227,8 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
             return peak;
           });
           setPeaks(previous => ({ ...previous, [id]: waveform }));
-        } catch (error) { if (active) reportError((error as Error).message); }
+          setUnavailable(previous => previous[id] ? { ...previous, [id]: false } : previous);
+        } catch { if (active) setUnavailable(previous => ({ ...previous, [id]: true })); }
       }
     })();
     return () => { active = false; };
@@ -391,20 +397,24 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
       <DropdownMenu presentation="popover" placement="above" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, label: t('@yovoice.timeline.more'), icon: <MoreHorizontal />, 'data-timeline-more': 'true' }} items={menuItems} />
       <TrackZoom value={zoom} change={zoomTo} fit={fitAll} disabled={!duration} min={minZoom} max={32} />
     </PlaybackToolbar>
-    {exportOpen ? <AppDialog title={t('@yovoice.timeline.export')} busy={exporting} error={formatNotice(t, exportError)} onClose={() => setExportOpen(false)} actions={<Button label={t('@yovoice.timeline.exportConfirm')} variant="primary" isLoading={exporting} isDisabled={!exportName.trim()} onClick={async () => {
+    {exportOpen ? <AppDialog title={t('@yovoice.timeline.export')} busy={exporting} error={formatNotice(t, exportError)} onClose={() => setExportOpen(false)} actions={<Button label={t(exportFormat === 'wav' ? '@yovoice.timeline.exportConfirm' : '@yovoice.timeline.exportCaptions')} variant="primary" isLoading={exporting} isDisabled={!exportName.trim()} onClick={async () => {
       setExporting(true); setExportError('');
       try {
-        const snapshot = structuredClone(value);
+        const snapshot = Timeline.scoped(structuredClone(value), exportScope, history);
+        if (exportFormat !== 'wav') {
+          const captions = timelineCaptions(snapshot, history, draft.subtitles?.speakers, exportScope === 'range' ? range : undefined);
+          if (!captions.length) { setExportError('@yovoice.timeline.noCaptions'); return; }
+          if (await saveText((exportFormat === 'srt' ? captionsToSrt : captionsToVtt)(captions, captionSpeaker), exportName, exportFormat)) setExportOpen(false);
+          return;
+        }
         const audio = context.current ??= new AudioContext();
-        if (exportScope.startsWith('track:')) { snapshot.tracks = snapshot.tracks.filter(t => t.id === exportScope.slice(6)).map(t => ({ ...t, muted: false, solo: false })); }
-        if (exportScope.startsWith('role:')) { const role = exportScope.slice(5); snapshot.tracks = snapshot.tracks.map(t => ({ ...t, clips: t.clips.filter(c => history.find(g => g.id === c.generationId)?.segment?.speakerId === role) })); }
         const result = await Timeline.render(snapshot, id => load(id, audio), exportScope === 'range' ? range : undefined);
         const peak = Timeline.peak(result); setPeakDb(peak ? 20 * Math.log10(peak) : -Infinity);
         if (peak > 1 && preventClipping) for (let channel = 0; channel < result.numberOfChannels; channel++) { const samples = result.getChannelData(channel); for (let i = 0; i < samples.length; i++) samples[i] *= 0.99 / peak; }
         if (peak > 1 && !preventClipping && peakDb === undefined) { setExportError(t('@yovoice.timeline.clipping')); return; }
         if (await saveAudio(encodeWav(result), exportName)) setExportOpen(false);
       } catch (error) { setExportError((error as Error).message); } finally { setExporting(false); }
-    }} />}><TextInput label={t('@yovoice.timeline.exportName')} value={exportName} onChange={setExportName} /><Selector label={t('@yovoice.timeline.exportScope')} value={exportScope} onChange={v => { setExportScope(v); setPeakDb(undefined); }} options={[{ value: 'all', label: t('@yovoice.timeline.all') }, ...(range ? [{ value: 'range', label: t('@yovoice.timeline.range') }] : []), ...value.tracks.map(t => ({ value: `track:${t.id}`, label: t.name })), ...(draft.subtitles?.speakers ?? []).map((s, i) => ({ value: `role:${s.id}`, label: s.sourceName || t('@yovoice.subtitle.speaker', { n: i + 1 }) }))]} /><label><input type="checkbox" checked={preventClipping} onChange={e => { setPreventClipping(e.target.checked); setPeakDb(undefined); }} /> {t('@yovoice.timeline.preventClipping')}</label>{peakDb !== undefined ? <small>{t('@yovoice.timeline.peak')}: {Number.isFinite(peakDb) ? peakDb.toFixed(1) : '−∞'} dBFS</small> : null}</AppDialog> : null}
+    }} />}><TextInput label={t('@yovoice.timeline.exportName')} value={exportName} onChange={setExportName} /><Selector label={t('@yovoice.timeline.exportType')} value={exportFormat} onChange={v => { setExportFormat(v as typeof exportFormat); setExportError(''); setPeakDb(undefined); }} options={[{ value: 'wav', label: t('@yovoice.timeline.formatWav') }, { value: 'srt', label: t('@yovoice.timeline.formatSrt') }, { value: 'vtt', label: t('@yovoice.timeline.formatVtt') }]} /><Selector label={t('@yovoice.timeline.exportScope')} value={exportScope} onChange={v => { setExportScope(v); setExportError(''); setPeakDb(undefined); }} options={[{ value: 'all', label: t('@yovoice.timeline.all') }, ...(range ? [{ value: 'range', label: t('@yovoice.timeline.range') }] : []), ...value.tracks.map(t => ({ value: `track:${t.id}`, label: t.name })), ...(draft.subtitles?.speakers ?? []).map((s, i) => ({ value: `role:${s.id}`, label: s.sourceName || t('@yovoice.subtitle.speaker', { n: i + 1 }) }))]} />{exportFormat === 'wav' ? <><label><input type="checkbox" checked={preventClipping} onChange={e => { setPreventClipping(e.target.checked); setPeakDb(undefined); }} /> {t('@yovoice.timeline.preventClipping')}</label>{peakDb !== undefined ? <small>{t('@yovoice.timeline.peak')}: {Number.isFinite(peakDb) ? peakDb.toFixed(1) : '−∞'} dBFS</small> : null}</> : <><label><input type="checkbox" checked={captionSpeaker} onChange={e => setCaptionSpeaker(e.target.checked)} /> {t('@yovoice.timeline.captionSpeaker')}</label><small>{t('@yovoice.timeline.captionHint')}</small></>}</AppDialog> : null}
     <ContextMenu items={menuItems} size="sm" menuWidth="max-content" label={t('@yovoice.timeline.more')} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
     <VStack ref={scrollRef} className="multitrack-scroll" gap={0} {...pointerHandlers} onContextMenu={e => {
       const id = (e.target as Element).closest('[data-clip-id]')?.getAttribute('data-clip-id');
@@ -429,14 +439,18 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
           </VStack>
         </HStack>
         {(trimPreview ?? value).tracks.map(track => <HStack key={track.id} className="multitrack-row" gap={0}>
-          <VStack className="multitrack-label" gap={0} vAlign="center" aria-label={track.name}>
-            <HStack gap={0}><Button size="sm" variant="ghost" isIconOnly label={t(track.muted ? '@yovoice.timeline.unmute' : '@yovoice.timeline.mute', { name: track.name })} icon={track.muted ? <VolumeX /> : <Volume2 />} aria-pressed={track.muted} onClick={() => edit({ ...value, tracks: value.tracks.map(lane => lane.id === track.id ? { ...lane, muted: !lane.muted } : lane) })} /><Button size="sm" variant="ghost" isIconOnly label={t('@yovoice.timeline.removeTrack', { name: track.name })} icon={<Trash2 />} isDisabled={track.locked || track.clips.length > 0} onClick={() => edit({ ...value, tracks: value.tracks.filter(lane => lane.id !== track.id) })} /><Popover placement="above" label={track.name} content={<VStack padding={3} gap={2}>
+          {/* 轨头显示音轨名，只留静音与设置两个常用按钮；删除音轨放进设置面板底部，避免挨着静音误点。 */}
+          <HStack className="multitrack-label" gap={0} vAlign="center" aria-label={track.name}>
+            <small className="multitrack-name grow" title={track.name}>{track.name}</small>
+            <Button size="sm" variant="ghost" isIconOnly label={t(track.muted ? '@yovoice.timeline.unmute' : '@yovoice.timeline.mute', { name: track.name })} icon={track.muted ? <VolumeX /> : <Volume2 />} aria-pressed={track.muted} onClick={() => edit({ ...value, tracks: value.tracks.map(lane => lane.id === track.id ? { ...lane, muted: !lane.muted } : lane) })} />
+            <Popover placement="above" label={track.name} content={<VStack padding={3} gap={2}>
               <TextInput size="sm" label={t('@yovoice.timeline.trackName')} value={track.name} onChange={name => { if (name.trim()) updateTrack(track.id, { name: name.slice(0, 120) }); }} />
               <AudioLevel label={t('@yovoice.timeline.volume')} value={track.gainDb ?? 0} min={-60} max={12} unit="dB" change={gainDb => updateTrack(track.id, { gainDb })} />
               <AudioLevel label={t('@yovoice.timeline.duck')} value={track.duckDb ?? 0} min={0} max={36} unit="dB" change={duckDb => updateTrack(track.id, { duckDb })} />
               <HStack gap={1}><Button size="sm" label={t('@yovoice.timeline.solo')} icon={<Headphones />} aria-pressed={!!track.solo} onClick={() => updateTrack(track.id, { solo: !track.solo })} /><Button size="sm" label={t(track.locked ? '@yovoice.timeline.unlock' : '@yovoice.timeline.lock')} icon={track.locked ? <Lock /> : <Unlock />} aria-pressed={!!track.locked} onClick={() => updateTrack(track.id, { locked: !track.locked })} /></HStack>
-            </VStack>}><Button size="sm" variant="ghost" isIconOnly icon={track.locked ? <Lock /> : track.solo ? <Headphones /> : <SlidersHorizontal />} label={t('@yovoice.timeline.trackSettings', { name: track.name })} /></Popover></HStack>
-          </VStack>
+              <Button size="sm" variant="destructive" icon={<Trash2 />} label={t('@yovoice.timeline.removeTrack', { name: track.name })} isDisabled={track.locked || track.clips.length > 0} onClick={() => edit({ ...value, tracks: value.tracks.filter(lane => lane.id !== track.id) })} />
+            </VStack>}><Button size="sm" variant="ghost" isIconOnly icon={track.locked ? <Lock /> : track.solo ? <Headphones /> : <SlidersHorizontal />} label={t('@yovoice.timeline.trackSettings', { name: track.name })} /></Popover>
+          </HStack>
           <VStack className="multitrack-lane" gap={0} aria-label={track.name} data-lane-id={track.id} onPointerDown={e => {
             if (e.target !== e.currentTarget) return;
             setSelected(''); setSelection([]); setRange(undefined);
@@ -450,7 +464,7 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
             }, start);
           }}>
             {track.clips.map(c => <HStack key={c.id} className="multitrack-region" gap={0} data-clip-id={c.id} data-selected={selectedIds.includes(c.id)} style={{ left: `${c.start / scale * 100}%`, width: `${c.duration / scale * 100}%`, opacity: track.muted ? 0.5 : 1 }}>
-              <Button size="sm" variant="secondary" className="multitrack-clip" label={audioSources.get(Timeline.sourceKey(c))?.title ?? t('@yovoice.timeline.missing')} aria-pressed={selectedIds.includes(c.id)} icon={<>{history.find(g => g.id === c.generationId)?.segment ? <SpeakerAvatar seed={`${draft.id}:${history.find(g => g.id === c.generationId)!.segment!.speakerId}`} /> : null}{peaks[Timeline.sourceKey(c)] ? <svg className="clip-waveform" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">{peaks[Timeline.sourceKey(c)].slice(Math.floor(c.offset / buffers.current.get(Timeline.sourceKey(c))!.duration * peaks[Timeline.sourceKey(c)].length), Math.ceil((c.offset + c.duration) / buffers.current.get(Timeline.sourceKey(c))!.duration * peaks[Timeline.sourceKey(c)].length)).map((peak, i, values) => <line key={i} x1={i / values.length * 400} x2={i / values.length * 400} y1={20 - peak * 18} y2={20 + peak * 18} />)}</svg> : null}</>} onPointerDown={e => {
+              <Button size="sm" variant="secondary" className="multitrack-clip" data-unavailable={unavailable[Timeline.sourceKey(c)] || undefined} label={audioSources.get(Timeline.sourceKey(c))?.title ?? t('@yovoice.timeline.missing')} aria-pressed={selectedIds.includes(c.id)} icon={<>{history.find(g => g.id === c.generationId)?.segment ? <SpeakerAvatar seed={`${draft.id}:${history.find(g => g.id === c.generationId)!.segment!.speakerId}`} /> : null}{peaks[Timeline.sourceKey(c)] ? <svg className="clip-waveform" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">{peaks[Timeline.sourceKey(c)].slice(Math.floor(c.offset / buffers.current.get(Timeline.sourceKey(c))!.duration * peaks[Timeline.sourceKey(c)].length), Math.ceil((c.offset + c.duration) / buffers.current.get(Timeline.sourceKey(c))!.duration * peaks[Timeline.sourceKey(c)].length)).map((peak, i, values) => <line key={i} x1={i / values.length * 400} x2={i / values.length * 400} y1={20 - peak * 18} y2={20 + peak * 18} />)}</svg> : null}</>} onPointerDown={e => {
                 if (e.metaKey || e.ctrlKey || e.shiftKey || track.locked) return;
                 const ids = selectedIds.includes(c.id) ? selectedIds : [c.id];
                 if (!selectedIds.includes(c.id)) selectClip(c);

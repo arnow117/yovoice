@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import sqlite3
 import subprocess
 from tempfile import TemporaryDirectory
 import time
@@ -58,6 +59,38 @@ def write_fixture_receipt(app: Path) -> Path:
     receipt = capture.build_receipt(capture.source_candidates(), app)
     receipt_path.write_text(json.dumps(receipt))
     return receipt_path
+
+
+def write_state_database(path: Path, preference_locale: str, draft_id: str) -> None:
+    connection = sqlite3.connect(path)
+    connection.executescript("""
+        CREATE TABLE settings (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+        CREATE TABLE characters (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+        CREATE TABLE drafts (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+        CREATE TABLE voices (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+        CREATE TABLE models (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+        CREATE TABLE history (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+        CREATE TABLE ai_providers (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+        CREATE TABLE private (key TEXT PRIMARY KEY, data TEXT NOT NULL);
+        PRAGMA user_version = 1;
+    """)
+    settings = {
+        "preferences": {"uiLocale": preference_locale},
+        "runtimePath": None,
+        "runtimeBackend": "cpu",
+        "runtimeVersion": None,
+        "runtimes": None,
+        "activity": None,
+        "modelActivity": None,
+        "aiProviderID": "",
+        "assistantSessions": None,
+        "assistantMemory": [],
+    }
+    for key, value in settings.items():
+        connection.execute("INSERT INTO settings (key, pos, data) VALUES (?, 0, ?)", (key, json.dumps(value)))
+    connection.execute("INSERT INTO drafts (key, pos, data) VALUES (?, 0, ?)", (draft_id, json.dumps({"id": draft_id})))
+    connection.commit()
+    connection.close()
 
 
 class SpeakerValidationBuildChecks(unittest.TestCase):
@@ -488,6 +521,104 @@ printf 'fixture screenshot' > "$WORKBENCH_DATA/smoke.png"
         self.assertEqual(state["businessState"]["drafts"][0]["text"], "unchanged source text")
         self.assertTrue(state["businessState"]["runtimePath"]["redacted"])
         self.assertEqual(state["voices"][0]["referenceText"], "saved reference")
+
+    def test_capture_reads_complete_sqlite_state_before_legacy_json(self):
+        capture = capture_module()
+        with TemporaryDirectory() as directory:
+            data_root = Path(directory)
+            database = data_root / "yovoice.db"
+            connection = sqlite3.connect(database)
+            connection.executescript("""
+                CREATE TABLE settings (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+                CREATE TABLE characters (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+                CREATE TABLE drafts (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+                CREATE TABLE voices (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+                CREATE TABLE models (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+                CREATE TABLE history (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+                CREATE TABLE ai_providers (key TEXT PRIMARY KEY, pos INTEGER NOT NULL, data TEXT NOT NULL);
+                CREATE TABLE private (key TEXT PRIMARY KEY, data TEXT NOT NULL);
+                PRAGMA user_version = 1;
+            """)
+            settings = {
+                "preferences": {"proxyURL": "http://private-proxy", "uiLocale": "en"},
+                "runtimePath": "/private/runtime",
+                "runtimeBackend": "cpu",
+                "runtimeVersion": "1.0",
+                "runtimes": {"cpu": {"path": "/private/runtime", "version": "1.0"}},
+                "activity": None,
+                "modelActivity": None,
+                "aiProviderID": "provider-a",
+                "assistantSessions": None,
+                "assistantMemory": [],
+            }
+            for key, value in settings.items():
+                connection.execute("INSERT INTO settings (key, pos, data) VALUES (?, 0, ?)", (key, json.dumps(value)))
+            connection.execute("INSERT INTO drafts (key, pos, data) VALUES (?, ?, ?)", ("draft-second", 1, json.dumps({"id": "draft-second"})))
+            connection.execute("INSERT INTO drafts (key, pos, data) VALUES (?, ?, ?)", ("draft-first", 0, json.dumps({"id": "draft-first"})))
+            connection.execute("INSERT INTO voices (key, pos, data) VALUES (?, ?, ?)", ("voice-a", 0, json.dumps({"id": "voice-a", "referenceText": "saved reference"})))
+            connection.execute("INSERT INTO private (key, data) VALUES (?, ?)", ("token", json.dumps("must-not-export")))
+            connection.commit()
+            connection.close()
+            (data_root / "state.json").write_text(json.dumps({"drafts": [{"id": "legacy-draft"}]}))
+
+            state = capture.normalized_state(data_root)
+
+        self.assertEqual(state["source"], "sqlite")
+        self.assertEqual([draft["id"] for draft in state["businessState"]["drafts"]], ["draft-first", "draft-second"])
+        self.assertTrue(state["businessState"]["preferences"]["proxyURL"]["redacted"])
+        self.assertTrue(state["businessState"]["runtimePath"]["redacted"])
+        self.assertNotIn("private", state["businessState"])
+        self.assertEqual(state["voices"][0]["referenceText"], "saved reference")
+
+    def test_capture_rejects_a_bad_sqlite_database_without_legacy_fallback(self):
+        capture = capture_module()
+        with TemporaryDirectory() as directory:
+            data_root = Path(directory)
+            (data_root / "yovoice.db").write_text("not a SQLite database")
+            (data_root / "state.json").write_text(json.dumps({"drafts": [{"id": "legacy-draft"}]}))
+
+            with self.assertRaisesRegex(ValueError, "SQLite State database cannot be read"):
+                capture.normalized_state(data_root)
+
+    def test_capture_uses_one_sqlite_snapshot_while_another_connection_commits(self):
+        capture = capture_module()
+        with TemporaryDirectory() as directory:
+            data_root = Path(directory)
+            database = data_root / "yovoice.db"
+            write_state_database(database, "before", "draft-before")
+            writer = sqlite3.connect(database)
+            writer.execute("PRAGMA journal_mode = WAL")
+            writer.execute("UPDATE settings SET data = data WHERE key = 'preferences'")
+            writer.commit()
+            primer = sqlite3.connect(database)
+            primer.execute("SELECT key FROM settings").fetchall()
+
+            original_read_rows = capture.read_json_rows
+
+            def read_rows_with_mid_capture_commit(connection, table):
+                rows = original_read_rows(connection, table)
+                if table == "settings":
+                    writer.execute(
+                        "UPDATE settings SET data = ? WHERE key = 'preferences'",
+                        (json.dumps({"uiLocale": "after"}),),
+                    )
+                    writer.execute(
+                        "UPDATE drafts SET data = ? WHERE key = 'draft-before'",
+                        (json.dumps({"id": "draft-after"}),),
+                    )
+                    writer.commit()
+                return rows
+
+            capture.read_json_rows = read_rows_with_mid_capture_commit
+            try:
+                state = capture.normalized_state(data_root)
+            finally:
+                capture.read_json_rows = original_read_rows
+                primer.close()
+                writer.close()
+
+        self.assertEqual(state["businessState"]["preferences"]["uiLocale"], "before")
+        self.assertEqual(state["businessState"]["drafts"][0]["id"], "draft-before")
 
     def test_smoke_requires_complete_fingerprints_and_fixed_runtime_versions(self):
         self.assertIn("sourceCandidate", SMOKE)

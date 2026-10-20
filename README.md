@@ -6,10 +6,22 @@
 <p align="center">Give your words a voice. Compose your ideas into songs.</p>
 <p align="center">
   <a href="https://yovoice.leemysw.com"><img src="https://img.shields.io/badge/website-yovoice.leemysw.com-10b981?style=flat-square" alt="Website" /></a>
-  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.2.0-blue?style=flat-square" alt="Version 0.2.0" /></a>
+  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.3.1-blue?style=flat-square" alt="Version 0.3.1" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-orange?style=flat-square" alt="License: Apache-2.0" /></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-black?style=flat-square" alt="macOS 14+ (Apple Silicon)" />
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square" alt="Windows 10/11 (x64)" />
+</p>
+<p align="center">
+  <a href="https://www.star-history.com/leemysw/yovoice">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=leemysw/yovoice&type=rank&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=leemysw/yovoice&type=rank" />
+      <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=leemysw/yovoice&type=rank" width="250" height="55" />
+    </picture>
+  </a>
+  <a href="https://trendshift.io/repositories/239687?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-239687" target="_blank" rel="noopener noreferrer">
+    <img src="https://trendshift.io/api/badge/trendshift/repositories/239687/daily?language=TypeScript" alt="leemysw%2Fyovoice | Trendshift" width="250" height="55"/>
+  </a>
 </p>
 <p align="center">English · <a href="README_zh.md">简体中文</a></p>
 
@@ -31,53 +43,31 @@ Turn text into expressive speech, natural cloned voices, complete vocal songs, a
 - 💸 **Zero Recurring Fees**: Say goodbye to per-character/per-minute meters and expensive cloud voice/music subscriptions.
 - ⚡ **Native C++ Performance (No Python Hell)**: Powered by [audio.cpp](https://github.com/0xShug0/audio.cpp) v0.9.1. Ships with bundled Windows CUDA 12.4/13.3 runtimes and native macOS Metal support. Double-click and create—no Conda or PyTorch conflicts.
 - 🎛️ **Creator Workstation**: Multi-take versioning for side-by-side comparison, waveform trimming, timeline scrolling, and clean stems/MIDI export.
-- 🤖 **MCP & AI Agent Ecosystem**: Connect DeepSeek, Qwen, Claude, OpenAI, or local Ollama to write scores and lyrics in seconds. Includes a native Model Context Protocol (MCP) server for Cursor and Claude Code.
+- 🤖 **MCP & AI Agent Ecosystem**: Chat with DeepSeek, Qwen, Claude, OpenAI, or local Ollama to create and edit works end to end. Includes a native Model Context Protocol (MCP) server for Cursor and Claude Code.
 
 ---
 
 ## Features
 
-- **Voice and expression** — use a reference voice, match a reference performance, adjust emotions, or describe the delivery in words.
-- **A complete audio workflow** — import or record reference audio, trim clips, preview speech, and export your work.
-- **Voice design and cloning** — VoxCPM2 offers text-guided voice design, controllable cloning, and transcript-assisted cloning with automatic multilingual handling, and 48 kHz output.
-- **Music generation** — describe a style, write lyrics with section markers, and generate full songs or instrumentals with ACE-Step 1.5; every take is kept as a version to compare.
-- **Score** — write each part by bar and beat, import MIDI or let an Agent write the score, then render it with a General MIDI sound font and a role-based mix; results are exactly repeatable and export to MIDI and stems. See [Score](docs/score.md).
-- **Optional AI service** — connect DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API to let AI write arrangements and lyrics; keys stay on this computer. See [AI service](docs/ai.md).
-- **Local models** — run IndexTTS 2.0 / 2.5, VoxCPM2, OmniVoice, Qwen3-TTS, Breeze TTS 2 and Kokoro through audio.cpp, with resumable model downloads and GGUF import.
-- **Hardware acceleration** — Metal on Apple Silicon; CPU, NVIDIA CUDA, and experimental Vulkan on Windows.
-- **Agent Skill & MCP** — ask your AI agent to set up local speech generation and create voiceovers from text and reference audio.
-
----
-
-## Hardware & VRAM Quick Guide
-
-| Use Case | Recommended Hardware | Recommended Models |
-| --- | --- | --- |
-| 🟢 **Lightweight & Blazing Fast** | Any CPU / 4 GB+ RAM | **Kokoro-82M** (only 189 MB Q8, millisecond latency, runs great on CPU) |
-| 🟡 **High-Fidelity Voice Cloning** | 4 GB – 6 GB VRAM / 8 GB+ Apple Silicon | **VoxCPM2** (2B, 48 kHz), **IndexTTS 2.0/2.5**, **Qwen3-TTS** |
-| 🔴 **Full Song & Music Generation** | 12 GB+ VRAM / 16 GB+ Apple Silicon | **ACE-Step 1.5 Turbo** (BF16, 10 GB), **YuE2 3B** |
+- **Speech, voice design and cloning** — clone a reference voice, design a voice from a description, adjust emotion and delivery, and edit takes on a timeline.
+- **Story dubbing** — import text or subtitle files, assign a character to each line, and generate line by line.
+- **Music** — write a style and lyrics with section markers, then generate songs or instrumentals with ACE-Step 1.5, or songs and score-based instrumentals with YuE2; the playback page syncs lyrics to the vocals.
+- **Score** — write parts by bar and beat, import MIDI or let an Agent compose, render with a General MIDI sound font, and export MIDI and stems. See [Score](docs/score.md).
+- **Optional AI service** — the built-in assistant panel chats with DeepSeek, Qwen, Kimi, OpenAI, Anthropic, Ollama or any compatible API and acts on your works: it writes arrangements and lyrics, edits text, assigns voices and starts generation; keys stay on this computer. See [AI service](docs/ai.md).
+- **12 interface languages** — English, 简体中文, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português (Brasil), Русский, Italiano and Tiếng Việt; switch anytime in Settings, no restart needed.
 
 ---
 
 ## Supported Models
 
-| Model | Parameters | Model file size by precision | Core capabilities |
-| --- | --- | --- | --- |
-| IndexTTS 2.0 | — | Q8 · 3.63 GB<br>F16 · 4.65 GB<br>ORIG · 8.08 GB | Chinese/English voice cloning, emotion control, reference performance |
-| IndexTTS 2.5 | — | Q8 · 3.50 GB<br>F16 · 4.55 GB<br>ORIG · 7.89 GB | Multilingual voice cloning, emotion control, pronunciation editing |
-| VoxCPM2 | 2B | Q8 · 2.96 GB<br>BF16 · 4.77 GB<br>ORIG · 4.96 GB | Text-guided voice design, voice cloning, transcript-assisted cloning |
-| OmniVoice | 0.6B | Q8 · 1.35 GB<br>BF16 · 1.64 GB<br>F16 · 1.64 GB | Attribute-based voice design, voice cloning, non-verbal sound tags |
-| Qwen3-TTS Base | 0.6B | Q8 · 1.99 GB<br>BF16 · 2.52 GB | Reference voice cloning, optional transcript guidance, multilingual speech |
-| Qwen3-TTS Base | 1.7B | Q8 · 2.70 GB<br>BF16 · 4.20 GB<br>ORIG · 4.54 GB | Reference voice cloning, optional transcript guidance, multilingual speech |
-| Qwen3-TTS CustomVoice | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 9 built-in voices, text-guided style and emotion |
-| Qwen3-TTS VoiceDesign | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | Voice design from natural-language descriptions, no reference audio required |
-| Breeze TTS 2 | ~3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | Chinese and English voice design, cloning and voice direction; GPU recommended, requires the v0.9.1 engine |
-| Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 built-in voices, multilingual speech excluding Japanese |
-| Kokoro-82M 1.0 | 82M | Q8 · 932.66 MB | 54 built-in voices, full multilingual resources including Japanese; import only |
-| Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 Chinese and 3 English voices; experimental, import only |
-| ACE-Step 1.5 Turbo | — | BF16 · 10.09 GB | Songs and instrumentals from a style prompt and lyrics, 50+ vocal languages; requires engine v0.9.1 |
+| Use | Models |
+| --- | --- |
+| Voice cloning and emotion | IndexTTS 2.0 / 2.5, Qwen3-TTS Base |
+| Voice design and cloning | VoxCPM2, OmniVoice, Qwen3-TTS VoiceDesign, Breeze TTS 2 |
+| Built-in voices | Kokoro-82M, Qwen3-TTS CustomVoice |
+| Songs and instrumentals | ACE-Step 1.5 Turbo / XL Turbo, YuE2 3B |
 
-All models are available in the App and CLI. See [model selection](docs/models.md) for input requirements and examples. OmniVoice (CC-BY-NC) and Breeze TTS 2 (BreezeBlue Research and Non-Commercial License) weights are restricted to non-commercial use.
+All models are downloaded inside the App or with the CLI. See [model selection](docs/models.md) for file sizes, hardware requirements, inputs and examples. OmniVoice, YuE2 and Breeze TTS 2 weights are restricted to non-commercial use.
 
 ---
 
@@ -95,8 +85,6 @@ Choose the package for your platform from the repository’s [Releases](../../re
 The Windows installer downloads and installs [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) if needed. Models are downloaded inside the app; uninstalling preserves user data in `~/.yovoice`.
 
 Check for updates from the app menu on macOS or Windows. Updates are also checked and downloaded in the background; restart to install when ready. Windows updates download only the app (`-update.exe`) and keep the installed runtime; when a release recommends a newer runtime you can upgrade it in Settings → Inference engine.
-
-![Install yovoice on macOS](docs/images/yovoice-macos-install.png)
 
 ---
 
@@ -132,7 +120,15 @@ make install
 make app-run
 ```
 
-See the [development guide](docs/development.md) for prerequisites. It also covers browser preview, tests, and project structure.
+See the [development guide](docs/development.md) for prerequisites. It also covers browser preview, tests, and project structure. For how the processes and packages fit together, see [Architecture](docs/architecture.md).
+
+---
+
+## Community
+
+Scan the QR code with WeChat to join the yovoice user group. If the code has expired, open an [issue](../../issues) and we will post a new one.
+
+<p align="center"><img src="docs/images/Group%20chat_%E3%80%90YOVOICE%E3%80%91%E4%BA%A4%E6%B5%81%E7%BE%A4.png" width="240" alt="yovoice WeChat group QR code" /></p>
 
 ---
 
@@ -150,6 +146,8 @@ Bug reports, feature suggestions, and pull requests are welcome. Include your pl
 - [OmniVoice](https://github.com/k2-fsa/OmniVoice) — voice design and cloning models.
 - [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) — voice cloning, built-in voices, and text-guided voice design.
 - [ACE-Step](https://github.com/ace-step/ACE-Step-1.5) — music generation from style prompts and lyrics.
+- [YuE](https://github.com/multimodal-art-projection/YuE) — full vocal song generation from lyrics.
+- [Breeze TTS 2](https://huggingface.co/BreezeBlue/Breeze-TTS-2) — Chinese and English voice design and cloning.
 - [go-meltysynth](https://github.com/sinshu/go-meltysynth), [MuseScore General](https://musescore.org/en/handbook/3/soundfonts-and-sfz-files#gm_soundfonts), [GeneralUser GS](https://www.schristiancollins.com/generaluser) and SGM-V2.01 by David Shan — the SoundFont synthesizer and sound fonts behind score rendering.
 - Kokoro — lightweight speech synthesis with built-in voices: [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) and [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh).
 

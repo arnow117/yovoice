@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strings"
 	"time"
 	"yovoice/internal/audio"
 	"yovoice/internal/diag"
@@ -51,22 +52,64 @@ func (w *Workbench) Synthesize(ctx context.Context, d schema.Draft) (schema.Gene
 		w.beforeSynthesizeResultReturn()
 	}
 	if generation.ID != "" {
+		w.pruneOrphanHistory(50)
 		return generation, nil
 	}
+	// 本机接口与桌面界面共用引擎：本次生成结束后界面可能立刻开始新的操作并改写 Activity，
+	// 因此先按本次作品 ID 查找结果，只有找不到时才用 Activity 解释失败原因。
 	state := w.Store.Read()
-	if activity := state.Activity; activity == nil || activity.Status != "completed" {
-		// 保留稳定错误码，远程客户端无需读取服务端日志即可区分原因。
-		if activity != nil && activity.ErrorCode != nil {
-			return schema.Generation{}, fmt.Errorf("语音生成失败：%s", errorText(*activity.ErrorCode, activity.ErrorParams))
-		}
-		return schema.Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
-	}
 	for _, g := range state.History {
 		if g.Settings.ID == d.ID {
+			// 自动修剪无所属作品的 API 历史记录，最多保留 50 条
+			w.pruneOrphanHistory(50)
 			return g, nil
 		}
 	}
-	return schema.Generation{}, fmt.Errorf("生成结果未找到")
+	if activity := state.Activity; activity != nil && activity.Status == "failed" && activity.ErrorCode != nil {
+		// 保留稳定错误码，远程客户端无需读取服务端日志即可区分原因。
+		return schema.Generation{}, fmt.Errorf("语音生成失败：%s", errorText(*activity.ErrorCode, activity.ErrorParams))
+	}
+	return schema.Generation{}, fmt.Errorf("语音生成失败，请检查服务端日志")
+}
+
+// pruneOrphanHistory 只保留最新的 max 条孤儿历史（接口生成不建作品），时间线仍在使用的版本不计入也不删除。
+// 与 CleanupResiduals 一致，24 小时内的结果始终保留，远程客户端可能稍后才下载音频。
+func (w *Workbench) pruneOrphanHistory(max int) {
+	w.edit.Lock()
+	defer w.edit.Unlock()
+	orphans := orphanGenerations(w.Store.Read())
+	if len(orphans) <= max {
+		return
+	}
+	cutoff := time.Now().Add(-orphanHistoryGrace)
+	ids := map[string]bool{}
+	for _, g := range orphans[max:] {
+		if g.CreatedAt.Before(cutoff) {
+			ids[g.ID] = true
+		}
+	}
+	_ = w.removeGenerations(ids, nil)
+}
+
+// textVersionLimit 是语音生成作品保留的版本数：语音生成定位为快速合成，够反复抽卡挑选即可，不堆积历史。
+const textVersionLimit = 10
+
+// pruneTextVersions 删除语音作品中超出上限的旧版本及其音频；时间线仍在使用的版本保留且不占名额。
+func (w *Workbench) pruneTextVersions(draftID string, max int) {
+	w.edit.Lock()
+	defer w.edit.Unlock()
+	s := w.Store.Read()
+	used := timelineGenerations(s, "")
+	ids, kept := map[string]bool{}, 0
+	for _, g := range s.History {
+		if g.Settings.ID != draftID || g.Segment != nil || used[g.ID] {
+			continue
+		}
+		if kept++; kept > max {
+			ids[g.ID] = true
+		}
+	}
+	_ = w.removeGenerations(ids, nil)
 }
 
 func errorText(code msg.Code, params msg.Params) string {
@@ -152,6 +195,9 @@ func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clip
 		if e = modelEngineReady(s, part.model.ID); e != nil {
 			return nil, e
 		}
+		if installing(s, part.model.ID) {
+			return nil, msg.Err(msg.ErrBusy, nil)
+		}
 	}
 	if saveDraft {
 		if e = w.saveDraft(original); e != nil {
@@ -167,7 +213,7 @@ func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clip
 			return w.generateSegments(ctx, s, parts, clipID)
 		}
 		id := schema.NewID()
-		file := id + ".wav"
+		file := outputFileName(id, time.Now(), outputSummary(d.Text, d.Title))
 		if previewID != "" {
 			id = previewID
 			file = "audition-" + id + ".wav"
@@ -187,7 +233,8 @@ func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clip
 		if redactErrors {
 			generate = w.engine.GenerateProfile
 		}
-		if e = generate(ctx, *s.RuntimePath, part.model, s.Preferences.Backend, part.draft, part.voice, part.emotion, path, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }); e != nil {
+		generatedScore := ""
+		if generatedScore, e = generate(ctx, *s.RuntimePath, part.model, s.Preferences.Backend, part.draft, part.voice, part.emotion, path, func(code msg.Code, params msg.Params) { w.progress(code, params, 0, 1) }); e != nil {
 			return e
 		}
 		duration, e := audio.Duration(path)
@@ -210,6 +257,10 @@ func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clip
 		// 与逐句生成一致，快照不携带时间轴，避免历史记录随剪辑反复膨胀。
 		snapshot := d
 		snapshot.Timeline = nil
+		// YuE2 自己规划或纯音乐转谱时附带这次实际所用的旋律谱，存进这一版，之后可以载入编辑。
+		if generatedScore != "" {
+			snapshot.Abc = generatedScore
+		}
 		g := schema.Generation{ID: id, Title: d.Title, FileName: file, CreatedAt: time.Now().UTC(), Duration: duration, Settings: snapshot}
 		updateHistory := w.Store.Update
 		if redactErrors {
@@ -226,7 +277,14 @@ func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clip
 			w.afterGenerationSaved()
 		}
 		keep = true
+		// 作品还没有谱时，把 YuE2 这次自己写的谱交给界面填入旋律谱，和“先写旋律谱”的结果一样处理。
+		if generatedScore != "" && strings.TrimSpace(d.Abc) == "" {
+			_ = w.offerMelody(d.ID, "plan", generatedScore, false)
+		}
 		diag.Log(w.Store.Root, "generation.saved", "project_id", d.ID, "generation_id", id, "model_id", part.model.ID, "duration", duration)
+		if d.Kind == "" || d.Kind == "text" {
+			w.pruneTextVersions(d.ID, textVersionLimit)
+		}
 		return nil
 	}, previewID, d.ID)
 }

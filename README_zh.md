@@ -2,13 +2,25 @@
   <img src="web/public/icon/voice-workbench-app-icon-v1.png" width="96" alt="yovoice" />
 </p>
 <h1 align="center">yovoice</h1>
-<p align="center">让文字拥有你的声音，让创意谱成完整乐章。</p>
+<p align="center">把文字，变成有情绪的声音</p>
 <p align="center">
   <a href="https://yovoice.leemysw.com"><img src="https://img.shields.io/badge/website-yovoice.leemysw.com-10b981?style=flat-square" alt="官网" /></a>
-  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.2.0-blue?style=flat-square" alt="Version 0.2.0" /></a>
+  <a href="web/package.json"><img src="https://img.shields.io/badge/version-0.3.1-blue?style=flat-square" alt="Version 0.3.1" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-orange?style=flat-square" alt="License: Apache-2.0" /></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-black?style=flat-square" alt="macOS 14+ (Apple Silicon)" />
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square" alt="Windows 10/11 (x64)" />
+</p>
+<p align="center">
+  <a href="https://www.star-history.com/leemysw/yovoice">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=leemysw/yovoice&type=rank&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=leemysw/yovoice&type=rank" />
+      <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=leemysw/yovoice&type=rank" width="250" height="55" />
+    </picture>
+  </a>
+  <a href="https://trendshift.io/repositories/239687?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-239687" target="_blank" rel="noopener noreferrer">
+    <img src="https://trendshift.io/api/badge/trendshift/repositories/239687/daily?language=TypeScript" alt="leemysw%2Fyovoice | Trendshift" width="250" height="55"/>
+  </a>
 </p>
 <p align="center"><a href="README.md">English</a> · 简体中文</p>
 
@@ -30,53 +42,31 @@ yovoice 是一款适用于 macOS 和 Windows 的开源、本地优先（Local-fi
 - 💸 **零按字/按秒扣费**：无需订阅昂贵的云端 API（告别 ElevenLabs、Suno、商用配音会员计费）。
 - ⚡ **原生 C++ 极速引擎，免配 Python**：基于 [audio.cpp](https://github.com/0xShug0/audio.cpp) v0.9.1 原生构建，支持 macOS Metal 与 Windows NVIDIA CUDA 12.4/13.3 开箱即用，告别 Conda 与 PyTorch 依赖地狱。
 - 🎛️ **全流程专业创作流**：多版本试听对比（Takes）、多轨时间轴吸附裁剪、General MIDI 音色库本地渲染与分轨导出（Stems）。
-- 🤖 **原生 MCP 与 AI Agent 协创**：支持接入 DeepSeek、通义千问、Claude、OpenAI 或本地 Ollama 自动写歌写谱，并提供 Model Context Protocol (MCP) 服务，支持在 Cursor 或 Claude Code 中直接调用。
+- 🤖 **原生 MCP 与 AI Agent 协创**：接入 DeepSeek、通义千问、Claude、OpenAI 或本地 Ollama，用对话完成写歌写谱到生成的全流程，并提供 Model Context Protocol (MCP) 服务，支持在 Cursor 或 Claude Code 中直接调用。
 
 ---
 
 ## 功能
 
-- **音色与表达** — 跟随参考音色、模仿参考演绎、调整情绪，或用文字描述想要的表达方式。
-- **完整音频流程** — 导入或录制参考音频、裁剪片段、试听语音、导出作品。
-- **声音设计与克隆** — VoxCPM2 支持文字设计音色、带风格指导的克隆及参考原文辅助的精细克隆，自动多语言、48 kHz 输出。
-- **音乐生成** — 描述风格、写下带段落标记的歌词，用 ACE-Step 1.5 生成整首歌曲或纯音乐，每次生成都保留为可对比的版本。
-- **编曲** — 按小节和拍写下每个声部，或导入 MIDI、交给 Agent 写谱，用 General MIDI 音色库渲染并按角色对齐电平混音；结果可精确复现，可导出 MIDI 和分轨。详见[编曲](docs/score_zh.md)。
-- **可选 AI 服务** — 接入 DeepSeek、通义千问、Kimi、OpenAI、Anthropic、Ollama 或任意兼容接口，让 AI 写谱、写歌词；密钥只保存在本机。详见[AI 服务](docs/ai_zh.md)。
-- **本地模型** — 通过 audio.cpp 运行 IndexTTS 2.0 / 2.5、VoxCPM2、OmniVoice、Qwen3-TTS、Breeze TTS 2 和 Kokoro，支持模型下载续传与 GGUF 导入。
-- **硬件加速** — Apple Silicon 支持 Metal；Windows 支持 CPU、NVIDIA CUDA 和实验性 Vulkan。
-- **Agent Skill & MCP** — 让 AI Agent 准备本地语音生成环境，根据文稿和参考音频完成配音。
-
----
-
-## 硬件配置速查指引
-
-| 创作场景 | 推荐配置 | 适用模型推荐 |
-| --- | --- | --- |
-| 🟢 **轻量极速朗读与旁白** | 任何 CPU / 4GB+ 内存 | **Kokoro-82M** (Q8 仅 189 MB，毫秒级合成，纯 CPU 也能飞快运行) |
-| 🟡 **高音质克隆与声音设计** | 4GB ~ 6GB 显存 / Apple Silicon 8GB+ | **VoxCPM2** (2B, 48kHz)、**IndexTTS 2.0/2.5**、**Qwen3-TTS** |
-| 🔴 **整首歌生成与伴奏演奏** | 12GB+ 显存 / Apple Silicon 16GB+ | **ACE-Step 1.5 Turbo** (BF16, 10GB)、**YuE2 3B** |
+- **语音、声音设计与克隆** — 克隆参考音色、用文字设计声音、调整情绪与演绎，并在音轨上剪辑各个版本。
+- **故事配音** — 导入文本或字幕文件，为每句台词分配角色并逐句生成。
+- **音乐生成** — 写下风格和带段落标记的歌词，用 ACE-Step 1.5 生成歌曲或纯音乐，或用 YuE2 生成歌曲和按谱演奏的纯音乐；播放页按人声同步歌词。
+- **编曲** — 按小节和拍写声部，或导入 MIDI、交给 Agent 写谱，用 General MIDI 音色库渲染，导出 MIDI 和分轨。详见[编曲](docs/score_zh.md)。
+- **可选 AI 服务** — 内置助手面板通过 DeepSeek、通义千问、Kimi、OpenAI、Anthropic、Ollama 或任意兼容接口对话创作：写谱写词、改台词、配音色、发起生成；密钥只保存在本机。详见[AI 服务](docs/ai_zh.md)。
+- **12 种界面语言** — 简体中文、繁體中文、English、日本語、한국어、Español、Français、Deutsch、Português (Brasil)、Русский、Italiano 和 Tiếng Việt，可在设置中随时切换，无需重启。
 
 ---
 
 ## 支持模型
 
-| 模型 | 参数量 | 模型文件大小（按精度） | 核心能力 |
-| --- | --- | --- | --- |
-| IndexTTS 2.0 | — | Q8 · 3.63 GB<br>F16 · 4.65 GB<br>ORIG · 8.08 GB | 中英音色克隆、情绪控制、参考演绎 |
-| IndexTTS 2.5 | — | Q8 · 3.50 GB<br>F16 · 4.55 GB<br>ORIG · 7.89 GB | 多语言音色克隆、情绪控制、发音调整 |
-| VoxCPM2 | 2B | Q8 · 2.96 GB<br>BF16 · 4.77 GB<br>ORIG · 4.96 GB | 文字设计音色、音色克隆、参考原文辅助的精细克隆 |
-| OmniVoice | 0.6B | Q8 · 1.35 GB<br>BF16 · 1.64 GB<br>F16 · 1.64 GB | 属性设计音色、音色克隆、非语言声音标签 |
-| Qwen3-TTS Base | 0.6B | Q8 · 1.99 GB<br>BF16 · 2.52 GB | 参考音色克隆、可选原文辅助、多语言生成 |
-| Qwen3-TTS Base | 1.7B | Q8 · 2.70 GB<br>BF16 · 4.20 GB<br>ORIG · 4.54 GB | 参考音色克隆、可选原文辅助、多语言生成 |
-| Qwen3-TTS CustomVoice | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 9 种内置音色、文字控制风格与情绪 |
-| Qwen3-TTS VoiceDesign | 1.7B | Q8 · 2.82 GB<br>BF16 · 4.18 GB | 自然语言描述设计音色，无需参考音频 |
-| Breeze TTS 2 | 约 3B | Q4 · 3.79 GB<br>Q8 · 5.08 GB<br>BF16 · 7.34 GB | 中英自然语言设计音色、音色克隆与演绎指导；建议使用显卡，需要 v0.9.1 内核 |
-| Kokoro-82M 1.0 Official | 82M | Q8 · 189.55 MB<br>BF16 · 211.95 MB | 49 种内置音色、多语言生成，不含日语 |
-| Kokoro-82M 1.0 | 82M | Q8 · 932.66 MB | 54 种内置音色、包含日语的完整多语言资源；仅支持导入 |
-| Kokoro-82M 1.1-zh | 82M | Q8 · 255.32 MB | 100 种中文音色及 3 种英文音色；实验性，仅支持导入 |
-| ACE-Step 1.5 Turbo | — | BF16 · 10.09 GB | 根据风格描述和歌词生成歌曲或纯音乐，支持 50 多种演唱语言；需要 v0.9.1 内核 |
+| 用途 | 模型 |
+| --- | --- |
+| 音色克隆与情绪控制 | IndexTTS 2.0 / 2.5、Qwen3-TTS Base |
+| 声音设计与克隆 | VoxCPM2、OmniVoice、Qwen3-TTS VoiceDesign、Breeze TTS 2 |
+| 内置音色 | Kokoro-82M、Qwen3-TTS CustomVoice |
+| 歌曲与纯音乐 | ACE-Step 1.5 Turbo / XL Turbo、YuE2 3B |
 
-App 与 CLI 均支持以上模型，输入要求与示例见[模型选择](docs/models_zh.md)。OmniVoice 权重采用 CC-BY-NC 许可，Breeze TTS 2 权重采用 BreezeBlue 研究与非商业许可，均仅限非商业用途。
+所有模型都在 App 内或通过 CLI 下载。文件大小、硬件要求、输入要求与示例见[模型选择](docs/models_zh.md)。OmniVoice、YuE2 和 Breeze TTS 2 的权重仅限非商业用途。
 
 ---
 
@@ -94,8 +84,6 @@ App 与 CLI 均支持以上模型，输入要求与示例见[模型选择](docs/
 Windows 安装器会在缺少时联网安装 [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。模型在应用内下载。卸载应用保留 `~/.yovoice` 中的作品和模型。
 
 macOS 和 Windows 均支持在应用菜单中检查更新，也会自动检查并后台下载；下载完成后可选择重启安装。Windows 自动更新只下载应用本体（`-update.exe`），保留已安装的内核；新版本推荐更高的内核时，可在 设置 → 推理引擎 中选择升级。
-
-![yovoice macOS 安装界面](docs/images/yovoice-macos-install.png)
 
 ---
 
@@ -131,7 +119,15 @@ make install
 make app-run
 ```
 
-环境要求见[开发指南](docs/development_zh.md)，其中也介绍了浏览器预览、测试和项目结构。
+环境要求见[开发指南](docs/development_zh.md)，其中也介绍了浏览器预览、测试和项目结构。进程与各包如何协作见[架构](docs/architecture_zh.md)。
+
+---
+
+## 交流群
+
+使用微信扫码加入 yovoice 用户交流群。二维码过期时，欢迎提交 [Issue](../../issues)，我们会及时更新。
+
+<p align="center"><img src="docs/images/Group%20chat_%E3%80%90YOVOICE%E3%80%91%E4%BA%A4%E6%B5%81%E7%BE%A4.png" width="240" alt="yovoice 微信交流群二维码" /></p>
 
 ---
 
@@ -149,6 +145,8 @@ make app-run
 - [OmniVoice](https://github.com/k2-fsa/OmniVoice) — 声音设计与音色克隆模型。
 - [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) — 支持音色克隆、内置音色与文字设计声音。
 - [ACE-Step](https://github.com/ace-step/ACE-Step-1.5) — 根据风格描述与歌词生成音乐。
+- [YuE](https://github.com/multimodal-art-projection/YuE) — 根据歌词生成整首带人声歌曲。
+- [Breeze TTS 2](https://huggingface.co/BreezeBlue/Breeze-TTS-2) — 中英文声音设计与音色克隆。
 - [go-meltysynth](https://github.com/sinshu/go-meltysynth)、[MuseScore General](https://musescore.org/en/handbook/3/soundfonts-and-sfz-files#gm_soundfonts)、[GeneralUser GS](https://www.schristiancollins.com/generaluser) 与 David Shan 的 SGM-V2.01 — 编曲渲染使用的 SoundFont 合成器与音色库。
 - Kokoro — 使用内置音色的轻量语音合成模型：[Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) 与 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh)。
 

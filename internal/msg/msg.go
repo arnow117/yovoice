@@ -16,7 +16,6 @@ const (
 	ErrVoiceInUse             Code = "@yovoice.error.voiceInUse"
 	ErrCharacterInvalid       Code = "@yovoice.error.characterInvalid"
 
-	ErrModelImportRequired      Code = "@yovoice.error.modelImportRequired"
 	ErrOmniReferenceRequired    Code = "@yovoice.error.omniReferenceRequired"
 	ErrBreezeReferenceRequired  Code = "@yovoice.error.breezeReferenceRequired"
 	ErrVoiceDescriptionRequired Code = "@yovoice.error.voiceDescriptionRequired"
@@ -40,7 +39,6 @@ const (
 	ActivityDownload        Code = "@yovoice.activity.download"
 	ActivityDownloading     Code = "@yovoice.activity.downloading"
 	ActivityVerifying       Code = "@yovoice.activity.verifying"
-	ActivityImport          Code = "@yovoice.activity.import"
 	ActivityRuntimeDownload Code = "@yovoice.activity.runtimeDownload"
 	ActivityRuntimeExtract  Code = "@yovoice.activity.runtimeExtract"
 	ActivityEngineStart     Code = "@yovoice.activity.engineStart"
@@ -53,6 +51,12 @@ const (
 	ActivityPaused          Code = "@yovoice.activity.paused"
 	ActivityFailed          Code = "@yovoice.activity.failed"
 	ActivityInterrupted     Code = "@yovoice.activity.interrupted"
+	ActivityRelocate        Code = "@yovoice.activity.relocate"
+	ActivityPlanMelody      Code = "@yovoice.activity.planMelody"
+	ActivityTranscribe      Code = "@yovoice.activity.transcribe"
+	// 歌词逐字对齐：先分离人声，再按段对齐（参数含当前段与总段数）。
+	ActivitySeparateVocals Code = "@yovoice.activity.separateVocals"
+	ActivityAlignLyrics    Code = "@yovoice.activity.alignLyrics"
 
 	ErrBusy                  Code = "@yovoice.error.busy"
 	ErrProxyURL              Code = "@yovoice.error.proxyURL"
@@ -95,7 +99,6 @@ const (
 	ErrModelRequired         Code = "@yovoice.error.modelRequired"
 	ErrModelUnsupported      Code = "@yovoice.error.modelUnsupported"
 	ErrModelMoved            Code = "@yovoice.error.modelMoved"
-	ErrModelImportNone       Code = "@yovoice.error.modelImportNone"
 	ErrModelForgetBlocked    Code = "@yovoice.error.modelForgetBlocked"
 	ErrDownloadSource        Code = "@yovoice.error.downloadSource"
 	ErrRuntimeRequired       Code = "@yovoice.error.runtimeRequired"
@@ -124,7 +127,17 @@ const (
 	ErrMusicParams           Code = "@yovoice.error.musicParams"
 	ErrMusicLyricsRequired   Code = "@yovoice.error.musicLyricsRequired"
 	ErrScoreInvalid          Code = "@yovoice.error.scoreInvalid"
+	ErrScoreTooLong          Code = "@yovoice.error.scoreTooLong"
 	ErrMidiInvalid           Code = "@yovoice.error.midiInvalid"
+	// 旋律谱：谱面不合方言（参数含小节与声部）、引擎没有写出谱、扒谱模型未下载。
+	ErrMelodyInvalid           Code = "@yovoice.error.melodyInvalid"
+	ErrMelodyEmpty             Code = "@yovoice.error.melodyEmpty"
+	ErrCoverModelRequired      Code = "@yovoice.error.coverModelRequired"
+	ErrMelodySoundFontRequired Code = "@yovoice.error.melodySoundFontRequired"
+	// 歌词逐字对齐：对齐模型未下载、没有可对齐的歌词、模型没有对上任何字。
+	ErrAlignModelRequired    Code = "@yovoice.error.alignModelRequired"
+	ErrAlignLyrics           Code = "@yovoice.error.alignLyrics"
+	ErrAlignEmpty            Code = "@yovoice.error.alignEmpty"
 	ErrEngineUpgradeRequired Code = "@yovoice.error.engineUpgradeRequired"
 	// AI 服务（可选）：未配置、鉴权、限流、网络、响应异常与结果无效。
 	ErrAIProviderInvalid Code = "@yovoice.error.aiProviderInvalid"
@@ -136,6 +149,17 @@ const (
 	ErrAIModelsPath      Code = "@yovoice.error.aiModelsPath"
 	ErrAIResultInvalid   Code = "@yovoice.error.aiResultInvalid"
 	ErrAITimeout         Code = "@yovoice.error.aiTimeout"
+	// 内置助手（ocho 运行时）缺失：安装包未随附且未通过 YOVOICE_OCHO_PATH 指定。
+	ErrAssistantMissing Code = "@yovoice.error.assistantMissing"
+	// 当前 AI 服务无法供内置助手使用（如经 Codex CLI 的 ChatGPT 订阅）。
+	ErrAssistantProvider Code = "@yovoice.error.assistantProvider"
+	// Codex CLI：未安装、未登录、运行失败、额度用完。
+	ErrCodexMissing   Code = "@yovoice.error.codexMissing"
+	ErrCodexLoggedOut Code = "@yovoice.error.codexLoggedOut"
+	ErrCodexFailed    Code = "@yovoice.error.codexFailed"
+	ErrCodexLimit     Code = "@yovoice.error.codexLimit"
+	// Codex 运行结束但没有生成图片（工具不可用或模型拒绝），detail 为模型的说明。
+	ErrCodexNoImage Code = "@yovoice.error.codexNoImage"
 	// OrcaRouter 免费模型的四种拒绝：窗口已满、通道繁忙、单次提示超长、账号未满足免费条件。
 	ErrAIFreeRate      Code = "@yovoice.error.aiFreeRate"
 	ErrAIFreeBusy      Code = "@yovoice.error.aiFreeBusy"
@@ -144,7 +168,17 @@ const (
 	// 本机接口：端口超出范围、端口已被占用。
 	ErrLocalAPIPort      Code = "@yovoice.error.localApiPort"
 	ErrLocalAPIPortInUse Code = "@yovoice.error.localApiPortInUse"
-	ErrUnknown           Code = "@yovoice.error.unknown"
+	// 存储迁移：不能在应用安装目录内、目标目录非空、不能与当前目录相同。
+	ErrStorageInsideApp      Code = "@yovoice.error.storageInsideApp"
+	ErrStorageTargetNotEmpty Code = "@yovoice.error.storageTargetNotEmpty"
+	ErrStorageSame           Code = "@yovoice.error.storageSame"
+	ErrStorageInsideData     Code = "@yovoice.error.storageInsideData"
+	ErrStorageRestart        Code = "@yovoice.error.storageRestartRequired"
+	// 数据目录在运行中被删除或断开（外置盘拔出），写入无法完成。
+	ErrDataRootMissing Code = "@yovoice.error.dataRootMissing"
+	// 磁盘已满：写入状态、音频或下载时系统返回空间不足。
+	ErrDiskFull Code = "@yovoice.error.diskFull"
+	ErrUnknown  Code = "@yovoice.error.unknown"
 )
 
 // Params carries ICU values. Keys match catalog placeholders.
@@ -169,7 +203,7 @@ func Err(code Code, params Params) *CallError {
 }
 
 func Encode(err error) map[string]any {
-	if ce, ok := err.(*CallError); ok && ce != nil {
+	if ce, ok := Classify(err).(*CallError); ok && ce != nil {
 		out := map[string]any{"code": ce.Code}
 		if len(ce.Params) > 0 {
 			out["params"] = ce.Params
@@ -183,16 +217,15 @@ func Encode(err error) map[string]any {
 func All() []Code {
 	return []Code{ErrProjectPackage, ErrProjectPackageLimit, ErrTimelineImportDuration, ErrTimelineInvalid, ErrTimelineInUse, ErrSubtitleInvalid, ActivitySubtitle,
 		ErrVoiceInUse, ErrVoiceReferenced, ErrCharacterInvalid,
-		ErrModelImportRequired,
 		ErrOmniReferenceRequired, ErrBreezeReferenceRequired,
 		ErrVoiceDescriptionRequired, ErrOmniAttributes, ErrSpeakerInvalid, ErrSpeakerRequestInvalid,
 		ErrSpeakerRuntime, ErrSpeakerAudio, ErrSpeakerInputTooLarge, ErrSpeakerBusy,
 		ErrSpeakerCancelled, ErrSpeakerTimeout, ErrSpeakerProfile, ErrSpeakerVoice,
 		ErrSpeakerClone, ErrSpeakerStorage, ErrSpeakerFeature,
-		ActivityDownload, ActivityDownloading, ActivityVerifying, ActivityImport,
+		ActivityDownload, ActivityDownloading, ActivityVerifying,
 		ActivityRuntimeDownload, ActivityRuntimeExtract, ActivityEngineStart,
 		ActivityGenerate, ActivitySynthesizing, ActivitySavingAudio, ActivityRendering,
-		ActivityCompleted, ActivityCancelled, ActivityPaused, ActivityFailed, ActivityInterrupted,
+		ActivityCompleted, ActivityCancelled, ActivityPaused, ActivityFailed, ActivityInterrupted, ActivityRelocate, ActivityPlanMelody, ActivityTranscribe, ActivitySeparateVocals, ActivityAlignLyrics,
 		ErrBusy, ErrProxyURL, ErrModelDirAbsolute, ErrModelDirSpace,
 		ErrDownloadHTTP, ErrDownloadRange, ErrDownloadSize, ErrDownloadIncomplete,
 		ErrDownloadStale, ErrDownloadChecksum, ErrDownloadOversized,
@@ -202,17 +235,18 @@ func All() []Code {
 		ErrNameLength, ErrDraftLimits, ErrDraftIDInvalid, ErrTextRequired, ErrTitleLength,
 		ErrLanguageUnsupported, ErrModeInvalid, ErrEmotionInvalid, ErrEmotionStrength,
 		ErrEmotionTextRequired, ErrEmotionVoiceRequired, ErrVoiceRequired, ErrVoiceBusyDelete,
-		ErrModelRequired, ErrModelUnsupported, ErrModelMoved, ErrModelImportNone, ErrModelForgetBlocked,
+		ErrModelRequired, ErrModelUnsupported, ErrModelMoved, ErrModelForgetBlocked,
 		ErrDownloadSource, ErrRuntimeRequired, ErrRuntimeMissing, ErrRuntimeUnique,
 		ErrRuntimeArchivePath, ErrRuntimeArchiveLink, ErrRuntimeArchiveSize,
 		ErrEngineStartFailed, ErrEngineStartTimeout, ErrEngineNoAudio,
 		ErrCPUBundleInvalid, ErrBackendUnsupported, ErrPlatformArch, ErrMacBackend, ErrMacAppleSilicon,
 		ErrRequestInvalid, ErrMethodUnsupported,
 		ErrVoxModeInvalid, ErrVoxTextLimits, ErrVoxReferenceRequired, ErrVoxParams,
-		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrMidiInvalid,
-		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout,
-		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess,
+		ErrMusicStyle, ErrMusicLyrics, ErrMusicParams, ErrMusicLyricsRequired, ErrEngineUpgradeRequired, ErrScoreInvalid, ErrScoreTooLong, ErrMidiInvalid, ErrMelodyInvalid, ErrMelodyEmpty, ErrCoverModelRequired, ErrMelodySoundFontRequired, ErrAlignModelRequired, ErrAlignLyrics, ErrAlignEmpty,
+		ErrAIProviderInvalid, ErrAINotConfigured, ErrAIAuth, ErrAIRateLimit, ErrAINetwork, ErrAIResponse, ErrAIModelsPath, ErrAIResultInvalid, ErrAITimeout, ErrAssistantMissing, ErrAssistantProvider,
+		ErrAIFreeRate, ErrAIFreeBusy, ErrAIFreePromptCap, ErrAIFreeAccess, ErrCodexMissing, ErrCodexLoggedOut, ErrCodexFailed, ErrCodexLimit, ErrCodexNoImage,
 		ErrLocalAPIPort, ErrLocalAPIPortInUse,
+		ErrStorageInsideApp, ErrStorageTargetNotEmpty, ErrStorageSame, ErrStorageInsideData, ErrStorageRestart, ErrDataRootMissing, ErrDiskFull,
 		ErrLegacyRestore, ErrUnknown,
 	}
 }

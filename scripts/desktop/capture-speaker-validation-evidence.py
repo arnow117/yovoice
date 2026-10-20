@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sqlite3
 import subprocess
 from pathlib import Path
 from typing import Any, Iterable
@@ -35,6 +36,29 @@ SOURCE_EXCLUDED_PREFIXES = (
     "web/playwright-report/",
     "web/test-results/",
 )
+STATE_DATABASE = "yovoice.db"
+STATE_SCHEMA_VERSION = 1
+STATE_SETTING_FIELDS = (
+    "preferences",
+    "runtimePath",
+    "runtimeBackend",
+    "runtimeVersion",
+    "runtimes",
+    "activity",
+    "modelActivity",
+    "aiProviderID",
+    "assistantSessions",
+    "assistantMemory",
+)
+STATE_ENTITY_TABLES = (
+    ("characters", "characters"),
+    ("drafts", "drafts"),
+    ("voices", "voices"),
+    ("models", "models"),
+    ("history", "history"),
+    ("ai_providers", "aiProviders"),
+)
+STATE_TABLES = frozenset({"settings", "private", *(table for table, _ in STATE_ENTITY_TABLES)})
 
 
 def sha256(path: Path) -> str | None:
@@ -118,23 +142,140 @@ def redacted_business_value(value: Any, field_name: str | None = None) -> Any:
 
 
 def normalized_state(data_root: Path) -> dict[str, Any]:
-    """Keep every State field in the comparison while redacting only secret/path values."""
+    """Return a public comparison snapshot from SQLite, or legacy JSON when SQLite is absent."""
     state_path = data_root / "state.json"
+    database_path = data_root / STATE_DATABASE
     policy = {
         "volatileFieldsExcluded": [],
         "redactedFieldNames": sorted(SENSITIVE_FIELD_NAMES | {"embedding"}),
     }
-    if not state_path.is_file():
+    if database_path.exists():
+        state = read_sqlite_state(database_path)
+        source = "sqlite"
+    elif state_path.is_file():
+        try:
+            state = json.loads(state_path.read_text())
+        except (OSError, json.JSONDecodeError) as error:
+            raise ValueError("legacy State file cannot be read") from error
+        if not isinstance(state, dict):
+            raise ValueError("legacy State file must be a JSON object")
+        source = "legacy-json"
+    else:
         return {"present": False, "comparisonPolicy": policy, "voices": []}
-    state = json.loads(state_path.read_text())
+
     voices = state.get("voices", [])
+    if not isinstance(voices, list):
+        raise ValueError("State voices must be a list")
     return {
         "present": True,
+        "source": source,
         "comparisonPolicy": policy,
         "canonicalStateSha256": value_sha256(state),
         "businessState": redacted_business_value(state),
         "voices": redacted_business_value(voices),
     }
+
+
+def read_sqlite_state(database_path: Path) -> dict[str, Any]:
+    """Read the complete persisted State through SQLite's read-only URI mode.
+
+    The app's private table intentionally is never queried. A malformed, unsupported,
+    or incomplete database is evidence of an invalid capture and must not silently fall
+    back to an adjacent legacy state.json file.
+    """
+    try:
+        uri = f"{database_path.resolve().as_uri()}?mode=ro"
+        connection = sqlite3.connect(uri, uri=True)
+        try:
+            connection.execute("PRAGMA query_only = ON")
+            # sqlite3 only holds a snapshot across several SELECT statements inside an
+            # explicit transaction. State is split over tables, so one capture must not
+            # combine rows from before and after a concurrent app commit.
+            connection.execute("BEGIN")
+            validate_state_database(connection)
+            state = read_state_rows(connection)
+            connection.rollback()
+        finally:
+            connection.close()
+    except (OSError, sqlite3.DatabaseError, json.JSONDecodeError, ValueError) as error:
+        if isinstance(error, ValueError):
+            raise
+        raise ValueError("SQLite State database cannot be read") from error
+    return state
+
+
+def validate_state_database(connection: sqlite3.Connection) -> None:
+    version = connection.execute("PRAGMA user_version").fetchone()
+    if version is None or version[0] != STATE_SCHEMA_VERSION:
+        found = None if version is None else version[0]
+        raise ValueError(f"unsupported SQLite State schema version: {found}")
+
+    quick_check = connection.execute("PRAGMA quick_check").fetchone()
+    if quick_check is None or quick_check[0] != "ok":
+        raise ValueError("SQLite State integrity check failed")
+
+    names = {
+        row[0]
+        for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
+        )
+    }
+    if names != STATE_TABLES:
+        raise ValueError("SQLite State table layout is unsupported")
+
+    validate_table_columns(connection, "settings", ("key", "pos", "data"))
+    validate_table_columns(connection, "private", ("key", "data"))
+    for table, _ in STATE_ENTITY_TABLES:
+        validate_table_columns(connection, table, ("key", "pos", "data"))
+
+
+def validate_table_columns(connection: sqlite3.Connection, table: str, expected: tuple[str, ...]) -> None:
+    columns = tuple(row[1] for row in connection.execute(f"PRAGMA table_info({table})"))
+    if columns != expected:
+        raise ValueError(f"SQLite State table {table} has an unsupported layout")
+
+
+def read_state_rows(connection: sqlite3.Connection) -> dict[str, Any]:
+    settings = read_json_rows(connection, "settings")
+    setting_values = {key: value for key, value in settings}
+    if set(setting_values) != set(STATE_SETTING_FIELDS):
+        raise ValueError("SQLite State settings are incomplete or unsupported")
+
+    state: dict[str, Any] = {
+        "characters": [],
+        "previews": [],
+        "drafts": [],
+        "voices": [],
+        "models": [],
+        "history": [],
+        "preferences": setting_values["preferences"],
+        "runtimePath": setting_values["runtimePath"],
+        "runtimeBackend": setting_values["runtimeBackend"],
+        "runtimeVersion": setting_values["runtimeVersion"],
+        "runtimes": setting_values["runtimes"],
+        "activity": setting_values["activity"],
+        "modelActivity": setting_values["modelActivity"],
+        "aiProviders": [],
+        "aiProviderID": setting_values["aiProviderID"],
+        "assistantSessions": setting_values["assistantSessions"],
+        "assistantMemory": setting_values["assistantMemory"],
+    }
+    for table, field in STATE_ENTITY_TABLES:
+        state[field] = [value for _, value in read_json_rows(connection, table)]
+    return state
+
+
+def read_json_rows(connection: sqlite3.Connection, table: str) -> list[tuple[str, Any]]:
+    rows = connection.execute(f"SELECT key, data FROM {table} ORDER BY pos, key")
+    decoded: list[tuple[str, Any]] = []
+    for key, data in rows:
+        if not isinstance(key, str) or not isinstance(data, str):
+            raise ValueError(f"SQLite State table {table} contains an invalid row")
+        try:
+            decoded.append((key, json.loads(data)))
+        except json.JSONDecodeError as error:
+            raise ValueError(f"SQLite State table {table} contains invalid JSON") from error
+    return decoded
 
 
 def public_profiles(data_root: Path) -> list[dict[str, Any]]:
