@@ -5,7 +5,7 @@
 REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹页面；依赖已交付的 FEAT-001。
 有效产品与工程上下文为 `.sdlc-v1/context/REQ-002.product.md` 和 `.sdlc-v1/context/FEAT-002.engineering.md`。
 范围包含桌面私有 RPC、临时录音与文件、档案管理、显式绑定生成及独立本地验证包。当前新增TASK-002把upstream/main 2415813合入既有功能分支，适配上游SQLite、操作槽、引擎返回值、目录迁移和界面；声纹仍为独立私有档案，不进入普通State或SQLite备份。
-b3d114a的独立正式Validate PASS、独立Review approved和真实2启动/5提取/534.548秒结果属于合并前版本，完整原件和失败历史保留于工程上下文。用户之后授权解决上游冲突并推送；当前重新进入TASK-002集成和自动化验证，不能把旧原生结果直接作为合并后新版本通过。真实新包旅程尚未运行，逐条时延延期、物理Mic/真实TTS听测NOT_RUN；主线合并或发行仍不在本次范围内。
+b3d114a的独立正式Validate PASS、独立Review approved和真实2启动/5提取/534.548秒结果属于合并前版本，完整原件和失败历史保留于工程上下文。合并返修80c8d0c已完成TASK-002的Build，Go及声纹72/72、单worker完整浏览器111/111、Swift17和相关脚本通过；独立Validate新执行363pass/13skip/0fail Go、72/72 E2E、27+2脚本，coverage85.324%/82.975%达标。当前SCN-UI-22新包旅程NOT_RUN，汇总INCONCLUSIVE/机器fail，不能把旧原生结果直接作为合并后通过。逐条时延延期、物理Mic/真实TTS听测NOT_RUN；主线合并或发行仍不在本次范围内。
 新的 Web runner 与本地 Mac 验证命令已实际执行，入口和证据边界见下表。
 用户已授权拉取/合并最新上游、解决冲突、必要兼容检查及commit/push到fork的codex/speaker-validation-ui，并更新上游PR #90。当前一次原生预算已完成；此次集成仅执行确定性自动化检查，不新增App/模型运行，不把尚未执行的必要原生验收标记通过。
 

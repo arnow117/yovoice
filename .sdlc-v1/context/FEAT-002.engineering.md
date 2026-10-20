@@ -28,6 +28,8 @@
 
 主独占Plan/project/state，代码worker不写生命周期。新原生SCN-UI-22依当前产品口径仍NOT_RUN，不将旧b3d114a的真实旅程视为合并后App通过。本次继续指令授权确定性修正/复验，不新增App、实模、TTS、Mic、云端或下载预算；未补的完整Feature条件如实保留未通过，禁止伪造PASS。已有功能分支commit/push及PR #90更新授权保持，不推main、不合并PR、不发行。
 
+独立Validate已在干净80c8d0c完成：自动化必要检查通过，唯一缺口为当前原生SCN-UI-22，主接受INCONCLUSIVE并记录fail，保持正式Review/release pending。下一步仅准备具体可复核的新包：主先提交全部SDLC结果，再由同一Terra实施者用已有build-speaker-validation-macos.sh生成`artifacts/speaker-validation-macos/worker-20261020-upstream-regression-fix/yovoice.app`及原始sidecar receipt，独立data目录同级data，已有本地Python/WeSpeaker/runner/FFmpeg，T=.6/M=.05/120s。构建含清理最多12分钟，Go最多2线程/2包、Swift单job，Web构建串行；只写忽略产物，零App启动、零模型提取、零下载/安装，不修改tracked源码或原receipt。核对严格签名、包内Web/service/host、receipt源码清单与当前最终metadata提交一致，不运行App里的smoke。实际构建原件保存在同轮package-001目录，包就绪后才提出一次原生运行授权；未获明确授权前不启动。构建后不再改跟踪文件，避免凭据的source manifest失配。
+
 ### 2026-10-20 上游集成（TASK-002，当前有效增量）
 
 用户明确要求拉取上游、解决冲突并推送到 fork，继续更新上游 PR #90。固定集成输入为本分支84b9581与upstream/main 24158137015f7b2809102d4a7d9cb3a2d357b75c，共同基线c9d6e578。只合入当前功能分支，不推main、不合并上游PR、不发行；已有原生/模型预算均已结束，不启动App、真实模型或用户数据迁移。既有b3d114a原生PASS及独立结果保留其原版本，不声称证明合并后的新包。上游合并预检22文件冲突，需要重新做实现集成和相关自动化检查；原正式验收不会被当作新实现的当前验收。
@@ -565,7 +567,32 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-当前有效范围为TASK-002合并2415813后的集成源码，正式Validate尚未完成，SCN-UI-22的新包真实旅程NOT_RUN。下方b3d114a的独立Validate PASS、Review approved及534.548秒原生证据只证明合并前版本，不能作为当前Feature已通过。该旧旅程实际完成两次启动/五次提取、两个known精确正确、unknown拒绝、删除及可见重启一致，初始化基线至最终退出完整State/输入相等，资源及私有测试特征已清理；这些事实和全部旧失败分别保留。逐条时延延期、Mic/TTS听测NOT_RUN，不能扩展为未执行范围的通过。本次确定性返修的完整证据在Build evidence及后续独立Validate记录中更新。
+当前有效范围为TASK-002合并2415813后的集成源码。干净实现80c8d0c的独立Validate自动化检查全部通过，SCN-UI-22的新包真实旅程NOT_RUN，故汇总INCONCLUSIVE、机器记录fail，不能进入正式Review批准。下方b3d114a的独立Validate PASS、Review approved及534.548秒原生证据只证明合并前版本，不能作为当前Feature已通过。该旧旅程实际完成两次启动/五次提取、两个known精确正确、unknown拒绝、删除及可见重启一致，初始化基线至最终退出完整State/输入相等，资源及私有测试特征已清理；这些事实和全部旧失败分别保留。逐条时延延期、Mic/TTS听测NOT_RUN，不能扩展为未执行范围的通过。
+
+### 2026-10-20 合并返修后的独立Validate — 80c8d0c
+
+独立Sol验证者在11:18:21–11:27:47 UTC只读验证`80c8d0c6a0dd6331cd1c8f9ed079dd639859be9d`，起止工作树均干净，主已核对原始命令、profile、report与清理。未发现可定位实现失败；SCN-UI-22缺失导致INCONCLUSIVE，不把机器fail解释为代码已证实错误。详细原件在`artifacts/verification/feature-002-upstream-merge-20261020/validate-002/`，新E2E report/JUnit/两张已查看截图在`web/e2e-results/feature-002-upstream-merge-20261020-validate-002/`，run为`01a1590b-6582-7225-9039-465465c9bf03`；本次成功runner没有单独trace，不伪称有成功trace。
+
+所有新测试均移除YOVOICE_SMOKE_MODEL、YOVOICE_OCHO_PATH、ANTHROPIC_BASE_URL、ANTHROPIC_API_KEY；Go使用GOMAXPROCS=2，重型串行，浏览器worker1/零重试。没有真实App、模型、TTS、Mic、云调用、下载、安装或日常数据操作。
+
+| 实际命令 | 时间UTC、退出与结果 |
+|---|---|
+| `go test -json -race -p 2 -count=1 -timeout=120s -covermode=atomic -coverprofile=artifacts/verification/feature-002-upstream-merge-20261020/validate-002/go.cover ./...` | 11:19:40–11:20:48，exit0；20包通过；376个含子例终态中363pass/13skip/0fail，顶层264pass/3skip，无cache或race告警；13skip为专用路径已覆盖的10个模型/音色变体、明确禁用的1个真实助手smoke和当前平台无GPU内核的2项 |
+| `E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --workers 1 --retries 0 --max-failures 1 --strict-cache --output e2e-results/feature-002-upstream-merge-20261020-validate-002` | 11:21:21–11:26:08，exit0；36故事×2目标，72/72全部执行，0skip/flaky/retry/modelTokens/download，显式read-only缓存；Chromium153.0.8010.12，中1280×840/英390×600 |
+| `PYTHONPYCACHEPREFIX=/private/tmp/yovoice-pycache python3 -m unittest scripts/desktop/check-speaker-validation-macos.py` | 11:26:42–11:26:56，exit0，27/27隔离替身 |
+| `python3 scripts/test-release-notes.py` | 11:26:56，exit0，2/2 |
+
+新profile独立统计recognition250/293=85.324%；相对24158137015f7b2809102d4a7d9cb3a2d357b75c新增行相交desktop/workbench生产statement块502/605=82.975%（440块），两者≥80%。算法、分母、块与原始diff保存在coverage-statements.json和coverage-added-lines.diff，profile SHA256为49b4d34762e5be02ddd7c837569b3ad80f9733b0df178c95f50eb0568df7d7d7。与Build相差1个statement，仅speakers.go:481提前返回块本轮未执行；不把旧503当新结果，不推导Go分支百分比。
+
+| 必要条件 | 当前结果 | 证据或缺口 |
+|---|---|---|
+| SCN-UI-01–21的确定性UI/RPC、SQLite、私有档案、操作槽、脱敏及生成参数 | COVERED，限定确定性范围 | 本次Go与72项E2E；核对并沿用原22场景映射，不以UI页面存在代替结果 |
+| 补充Web lint/tsc/Vite、完整单workerPW_ALL111/111、Swift17、recognition Python4+1、macOS隔离脚本 | COVERED，按原件复用 | 相关源码/配置/依赖相同，reused-input-applicability.json与reused-evidence-check.json保存核对；并发109/111、两个no-tests和串行恢复历史均保留，不伪称唯一负载原因已证实 |
+| SCN-UI-03物理Mic与SCN-UI-15真实TTS听测 | PARTIAL，实机/音质NOT_RUN | 合成采集和参数断言通过；按产品口径分别列出，不能用文件输入或假音频代替 |
+| SCN-UI-22及依赖当前宿主的实际操作 | MISSING / NOT_RUN | 合并后新包尚未运行，旧b3d114a真实结果不能替代；需新包就绪后的明确单次预算 |
+| 逐条真实查询时延 | 延期 | 沿用用户决定，不从整段耗时推算 |
+
+11:27:47最终核对实现HEAD仍80c8d0c、工作树干净、diff-check0；记录的68个自有browser/Vite身份、各运行PGID及54360/54361监听均无残留，其他项目4173/Python12358前后不变（e2e-cleanup-check.json/final.json）。主接受并记录本轮fail/INCONCLUSIVE，TASK均done，下一阶段仍validate；未进入正式Review或release。
 
 ### 2026-10-20 独立正式Validate通过 — b3d114a
 

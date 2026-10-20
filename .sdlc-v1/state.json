@@ -69,12 +69,12 @@
           "updated_at": "2026-10-20T11:17:21Z"
         }
       },
-      "updated_at": "2026-10-20T11:17:21Z",
+      "updated_at": "2026-10-20T11:29:59Z",
       "validation": {
-        "at": null,
-        "command": null,
-        "commit": null,
-        "result": "pending"
+        "at": "2026-10-20T11:29:59Z",
+        "command": "GOMAXPROCS=2 go test -json -race -p 2 -count=1 -timeout=120s -covermode=atomic ./...",
+        "commit": "80c8d0c6a0dd6331cd1c8f9ed079dd639859be9d",
+        "result": "fail"
       }
     }
   },
@@ -105,7 +105,7 @@
       "product_context_ref": ".sdlc-v1/context/REQ-002.product.md",
       "status": "in_delivery",
       "title": "Mac App 声纹交互验证页面",
-      "updated_at": "2026-10-20T11:17:21Z"
+      "updated_at": "2026-10-20T11:29:59Z"
     },
     "REQ-003": {
       "created_at": "2026-10-13T12:35:50Z",
