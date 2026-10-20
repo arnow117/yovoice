@@ -3,6 +3,7 @@ package workbench
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"yovoice/internal/audio"
 	"yovoice/internal/msg"
@@ -49,14 +50,16 @@ func TestAlignLyrics(t *testing.T) {
 	if s.Activity.Status != "completed" || s.Activity.Task != "align" {
 		t.Fatalf("%+v %v %v", s.Activity, *s.Activity.ErrorCode, s.Activity.ErrorParams)
 	}
+	// 测试引擎分出的人声在 0.5–1 秒和 2.5–3 秒有声，去掉中间的空白后送去对齐，时间再换回原曲：
+	// 拼接后的 0 秒是原曲 0.2 秒（留了 0.3 秒余量），字不会落在两段之间的空白里。
 	g := s.History[0]
-	if g.LyricTimes != nil || len(g.LyricWords) != 5 || g.LyricWords[0].Word != "晚" || g.LyricWords[1].Start != 0.25 || g.LyricWords[4].End != 1.188 {
+	if g.LyricTimes != nil || len(g.LyricWords) != 5 || g.LyricWords[0].Word != "晚" || g.LyricWords[0].Start != 0.2 || g.LyricWords[1].Start != 0.45 || g.LyricWords[4].Start != 1.2 || g.LyricWords[4].End != 2.288 {
 		t.Fatalf("%+v %+v", g.LyricTimes, g.LyricWords)
 	}
-	// 分段对齐时结果按段起点平移（测试引擎分出的人声只有一秒）。
+	// 唱的部分不超过对齐模型的上限时，界面给的分段被忽略，整首一次对齐。
 	must(t, wb.AlignLyrics(id, []LyricChunk{{Text: "晚风 轻", Start: 0, End: 0.5}, {Text: "夏夜", Start: 0.5, End: 1}}))
 	<-wb.Done()
-	if w := wb.Store.Read().History[0].LyricWords; len(w) != 5 || w[3].Word != "夏" || w[3].Start != 0.5 {
+	if w := wb.Store.Read().History[0].LyricWords; len(w) != 5 || w[3].Word != "夏" || w[3].Start != 0.95 {
 		t.Fatalf("%+v", w)
 	}
 	// 手动校准反过来清掉对齐结果。
@@ -79,5 +82,39 @@ func TestAlignLanguage(t *testing.T) {
 		if got := alignLanguage(text); got != want {
 			t.Fatalf("%s: %s", text, got)
 		}
+	}
+}
+
+// 人声区间：短停顿并入演唱，长空白去掉；拼接后的时间能换回原曲。日文逐字加空格，其余语言原样。
+func TestVoicedSpans(t *testing.T) {
+	const rate = 16000
+	samples := make([]float32, 10*rate)
+	for _, burst := range [][2]float64{{1, 2}, {2.5, 3}, {6, 7}} {
+		for i := int(burst[0] * rate); i < int(burst[1]*rate); i++ {
+			samples[i] = .3
+		}
+	}
+	spans := voicedSpans(samples, rate)
+	want := [][2]int{{int(.7 * rate), int(3.3 * rate)}, {int(5.7 * rate), int(7.3 * rate)}}
+	if len(spans) != 2 || spans[0] != want[0] || spans[1] != want[1] {
+		t.Fatalf("%v", spans)
+	}
+	if spanLength(spans, 0, 6*rate) != int(2.6*rate)+int(.3*rate) {
+		t.Fatal(spanLength(spans, 0, 6*rate))
+	}
+	if got := sourceTime(spans, 2.6, false); got != 5.7 {
+		t.Fatal(got)
+	}
+	if got := sourceTime(spans, 2.6, true); got != 3.3 {
+		t.Fatal(got)
+	}
+	if voicedSpans(make([]float32, rate), rate) != nil {
+		t.Fatal("静音没有人声")
+	}
+	if got := alignText("さくら 咲く", "Japanese"); strings.Join(strings.Fields(got), "|") != "さ|く|ら|咲|く" {
+		t.Fatal(got)
+	}
+	if alignText("summer night", "English") != "summer night" {
+		t.Fatal("英文不变")
 	}
 }

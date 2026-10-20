@@ -451,6 +451,8 @@ func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema
 	if err != nil {
 		return err
 	}
+	// 包内默认 4 次重叠推理是为了分轨音质；对齐只需要听得清人声，单遍推理快约 4 倍。
+	definition.SessionOptions = map[string]string{"bs_roformer.num_overlap": "1"}
 	if err = e.start(ctx, executable, path, definition, backend, 0, progress); err != nil {
 		return err
 	}
