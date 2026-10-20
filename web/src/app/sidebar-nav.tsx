@@ -4,7 +4,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { AudioLines, ChevronRight, Mic, Music, Pencil, Settings2, Trash2 } from 'lucide-react';
-import { projectKind, type Draft, type State } from '../shared/workbench';
+import { featureHidden, projectKind, type Draft, type State } from '../shared/workbench';
 import { overflowTitle } from '../shared/ui/overflow-title';
 import { UpdateSidebarCard } from '../features/update/update-notice';
 
@@ -26,7 +26,7 @@ export function SidebarNav(props: {
   return <VStack as="nav" className="sidebar" aria-label={t('@yovoice.nav.main')} gap={6} data-testid="sidebar">
     {newDraft}
     <VStack className="sidebar-destinations" gap={2}>
-      {(['text', 'story', 'music'] as const).map(kind => {
+      {(['text', 'story', 'music'] as const).filter(kind => kind === 'text' || !featureHidden(state.preferences, kind)).map(kind => {
         // 编曲生成并入音乐生成：两类作品都高亮「音乐生成」。
         const group = (k: string) => k === 'score' ? 'music' : k;
         const selected = group(page) === kind || (projectActive && group(projectKind(draft)) === kind);

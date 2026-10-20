@@ -35,6 +35,10 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; Flags: unchecked
 Type: filesandordirs; Name: "{app}\engine"
 #endif
 
+[InstallDelete]
+; Kokoro 发音库改为随模型下载到数据目录，清除旧版本安装目录中的内置副本。
+Type: filesandordirs; Name: "{app}\tools\kokoro"
+
 [Files]
 Source: "{#AppDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Bootstrapper}"; DestName: "MicrosoftEdgeWebView2Setup.exe"; Flags: dontcopy

@@ -2,9 +2,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProp
 import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
+import type { Feature } from '../shared/workbench';
 
 // 每一步高亮的入口，标题沿用导航文案；目标不在页面上时卡片居中显示。
-const steps = [
+const allSteps = [
   { id: 'new', target: 'nav-new', title: '@yovoice.project.new' },
   { id: 'text', target: 'nav-text', title: '@yovoice.project.text' },
   { id: 'story', target: 'nav-story', title: '@yovoice.project.story' },
@@ -24,8 +25,10 @@ type Box = { top: number; left: number; width: number; height: number };
  * 功能引导：首次进入主界面时依次高亮侧栏的主要入口，说明各自用途。
  * 可随时跳过（Esc），方向键或按钮前后切换；结束或跳过都记为已看过，设置里可重新查看。
  */
-export function GuideTour({ onClose }: { onClose: () => void }) {
+export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidden?: Feature[] }) {
   const t = useTranslator();
+  // 设置中隐藏的功能不再介绍。
+  const steps = allSteps.filter(step => !(hidden as string[]).includes(step.id));
   const [index, setIndex] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
   const card = useRef<HTMLElement>(null);

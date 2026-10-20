@@ -9,7 +9,7 @@ import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { FolderOpen, FolderCog, ArrowUpRight } from 'lucide-react';
 import { call, isMac } from '../../shared/lib/client';
-import { runtimeStatus, type EngineInfo, type ModelPackage, type State, type Draft, type UiLocale, modelTab, modelTabs } from '../../shared/workbench';
+import { featureHidden, runtimeStatus, type EngineInfo, type ModelPackage, type State, type Draft, type UiLocale, modelTab, modelTabs } from '../../shared/workbench';
 import { CallError } from '../../shared/lib/call-error';
 import { uiLocales } from '../../shared/i18n/locale';
 import { AISettings } from './ai-settings';
@@ -21,6 +21,7 @@ import { LocalAPISettings } from './local-api-settings';
 import { StorageSettings } from './storage-settings';
 import { LogViewer } from './log-viewer';
 import { AssistantSettings } from './assistant-settings';
+import { FeatureSettings } from './feature-settings';
 
 // 资源表格依赖较多，切到资源页时才加载。
 const AssetsPage = lazy(() => import('../library/assets-page').then(module => ({ default: module.AssetsPage })));
@@ -56,11 +57,11 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
     <TabList value={tab} onChange={setTab} role="tablist" hasDivider>
       <Tab value="general" label={t('@yovoice.settings.tabGeneral')} panelId="general-panel" />
       <Tab value="models" label={t('@yovoice.settings.tabModels')} panelId="models-panel" />
-      <Tab value="music-models" label={t('@yovoice.settings.tabMusicModels')} panelId="music-models-panel" />
-      <Tab value="soundfonts" label={t('@yovoice.settings.tabSoundfonts')} panelId="soundfonts-panel" />
+      {featureHidden(state.preferences, 'music') ? null : <Tab value="music-models" label={t('@yovoice.settings.tabMusicModels')} panelId="music-models-panel" />}
+      {featureHidden(state.preferences, 'music') ? null : <Tab value="soundfonts" label={t('@yovoice.settings.tabSoundfonts')} panelId="soundfonts-panel" />}
       <Tab value="engine" label={t('@yovoice.settings.tabEngine')} panelId="engine-panel" />
       <Tab value="ai" label={t('@yovoice.settings.tabAI')} panelId="ai-panel" />
-      <Tab value="assistant" label={t('@yovoice.assistant.title')} panelId="assistant-panel" />
+      {featureHidden(state.preferences, 'assistant') ? null : <Tab value="assistant" label={t('@yovoice.assistant.title')} panelId="assistant-panel" />}
       <Tab value="assets" label={t('@yovoice.nav.assets')} panelId="assets-panel" />
       <Tab value="logs" label={t('@yovoice.settings.tabLogs')} panelId="logs-panel" />
     </TabList>
@@ -87,6 +88,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
           <Button size="sm" label={t('@yovoice.settings.guideReplay')} onClick={() => window.dispatchEvent(new Event('workbench-show-tour'))} />
         </SettingsRow>
       </SettingsGroup>
+      <FeatureSettings state={state} run={run} />
       <StorageSettings state={state} run={run} busy={busy || modelBusy} />
       <LocalAPISettings run={run} />
       <SettingsGroup title={t('@yovoice.settings.diagnosticsGroup')}>

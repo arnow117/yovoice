@@ -3850,5 +3850,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "Präzision"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Funktionen"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Ausgeschaltete Funktionen verschwinden aus der Seitenleiste und dem Menü „Neu“. Vorhandene Werke und heruntergeladene Modelle bleiben erhalten."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Text oder Untertitel importieren und jede Zeile pro Figur vertonen."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Songs, Instrumentals und Partituren samt Modell- und Soundfont-Einstellungen."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "Der schwebende Assistent, sein Eintrag in der Titelleiste und seine Vorschläge. Die KI-Dienst-Einstellungen bleiben, andere KI-Funktionen funktionieren weiter."
   }
 }

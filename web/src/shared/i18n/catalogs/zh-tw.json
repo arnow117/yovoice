@@ -3850,5 +3850,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "功能顯示"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "關閉後對應入口會從側欄和新增選單中隱藏，現有作品與已下載的模型不受影響。"
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "匯入文字或字幕，依角色逐句配音。"
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "歌曲、純音樂與編曲生成，以及對應的模型和音色庫設定。"
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "浮窗助手、標題列入口和主動提示；AI 服務設定保留，其他 AI 功能仍可使用。"
   }
 }

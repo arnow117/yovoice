@@ -3850,5 +3850,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "정밀도"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "기능 표시"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "끄면 사이드바와 새로 만들기 메뉴에서 해당 항목이 숨겨집니다. 기존 작품과 다운로드한 모델은 그대로 유지됩니다."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "텍스트나 자막을 가져와 캐릭터별로 한 줄씩 더빙합니다."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "노래, 연주곡, 편곡 생성과 관련 모델 및 사운드폰트 설정."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "플로팅 어시스턴트, 제목 표시줄 항목과 제안. AI 서비스 설정은 유지되어 다른 AI 기능은 계속 사용할 수 있습니다."
   }
 }

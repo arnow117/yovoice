@@ -270,7 +270,13 @@ type Preferences struct {
 	TourSeen bool `json:"tourSeen,omitempty"`
 	// AssistantQuiet 关闭助手的主动提示（生成完成、失败等时刻在角落出现的气泡）。
 	AssistantQuiet bool `json:"assistantQuiet,omitempty"`
+	// HiddenFeatures 是在设置中隐藏的功能入口（见 OptionalFeatures），为空时全部显示。
+	HiddenFeatures []string `json:"hiddenFeatures,omitempty"`
 }
+
+// OptionalFeatures 是可在设置中隐藏的功能：故事配音、音乐生成（含编曲）与 Ocho 助手。
+var OptionalFeatures = []string{"story", "music", "assistant"}
+
 type State struct {
 	Characters     []Character        `json:"characters"`
 	Previews       []CharacterPreview `json:"previews"`
