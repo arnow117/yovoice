@@ -225,7 +225,9 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
     } finally { if (url.startsWith('blob:')) URL.revokeObjectURL(url); }
   });
   // 波形边读取边取峰值，不整段解码，长音频也不会拖住界面；每个音频源只读一次，缩放时按已有峰值合并。
+  // 各页面常驻挂载，时间线不可见（suspended）时不读取，显示后再补齐。
   useEffect(() => {
+    if (suspended) return;
     const controller = new AbortController();
     void (async () => {
       for (const id of sourceIds.split(',').filter(Boolean)) {
@@ -239,7 +241,7 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
       }
     })();
     return () => controller.abort();
-  }, [sourceIds, zoom]);
+  }, [sourceIds, zoom, suspended]);
   const play = async (audition?: { start: number; end: number }) => {
     if (playing || loading) { stop(); if (!audition) return; }
     const token = ++operation.current;

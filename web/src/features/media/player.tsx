@@ -32,10 +32,12 @@ export function Player({ track, onError, suspended, compact = false, actions, av
   const markFailed = (message: string) => setSource(current => current.key === key ? { ...current, failure: message } : current);
   // 用户请求了播放（试听、选择版本），音频还没准备好时先记下，地址就绪后再开始。
   const pending = useRef(false);
+  // 已画出波形的音频地址。
+  const drawn = useRef('');
 
   // 1. 加载只跟随音频本身变化：再次请求播放或切换页面都不会重新读取。
   useEffect(() => {
-    setTime(0); setDuration(0); setPeaks([]); setPlaying(false); setZoom(1);
+    setTime(0); setDuration(0); setPeaks([]); setPlaying(false); setZoom(1); drawn.current = '';
     if (lane.current) lane.current.scrollLeft = 0;
     if (!key || !kind || !fileName) return;
     let disposed = false; let resource = '';
@@ -48,12 +50,14 @@ export function Player({ track, onError, suspended, compact = false, actions, av
     return () => { disposed = true; element?.pause(); revoke(resource); setSource(current => current.key === key ? { key: '', url: '', failure: '' } : current); };
   }, [key, kind, fileName]);
   // 2. 正文播放器边读取边取峰值绘制波形，不整段解码，超长音频也不会拖住界面。波形只是辅助显示，读取失败时不画；能否播放以 <audio> 为准。
+  // 各页面常驻挂载，播放器不可见（suspended）时不读取，等真正显示时再画；同一音频只读一次。
+  const drawWaveform = !!url && waveform && !suspended;
   useEffect(() => {
-    if (!url || !waveform) return;
+    if (!drawWaveform || drawn.current === url) return;
     const controller = new AbortController();
-    readWaveform(url, 3200, controller.signal).then(value => { setPeaks(value.peaks); setDuration(value.duration); }, () => { /* 见上，不画波形即可 */ });
+    readWaveform(url, 3200, controller.signal).then(value => { drawn.current = url; setPeaks(value.peaks); setDuration(value.duration); }, () => { /* 见上，不画波形即可 */ });
     return () => controller.abort();
-  }, [url, waveform]);
+  }, [drawWaveform, url]);
   // 播放失败时：音频读不到则记为不可用并说明；浏览器拦截自动播放时请用户点击播放；被暂停打断等情况忽略。
   const play = async (element: HTMLAudioElement) => {
     try { await element.play(); } catch (error) {
