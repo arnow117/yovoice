@@ -96,14 +96,22 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			return
 		}
+		var stream stateStream
 		for {
 			select {
 			case <-r.Context().Done():
 				return
 			case <-ch:
-				b, e := json.Marshal(map[string]any{"event": "state", "state": s.Workbench.Store.Read()})
+				snapshot, e := s.Workbench.Store.ReadJSON()
 				if e != nil {
 					return
+				}
+				b, e := stream.next(snapshot)
+				if e != nil {
+					return
+				}
+				if b == nil {
+					continue
 				}
 				if _, e = fmt.Fprintf(w, "data: %s\n\n", b); e != nil {
 					return

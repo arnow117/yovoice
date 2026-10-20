@@ -1463,6 +1463,9 @@
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "一致する結果はありません"
   },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "さらに前の {n} 件を表示"
+  },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 言語 · 49 ボイス · 日本語なし"
   },

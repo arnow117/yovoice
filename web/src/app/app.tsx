@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { call, subscribe } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
+import { onlyAssistantLiveChanged, setAssistantLive } from '../shared/lib/assistant-live';
 import { createDraft, emptyState, isVoiceModel, normalizeDraft, projectKind, type EngineInfo, type ModelPackage, type State } from '../shared/workbench';
 import { isUiLocale } from '../shared/i18n/locale';
 import { LocaleShell, ensureUiLocalePersisted, bootLocale } from './locale-shell';
@@ -16,7 +17,8 @@ export function App() {
   const { setDraft, setDraftPersisted } = session;
   useEffect(() => {
     // 助手运行时可用性由 state.get 一次性带回，之后每次状态推送都保留。
-    const unsubscribe = subscribe(s => setState(current => ({ ...s, assistantMissing: current.assistantMissing })));
+    // Ocho 流式输出只更新助手的实时状态，其余字段没变时不重绘整个应用。
+    const unsubscribe = subscribe(s => { setAssistantLive(s.assistantLive); setState(current => onlyAssistantLiveChanged(current, s) ? current : { ...s, assistantMissing: current.assistantMissing }); });
     void call<{ state: State; catalog: ModelPackage[]; engine?: EngineInfo; assistant?: { available: boolean } }>('state.get').then(async result => {
       let next = result.state;
       if (!isUiLocale(next.preferences.uiLocale)) {
@@ -30,7 +32,7 @@ export function App() {
       const sorted = [...next.drafts].sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
       const saved = savedId ? next.drafts.find(d => d.id === savedId) : undefined;
       const initial = saved ?? sorted.find(d => projectKind(d) === 'text') ?? sorted[0];
-      setState({ ...next, assistantMissing: result.assistant ? !result.assistant.available : undefined }); setCatalog(result.catalog); setEngine(result.engine ?? { version: '', minimum: '' }); setDraft(normalizeDraft(initial ?? createDraft(true, next.preferences.uiLocale, defaultModelId))); setDraftPersisted(!!initial);
+      setAssistantLive(next.assistantLive); setState({ ...next, assistantMissing: result.assistant ? !result.assistant.available : undefined }); setCatalog(result.catalog); setEngine(result.engine ?? { version: '', minimum: '' }); setDraft(normalizeDraft(initial ?? createDraft(true, next.preferences.uiLocale, defaultModelId))); setDraftPersisted(!!initial);
       setReady(true);
     }).catch(e => setError(noticeMessage(e)));
     return unsubscribe;

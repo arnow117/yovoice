@@ -1463,6 +1463,9 @@
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "일치하는 결과가 없습니다"
   },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "이전 {n}개 더 보기"
+  },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8개 언어 · 음성 49개 · 일본어 미지원"
   },
