@@ -9,7 +9,7 @@ import { call, mediaUrl, saveText } from '../../shared/lib/client';
 import { formatActivity } from '../../shared/i18n/format';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, type Activity, type Generation } from '../../shared/workbench';
-import { alignChunks, alignedTimeline, alignLyrics, vocalActivity, withWords, type VocalActivity } from './lyric-align';
+import { alignLines, alignedTimeline, alignLyrics, vocalActivity, withWords, type VocalActivity } from './lyric-align';
 import { activeLyric, lyricRows, lyricTimeline, lyricsToLrc, type LyricLine } from './lyric-timing';
 import { splitTags } from './music-draft';
 import { coverPalette, SongCover } from './song-cover';
@@ -125,7 +125,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
   const running = activity?.status === 'running', aligning = running && activity.task === 'align' && activity.projectId === item.settings.id;
   const alignNow = () => {
     if (!aligner) { getAligner?.(); return; }
-    void call('generation.alignLyrics', { id: item.id, chunks: alignChunks(timeline, duration) }).catch((error: unknown) => onError(noticeMessage(error)));
+    void call('generation.alignLyrics', { id: item.id, lines: alignLines(timeline, duration) }).catch((error: unknown) => onError(noticeMessage(error)));
   };
   // 打开即开始播放；浏览器拦截自动播放时停在开头，由用户点播放。
   useEffect(() => {

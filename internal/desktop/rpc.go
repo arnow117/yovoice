@@ -161,13 +161,13 @@ func Call(ctx context.Context, w *workbench.Workbench, method string, data json.
 		return true, w.SetLyricTimes(p.ID, p.Times)
 	case "generation.alignLyrics":
 		var in struct {
-			ID     string                 `json:"id"`
-			Chunks []workbench.LyricChunk `json:"chunks"`
+			ID    string                `json:"id"`
+			Lines []workbench.LyricLine `json:"lines"`
 		}
 		if e := json.Unmarshal(data, &in); e != nil {
 			return nil, msg.Err(msg.ErrRequestInvalid, nil)
 		}
-		return true, w.AlignLyrics(in.ID, in.Chunks)
+		return true, w.AlignLyrics(in.ID, in.Lines)
 	case "preferences.save":
 		preferences := schema.Preferences{DownloadSource: "modelscope", Backend: "cpu", UiLocale: schema.UiLocaleZhCN}
 		if e := json.Unmarshal(data, &preferences); e != nil {

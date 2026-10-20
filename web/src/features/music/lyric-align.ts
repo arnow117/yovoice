@@ -285,16 +285,13 @@ export function alignedTimeline(rows: LyricRow[], aligned: AlignedWord[], durati
   return lines[0] && !lines[0].instrumental && lines[0].start > 1 ? [{ text: '', start: 0, end: lines[0].start, instrumental: true }, ...lines] : lines;
 }
 
-// 对齐模型一次最多处理约 5 分钟；长歌按现有的逐行时间切成几段，每段前后多留几秒余量。短歌整首一段，不切。
-const alignChunk = 280, alignMargin = 3;
-export function alignChunks(lines: LyricLine[], duration: number) {
-  if (duration <= alignChunk) return [];
-  const chunks: { text: string; start: number; end: number }[] = [];
-  for (const line of lines) {
-    if (line.instrumental || !line.text) continue;
-    const start = Math.max(0, line.start - alignMargin), end = Math.min(duration, line.end + alignMargin), last = chunks.at(-1);
-    if (last && end - last.start <= alignChunk + 2 * alignMargin) { last.text += `\n${line.text}`; last.end = end; }
-    else { const from = Math.max(start, last?.end ?? 0); chunks.push({ text: line.text, start: from, end: Math.min(from + 300, Math.max(end, from + 1)) }); }
-  }
-  return chunks;
+// 送去对齐的演唱行和它们现有的大致时间（自动定位、校准或估算）。对齐模型一次只能处理约 100 秒人声，
+// 后端按这些时间把行分组，切点落在人声空隙里；短歌整首一组。
+export function alignLines(lines: LyricLine[], duration: number) {
+  let last = 0;
+  return lines.filter(line => !line.instrumental && line.text.trim()).map(line => {
+    const start = Math.min(duration, Math.max(last, line.start)), end = Math.min(duration, Math.max(start, line.end));
+    last = start;
+    return { text: line.text, start: Math.round(start * 1000) / 1000, end: Math.round(end * 1000) / 1000 };
+  });
 }

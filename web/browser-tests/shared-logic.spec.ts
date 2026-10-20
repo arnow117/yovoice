@@ -4,7 +4,7 @@ import { SubtitleParser } from '../src/features/create/subtitle-parser';
 import { Timeline } from '../src/features/media/timeline';
 import { CallError, noticeMessage, parseCallError } from '../src/shared/lib/call-error';
 import { formatCallError, formatNotice } from '../src/shared/i18n/format';
-import { alignChunks, alignedTimeline, alignLyrics, vocalActivity, withWords } from '../src/features/music/lyric-align';
+import { alignLines, alignedTimeline, alignLyrics, vocalActivity, withWords } from '../src/features/music/lyric-align';
 import { activeLyric, estimateWords, lyricRows, lyricTimeline, lyricTokens } from '../src/features/music/lyric-timing';
 import { songLyrics, syntheticSong } from './synthetic-song';
 import { readFileSync } from 'node:fs';
@@ -180,7 +180,7 @@ test('逐字时间：中文逐字、英文逐词拆分，按人声片段分配�
   for (const line of lines) line.words?.forEach((word, k) => { expect(word.end).toBeGreaterThan(word.start); if (k) expect(word.start).toBeGreaterThanOrEqual(line.words![k - 1].end); });
 });
 
-test('对齐模型的逐字结果放回歌词行：词被拆开或合并都能对上，歌词改过时不用；长歌按行切段', () => {
+test('对齐模型的逐字结果放回歌词行：词被拆开或合并都能对上，歌词改过时不用；长歌交给后端按行分组', () => {
   // 合成歌曲已知每个字的时间，模拟对齐模型逐字返回（不带标点）。
   const song = syntheticSong(songLyrics, .3), rows = lyricRows(songLyrics);
   const aligned = rows.flatMap((row, index) => [...row.text].map((word, k) => ({ word, start: song.words[index][k], end: song.words[index][k] + .2 })));
@@ -198,13 +198,11 @@ test('对齐模型的逐字结果放回歌词行：词被拆开或合并都能�
   // 日文、韩文按词给时间时，词里的每个字仍各有先后；对齐模型丢掉的符号不计数，全角标点不影响对应。
   const korean = alignedTimeline(lyricRows('사랑해，さくら'), [{ word: '사랑해', start: 0, end: 3 }, { word: 'さくら', start: 4, end: 7 }], 10)!;
   expect(korean[0].words!.map(word => [word.start, word.end])).toEqual([[0, 1], [1, 2], [2, 3], [4, 5], [5, 6], [6, 7]]);
-  // 短歌整首一段；长歌每段不超过 5 分钟，段内按行拼接，覆盖所有演唱行。
-  expect(alignChunks(lines, song.duration)).toEqual([]);
-  const long = Array.from({ length: 120 }, (_, i) => ({ text: `第${i}句`, start: 5 + i * 5, end: 9 + i * 5 }));
-  const chunks = alignChunks(long, 610);
-  expect(chunks.length).toBeGreaterThan(1);
-  for (const [i, chunk] of chunks.entries()) { expect(chunk.end - chunk.start).toBeLessThanOrEqual(300); if (i) expect(chunk.start).toBeGreaterThanOrEqual(chunks[i - 1].end); }
-  expect(chunks.flatMap(chunk => chunk.text.split('\n'))).toEqual(long.map(line => line.text));
+  // 送去对齐的只有演唱行，开始时间不倒退、结束不早于开始，都在歌曲时长以内。
+  const sent = alignLines(lines, song.duration);
+  expect(sent.map(line => line.text)).toEqual(rows.filter(row => !row.instrumental).map(row => row.text));
+  for (const [i, line] of sent.entries()) { expect(line.end).toBeGreaterThanOrEqual(line.start); expect(line.end).toBeLessThanOrEqual(song.duration); if (i) expect(line.start).toBeGreaterThanOrEqual(sent[i - 1].start); }
+  expect(alignLines([{ text: '甲', start: 5, end: 9 }, { text: '乙', start: 4, end: 20 }], 12)).toEqual([{ text: '甲', start: 5, end: 9 }, { text: '乙', start: 5, end: 12 }]);
 });
 
 test('首次启动按系统语言选择界面语言，繁体与葡语按地区归并，未知语言回退英文', () => {
