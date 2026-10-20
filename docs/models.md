@@ -152,7 +152,7 @@ YuE2 needs lyrics for a vocal song, and the song length follows the lyrics. It c
 - **Generation**: *From score* follows the score (or writes one first); *Free* skips the score and generates directly, with no editable score. Advanced settings expose the inference steps and the score and audio sampling parameters.
 - Every take stores the score it used; reusing a version restores it.
 
-On the playback page, lyric timing starts from the vocals detected in the mix and can be synced line by line. With the optional Lyric Aligner installed, **Auto-align** separates the vocals and aligns every word of the lyrics to the singing (songs up to 20 minutes, aligned in segments of about 5 minutes); the result is saved with the version, and the newest of auto-align and manual sync wins.
+On the playback page, lyric timing starts from the vocals detected in the mix and can be synced line by line. With the optional Lyric Aligner installed, **Auto-align** separates the vocals, drops interludes and long pauses, and aligns every word of the lyrics to the singing (songs up to 20 minutes; aligned in segments when more than about 5 minutes is sung); the result is saved with the version, and the newest of auto-align and manual sync wins.
 
 Continuation, repainting and stem extraction are not available yet.
 

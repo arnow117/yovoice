@@ -132,6 +132,11 @@ func (w *Workbench) AlignLyrics(id string, chunks []LyricChunk) error {
 		}
 		voice := audio.Resample(samples, rate, alignRate)
 		language := alignLanguage(lyrics)
+		spans := voicedSpans(voice, alignRate)
+		// 去掉长空白后整首唱的部分不超过对齐模型的上限时，整首歌词一次对齐，不依赖界面估计的分段边界。
+		if spanLength(spans, 0, len(voice)) <= int(alignChunkSeconds*alignRate) {
+			chunks = []LyricChunk{{Text: lyrics, Start: 0, End: float64(len(voice)) / alignRate}}
+		}
 		var words []schema.LyricWord
 		for j, c := range chunks {
 			w.progress(msg.ActivityAlignLyrics, msg.Params{"done": j + 1, "total": len(chunks)}, int64(j), int64(len(chunks)))
@@ -139,16 +144,26 @@ func (w *Workbench) AlignLyrics(id string, chunks []LyricChunk) error {
 			if to-from < alignRate/10 {
 				continue
 			}
+			// 只把有人声的部分接起来送去对齐：间奏和长停顿去掉后，字不会被对到没人唱的地方，音频也更短。
+			pieces := clipSpans(spans, from, to)
+			if spanLength(pieces, from, to) < alignRate/2 {
+				pieces = [][2]int{{from, to}}
+			}
+			var joined []float32
+			for _, p := range pieces {
+				joined = append(joined, voice[p[0]:p[1]]...)
+			}
 			part := filepath.Join(dir, "part.wav")
-			if e = audio.WriteMono(part, voice[from:to], alignRate); e != nil {
+			if e = audio.WriteMono(part, joined, alignRate); e != nil {
 				return e
 			}
-			aligned, e := w.engine.AlignWords(ctx, *s.RuntimePath, model, s.Preferences.Backend, part, c.Text, language, func(code msg.Code, params msg.Params) {})
+			aligned, e := w.engine.AlignWords(ctx, *s.RuntimePath, model, s.Preferences.Backend, part, alignText(c.Text, language), language, func(code msg.Code, params msg.Params) {})
 			if e != nil {
 				return e
 			}
 			for _, a := range aligned {
-				words = append(words, schema.LyricWord{Word: a.Word, Start: round3(c.Start + a.Start), End: round3(c.Start + max(a.Start, a.End))})
+				start, end := sourceTime(pieces, a.Start, false), sourceTime(pieces, max(a.Start, a.End), true)
+				words = append(words, schema.LyricWord{Word: a.Word, Start: round3(start), End: round3(max(start, end))})
 			}
 		}
 		if len(words) == 0 {
@@ -175,3 +190,98 @@ func (w *Workbench) AlignLyrics(id string, chunks []LyricChunk) error {
 
 // round3 保留到毫秒，状态文件里不写无意义的长小数。
 func round3(v float64) float64 { return math.Round(v*1000) / 1000 }
+
+// 人声检测：20 ms 一帧，响度低于全曲较响部分 30 dB 的算空白；短于 voicedGap 的停顿并入演唱，
+// 每段前后各留 voicedPad 余量，避免切掉字头和尾音。返回有人声的样本区间。
+const voicedGap, voicedPad = .8, .3
+
+func voicedSpans(samples []float32, rate int) [][2]int {
+	frame := rate / 50
+	if frame <= 0 || len(samples) < frame {
+		return nil
+	}
+	levels := make([]float64, len(samples)/frame)
+	for i := range levels {
+		var sum float64
+		for _, v := range samples[i*frame : (i+1)*frame] {
+			sum += float64(v) * float64(v)
+		}
+		levels[i] = math.Sqrt(sum / float64(frame))
+	}
+	sorted := slices.Clone(levels)
+	slices.Sort(sorted)
+	threshold := max(sorted[len(sorted)*95/100]*.03, 1e-4)
+	var spans [][2]int
+	gap, pad := int(voicedGap*float64(rate)), int(voicedPad*float64(rate))
+	for i := 0; i < len(levels); {
+		if levels[i] < threshold {
+			i++
+			continue
+		}
+		j := i
+		for j < len(levels) && levels[j] >= threshold {
+			j++
+		}
+		start, end := max(0, i*frame-pad), min(len(samples), j*frame+pad)
+		if n := len(spans); n > 0 && start-spans[n-1][1] < gap {
+			spans[n-1][1] = end
+		} else {
+			spans = append(spans, [2]int{start, end})
+		}
+		i = j
+	}
+	return spans
+}
+
+// clipSpans 取出落在 [from, to) 里的人声区间。
+func clipSpans(spans [][2]int, from, to int) [][2]int {
+	var out [][2]int
+	for _, s := range spans {
+		if a, b := max(s[0], from), min(s[1], to); b > a {
+			out = append(out, [2]int{a, b})
+		}
+	}
+	return out
+}
+
+// spanLength 是 [from, to) 里人声区间的总样本数。
+func spanLength(spans [][2]int, from, to int) int {
+	n := 0
+	for _, s := range clipSpans(spans, from, to) {
+		n += s[1] - s[0]
+	}
+	return n
+}
+
+// sourceTime 把拼接后音频里的时间（秒）换回原曲时间。正好落在两段交界时，开始时间算后一段，结束时间算前一段。
+func sourceTime(pieces [][2]int, seconds float64, end bool) float64 {
+	at := int(math.Round(seconds * alignRate))
+	for _, p := range pieces {
+		n := p[1] - p[0]
+		if at < n || (end && at == n) {
+			return float64(p[0]+max(0, at)) / alignRate
+		}
+		at -= n
+	}
+	last := pieces[len(pieces)-1]
+	return float64(last[1]) / alignRate
+}
+
+// alignText 整理送去对齐的歌词。对齐模型除中文外按空格分词，日文歌词通常不带空格，整句会被当成一个词，
+// 所以日文在每个假名和汉字之间加空格，逐字给出时间。
+func alignText(text, language string) string {
+	if language != "Japanese" {
+		return text
+	}
+	var b strings.Builder
+	for _, r := range text {
+		if unicode.In(r, unicode.Hiragana, unicode.Katakana, unicode.Han) {
+			b.WriteRune(' ')
+			b.WriteRune(r)
+			b.WriteRune(' ')
+		} else {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}

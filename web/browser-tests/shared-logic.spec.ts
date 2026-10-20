@@ -191,10 +191,13 @@ test('对齐模型的逐字结果放回歌词行：词被拆开或合并都能�
   // 行从第一个字开始，一直显示到下一行开始；开头补前奏。
   expect(lines[0].instrumental).toBe(true);
   for (let i = 1; i < lines.length; i++) expect(lines[i].start).toBeGreaterThanOrEqual(lines[i - 1].start);
-  // 英文词被拆成两段、中文两个字合成一个词，按文字长度仍落到对应的单元上。
+  // 英文词被拆成两段、中文两个字合成一个词：词的时间按字数平分到每个字，再落到对应的单元上。
   const mixed = alignedTimeline(lyricRows('Beautiful, 你好'), [{ word: 'beau', start: 1, end: 1.4 }, { word: 'tiful', start: 1.4, end: 2 }, { word: '你好', start: 3, end: 4 }], 10)!;
-  expect(mixed.at(-1)!.words).toEqual([{ text: 'Beautiful, ', start: 1, end: 2 }, { text: '你', start: 3, end: 4 }, { text: '好', start: 3, end: 4 }]);
+  expect(mixed.at(-1)!.words).toEqual([{ text: 'Beautiful, ', start: 1, end: 2 }, { text: '你', start: 3, end: 3.5 }, { text: '好', start: 3.5, end: 4 }]);
   expect(alignedTimeline(lyricRows('完全不同的一句歌词'), [{ word: '别的', start: 1, end: 2 }], 10)).toBeNull();
+  // 日文、韩文按词给时间时，词里的每个字仍各有先后；对齐模型丢掉的符号不计数，全角标点不影响对应。
+  const korean = alignedTimeline(lyricRows('사랑해，さくら'), [{ word: '사랑해', start: 0, end: 3 }, { word: 'さくら', start: 4, end: 7 }], 10)!;
+  expect(korean[0].words!.map(word => [word.start, word.end])).toEqual([[0, 1], [1, 2], [2, 3], [4, 5], [5, 6], [6, 7]]);
   // 短歌整首一段；长歌每段不超过 5 分钟，段内按行拼接，覆盖所有演唱行。
   expect(alignChunks(lines, song.duration)).toEqual([]);
   const long = Array.from({ length: 120 }, (_, i) => ({ text: `第${i}句`, start: 5 + i * 5, end: 9 + i * 5 }));
