@@ -46,11 +46,11 @@
       },
       "requirement_id": "REQ-002",
       "review": {
-        "at": "2026-10-20T02:47:36Z",
-        "by": "speaker_feature_final_review",
-        "decision": "approved"
+        "at": null,
+        "by": null,
+        "decision": "pending"
       },
-      "status": "reviewed",
+      "status": "in_progress",
       "tasks": {
         "TASK-001": {
           "depends_on": [],
@@ -58,14 +58,23 @@
           "status": "done",
           "title": "实现原 Mac App 声纹页面、定向取消和本地验证构建",
           "updated_at": "2026-10-20T01:15:05Z"
+        },
+        "TASK-002": {
+          "depends_on": [
+            "TASK-001"
+          ],
+          "id": "TASK-002",
+          "status": "in_progress",
+          "title": "合并最新上游并验证声纹与新存储/并发/界面兼容",
+          "updated_at": "2026-10-20T05:16:49Z"
         }
       },
-      "updated_at": "2026-10-20T02:47:36Z",
+      "updated_at": "2026-10-20T05:16:49Z",
       "validation": {
-        "at": "2026-10-20T02:44:39Z",
-        "command": "env -u WORKBENCH_SMOKE_SCRIPT /usr/bin/open -W --stdout /Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/verification/feature-002-post-delete-refresh-20261020/native-001/logs/main.stdout.log --stderr /Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/verification/feature-002-post-delete-refresh-20261020/native-001/logs/main.stderr.log --env WORKBENCH_DATA=/Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/verification/feature-002-post-delete-refresh-20261020/native-001/data --env WORKBENCH_DEBUG=1 --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env MKL_NUM_THREADS=1 /Users/arnow117/hansen_agent_team/workspace/20261010-yovoice-development/artifacts/speaker-validation-macos/worker-20261020-post-delete-refresh-fix/yovoice.app",
-        "commit": "b3d114a8ec6b29c9efcfa0f353ce5bd10188d505",
-        "result": "pass"
+        "at": null,
+        "command": null,
+        "commit": null,
+        "result": "pending"
       }
     }
   },
@@ -94,9 +103,9 @@
       "id": "REQ-002",
       "priority": "P1",
       "product_context_ref": ".sdlc-v1/context/REQ-002.product.md",
-      "status": "validated",
+      "status": "in_delivery",
       "title": "Mac App 声纹交互验证页面",
-      "updated_at": "2026-10-20T02:47:36Z"
+      "updated_at": "2026-10-20T05:16:49Z"
     },
     "REQ-003": {
       "created_at": "2026-10-13T12:35:50Z",
