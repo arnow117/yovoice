@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { call } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { createDraft, normalizeDraft, type Draft, type State } from '../shared/workbench';
+import { writeLocal } from '../shared/lib/local-store';
 
 const unknownPrefix = '@yovoice.error.unknown::';
 
@@ -29,7 +30,7 @@ export function useDraftSession(ready: boolean, state: State, onError: (message:
   useEffect(() => {
     if (!ready || deleting || !draftPersisted || !active) return;
     window.__workbenchDraft = draft;
-    localStorage.setItem('yovoice-active-project', draft.id);
+    writeLocal('yovoice-active-project', draft.id);
     setSaving(true); setSaveFailed(false); const sequence = ++saveSequence.current;
     const timer = saveTimer.current = setTimeout(() => {
       pendingSave.current = pendingSave.current.catch(() => {}).then(() => call('draft.save', draft));

@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
+	"yovoice/internal/platform"
 	"yovoice/internal/schema"
 
 	"modernc.org/sqlite"
@@ -346,7 +346,7 @@ func createDB(path string, state schema.State, private map[string]string) error 
 	if e = os.Rename(tmp, path); e != nil {
 		return e
 	}
-	syncDir(filepath.Dir(path))
+	platform.SyncDir(filepath.Dir(path))
 	return nil
 }
 
@@ -406,15 +406,4 @@ func syncFile(path string) error {
 		e = ce
 	}
 	return e
-}
-
-// syncDir 让改名在断电后也能保留；Windows 不支持对目录调用 Sync，忽略即可。
-func syncDir(dir string) {
-	if runtime.GOOS == "windows" {
-		return
-	}
-	if f, e := os.Open(dir); e == nil {
-		_ = f.Sync()
-		_ = f.Close()
-	}
 }

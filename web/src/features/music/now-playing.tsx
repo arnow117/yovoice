@@ -5,7 +5,7 @@ import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
 import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, Download, FastForward, Maximize, Minimize, Pause, Play, Rewind, Sparkles } from 'lucide-react';
-import { call, mediaUrl, saveText } from '../../shared/lib/client';
+import { call, mediaUrl, saveText, releaseMediaUrl } from '../../shared/lib/client';
 import { formatActivity } from '../../shared/i18n/format';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, type Activity, type Generation } from '../../shared/workbench';
@@ -13,6 +13,8 @@ import { alignChunks, alignedTimeline, alignLyrics, vocalActivity, withWords, ty
 import { activeLyric, lyricRows, lyricTimeline, lyricsToLrc, type LyricLine } from './lyric-timing';
 import { splitTags } from './music-draft';
 import { coverPalette, SongCover } from './song-cover';
+import { readLocal, writeLocal } from '../../shared/lib/local-store';
+import { decodeAudio } from '../../shared/lib/sound';
 
 // 包络的时间分辨率（秒）：封面与背景随响度起伏。
 const envelopeStep = 0.05;
@@ -28,10 +30,9 @@ const analyseLimit = 15 * 60;
 // 人声检测本就在 16 kHz 上进行，直接按 16 kHz 解码，解码后的数据只有 48 kHz 的三分之一。
 async function analyse(url: string, duration: number): Promise<{ envelope: number[]; activity?: VocalActivity; duration?: number }> {
   if (duration > analyseLimit) return { envelope: [] };
-  const context = new AudioContext({ sampleRate: 16000 });
   try {
     const response = await fetch(url); if (!response.ok) return { envelope: [] };
-    const buffer = await context.decodeAudioData(await response.arrayBuffer());
+    const buffer = await decodeAudio(await response.arrayBuffer(), 16000);
     const data = buffer.getChannelData(0), size = Math.max(1, Math.round(buffer.sampleRate * envelopeStep));
     const values = Array.from({ length: Math.ceil(data.length / size) }, (_, i) => {
       let sum = 0, count = 0;
@@ -41,7 +42,7 @@ async function analyse(url: string, duration: number): Promise<{ envelope: numbe
     const peak = Math.max(...values, 1e-6);
     const activity = vocalActivity(data, buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : data, buffer.sampleRate);
     return { envelope: values.map(value => value / peak), activity, duration: buffer.duration };
-  } catch { return { envelope: [] }; } finally { await context.close(); }
+  } catch { return { envelope: [] }; }
 }
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -49,7 +50,7 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
 // 歌词样式：scroll 是整首滚动、当前句逐字点亮；stage 是一句一屏，字随演唱逐个跃出并发光，适合录屏。选择记在本机。
 type LyricStyle = 'scroll' | 'stage';
 const lyricStyleKey = 'yovoice-lyric-style';
-const savedLyricStyle = (): LyricStyle => { try { return localStorage.getItem(lyricStyleKey) === 'stage' ? 'stage' : 'scroll'; } catch { return 'scroll'; } };
+const savedLyricStyle = (): LyricStyle => readLocal(lyricStyleKey) === 'stage' ? 'stage' : 'scroll';
 // 浮光样式里每个字固定的倾斜与上下错落，由行号和字序派生，同一句每次显示都一样。
 const jitter = (seed: number) => { const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453; return value - Math.floor(value) - .5; };
 // 浮光样式背景里漂浮的几何图形。
@@ -100,7 +101,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
   const fromModel = useMemo(() => aligned?.length ? alignedTimeline(rows, aligned, duration) : null, [rows, aligned, duration]);
   const timeline = useMemo(() => fromModel ?? withWords(lyricTimeline(lyrics, duration, times ?? auto), voice?.activity), [fromModel, lyrics, duration, times, auto, voice]);
   const [lyricStyle, setLyricStyle] = useState(savedLyricStyle);
-  const chooseStyle = (value: LyricStyle) => { setLyricStyle(value); try { localStorage.setItem(lyricStyleKey, value); } catch { /* 存储不可用时只在本次生效 */ } };
+  const chooseStyle = (value: LyricStyle) => { setLyricStyle(value); writeLocal(lyricStyleKey, value); };
   // 校准时逐行显示，不补前奏；刚标记的一行视为当前句，下一行是待标记的目标。
   const lines: LyricLine[] = sync ? rows.map(row => ({ ...row, start: 0, end: 0 })) : timeline;
   const current = sync ? sync.length - 1 : activeLyric(lines, time);
@@ -132,7 +133,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
     let disposed = false, resource = '';
     mediaUrl('outputs', item.fileName).then(value => {
       resource = value;
-      if (disposed) { if (value.startsWith('blob:')) URL.revokeObjectURL(value); return; }
+      if (disposed) { releaseMediaUrl(value); return; }
       setUrl(value);
       void analyse(value, item.duration).then(result => {
         if (disposed) return;
@@ -140,7 +141,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
         if (result.activity && result.duration) setVoice({ activity: result.activity, duration: result.duration });
       });
     }, (error: Error) => { if (!disposed) onError(error.message); });
-    return () => { disposed = true; if (resource.startsWith('blob:')) URL.revokeObjectURL(resource); };
+    return () => { disposed = true; releaseMediaUrl(resource); };
   }, [item.fileName, item.duration, onError]);
   // 弹窗打开时焦点落在播放页本身，不选中关闭按钮，空格直接控制播放。
   useEffect(() => {

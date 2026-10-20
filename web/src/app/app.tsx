@@ -7,6 +7,7 @@ import { isUiLocale } from '../shared/i18n/locale';
 import { LocaleShell, ensureUiLocalePersisted, bootLocale } from './locale-shell';
 import { useDraftSession } from './use-draft-session';
 import { WorkbenchChrome } from './workbench-chrome';
+import { readLocal } from '../shared/lib/local-store';
 
 // 应用入口：加载并订阅后端状态，恢复上次打开的作品；界面语言随偏好切换。
 export function App() {
@@ -28,7 +29,7 @@ export function App() {
         } catch (e) { setError(noticeMessage(e)); }
       }
       const defaultModelId = next.models.find(m => isVoiceModel(m.id))?.id ?? result.catalog[0]?.id ?? 'index-2.5-q8';
-      const savedId = localStorage.getItem('yovoice-active-project');
+      const savedId = readLocal('yovoice-active-project');
       const sorted = [...next.drafts].sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
       const saved = savedId ? next.drafts.find(d => d.id === savedId) : undefined;
       const initial = saved ?? sorted.find(d => projectKind(d) === 'text') ?? sorted[0];

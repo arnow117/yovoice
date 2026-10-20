@@ -4,7 +4,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { Play, Pause, Square, FolderOpen, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
-import { call, mediaUrl } from '../../shared/lib/client';
+import { call, mediaUrl, releaseMediaUrl } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime } from '../../shared/workbench';
 import { waveform as readWaveform } from './waveform';
@@ -43,11 +43,11 @@ export function Player({ track, onError, suspended, compact = false, actions, av
     let disposed = false; let resource = '';
     mediaUrl(kind, fileName).then(value => {
       resource = value;
-      if (disposed) revoke(value); else setSource({ key, url: value, failure: '' });
+      if (disposed) releaseMediaUrl(value); else setSource({ key, url: value, failure: '' });
     }, (error: Error) => { if (!disposed) setSource({ key, url: '', failure: error.message }); });
     const element = audio.current;
     // 地址可能是随即释放的 blob，结果随清理一并作废，避免同一音频再次出现时用到已失效的地址。
-    return () => { disposed = true; element?.pause(); revoke(resource); setSource(current => current.key === key ? { key: '', url: '', failure: '' } : current); };
+    return () => { disposed = true; element?.pause(); releaseMediaUrl(resource); setSource(current => current.key === key ? { key: '', url: '', failure: '' } : current); };
   }, [key, kind, fileName]);
   // 2. 正文播放器边读取边取峰值绘制波形，不整段解码，超长音频也不会拖住界面。波形只是辅助显示，读取失败时不画；能否播放以 <audio> 为准。
   // 各页面常驻挂载，播放器不可见（suspended）时不读取，等真正显示时再画；同一音频只读一次。
@@ -176,6 +176,3 @@ export function Player({ track, onError, suspended, compact = false, actions, av
   </VStack>;
 }
 
-function revoke(url: string) {
-  if (url.startsWith('blob:')) URL.revokeObjectURL(url);
-}

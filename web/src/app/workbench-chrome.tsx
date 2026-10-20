@@ -30,7 +30,7 @@ import { TimelineEditor } from '../features/media/timeline-editor';
 import { Player } from '../features/media/player';
 import { Selector } from '../shared/selector';
 import { ConfirmDelete } from '../shared/ui/app-dialog';
-import { call, isDesktop, mediaUrl, saveAudio } from '../shared/lib/client';
+import { call, isDesktop, mediaUrl, saveAudio, releaseMediaUrl } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { dismissSplash } from '../shared/lib/splash';
 import { IntroScreen } from './intro-screen';
@@ -51,6 +51,7 @@ import { UpdateNotice } from '../features/update/update-notice';
 import { PronunciationDialog, type Pronunciation } from './pronunciation-dialog';
 import type { DraftSession } from './use-draft-session';
 import { watchAssistantLive } from '../shared/lib/assistant-live';
+import { readLocal, writeLocal } from '../shared/lib/local-store';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
 const VoicePicker = lazy(() => import('../features/media/voice-picker').then(module => ({ default: module.VoicePicker })));
 
@@ -68,18 +69,14 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const previousVoices = useRef<Voice[]>([]);
   const [page, setPage] = useState(() => {
     if (isDesktop) {
-      try {
-        const saved = localStorage.getItem('yovoice-active-page');
-        const listPages = ['text', 'story', 'music', 'score', 'characters', 'settings'];
-        return saved && listPages.includes(saved) ? saved : 'text';
-      } catch {
-        return 'text';
-      }
+      const saved = readLocal('yovoice-active-page');
+      const listPages = ['text', 'story', 'music', 'score', 'characters', 'settings'];
+      return saved && listPages.includes(saved) ? saved : 'text';
     }
     return 'create';
   });
   useEffect(() => {
-    try { localStorage.setItem('yovoice-active-page', page); } catch { /* 存储不可用时忽略 */ }
+    writeLocal('yovoice-active-page', page);
   }, [page]);
   // 页面第一次打开时才挂载，之后保持挂载（切走只隐藏），切回来时保留编辑、滚动与播放状态；启动时只渲染当前页。
   const [visited, setVisited] = useState(() => new Set([page]));
@@ -97,15 +94,15 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const [pronunciation, setPronunciation] = useState<Pronunciation | null>(null);
   const [showInspector, setShowInspector] = useState(false);
   // 助手面板：开关与展开状态跨启动保留；⌘J/Ctrl+J、宿主标题栏按钮与编辑器 AI 写作栏都能打开。
-  const [assistantOpen, setAssistantOpen] = useState(() => { try { return localStorage.getItem('yovoice-assistant-open') === 'true'; } catch { return false; } });
-  const [assistantExpanded, setAssistantExpanded] = useState(() => { try { return localStorage.getItem('yovoice-assistant-expanded') === 'true'; } catch { return false; } });
+  const [assistantOpen, setAssistantOpen] = useState(() => readLocal('yovoice-assistant-open') === 'true');
+  const [assistantExpanded, setAssistantExpanded] = useState(() => readLocal('yovoice-assistant-expanded') === 'true');
   // 右下角入口与标题栏入口二选一：入口在时标题栏不重复显示，移走后才由标题栏接替；浮窗打开时两处入口都收起。
-  const [launcherHidden, setLauncherHidden] = useState(() => { try { return localStorage.getItem('yovoice-assistant-launcher') === 'hidden'; } catch { return false; } });
+  const [launcherHidden, setLauncherHidden] = useState(() => readLocal('yovoice-assistant-launcher') === 'hidden');
   const showLauncher = (show: boolean) => {
     setLauncherHidden(!show);
-    try { localStorage.setItem('yovoice-assistant-launcher', show ? 'shown' : 'hidden'); } catch { /* 存储不可用时只在本次生效 */ }
+    writeLocal('yovoice-assistant-launcher', show ? 'shown' : 'hidden');
   };
-  useEffect(() => { try { localStorage.setItem('yovoice-assistant-open', String(assistantOpen)); localStorage.setItem('yovoice-assistant-expanded', String(assistantExpanded)); } catch { /* 存储不可用时只在本次生效 */ } }, [assistantOpen, assistantExpanded]);
+  useEffect(() => { writeLocal('yovoice-assistant-open', String(assistantOpen)); writeLocal('yovoice-assistant-expanded', String(assistantExpanded)); }, [assistantOpen, assistantExpanded]);
   // 在设置中隐藏 Ocho 后，浮窗、各处入口、快捷键与主动提示都不再出现。
   const assistantHidden = featureHidden(state.preferences, 'assistant');
   useEffect(() => {
@@ -147,10 +144,10 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   useEffect(() => applyAssistantUpdate(liveRequest.update), [liveRequest.update]);
 
   // 宽屏下右侧检查器的收起状态，跨作品、跨启动保留。
-  const [inspectorCollapsed, setInspectorCollapsed] = useState(() => { try { return localStorage.getItem('workbench-inspector-collapsed') === '1'; } catch { return false; } });
+  const [inspectorCollapsed, setInspectorCollapsed] = useState(() => readLocal('workbench-inspector-collapsed') === '1');
   const toggleInspector = useCallback(() => setInspectorCollapsed(current => {
     const next = !current;
-    try { localStorage.setItem('workbench-inspector-collapsed', next ? '1' : '0'); } catch { /* 存储不可用时只在本次生效 */ }
+    writeLocal('workbench-inspector-collapsed', next ? '1' : '0');
     return next;
   }), []);
   // 窗口右上角的右侧面板开关：创作区较窄时检查器已自动收起（见 styles.css 的 studio 容器查询），开关改为展开或收回检查器。
@@ -173,7 +170,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const onError = useCallback((message: string) => setError(message), [setError]);
   useEffect(() => {
     if (!isDesktop) return;
-    const saved = localStorage.getItem('astryx-resizable:workbench-sidebar');
+    const saved = readLocal('astryx-resizable:workbench-sidebar');
     if (saved) void call('sidebar.save', JSON.parse(saved)).catch(error => setError(noticeMessage(error)));
   }, [navigation.size, navigation.isCollapsed, setError]);
   const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(noticeMessage(e))); }, [setError]);
@@ -387,7 +384,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const exportVersion = (item: Generation) => run(async () => {
     const url = await mediaUrl('outputs', item.fileName);
     try { const stem = item.fileName.replace(/\.wav$/, ''); await saveAudio(await (await fetch(url)).blob(), /^[0-9a-f]{32}$/.test(stem) ? item.title : stem); }
-    finally { if (url.startsWith('blob:')) URL.revokeObjectURL(url); }
+    finally { releaseMediaUrl(url); }
   });
   const audition = (value: Track) => {
     if (page === 'create') setTrack({ ...value, playRequest: performance.now() });

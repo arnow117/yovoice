@@ -16,7 +16,7 @@ import { AppDialog } from '../../shared/ui/app-dialog';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { SpeakerAvatar } from '../create/subtitles';
 import { encodeWav } from '../../shared/lib/sound';
-import { isDesktop, mediaUrl, saveAudio, saveText, importTimelineFile } from '../../shared/lib/client';
+import { isDesktop, mediaUrl, saveAudio, saveText, importTimelineFile, releaseMediaUrl } from '../../shared/lib/client';
 import { noticeMessage } from '../../shared/lib/call-error';
 import { formatTime, projectKind, type AudioLane, type AudioAsset, type AudioClip, type AudioTimeline, type Generation, type Draft } from '../../shared/workbench';
 import { Timeline, TimelineHistory } from './timeline';
@@ -208,7 +208,7 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
       const buffer = await audio.decodeAudioData(await response.arrayBuffer());
       buffers.current.set(id, buffer);
       return buffer;
-    } finally { if (url.startsWith('blob:')) URL.revokeObjectURL(url); }
+    } finally { releaseMediaUrl(url); }
   };
   const sourceIds = [...new Set(value.tracks.flatMap(track => track.clips.map(c => Timeline.sourceKey(c))))].sort().join(',');
   // 读取音频源的波形（最高缩放级别的峰值），结果缓存，加载使用最新的音频源列表。
@@ -222,7 +222,7 @@ export function TimelineEditor({ draft, busy, regenerate, exportProject, selectC
       const wave = await readWaveform(url, 400 * 32, signal);
       waves.current.set(id, wave);
       return wave;
-    } finally { if (url.startsWith('blob:')) URL.revokeObjectURL(url); }
+    } finally { releaseMediaUrl(url); }
   });
   // 波形边读取边取峰值，不整段解码，长音频也不会拖住界面；每个音频源只读一次，缩放时按已有峰值合并。
   // 各页面常驻挂载，时间线不可见（suspended）时不读取，显示后再补齐。

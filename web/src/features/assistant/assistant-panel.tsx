@@ -6,7 +6,7 @@ import { List, ListItem } from '@astryxdesign/core/List';
 import { Token } from '@astryxdesign/core/Token';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { ChevronDown, ChevronLeft, Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen, SquarePen, TextQuote, Trash2 } from 'lucide-react';
-import { call, mediaUrl } from '../../shared/lib/client';
+import { call, mediaUrl, releaseMediaUrl } from '../../shared/lib/client';
 import type { AssistantBlock, AssistantContext, State, Generation } from '../../shared/workbench';
 import { messageBlocks, turnCards } from './assistant-model';
 import { AssistantTurn } from './assistant-turn';
@@ -93,7 +93,7 @@ export function AssistantPanel({ state, context, expanded, quickActions, frame, 
     const element = new Audio(url);
     audioRef.current = { element, id: item.id };
     setPlaying(item.id);
-    element.onended = () => { if (audioRef.current?.id === item.id) { audioRef.current = null; setPlaying(null); } if (url.startsWith('blob:')) URL.revokeObjectURL(url); };
+    element.onended = () => { if (audioRef.current?.id === item.id) { audioRef.current = null; setPlaying(null); } releaseMediaUrl(url); };
     await element.play().catch(() => setPlaying(null));
   };
 
