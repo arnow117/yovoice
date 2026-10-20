@@ -4,6 +4,12 @@
 
 ## Plan
 
+### 2026-10-20 当前新包原生通过，完成独立收尾
+
+用户明确授权本次新包最多2启动/5本地CPU1提取、T=.6/M=.05/120秒、含准备清理1200秒、首次失败停止。主以正常LaunchServices和原生CUA完成全部动作，没有使用smoke、业务JS/RPC注入或额外运行。初始化ready后、登记前保存了完整State/空Voices和档案基线；两登记、两已知精确匹配、一未知拒绝、删除B、同data重启仅原A、两次正常退出及完整State/输入一致性均通过。含自有进程、私有官方样本特征和CUA收尾534.548秒，原件见最新Validation；以前的失败和快照遗漏保持原版本，不再作为本轮缺口。
+
+本轮实际启动/模型预算已完成，没有后续原生或模型计划。当前业务仍为57a2b22，实际被测b3d114a仅追加SDLC元数据；独立正式Validate PASS及原独立Review复审approved均已由主接受，无未处理必须修复项。本次Feature功能验收完成，只保存最终元数据。维持全部产品规则和用户延期逐条时延的决定；Mic/TTS听测单列NOT_RUN，不扩展主线合并/发行。元数据收尾不重建、不重复已通过检查。
+
 ### 2026-10-20 正式评审返修：删除成功后的列表一致性
 
 新的独立Review对7833fba完整业务diff仅提出一个必须修复P2。主只读核对removeProfile和refresh：speaker.delete成功后没有按已知目标更新profiles；随后的Promise.all(runtime/list)任何一项失败会保留旧profiles，已删目标仍在档案行/生成options。RULE-UI-06明确成功后不得继续列出，该因果链足以定位，不能以后台已拒绝失效生成代替正确UI。上一轮真实删除/重启只覆盖刷新成功，不覆盖此恢复边界；原有证据与失败历史均保留，已用诊断allowance不重置。
@@ -468,7 +474,27 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-删除刷新P2返修已提交57a2b22并推送，主接受Build及独立6/6增量结果；唯一必要缺口是当前新包SCN-UI-22真实原生旅程NOT_RUN，正式validation为fail/INCONCLUSIVE，尚不进入Review。原7833fba通过仅属于该历史版本；以下保留所有版本结论。
+当前b3d114a的独立正式Validate PASS和独立Review approved均已由主接受，Feature功能验收完成，无未处理必须修复项。删除刷新P2返修57a2b22的独立6/6增量及当前新包完整原生旅程共同覆盖22场景必要功能要求。真实2启动/5提取、534.548秒，两个known精确正确、unknown拒绝、删除及可见重启一致，初始化基线至最终退出完整State/输入相等，资源及私有测试特征已清理。旧版本的失败、通过和采证边界分别保留；逐条时延延期、Mic/TTS听测NOT_RUN，不能扩展为未执行范围的通过。
+
+### 2026-10-20 独立正式Validate通过 — b3d114a
+
+原独立验证者仅只读核对本轮最终原件，未再运行测试或模型，请求record-validation pass绑定b3d114a8ec6b29c9efcfa0f353ce5bd10188d505，主接受。TASK均done、被测业务树干净；当前只有主同步SDLC事实。独立者确认六阶段State/源码/App/Web/固定输入/版本相同、公开A跨重启/退出相同、完整包等于原receipt、正常退出及535秒内全部收尾成立；结合57a2b22独立6目标与同输入的既有证据，现行22场景、唯一usage和参数/实际操作要求齐全，没有当前必要阻塞项。准确命令、实际时间及原件均在本节上下对应记录，状态代表命令使用本轮真实main LaunchServices argv。
+
+UI由主亲看CUA原生画面/AX，独立者核对公开转录和元数据，不冒称其查看父截图。当前轮初始化快照完整，不删除旧轮缺失或历史失败；逐条时延延期、物理Mic/真实TTS听测NOT_RUN，Windows/发行边界不变。主据此调度原独立Review复审P2及最新增量，其余完整Feature未改部分保留原评审范围，不能在Review完成前结束Goal。
+
+### 2026-10-20 当前新包完整原生旅程通过 — b3d114a
+
+实际被测源码b3d114a8ec6b29c9efcfa0f353ce5bd10188d505，较独立6项通过的57a2b22仅三个SDLC文件，运行中完整工作树干净、全部跟踪文件冻结。包为worker-20261020-post-delete-refresh-fix/yovoice.app，完整App cb984c0ad36812f60a2d1141fe442b24bd842dfc7ec7723e3d8b1c54147cd305、Web b287e02aa2d17ae16e8aa211048baf699a590f3f5da31ec8e781ecaf52641b99，原receipt c0d3a49fc81e6562c2961230739eb702f66e3022011b41c6fc11fd79426a0f47不变。源文件manifest bed4b0351793fce9259a1f68ea6c14fa5f3df429a41a50197efd020bd4fc337c；相对构建receipt仅三个SDLC差异，package精确相等、固定模型/五样本/runner均匹配。没有把后续元数据变化声称为完整源码strict相同。
+
+原件`artifacts/verification/feature-002-post-delete-refresh-20261020/native-001/`：authorization和预检、main/restart实际launch argv/env/cwd及owned/supervisor记录、before-enrollment、after-queries、after-main、after-first-exit、after-restart、after-final-exit，另有ui-results、各阶段assertions和cleanup。两次启动均为/usr/bin/open-W，移除WORKBENCH_SMOKE_SCRIPT，WORKBENCH_DATA指向本轮全新0700 data，DEBUG=1、OMP/OPENBLAS/MKL均1；准确长命令在两个launch.json，不把转录当原终端日志。独立监督分别在总期限前150/75秒自动收尾，实际未触发。预检无项目旧进程、约44.89%CPU空闲、当次无换页；CUA通过已运行Finder Desktop确认解锁，未操作其文件。
+
+主亲看实际初始化窗口/声纹页面，ready为T=.6/M=.05/120秒，空档案；在首次登记前成功保存State present且voices/profiles空的before-enrollment。所有文件均经实际原生NSOpenPanel从manifest路径选择；A登记ID28d6626dfe52c9eb663f7ce40e465cae，B为1e6fa4c25f4b9002239f525348cb5008。独立A查询matched原A，分数0.8181493827733626，另一候选B0.31233407913144856；独立B查询matched原B，0.8388678724598981，A候选0.2190880883964413；未知样本unknown/below_threshold、无profileId，B候选0.46485008260461286、A候选0.1564205982086378。两个known分母2、正确2，unknown分母1、正确拒绝1；原始公开分数/完整候选ID及特征版本c240757a39516f94237b42893337156ba47d69b40e722d02897944c199975219见从真实AX转录的ui-results。共2登记+3查询=5提取，未自动选择生成档案，没有第6次提取、TTS/Mic/cloud/download。
+
+主亲看未知结果真实截图及明确删除B的确认框，点击删除后列表即时只剩原A；已有识别结果保留其开始时B候选快照符合RULE-UI-06，不把候选快照视为B档案仍存在。正常CmdQ后main open-W exit0、actions=[]，宿主86449/服务86482均退出。授权第2次正常启动同data，异步加载完成后ready配置相同，主亲看滚动到的唯一原A完整ID/登记时间/版本，B未恢复；不进行模型动作。再次CmdQ，restart open-W exit0、actions=[]，宿主90613/服务90615均退出。AX和实际截图均在本对话CUA输出，主亲看；未声称存在本地PNG或独立者亲看截图。
+
+登记前初始化→五次提取→删除后主流程→首次退出→重启ready→最终退出，完整normalizedState、sourceCandidate、App/Web、files、固定资产、recognition manifest及版本严格相同，State hash a979ae6736ad8ad618319da2a39395d0a12eb9a3ef6156a7892b5bf44d35ad45、Voices始终空；main后原A的完整公开profile跨退出/重启严格相同。全部assertions为true，不用mtime或登记时间解析作内容断言。本次正确基线使当前轮不再存在早期快照缺口；旧轮缺失和失败仍原样保留，不追补其记录。
+
+授权起点epoch1792463582.27549，完整cleanup终点1792464116.8237598，全程534.548秒/1200秒，主启动阶段297.108秒、重启阶段83.298秒；这些是含界面操作的旅程时间，不是推理时延。最终逐PID复查四个自有进程均缺失，公开采证后仅移除精确官方样本A的私有data/speakers.json，余profile文件空，data0700、CUA kernel已重置，日志/公开证据保留，未输出embedding。没有失败验收断言或自动重试。本轮已完成，后续不复用剩余预算；逐条时延按用户决定仍NOT_COLLECTED，物理Mic/真实TTS听测NOT_RUN，接续正式Validate/Review。
 
 ### 2026-10-20 独立增量6/6通过，待当前新包实模 — 57a2b22
 
@@ -724,6 +750,10 @@ physicalMic/humanTTS 为 NOT_RUN。12 个 Go skip 是既有 10 项音乐/音色�
 2026-10-17 Goal 工作树原生证据：`artifacts/verification/feature-002-goal-acceptance-20261017/attempt-001/smoke/report.json`，wrapper exit 0、27 秒，源码 `41d8d2f5d0b4a60cdec1697286940d47ef2eb6976ca3bddb84e97906783a4535`，App `9c81fa604406442d276ee44a0553d5bc94d86440ce52379354e54432777d1748`。CPU 单线程提取 5 次；两段已知查询分别精确 matched 两个新登记 ID（分数 0.818149/0.838868），未知查询 0.464850、无选定 ID；删除 B 后重启只剩 A。主亲自查看 initialize/main/restart 三张截图，页面完整可见；独立比较原始 before/main/restart 的 source/App/Web/固定资产/识别 manifest 和完整普通 State 一致，Voices 未增加，固定资产与 sherpa 版本符合要求。自有进程已退出，物理 Mic/真实 TTS 听测未执行。此项证明本版本的真实文件识别与重启路径，但截图暴露候选 ID 字段缺失，完整验收仍为未通过；修正后必须重新验证相关 UI，不能直接登记正式 pass。上次旧 App 和预检目录冲突的失败证据全部保留。
 
 ## Review
+
+2026-10-20 同一独立reviewer`/root/speaker_feature_final_review`复审，绑定validation commit b3d114a8ec6b29c9efcfa0f353ce5bd10188d505，结论approved，主接受。原P2已解决：删除成功即按精确ID移除本地档案，functional setter只清仍指向目标的生成选择；刷新失败保留其他档案，删除失败重试和迟到响应保护仍满足。只读git入口条件/增量、当前契约/测试、标准库原件比对均exit0；业务树干净，仅三项SDLC记录待提交，未运行新测试/App/模型/provider或委派。
+
+复审核对旧红、独立三故事两目标6/6、browser59及lint/build，同输入复用其余66而不宣称本轮全72。新包25文件等于原receipt，源码仅三个SDLC差异；六阶段完整State/源码/App/Web/固定输入/版本一致，正确初始化基线、2known精确匹配/unknown拒绝、删除及原A重启保留、两次正常退出和534.548秒收尾记录齐全。评审者未亲看父CUA图像，只读公开转录及原件；逐条时延/Mic/TTS/Windows/发行的原边界保留。本增量没有新增必须修复项、可证重复实现、可避免工程债或阻塞可读性项；此前完整Feature其余未改范围保留原审查结果。无需进一步实现或运行，正式验收结束。
 
 2026-10-20 新的独立正式评审`/root/speaker_feature_final_review`，绑定validation commit7833fba4f18c79f861c6c310049a6987c12d157c，结论changes_requested。唯一必须修复P2为speaker-page.tsx:414–418删除成功后仅关闭框/清选择再refresh，而:180–183的刷新失败保留旧profiles，导致已删档案行/生成选项残留，违反RULE-UI-06。主已核实静态调用链并接受；必要新回归为成功删除后list/runtime刷新失败时精确目标消失、其他档案/选择保留、明确刷新恢复，继续保留原删除失败与旧响应乱序断言。
 
