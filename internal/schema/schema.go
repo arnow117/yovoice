@@ -276,6 +276,7 @@ type Preferences struct {
 
 // OptionalFeatures 是可在设置中隐藏的功能：故事配音、音乐生成（含编曲）与 Ocho 助手。
 var OptionalFeatures = []string{"story", "music", "assistant"}
+
 type State struct {
 	Characters     []Character        `json:"characters"`
 	Previews       []CharacterPreview `json:"previews"`
