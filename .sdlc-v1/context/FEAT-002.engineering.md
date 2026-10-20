@@ -15,7 +15,40 @@
 - 采用上游引擎Generate的(score,error)接口及新run结构，适配声纹调用方；普通诊断沿上游，档案生成保留受限stdout/stderr/HTTP错误正文策略，restrictedDiagnostics参与进程缓存身份。保留上游孤儿进程/取消/退出回收和macOS标题栏修正，同时保留声纹临时音频清理、私有配置和可见性修正。
 - 前端以新导航、助手、PageBoundary和启动画面为基础保留speakers入口/懒加载、页面可见、删除即时移除、迟到刷新保护、显式生成绑定及测试标识。保留新增语言和既有回退规则，不重新设计界面。依赖/锁文件由对应包管理工具合并生成；CI保留上游日常测试与发行打包分离，将声纹检查放入真正执行的日常job。
 
+上游SQLite还要求更新既有采证入口：normalized_state不能因没有state.json返回假空。存在yovoice.db时只读一致性事务规范化settings与全部State实体表（保留顺序、沿既有敏感字段脱敏、不输出private表）；坏库/未知格式明确失败，不退回残留JSON；只有无DB时读取legacy JSON。补纯脚本回归，更新usage的当前存储说明，不改旧快照。Store.UpdateProfile受限日志也覆盖SQLite写失败，新RPC审计继续脱敏。新接口适配保留生成score到历史Abc/旋律提议。
+
 完成条件：上游和原声纹HEAD均为最终merge提交祖先，无冲突标记或误删功能；正常排版、格式/lint/type/build通过；Go全量race（限制GOMAXPROCS和包并发）、Swift、脚本检查、受影响封存浏览器用例及声纹E2E通过，新增必要兼容测试。重型检查串行、浏览器最多2worker，先核对负载与归属，保留原始命令/结果/失败证据、有限时长及自有资源收尾。两次无收敛修正按父AGENTS停止规则处理，不能靠重命名或重跑刷新预算。主接受实现后做独立合并验证/评审，再提交最终记录和推送fork；PR明确合并后的自动化证据与旧原生证据边界，新原生旅程仍NOT_RUN。
+
+05:53 UTC主基于已定位的流式上传冻结窗口、SQLite跨表读事务缺口及相应新回归，把本工程段的45分钟执行估计调整为总计70分钟、约06:27 UTC结束，留至少5分钟清理与交接；单套10–15分钟及低并发不变。这只是必要确定性验证的工程时限，不授予新的App/模型次数，不重置失败/无收敛计数，也不允许盲目重复。
+
+本次PW_ALL首次109/111，语言目录76个声纹key按既有英文fallback补齐后相关17/17通过；另一个WAV缩放段的hAlign最小尝试未改善，失败和现有同步DOM观测保留。主只读确认Player及几何阈值断言与上游相同、相关styles未改width；既有诊断仅在按钮文本200%后立即取样，没有下一帧数据，不能直接判为上游缺陷或放宽阈值。该段暂停生产改动，主限定一次最多4分钟/1用例/0重试的纯观测：恢复未成功hAlign，比较点击前、同步、后两帧及500ms后几何/滚动/实际width规则。假设是文本与布局提交时序不同；只有观察到后续帧确实翻倍，才改为同阈值expect.poll，否则结束该段、报告未定位，不再续诊断。此定位与既有失败/一次hAlign尝试属同一段，不重置历史；其他独立检查继续。
+
+声纹E2E首次72已列举，因新intro-canvas拦导航，5failed/1interrupted/66skipped后停止并保留原件。明确因果为synthetic bridge手写preferences缺introSeen/tourSeen；这些用例验证已有用户声纹流程，fixture设两者true，保留生产引导及上游guide测试。先双目标小用例确认入口，再0retry/max-failures1跑72，用独立输出保留首次失败。
+
+merge提交b7ff56a已保留双父44c8db6/2415813；这只证明冲突已解决，不代表检查全部通过。波形限定观测实际读到1182→2364（同步、两帧和500ms均翻倍），恢复无效hAlign改动，仅将原几何阈值改为expect.poll，定向1/1通过。intro修正后双目标小样例2/2通过；尚未以这些定向结果冒称全套通过。首次全量Go race失败且被中断，其输出只存在工具原始记录，不伪造本地raw日志。
+
+随后只读定位出可复现的兼容原因：三个持久化故障测试仍删除state.backup.json，而SQLite实际事务写入与非致命定期备份的语义不同；助手内嵌skill错误码节未按新增公开错误生成；不支持克隆测试引用已删kokoro-1.0-q8；Vox continuation在上游新增audio参考字段后，被fake engine误当扒谱而只返回score。同一Terra实施者沿同一TASK修正测试夹具与生成文档，不改变生产Vox请求、上游备份语义或错误合同。持久化测试应在私有测试库的settings写事务上受控失败，并保留普通错误detail与profile错误脱敏的区别。recognition两个2秒等待失败尚未证明根因，先隔离race观察提前终态，不盲改生产超时；若只改非超时语义fixture，必须有实际提前错误与有限期限依据，真正超时用例保持。
+
+以上新观察到的兼容原因使旧70分钟工程估计需要重新评估；这不是新的原生预算，也不清除尝试/诊断历史。本轮先限定20分钟完成已定位的测试修正、隔离失败取证及必要检查安排；两轮无新证据仍按停止规则执行。Terra首次调度出现容量错误，主只重试该调度一次，未以Sol冒充代码worker。主继续独立审查与记录，当前状态仍为TASK-002 in_progress。
+
+06:40 UTC收尾决定：Terra首次返修调度明确返回`Selected model is at capacity`，随后一次重试等待约10分钟仍无新增代码/命令产物；主中断该自有Agent，停止调度，没有切换实现模型。主不接受worker先前的TASK-002 done请求：必要检查仍未齐。按用户当前“先合并并推送fork”指令，交付已完成的merge和诚实状态记录，PR #90保持Draft；TASK-002仍in_progress，Feature validation/review仍pending，不把此交付当成新App已验收。
+
+当前合并源码b7ff56a的实际证据与缺口：
+
+| 检查 | 实际结果与范围 |
+|---|---|
+| Git集成 | 双父merge包含旧功能分支与2415813，无未解决冲突；diff --check通过 |
+| 独立合并源码审查 | reviewer对固定b7ff未见新增must-fix；这是有界安全审查，不是正式Feature批准 |
+| Web静态/构建 | eslint、tsc -b、vite build退出0；锁文件冻结安装退出0 |
+| 浏览器 | 首次全套109通过/2失败；语言修正后相关17/17、WAV修正后定向1/1通过；修正后的全套NOT_RUN |
+| 声纹E2E | 首次5失败/1中断/66跳过；intro fixture修正后双目标小例2/2通过；修正后完整72项NOT_RUN |
+| Go | `GOMAXPROCS=2 go test -race -p 2 ./...`失败并中断；包括已定位旧JSON故障注入、fake Vox音频、旧模型ID、内嵌skill生成及尚未定位的recognition超时。reader读前冻结/关闭检查修正后定向退出0（1.229秒）；不能宣称完整race通过 |
+| 采证脚本 | `PYTHONPYCACHEPREFIX=/private/tmp/yovoice-pycache python3 -m unittest scripts/desktop/check-speaker-validation-macos.py`，27/27，退出0（14.530秒） |
+| 发行说明 | `python3 scripts/test-release-notes.py`，2/2，退出0 |
+| 其他本轮必要检查 | Swift、其他macOS隔离脚本、recognition纯Python测试NOT_RUN；旧版结果不作为本次已执行 |
+| 新原生旅程 | NOT_RUN；无App/真实模型/TTS/Mic/cloud/download动作，旧b3d114a实模结果只保留原范围 |
+
+真实保留原件位于`artifacts/verification/feature-002-upstream-merge-20261020/build-001/`；部分首轮输出仅在工具记录，零字节playwright-full.log不作证据。下一步沿同一TASK与已给定根因继续Terra返修及必要检查，不重置失败历史，不新增原生授权。最终推送与远端核对见本次回复及Git记录。
 
 ### 2026-10-20 当前新包原生通过，完成独立收尾
 

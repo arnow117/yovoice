@@ -4,10 +4,10 @@
 
 REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹页面；依赖已交付的 FEAT-001。
 有效产品与工程上下文为 `.sdlc-v1/context/REQ-002.product.md` 和 `.sdlc-v1/context/FEAT-002.engineering.md`。
-范围包含桌面私有 RPC、临时录音与文件、档案管理、显式绑定生成及独立本地验证包；不改原 CLI/v1、State 或私有档案格式。
-当前b3d114a独立正式Validate PASS及独立Review approved均已由主接受，FEAT-002功能验收完成，无未处理必须修复项。57a2b22的删除刷新P2独立增量6/6与当前新包完整原生证据覆盖22场景必要功能要求；72目标其余66按同输入复用，不冒称本轮全量执行。真实双登记/双known正确/unknown拒绝、删除B和可见重启仅原A、两次正常退出均通过，2启动/5提取/含清理534.548秒；初始化基线至最终退出完整State/输入相同，自有进程、私有特征和CUA已清理。旧失败及旧快照遗漏保留原版本；逐条时延延期、物理Mic/真实TTS听测NOT_RUN。尚未主线合并或发行，二者不在本次验收范围内。
+范围包含桌面私有 RPC、临时录音与文件、档案管理、显式绑定生成及独立本地验证包。当前新增TASK-002把upstream/main 2415813合入既有功能分支，适配上游SQLite、操作槽、引擎返回值、目录迁移和界面；声纹仍为独立私有档案，不进入普通State或SQLite备份。
+b3d114a的独立正式Validate PASS、独立Review approved和真实2启动/5提取/534.548秒结果属于合并前版本，完整原件和失败历史保留于工程上下文。用户之后授权解决上游冲突并推送；当前重新进入TASK-002集成和自动化验证，不能把旧原生结果直接作为合并后新版本通过。真实新包旅程尚未运行，逐条时延延期、物理Mic/真实TTS听测NOT_RUN；主线合并或发行仍不在本次范围内。
 新的 Web runner 与本地 Mac 验证命令已实际执行，入口和证据边界见下表。
-用户已授权功能分支commit/push、必要修正与独立正式验证/评审；当前新包一次2启动/5提取/20分钟授权已完成并收尾，没有进一步App/模型运行计划。只完成独立正式结果及元数据提交，不重复相同输入下已通过的检查。主线合并或二进制发行仍不在本次范围内。
+用户已授权拉取/合并最新上游、解决冲突、必要兼容检查及commit/push到fork的codex/speaker-validation-ui，并更新上游PR #90。当前一次原生预算已完成；此次集成仅执行确定性自动化检查，不新增App/模型运行，不把尚未执行的必要原生验收标记通过。
 
 ## 项目定位与采集边界
 
@@ -40,7 +40,7 @@ REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹
 | 推理 | audio.cpp 推荐 `v0.9.1`、最低 `v0.7.4`；CPU / Metal / Vulkan / CUDA 12.4 / 13.3 | 固定运行包、SHA256 校验；`internal/catalog/engine.json`，版本与最低兼容版本分开 |
 | 模型 | IndexTTS 2/2.5、VoxCPM2、OmniVoice、Qwen3-TTS、Kokoro | 当前均用于 TTS / 声音设计；`internal/catalog/catalog.json` |
 | 构建工具 | Python 3.12+、Make、Bash、curl、C 编译器；精简 FFmpeg 8.1.2 | 音频转换、原生依赖提取与打包；开发指南、`scripts/build-ffmpeg.py` |
-| 持久化 | JSON 主副本 / 备份、媒体文件；预览使用 localStorage + IndexedDB | App 默认 `~/.yovoice`，无数据库服务；`internal/store/store.go`、`preview-backend.ts` |
+| 持久化 | 上游 SQLite `yovoice.db` / `yovoice.backup.db`、旧 JSON 导入、媒体文件；声纹独立私有 `speakers.json`；预览 localStorage + IndexedDB | App 默认 `~/.yovoice`，支持数据目录迁移；`internal/store/{store,db,legacy}.go`、`internal/workbench/storage.go`；声纹不进入普通数据库或其备份 |
 | 外部依赖 | GitHub Release、Hugging Face / ModelScope / mirror、PyPI、FFmpeg 源码 | 运行包、模型及构建依赖下载；模型权重不随 App 打包 |
 
 本机工具链由主 Agent 确认：arm64、Go 1.26.3、Node 25.9、pnpm 11、Swift 6.3；Python 3.12.13 位于父工作区 `.venv/bin/python3`。默认 pnpm 版本与项目固定版本不同；复现应使用 9.15.2。原生构建脚本调用 PATH 上的 `python3`、`pnpm`，需确保实际解析到符合要求的版本。
@@ -70,8 +70,8 @@ REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹
 | 推理 / 下载修改 | `go test -race ./...` | 根 AGENTS 明确要求；含请求映射、取消、并发、下载、状态恢复测试 |
 | Web 完整检查 | `make check-web` 或 `pnpm --dir web run check` | 依次 lint、TypeScript/Vite build、Playwright；UI 修改三个检查均需执行 |
 | Web 分项 | `pnpm --dir web run lint`；`pnpm --dir web run build`；`pnpm --dir web test` | build 内含 `tsc -b`；独立 typecheck script 为 `none` |
-| 声纹 Web 旅程 | 在 `web/` 执行 `E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --workers 1 --retries 0 --strict-cache` | tester-army CLI 与 Web engine；只读缓存、确定性业务断言、中文 1280×840 / 英文 390×600，两目标 58 项；合成桥接不执行模型 |
-| 声纹验证脚本 | `python3 -B scripts/desktop/check-speaker-validation-macos.py` | 22 项隔离替身检查，覆盖配置、有限退出、可见性与构建凭据；不启动真实 App/模型 |
+| 声纹 Web 旅程 | 在 `web/` 执行 `E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --workers 1 --retries 0 --strict-cache` | tester-army CLI 与 Web engine；只读缓存、确定性业务断言、中文 1280×840 / 英文 390×600，当前列举两目标共 72 项；合成桥接不执行模型，执行结果另见工程记录 |
+| 声纹验证脚本 | `python3 -B scripts/desktop/check-speaker-validation-macos.py` | 当前 27 项隔离替身检查，覆盖配置、有限退出、可见性、SQLite一致性采证与构建凭据；不启动真实 App/模型 |
 | 声纹本地 App | `scripts/desktop/build-speaker-validation-macos.sh`；`scripts/desktop/smoke-speaker-validation-macos.sh` | 当前全局操作入口为 `docs/usage.md`；完整签名后生成同级 receipt，smoke 启动前核对源码与包指纹；使用独立资料目录、固定本地 CPU 模型及五段样本，真实运行需要既定授权 |
 | Swift 单元检查 | `swift test --package-path desktop/macos` | 版本 / 更新解析与窗口位置；需要 macOS / Xcode CLT |
 | 原生脚本检查 | `python3 scripts/desktop/check-macos-run.py`；`python3 scripts/desktop/check-macos-update.py`；`python3 scripts/desktop/check-signing.py` | 隔离替身验证日志、更新回滚和签名调用顺序；不代表真实安装 / 公证通过 |
@@ -104,7 +104,7 @@ Go 覆盖率按原生 `go test -coverprofile` 的 statements 口径验收：reco
 
 - 本地服务身份来自 `WORKBENCH_TOKEN`，运行目录/资源来自 `WORKBENCH_DATA`、`WORKBENCH_WEB`、`WORKBENCH_ENGINE`；远程 API 读取 `YOVOICE_API_TOKEN`（至少 32 字符），可配置 TLS。只记录来源，不记录凭据值。
 - `web/test-results/`、`playwright-report/`、`artifacts/`、Swift `.build/` 已忽略；Playwright 未显式配置 trace/video/screenshot 或 JUnit，缺少稳定的成功证据归档策略。
-- `.github/workflows/check.yml` 在 macOS 15、Windows 与 Linux CLI 执行检查/打包；失败时上传 `web/test-results/`，保留 7 天；安装包保留 14 天。无 tester-army 或真实模型质量任务。
+- `.github/workflows/check.yml` 的日常平台检查在 macOS 15/Windows 运行Go，macOS另有声纹tester-army及Swift/脚本检查；Linux独立执行Web检查与Go race/vet，封存浏览器用例按上游每周/手动全量规则运行。发行打包与日常检查分开；失败浏览器结果保留7天、发行安装包保留14天，没有真实模型质量任务。
 - 本轮基线日志由主 Agent 放在 `artifacts/verification/baseline/`；今后按运行保留命令、退出码、工具/浏览器版本、commit、配置、产物标识、Skip/重试与模型结果，在 Feature 研发上下文引用，避免用旧 App 为新 HEAD 背书。
 - 迭代选择：Go/CLI/API 或持久化修改跑 core 与受影响旅程；runner/模型/预处理/T/M 修改另跑 Python 和固定实模 smoke；Web 修改追加完整 Web 检查；原生/打包修改追加目标平台和实际打包转换器检查。日志中的缓存通过仅适用于相同源码、配置及环境；缺目标设备/模型的项列为未验证。
 - 本轮实模识别使用开发机 FFmpeg 9.0.2，经 `artifacts/tools/ffmpeg` 定位；发行包 FFmpeg 8.1.2 的新识别转换路径未验证，不能由该 smoke 代替。
