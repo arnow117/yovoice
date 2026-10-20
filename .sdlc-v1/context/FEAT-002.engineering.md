@@ -468,7 +468,15 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-当前工作树的删除刷新P2返修已由主接受Build，原7833fba的通过仅属于该原版本；当前候选须完成新的独立增量Validate及新包实模SCN-UI-22，未因此提前通过。以下保留所有历史版本结论。
+删除刷新P2返修已提交57a2b22并推送，主接受Build及独立6/6增量结果；唯一必要缺口是当前新包SCN-UI-22真实原生旅程NOT_RUN，正式validation为fail/INCONCLUSIVE，尚不进入Review。原7833fba通过仅属于该历史版本；以下保留所有版本结论。
+
+### 2026-10-20 独立增量6/6通过，待当前新包实模 — 57a2b22
+
+原独立验证者在完整干净57a2b22699fd7748640bfa5c3d068a933b47d180核对TASK均done，并独立执行三故事两目标。安全选择记录确认72被收集、6被选中；实际命令为`E2E_TELEMETRY_DISABLED=1 ./node_modules/.bin/e2e run --config e2e.config.ts --grep '^(删除成功后即使列表或运行时刷新失败也立即移除精确档案|迟到的档案读取或错误不会覆盖最新删除后的刷新结果|删除存储失败时确认对话框保留目标、反馈可见且可关闭后重试)$' --target mac-zh-1280,mac-en-390 --workers 1 --retries 0 --strict-cache --max-failures 1 --output e2e-results/formal-validation-57a2b22`，cwd为web。UTC01:17:21.052–01:17:53.227、32.173秒、exit0，run01a156e2-6c23-7d01-9983-03bbf2381311为6/6、0retry/模型/provider/download、cleanup complete。其余66本轮过滤，按前独立70及修正生成故事2目标的相关输入复用，不称本轮全量72执行；browser59及未改域的原始范围不变。
+
+原件`artifacts/verification/feature-002-formal-validation-20261019/independent-001/incremental-57a2b22/`包括selection/e2e command JSON、raw log、report/JUnit、observed summary、input applicability及cleanup/final workspace；主已亲读command/summary/cleanup。独立者01:18:45Z strict codesign实际exit0，完整新包等于原receipt；当前源码只三个SDLC文件变化，不声称当前strict源码相同，原receipt不改。模型/五样本/runner manifest与既验资产一致。01:19:30Z自有PID/PGID29799不存在、63490/63491无监听、项目验证进程无残留，未终止共享进程；初次沙箱ps拒绝与随后只读核对分别保存。
+
+P2的确定性故障分支及原保护已通过；当前新包真实登记/识别/删除/重启仍NOT_RUN。按REQ-002边界2/5保持必要条件，主接受独立请求record-validation fail绑定57a2b22，不把旧包实模移记新包。新App、原receipt、固定资产及具体一次预算已准备，等待用户新增明确运行授权；0新增App/模型。历史失败/早期快照缺失、逐条时延延期、物理Mic/真实TTS听测NOT_RUN继续保留，不重跑已通过增量或未改域。
 
 ### 2026-10-20 删除成功刷新失败返修Build证据
 
@@ -482,7 +490,7 @@ pnpm lint包装器在启动ESLint前fetch failed、exit1的原件保留；使用
 
 主接受本P2实现/必要测试，请求TASK恢复done并提交功能分支。独立增量及当前新包真实旅程仍待完成，既有旧包实模不能替代新包要求；目前零新增App/模型运行，native-request仅是未授权方案。
 
-当前7833fba的独立正式Validate已由主接受为PASS，22场景的必要功能证据齐全；正式Review待独立评审。新包d34下双登记、双known精确ID正确、unknown拒绝、删除故障提示及恢复删除，与7833下同包同data的可见ready重启、原A唯一/B缺失及正常退出共同覆盖真实功能路径。重启State/公开档案/输入严格一致，1启动/0提取/含预检收尾255.841秒，自有进程和私有测试特征均已清理；历史锁屏和超预算失败不覆盖、不删除。登记前初始化hash快照仍NOT_COLLECTED，不声称完整三阶段State相等；逐条时延延期，物理Mic/真实TTS听测仍NOT_RUN。全部证据保留各自版本和适用范围。
+历史7833fba的独立正式Validate已由主接受为PASS，其22场景证据保留该版本范围；随后Review的唯一P2及返修见本节顶部和Review。新包d34下双登记、双known精确ID正确、unknown拒绝、删除故障提示及恢复删除，与7833下同包同data的可见ready重启、原A唯一/B缺失及正常退出共同覆盖当时真实功能路径。重启State/公开档案/输入严格一致，1启动/0提取/含预检收尾255.841秒，自有进程和私有测试特征均已清理；历史锁屏和超预算失败不覆盖、不删除。登记前初始化hash快照仍NOT_COLLECTED，不声称完整三阶段State相等；逐条时延延期，物理Mic/真实TTS听测仍NOT_RUN。全部证据保留各自版本和适用范围。
 
 ### 2026-10-20 独立正式Validate通过 — 7833fba
 

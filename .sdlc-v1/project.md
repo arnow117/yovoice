@@ -5,7 +5,7 @@
 REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹页面；依赖已交付的 FEAT-001。
 有效产品与工程上下文为 `.sdlc-v1/context/REQ-002.product.md` 和 `.sdlc-v1/context/FEAT-002.engineering.md`。
 范围包含桌面私有 RPC、临时录音与文件、档案管理、显式绑定生成及独立本地验证包；不改原 CLI/v1、State 或私有档案格式。
-旧a001a0f包的完整原生结果保留其版本。7833fba的独立正式Validate已通过，新的独立Review提出唯一P2：删除成功后若列表/runtime刷新失败，界面仍保留已删档案和生成选项；主已核实并沿同一Task/Terra实施者最小返修，其余完整diff无必须修复项。2026-10-20新包真实双登记/双known/unknown/删除故障恢复与可见ready重启、原A唯一/B缺失及正常退出证据均保留：State/档案/输入相同，自有进程和私有特征已清理，重启含预检收尾255.841秒。早期快照缺失及此前失败保留，逐条时延延期、物理Mic/真实TTS听测NOT_RUN。返修后须适用Validate/Review，不提前结束Feature。
+当前57a2b22已修正并推送独立Review唯一P2（删除成功后列表/runtime刷新失败的残留），同一Terra实施者最小返修已由主接受，独立增量6/6也通过。当前72目标中仅6项本次执行，其余66按相关输入复用原独立70和修正生成故事2目标，不冒称当前全量执行。新worker-20261020-post-delete-refresh-fix包及原receipt严格绑定已核对、未启动；按当前产品口径唯一必要缺口为新包SCN-UI-22真实旅程，validation fail/INCONCLUSIVE，待新增一次预算，不提前Review。旧a001a0f/d34/7833的实模、删除恢复、可见重启及State/输入一致性保留各自版本；自有进程及私有特征已清理。早期快照缺失、历史失败和逐条时延/Mic/TTS边界继续保留。
 新的 Web runner 与本地 Mac 验证命令已实际执行，入口和证据边界见下表。
 用户已授权功能分支commit/push、必要修正与独立正式验证/评审。删除刷新P2最小修正/新回归6目标、browser59及lint/build已由主接受，新worker-20261020-post-delete-refresh-fix包/receipt严格绑定已核对、尚未启动。须独立增量Validate，并按当前产品口径取得新包SCN-UI-22；主先备好具体2启动/5提取/20分钟方案再请求新增一次授权，不自行复用已结束预算、不重跑未改Go等域。主线合并或二进制发行仍不在本次范围内。
 
