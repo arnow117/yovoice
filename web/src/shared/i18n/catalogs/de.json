@@ -2762,6 +2762,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "Erweitertes LRC mit Zeitstempel pro Wort, für Player mit Karaoke-Liedtexten"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Liedtext-Werkzeuge"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Wort-Timing bearbeiten"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Wortblöcke ziehen oder mittippen, um das Timing jedes Wortes anzupassen"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Beim Zuhören den Beginn jeder Zeile markieren"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Diese Zeile bearbeiten"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Wort-Timing-Editor"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Wort ziehen zum Verschieben, Ränder ziehen zum Ändern der Länge; ←/→ verschiebt das gewählte Wort, mit Umschalt feiner; Doppelklick zum Anhören"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Mittippen"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Tippen beenden"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Drücke ↓ oder Eingabe, wenn ein Wort beginnt; es geht automatisch zum nächsten. Esc beendet"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Zeile {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Vorherige Zeile"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Nächste Zeile"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Diese Zeile abspielen"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Rückgängig"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Abbrechen"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Speichern"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Beginn von „{word}“ anpassen"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Ende von „{word}“ anpassen"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Automatisch ausrichten"
   },

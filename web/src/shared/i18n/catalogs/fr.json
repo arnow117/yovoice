@@ -2762,6 +2762,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "LRC enrichi avec un horodatage par mot, pour les lecteurs compatibles karaoké"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Outils des paroles"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Modifier le minutage des mots"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Faites glisser les mots ou tapez en rythme pour ajuster le moment de chaque mot"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Marquez le début de chaque ligne en écoutant"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Modifier cette ligne"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Éditeur de minutage des mots"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Faites glisser un mot pour le déplacer, ses bords pour changer sa durée ; ←/→ décale le mot sélectionné, Maj pour un pas plus fin ; double-cliquez pour écouter"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Taper en rythme"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Arrêter"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Appuyez sur ↓ ou Entrée au début de chaque mot ; le mot suivant est sélectionné automatiquement. Échap pour arrêter"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Ligne {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Ligne précédente"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Ligne suivante"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Lire cette ligne"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Annuler la modification"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Annuler"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Enregistrer"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Ajuster le début de « {word} »"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Ajuster la fin de « {word} »"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Aligner automatiquement"
   },

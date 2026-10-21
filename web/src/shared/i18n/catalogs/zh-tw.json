@@ -2762,6 +2762,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "增強 LRC，每個字都帶時間，支援卡拉 OK 歌詞的播放器可逐字顯示"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "歌詞工具"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "編輯逐字時間"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "拖曳字塊或跟唱打點，調整每個字的時間"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "邊聽邊逐行標記每句的開始"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "編輯這一句"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "逐字時間編輯"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "拖曳字塊移動，拖兩端調整長短；選取後按 ←/→ 微調，按住 Shift 更細；按兩下試聽"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "跟唱打點"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "停止打點"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "每個字開始唱時按 ↓ 或 Enter，自動跳到下一個字；Esc 停止"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "第 {n}/{total} 句"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "上一句"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "下一句"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "播放這一句"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "復原"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "取消"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "儲存"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "調整「{word}」的開始"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "調整「{word}」的結束"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "智慧對齊"
   },

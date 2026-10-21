@@ -444,6 +444,9 @@ public partial class MainWindow : Window
                     bool available = data.GetProperty("available").GetBoolean();
                     ToggleInspectorButton.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
                     ToggleInspectorMenu.IsEnabled = available; result = true; break;
+                case "window.immersive":
+                    // macOS 播放页把网页铺进标题栏；Windows 的标题栏放着菜单，保持原样。
+                    result = true; break;
                 case "assistant.entry":
                     // 网页右下角入口在时不重复显示标题栏入口，移走后才由标题栏接替。
                     ToggleAssistantButton.Visibility = data.GetProperty("visible").GetBoolean() ? Visibility.Visible : Visibility.Collapsed;

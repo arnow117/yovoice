@@ -2762,6 +2762,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "Enhanced LRC with a timestamp for every word, for players that support karaoke lyrics"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Lyric tools"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Edit word timing"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Drag word blocks or tap along to adjust when each word is sung"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Mark the start of each line while listening"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Edit this line"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Word timing editor"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Drag a word to move it, drag its edges to resize; ←/→ nudges the selected word, Shift for finer steps; double-click to preview"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Tap along"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Stop tapping"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Press ↓ or Enter as each word starts; it moves to the next word automatically. Esc stops"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Line {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Previous line"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Next line"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Play this line"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Undo"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Cancel"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Save"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Adjust the start of “{word}”"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Adjust the end of “{word}”"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Auto-align"
   },

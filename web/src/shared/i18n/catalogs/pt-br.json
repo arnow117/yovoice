@@ -2762,6 +2762,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "LRC avançado com horário em cada palavra, para players com letras de karaokê"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Ferramentas de letra"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Editar tempo das palavras"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Arraste os blocos ou marque no ritmo para ajustar quando cada palavra é cantada"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Marque o início de cada linha enquanto ouve"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Editar esta linha"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Editor de tempo das palavras"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Arraste uma palavra para movê-la e as bordas para mudar a duração; ←/→ ajusta a palavra selecionada, Shift em passos menores; clique duas vezes para ouvir"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Marcar no ritmo"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Parar de marcar"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Pressione ↓ ou Enter quando cada palavra começar; passa sozinho para a próxima. Esc para parar"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Linha {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Linha anterior"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Próxima linha"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Tocar esta linha"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Desfazer"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Cancelar"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Salvar"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Ajustar o início de “{word}”"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Ajustar o fim de “{word}”"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Alinhar automaticamente"
   },

@@ -162,6 +162,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     }
 
     // 右侧面板按钮贴最右；不在工作区时隐藏，助手按钮补到最右，避免留空位。
+    // 播放页打开时网页铺到标题栏下面，标题栏与播放页背景融为一体，只留红绿灯；
+    // chrome 为假（播放中静置、控件隐藏）时红绿灯也隐藏，录屏画面里没有窗口按钮。关闭播放页后恢复原样。
+    private func setImmersive(_ active: Bool, chrome: Bool) {
+        if active { window.styleMask.insert(.fullSizeContentView) } else { window.styleMask.remove(.fullSizeContentView) }
+        window.titleVisibility = active ? .hidden : .visible
+        window.titlebarAccessoryViewControllers.forEach { $0.isHidden = active }
+        for kind in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] { window.standardWindowButton(kind)?.isHidden = active && !chrome }
+    }
     private func layoutTitleButtons() {
         inspectorButton?.isHidden = !inspectorVisible
         assistantButton?.isHidden = !assistantEntryVisible
@@ -417,6 +425,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         if method == "inspector.available" {
             inspectorVisible = data["available"] as? Bool == true
             layoutTitleButtons()
+            return ["id": message["id"]!, "result": true]
+        }
+        if method == "window.immersive" {
+            setImmersive(data["active"] as? Bool == true, chrome: data["chrome"] as? Bool != false)
             return ["id": message["id"]!, "result": true]
         }
         if method == "assistant.entry" {
