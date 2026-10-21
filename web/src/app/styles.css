@@ -772,6 +772,8 @@
   .now-playing .astryx-button { color: inherit; }
   .now-playing .now-playing-glass.astryx-button, .now-playing .now-playing-mark.astryx-button { border: 0; border-radius: var(--radius-full); background: var(--now-playing-glass); backdrop-filter: blur(var(--spacing-4)); box-shadow: none;
     transition: background var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard); }
+  /* 歌词样式按钮只写当前样式名，不配图标；高度与旁边的圆形按钮一致。 */
+  .now-playing .now-playing-style.astryx-button { height: var(--spacing-10); padding-inline: var(--spacing-4) var(--spacing-3); font-weight: var(--font-weight-medium); }
   .now-playing .now-playing-round.astryx-button { width: var(--spacing-10); height: var(--spacing-10); }
   .now-playing .now-playing-glass.astryx-button:hover:not(:disabled) { background: var(--now-playing-glass-hover); }
   .now-playing .astryx-button:active:not(:disabled) { transform: scale(.94); }
@@ -789,7 +791,7 @@
   .now-playing-art .song-cover { box-shadow: 0 var(--spacing-8) calc(var(--spacing-12) * 1.5) hsl(var(--now-playing-hue) 40% 4% / 50%); }
   .now-playing-title, .now-playing-line { color: var(--now-playing-ink); }
   .now-playing-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); line-height: 1.25; overflow-wrap: anywhere; }
-  .now-playing-tags, .now-playing-times, .now-playing-note, .now-playing-sync { color: var(--now-playing-muted); }
+  .now-playing-tags, .now-playing-times, .now-playing-sync { color: var(--now-playing-muted); }
   .now-playing-times { font-variant-numeric: tabular-nums; font-size: var(--font-size-xs); }
   /* 进度条：平时是细线，悬停时加粗并露出圆点。 */
   .now-playing-progress { width: 100%; height: var(--spacing-1); margin-block: var(--spacing-2) 0; appearance: none; border-radius: var(--radius-full); cursor: pointer; transition: height var(--duration-fast) var(--ease-standard);
@@ -825,39 +827,56 @@
     transition: transform var(--duration-slow) var(--ease-standard), filter var(--duration-slow) var(--ease-standard); }
   .now-playing-word[data-sung="active"] { transform: translateY(-.05em); filter: drop-shadow(0 0 .3em color-mix(in srgb, var(--now-playing-ink) 55%, transparent)); }
   .now-playing-line[data-state="current"]:has(.now-playing-word) { text-shadow: none; }
-  /* 浮光：一句一屏的大字。上一句缩小、模糊着向上飘走，下一句在下方小字预告；字未唱时淡而模糊地悬着，唱到时带着各自的倾斜弹出并用强调色发光，唱过后留在原位。 */
+  /* 浮光：一句一屏的大字，字散落在画面中央偏上。每个字的位移、倾斜、缩放、透明度和模糊由 kinetic-lyrics.ts 逐帧写入：
+     未唱时隐在远处，唱到时飞入放大、颜色随演唱进度染成强调色并亮起光晕，唱过后缩回、慢慢偏转。光晕是叠在字后面的一层，不让字本身变粗。
+     换句时新句从略小且模糊淡入，旧句放大、模糊着散去；下一句在下方以小字预告。整句随呼吸缓慢起伏。 */
   .now-playing[data-style="stage"] .now-playing-stage { padding: 0; }
-  .now-playing-kinetic { position: relative; flex: 1; align-self: stretch; min-width: 0; justify-content: center; align-items: center; overflow: hidden; }
-  .now-playing-phrase { --phrase-y: 0%; --phrase-scale: 1; position: absolute; inset-inline: clamp(var(--spacing-6), 8vw, calc(var(--spacing-12) * 3)); top: 42%; margin: 0; color: var(--now-playing-ink); text-align: center; text-wrap: balance;
-    font-size: clamp(var(--font-size-3xl), 5.4vw, calc(var(--font-size-4xl) * 2)); font-weight: var(--font-weight-bold); line-height: 1.3; letter-spacing: .02em;
-    transform: translateY(calc(-50% + var(--phrase-y))) scale(var(--phrase-scale)); transition: transform calc(var(--duration-slow) * 2) var(--ease-standard), opacity calc(var(--duration-slow) * 2) var(--ease-standard), filter calc(var(--duration-slow) * 2) var(--ease-standard);
-    animation: now-playing-phrase-in calc(var(--duration-slow) * 2) var(--ease-standard) both; }
-  .now-playing-phrase[data-slot="current"] { --phrase-scale: calc(1 + var(--now-playing-level) * .035); }
-  .now-playing-phrase[data-slot="past"] { --phrase-y: -150%; --phrase-scale: .7; opacity: 0; filter: blur(var(--spacing-3)); }
-  .now-playing-phrase[data-slot="next"] { --phrase-y: 190%; --phrase-scale: .4; opacity: .5; filter: blur(var(--spacing-0-5)); }
-  @keyframes now-playing-phrase-in { from { opacity: 0; filter: blur(var(--spacing-4)); } }
-  .now-playing-glyph { --word-fill: 0; display: inline-block; white-space: pre-wrap; font-size: calc(1em * var(--glyph-size)); opacity: .22; filter: blur(.06em);
-    transform: translateY(calc(var(--glyph-drift) * .3em + .3em)) rotate(calc(var(--glyph-tilt) * 2)) scale(1.3);
-    transition: opacity var(--duration-slow) var(--ease-standard), filter var(--duration-slow) var(--ease-standard), color calc(var(--duration-slow) * 2) var(--ease-standard),
-      text-shadow calc(var(--duration-slow) * 2) var(--ease-standard), transform var(--duration-slow) cubic-bezier(.2, 1.6, .35, 1); }
-  .now-playing-glyph[data-sung="active"] { opacity: 1; filter: none; color: hsl(var(--now-playing-accent) 92% 72%);
-    transform: translateY(calc(var(--glyph-drift) * .14em - .08em)) rotate(var(--glyph-tilt)) scale(1.16);
-    text-shadow: 0 0 .25em hsl(var(--now-playing-accent) 95% 62% / 85%), 0 0 1em hsl(var(--now-playing-accent) 95% 55% / 50%); }
-  .now-playing-glyph[data-sung="done"] { opacity: 1; filter: none; transform: translateY(calc(var(--glyph-drift) * .14em)) rotate(var(--glyph-tilt)); text-shadow: 0 .04em .3em hsl(var(--now-playing-hue) 40% 4% / 50%); }
-  /* 下一句预告整句平铺显示，不做逐字动画。 */
-  .now-playing-phrase[data-slot="next"] .now-playing-glyph { opacity: 1; filter: none; transform: none; color: var(--now-playing-muted); text-shadow: none; }
+  .now-playing-kinetic { position: relative; flex: 1; align-self: stretch; min-width: 0; justify-content: center; align-items: center; overflow: hidden; container-type: size; }
+  .now-playing-phrase { position: absolute; inset-inline: clamp(var(--spacing-6), 9cqi, calc(var(--spacing-12) * 3)); top: 42%; margin: 0; color: var(--now-playing-ink); text-align: center; text-wrap: balance;
+    font-size: calc(clamp(var(--font-size-3xl), 8.6cqi, calc(var(--font-size-4xl) * 2.4)) * var(--phrase-fit, 1)); font-weight: var(--font-weight-bold); line-height: 1.22;
+    transform: translateY(-50%); transform-origin: center; transition: transform var(--duration-medium) var(--ease-standard), opacity var(--duration-medium) var(--ease-standard), filter var(--duration-medium) var(--ease-standard);
+    animation: now-playing-phrase-in var(--duration-slow) cubic-bezier(.22, 1, .36, 1) both, now-playing-phrase-breathe 7s ease-in-out infinite; }
+  .now-playing-phrase[data-align="start"] { text-align: start; }
+  .now-playing-phrase[data-align="end"] { text-align: end; }
+  .now-playing-phrase[data-slot="past"] { opacity: 0; transform: translateY(-50%) scale(1.1); filter: blur(var(--spacing-5)); animation: none; pointer-events: none; }
+  @keyframes now-playing-phrase-in { from { opacity: 0; transform: translateY(-50%) scale(.9); filter: blur(var(--spacing-2)); } }
+  @keyframes now-playing-phrase-breathe { 25% { translate: 0 -.22em; scale: 1.01; } 50% { translate: 0 0; scale: 1; } 75% { translate: 0 .1em; scale: .995; } }
+  .now-playing-glyph { --glyph-mix: 0%; --glyph-glow: 0; position: relative; display: inline-block; padding-inline: var(--glyph-pad, .1em); white-space: pre; opacity: 0; will-change: transform, opacity, filter;
+    color: color-mix(in oklab, hsl(var(--now-playing-accent) 92% 74%) var(--glyph-mix), var(--now-playing-ink)); text-shadow: 0 .04em .3em hsl(var(--now-playing-hue) 40% 4% / 45%); }
+  .now-playing-glyph::before { content: attr(data-text); position: absolute; inset: 0; z-index: -1; padding-inline: inherit; white-space: pre; color: transparent; pointer-events: none; opacity: var(--glyph-glow);
+    text-shadow: 0 0 calc(.35em * (1 + var(--now-playing-level) * .22)) hsl(var(--now-playing-accent) 95% 62%), 0 0 calc(.7em * (1 + var(--now-playing-level) * .22)) hsl(var(--now-playing-accent) 95% 58% / 90%), 0 0 1.4em hsl(var(--now-playing-accent) 95% 55% / 30%); }
+  .now-playing-glyph[data-hero] { font-weight: var(--font-weight-bold); letter-spacing: .01em; }
+  /* 下一句预告：底部一行小字，略带模糊，不做逐字动画。 */
+  .now-playing-upcoming { top: auto; bottom: calc(var(--spacing-12) * 3.2); font-size: clamp(var(--font-size-base), 2.2cqi, var(--font-size-xl)); font-weight: var(--font-weight-medium); color: var(--now-playing-muted); opacity: .7;
+    filter: blur(.04em); transform: none; animation: now-playing-upcoming-in var(--duration-slow) var(--ease-standard) both; }
+  @keyframes now-playing-upcoming-in { from { opacity: 0; translate: 0 50%; } }
   .now-playing-rest { display: inline-block; letter-spacing: .3em; animation: now-playing-breathe 2.4s ease-in-out infinite; }
-  /* 背景里慢慢漂浮的几何图形，随响度略微放大。 */
-  .now-playing-shapes { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-  .now-playing-shape { --shape-size: calc(var(--spacing-12) * var(--shape-scale)); position: absolute; width: var(--shape-size); height: var(--shape-size); left: var(--shape-x); top: var(--shape-y); opacity: calc(.18 + var(--now-playing-level) * .25);
-    color: hsl(calc(var(--now-playing-hue) + var(--shape-index) * 40) 55% 62%); scale: calc(1 + var(--now-playing-level) * .15);
-    animation: now-playing-float calc(18s + var(--shape-index) * 3s) ease-in-out calc(var(--shape-index) * -4s) infinite alternate; }
-  .now-playing-shape[data-shape="ring"] { border: var(--spacing-0-5) solid currentColor; border-radius: var(--radius-full); }
-  .now-playing-shape[data-shape="disc"] { background: currentColor; border-radius: var(--radius-full); opacity: calc(.08 + var(--now-playing-level) * .12); }
-  .now-playing-shape[data-shape="triangle"] { background: currentColor; clip-path: polygon(50% 0, 100% 100%, 0 100%); opacity: calc(.1 + var(--now-playing-level) * .15); }
-  .now-playing-shape[data-shape="star"] { background: currentColor; clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); }
-  .now-playing-shape[data-shape="dash"] { height: var(--spacing-1); border-radius: var(--radius-full); background: currentColor; }
-  @keyframes now-playing-float { from { transform: translate(0, 0) rotate(0); } to { transform: translate(6vmax, -5vmax) rotate(140deg); } }
+  /* 浮光背景（kinetic-lyrics.ts 的 backdropScene）：封面放大虚化铺底，压一层暗色和斜向的色调叠加；上面漂着细线或实心的小几何图形，
+     各自来回平移并整圈旋转，随响度在 0.95~1.45 倍之间胀缩；光点缓慢上升、明灭；四角压暗。 */
+  .now-playing[data-style="stage"]::before, .now-playing[data-style="stage"]::after { display: none; }
+  .now-playing-backdrop { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: hsl(var(--now-playing-hue) 30% 7%); }
+  .now-playing-backdrop-cover { position: absolute; z-index: -1; inset: -25%; opacity: .94; filter: blur(calc(var(--spacing-12) * 1.5)) saturate(1.25);
+    transform: scale(calc(1.02 + var(--now-playing-level) * .03)); animation: now-playing-backdrop-turn 120s linear infinite; }
+  .now-playing-backdrop-cover .song-cover { display: block; width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+  @keyframes now-playing-backdrop-turn { to { rotate: 360deg; } }
+  .now-playing-backdrop::before { content: ""; position: absolute; inset: 0; background: hsl(var(--now-playing-hue) 32% 7% / 62%); }
+  .now-playing-backdrop::after { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(to bottom right, hsl(var(--now-playing-hue) 60% 40% / 40%), transparent, hsl(var(--now-playing-accent) 60% 40% / 40%)), radial-gradient(circle, transparent 40%, hsl(var(--now-playing-hue) 40% 3% / 60%)); }
+  .now-playing-shape { position: absolute; z-index: 1; left: var(--shape-x); top: var(--shape-y); width: calc(var(--spacing-10) + var(--spacing-12) * 2 * var(--shape-size)); aspect-ratio: 1;
+    animation: now-playing-shape-drift linear infinite; }
+  .now-playing-shape-face { display: block; width: 100%; height: 100%; opacity: var(--shape-opacity); background: hsl(var(--now-playing-accent) 55% 78%);
+    scale: calc(.95 + var(--now-playing-level) * (.35 + var(--shape-band) * .1)); transition: scale var(--duration-fast) var(--ease-standard); }
+  .now-playing-shape[data-shape="circle"] .now-playing-shape-face { border-radius: var(--radius-full); }
+  .now-playing-shape:is([data-shape="circle"], [data-shape="square"]):not([data-filled]) .now-playing-shape-face { background: none; border: var(--border-width) solid hsl(var(--now-playing-accent) 55% 78%); }
+  .now-playing-shape[data-shape="triangle"] .now-playing-shape-face { clip-path: polygon(50% 0, 0 100%, 100% 100%); }
+  .now-playing-shape[data-shape="cross"] .now-playing-shape-face { clip-path: polygon(20% 0, 0 20%, 30% 50%, 0 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0, 50% 30%); }
+  @keyframes now-playing-shape-drift {
+    0%, 100% { transform: translate(calc(var(--spacing-4) * -1 * var(--shape-dir)), calc(var(--spacing-8) * var(--shape-dir))) rotate(var(--shape-rotate)); }
+    50% { transform: translate(calc(var(--spacing-4) * var(--shape-dir)), calc(var(--spacing-8) * -1 * var(--shape-dir))) rotate(calc(var(--shape-rotate) + 180deg)); }
+    100% { transform: translate(calc(var(--spacing-4) * -1 * var(--shape-dir)), calc(var(--spacing-8) * var(--shape-dir))) rotate(calc(var(--shape-rotate) + 360deg)); } }
+  .now-playing-mote { position: absolute; z-index: 1; left: var(--mote-x); top: var(--mote-y); width: calc(var(--spacing-0-5) * var(--mote-size) / 2); aspect-ratio: 1; border-radius: var(--radius-full);
+    background: hsl(var(--now-playing-accent) 90% 75%); opacity: 0; animation: now-playing-mote linear infinite; }
+  @keyframes now-playing-mote { 50% { opacity: var(--mote-peak); } to { opacity: 0; transform: translateY(calc(var(--spacing-12) * -2)); } }
   /* 浮光样式下封面与控制收成底部居中的一条，静置时和其他控件一起隐去，画面只剩歌词。 */
   .now-playing[data-style="stage"] .now-playing-side { position: absolute; z-index: 1; left: 50%; bottom: var(--spacing-6); width: min(calc(var(--spacing-12) * 15), calc(100% - var(--spacing-12)));
     flex-direction: row; align-items: center; column-gap: var(--spacing-4); padding: var(--spacing-2) var(--spacing-5) var(--spacing-2) var(--spacing-2); border-radius: var(--radius-container);
@@ -874,8 +893,32 @@
   .now-playing[data-style="stage"] .now-playing-skip.astryx-button { width: var(--spacing-10); height: var(--spacing-10); }
   .now-playing[data-style="stage"] .now-playing-toggle.astryx-button { width: var(--spacing-12); height: var(--spacing-12); }
   .now-playing[data-style="stage"] .now-playing-toggle.astryx-button svg { width: var(--spacing-6); height: var(--spacing-6); }
-  .now-playing[data-style="stage"] .now-playing-note { bottom: auto; top: calc(var(--spacing-5) + var(--spacing-12)); }
-  .now-playing-note { position: absolute; left: var(--spacing-6); bottom: var(--spacing-4); }
+  /* 对齐进行中在顶栏右侧显示一行小字进度。 */
+  .now-playing-status { color: var(--now-playing-muted); font-size: var(--font-size-xs); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* macOS 桌面端网页铺进了标题栏：顶栏让出红绿灯那一行。 */
+  .now-playing[data-host="macos"] .now-playing-bar { top: calc(var(--spacing-7) + var(--spacing-3)); }
+  .now-playing[data-host="macos"] .now-playing-lyrics { mask-image: linear-gradient(transparent, var(--app-ink) 26%, var(--app-ink) 78%, transparent); }
+  /* 逐字编辑：底部一块磨砂面板，上面是这一句的工具，下面是时间轴；字块可拖动，两端是调整长短的把手，播放头随音频移动。 */
+  .now-playing[data-editing] .now-playing-stage { padding-block-end: var(--spacing-4); }
+  .now-playing-line[data-editing] { opacity: 1; filter: none; transform: none; padding-inline-start: var(--spacing-3); box-shadow: inset var(--spacing-1) 0 0 hsl(var(--now-playing-accent) 85% 70%); }
+  .lyric-word-editor { flex: none; margin: 0 var(--spacing-6) var(--spacing-6); padding: var(--spacing-3) var(--spacing-4) var(--spacing-4); border-radius: var(--radius-container); background: var(--now-playing-glass); backdrop-filter: blur(var(--spacing-6));
+    color: var(--now-playing-ink); animation: now-playing-editor-in var(--duration-medium) var(--ease-standard) both; }
+  @keyframes now-playing-editor-in { from { opacity: 0; transform: translateY(30%); } }
+  .lyric-word-editor-count { min-width: calc(var(--spacing-12) * 1.4); text-align: center; font-variant-numeric: tabular-nums; }
+  .lyric-word-editor-hint { flex: 1; min-width: 0; color: var(--now-playing-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lyric-word-track { --word-editor-head: -1; position: relative; height: calc(var(--spacing-12) * 1.6); border-radius: var(--radius-element); background: color-mix(in srgb, var(--now-playing-ink) 6%, transparent); cursor: text; overflow: hidden; touch-action: none; }
+  .lyric-word-tick { position: absolute; top: 0; bottom: 0; padding: var(--spacing-0-5) var(--spacing-1); border-left: var(--border-width) solid color-mix(in srgb, var(--now-playing-ink) 12%, transparent); color: var(--now-playing-muted); font-size: var(--font-size-xs); font-variant-numeric: tabular-nums; }
+  .lyric-word-block { position: absolute; top: calc(var(--spacing-5) + var(--spacing-0-5)); bottom: var(--spacing-2); display: flex; min-width: var(--spacing-3); border-radius: var(--radius-element);
+    background: hsl(var(--now-playing-accent) 60% 60% / 32%); box-shadow: inset 0 0 0 var(--border-width) hsl(var(--now-playing-accent) 80% 75% / 45%); }
+  .lyric-word-block[data-selected] { background: hsl(var(--now-playing-accent) 70% 62% / 60%); box-shadow: inset 0 0 0 var(--spacing-0-5) hsl(var(--now-playing-accent) 90% 80%); z-index: 1; }
+  .lyric-word-track[data-tapping] .lyric-word-block[data-selected] { animation: now-playing-breathe 1.2s ease-in-out infinite; }
+  .now-playing .lyric-word-body.astryx-button { flex: 1; min-width: 0; height: 100%; padding-inline: var(--spacing-1); border-radius: 0; background: none; color: var(--now-playing-ink); font-weight: var(--font-weight-bold); cursor: grab; overflow: hidden; }
+  .now-playing .lyric-word-body.astryx-button:active:not(:disabled) { cursor: grabbing; transform: none; }
+  .now-playing .lyric-word-edge.astryx-button { flex: none; width: var(--spacing-2); min-width: 0; height: 100%; padding: 0; border-radius: 0; background: hsl(var(--now-playing-accent) 90% 80% / 30%); cursor: ew-resize; opacity: 0; transition: opacity var(--duration-fast) var(--ease-standard); }
+  .now-playing .lyric-word-edge.astryx-button svg { width: var(--spacing-2); height: var(--spacing-3); }
+  .lyric-word-block:hover .lyric-word-edge.astryx-button, .lyric-word-block[data-selected] .lyric-word-edge.astryx-button, .now-playing .lyric-word-edge.astryx-button:focus-visible { opacity: 1; }
+  .now-playing .lyric-word-edge.astryx-button:active:not(:disabled) { transform: none; }
+  .lyric-word-head { position: absolute; top: 0; bottom: 0; left: calc(var(--word-editor-head) * 100%); width: var(--spacing-0-5); background: var(--now-playing-ink); box-shadow: 0 0 var(--spacing-2) var(--now-playing-ink); pointer-events: none; z-index: 2; }
   .now-playing-sync { position: absolute; left: 50%; bottom: var(--spacing-6); transform: translateX(-50%); max-width: calc(100% - var(--spacing-12)); padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) var(--spacing-5); border-radius: var(--radius-full); background: var(--now-playing-glass); backdrop-filter: blur(var(--spacing-6)); animation: now-playing-rise var(--duration-medium) var(--ease-standard) both; }
   @keyframes now-playing-rise { from { opacity: 0; transform: translate(-50%, 50%); } }
   .now-playing-sync-count { color: var(--now-playing-ink); font-variant-numeric: tabular-nums; }
@@ -959,7 +1002,8 @@
     .intro-word { transform: rotateX(8deg) rotateY(-10deg); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .now-playing, .now-playing[data-leaving], .now-playing-sync, .now-playing::before, .now-playing::after, .now-playing-line[data-instrumental][data-state="current"], .now-playing-phrase, .now-playing-rest, .now-playing-shape { animation: none; }
+    .now-playing, .now-playing[data-leaving], .now-playing-sync, .now-playing::before, .now-playing::after, .now-playing-line[data-instrumental][data-state="current"], .now-playing-phrase, .now-playing-upcoming, .now-playing-rest, .now-playing-shape, .now-playing-mote, .now-playing-backdrop-cover, .lyric-word-editor { animation: none; }
+    .now-playing-mote { opacity: var(--mote-peak); }
     .now-playing-line { transition-delay: 0s; }
   }
   /* 功能引导：整窗压暗，高亮框用超大外阴影挖出目标；卡片按目标位置由脚本定位。宽度与 guide-tour.tsx 的 cardWidth 一致。 */

@@ -2762,6 +2762,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "모든 글자에 시간이 있는 확장 LRC. 노래방 가사를 지원하는 플레이어용"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "가사 도구"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "단어 타이밍 편집"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "단어 블록을 끌거나 노래에 맞춰 탭해 단어별 시간을 조정"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "들으면서 줄마다 시작 지점을 표시"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "이 줄 편집"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "단어 타이밍 편집기"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "블록을 끌어 이동하고 양 끝을 끌어 길이를 조정합니다. 선택 후 ←/→로 미세 조정, Shift는 더 세밀하게. 더블 클릭으로 미리 듣기"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "탭으로 기록"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "기록 중지"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "각 단어가 시작될 때 ↓ 또는 Enter를 누르면 다음 단어로 넘어갑니다. Esc로 중지"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "{n}/{total}번째 줄"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "이전 줄"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "다음 줄"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "이 줄 재생"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "실행 취소"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "취소"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "저장"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "“{word}” 시작 조정"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "“{word}” 끝 조정"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "자동 정렬"
   },

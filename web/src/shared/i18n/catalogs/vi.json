@@ -2762,6 +2762,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "LRC mở rộng có thời gian cho từng chữ, dành cho trình phát hỗ trợ lời karaoke"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Công cụ lời bài hát"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Chỉnh thời gian từng chữ"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Kéo các khối chữ hoặc gõ theo nhịp để chỉnh thời điểm hát từng chữ"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Đánh dấu điểm bắt đầu từng dòng khi nghe"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Chỉnh dòng này"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Trình chỉnh thời gian từng chữ"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Kéo chữ để di chuyển, kéo hai đầu để đổi độ dài; ←/→ dịch chữ đang chọn, giữ Shift để dịch nhỏ hơn; nhấp đúp để nghe thử"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Gõ theo nhịp"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Dừng gõ"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Nhấn ↓ hoặc Enter khi mỗi chữ bắt đầu; tự chuyển sang chữ tiếp theo. Esc để dừng"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Dòng {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Dòng trước"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Dòng sau"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Phát dòng này"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Hoàn tác"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Hủy"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Lưu"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Chỉnh điểm đầu của “{word}”"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Chỉnh điểm cuối của “{word}”"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Tự căn chỉnh"
   },

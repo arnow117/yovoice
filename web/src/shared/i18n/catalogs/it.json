@@ -2762,6 +2762,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "LRC avanzato con un tempo per ogni parola, per i lettori che supportano il karaoke"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Strumenti testo"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Modifica i tempi delle parole"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Trascina i blocchi o batti a tempo per regolare quando viene cantata ogni parola"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Segna l’inizio di ogni riga mentre ascolti"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Modifica questa riga"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Editor dei tempi delle parole"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Trascina una parola per spostarla e i bordi per cambiarne la durata; ←/→ sposta la parola selezionata, Maiusc per passi più fini; doppio clic per ascoltare"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Batti a tempo"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Interrompi"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Premi ↓ o Invio all’inizio di ogni parola; passa da sola alla successiva. Esc per interrompere"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Riga {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Riga precedente"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Riga successiva"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Riproduci questa riga"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Annulla modifica"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Annulla"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Salva"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Regola l’inizio di «{word}»"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Regola la fine di «{word}»"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Allinea automaticamente"
   },

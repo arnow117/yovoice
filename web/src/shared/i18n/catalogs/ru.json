@@ -2762,6 +2762,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "Расширенный LRC с отметкой времени для каждого слова, для плееров с караоке"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Инструменты текста"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Изменить тайминг слов"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Перетаскивайте слова или отстукивайте в такт, чтобы настроить время каждого слова"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Отмечайте начало каждой строки во время прослушивания"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Изменить эту строку"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Редактор тайминга слов"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Перетащите слово, чтобы сдвинуть, края — чтобы изменить длину; ←/→ сдвигает выбранное слово, с Shift точнее; двойной щелчок — прослушать"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Отстукивать"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Остановить"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Нажимайте ↓ или Enter в начале каждого слова — выбор перейдёт к следующему. Esc — остановить"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Строка {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Предыдущая строка"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Следующая строка"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Воспроизвести строку"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Отменить"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Отмена"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Сохранить"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Начало «{word}»"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Конец «{word}»"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Автовыравнивание"
   },
