@@ -1,12 +1,13 @@
 import type { Draft, State } from '../workbench';
 import { CallError, parseCallError } from './call-error';
 
-declare global { interface Window { __workbenchPlatform?: 'macos'; __workbenchMediaBase?: string; __workbenchDraft?: Draft; chrome?: { webview?: { postMessage: (data: unknown) => void; addEventListener: (name: string, listener: (event: MessageEvent) => void) => void } } } }
+declare global { interface Window { __workbenchPlatform?: 'macos' | 'linux'; __workbenchMediaBase?: string; __workbenchDraft?: Draft; chrome?: { webview?: { postMessage: (data: unknown) => void; addEventListener: (name: string, listener: (event: MessageEvent) => void) => void } } } }
 
-// 桌面宿主（WebView2 / WKWebView）注入的消息通道；浏览器预览中不存在。
+// 桌面宿主（WebView2 / WKWebView / WebKitGTK）注入的消息通道；浏览器预览中不存在。
 const native = window.chrome?.webview;
 export const isDesktop = !!native;
 export const isMac = window.__workbenchPlatform === 'macos';
+export const isLinux = window.__workbenchPlatform === 'linux';
 
 const listeners = new Set<(state: State) => void>();
 const pending = new Map<string, { resolve: (value: unknown) => void; reject: (reason: Error) => void; timer: ReturnType<typeof setTimeout> | undefined }>();

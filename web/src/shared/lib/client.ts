@@ -1,11 +1,11 @@
 import type { AudioAsset, State, Voice } from '../workbench';
 import { toBase64 } from './sound';
 import { CallError, parseCallError } from './call-error';
-import { desktopCall, desktopMediaUrl, isDesktop, isMac, reportDesktop, subscribeDesktop } from './bridge';
+import { desktopCall, desktopMediaUrl, isDesktop, isLinux, isMac, reportDesktop, subscribeDesktop } from './bridge';
 import { assertUploadSize, previewCall, previewImportTimeline, previewImportVoice, previewMediaUrl, subscribePreview } from './preview-backend';
 
 // 界面统一的后端入口：桌面端经宿主桥接调用 Go 服务，浏览器预览使用本地模拟后端。
-export { CallError, parseCallError, isDesktop, isMac };
+export { CallError, parseCallError, isDesktop, isLinux, isMac };
 
 export function subscribe(listener: (state: State) => void) {
   return isDesktop ? subscribeDesktop(listener) : subscribePreview(listener);
