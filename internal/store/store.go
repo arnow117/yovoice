@@ -41,6 +41,9 @@ const backupInterval = 30 * time.Minute
 // hostPreferences 供原生宿主在服务启动前读取界面语言，内容由数据库派生，丢失后下次启动重建。
 const hostPreferences = "host-preferences.json"
 
+// WebCacheDir 是 Windows 宿主的 WebView2 用户数据目录，完全可再生；宿主运行期间其中文件始终被占用。
+const WebCacheDir = "web-cache"
+
 func New(root string) (store *Store, err error) {
 	defer func() { diag.Log(root, "state.open", "platform", runtime.GOOS, "error", diag.Error(err)) }()
 	for _, d := range []string{"", "voices", "outputs", "downloads", "runtime", "models", "logs"} {
@@ -554,7 +557,7 @@ func Within(parent, child string) bool {
 }
 
 // dataEntries 是数据目录中由应用创建的条目；清理旧目录时只删除这些，其余内容（用户自行放入的文件）原样保留。
-var dataEntries = []string{"voices", "outputs", "downloads", "runtime", "models", "logs", "service.lock", hostPreferences, backupFile, legacyBackup, legacyMigrated, "local-api.json", "secrets.json"}
+var dataEntries = []string{"voices", "outputs", "downloads", "runtime", "models", "logs", "service.lock", hostPreferences, backupFile, legacyBackup, legacyMigrated, "local-api.json", "secrets.json", WebCacheDir}
 
 // dataEntry 判断名称是否为应用创建的条目，包括损坏快照与修复快照。
 func dataEntry(name string) bool {

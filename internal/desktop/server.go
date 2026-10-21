@@ -131,6 +131,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Header().Set("Content-Type", "audio/wav")
+		// 音频本就在本机磁盘上，禁止 WebView 再缓存一份；未压缩的 wav 会让 web-cache 不断膨胀。
+		w.Header().Set("Cache-Control", "no-store")
 		// 隐藏 io.ReaderFrom，避免 Windows sendfile 与连接后台读在 Go 1.26 中的数据竞争。
 		http.ServeFile(struct{ http.ResponseWriter }{w}, r, path)
 	case r.URL.Path == "/shutdown" && r.Method == "POST":
