@@ -4,7 +4,13 @@
 
 ## Plan
 
-### 2026-10-20 剩余回归返修与复验（TASK-002，当前有效安排）
+### 2026-10-21 当前新包一次原生验收停止（当前有效安排）
+
+用户明确授权Mac解锁后同包一次、最多2启动/5本地CPU1提取、T=.6/M=.05/120秒、含准备清理1200秒、首次失败停止。当前3871b7f新包及原receipt未改，主以原生Computer Use完成登记/识别/删除和重启列表操作，未注入业务JS/RPC；实际2启动/5提取已用完，没有后续App或模型运行授权。两known精确正确、unknown拒绝、B删除和重启后磁盘仅原A、完整State/Voices/源码/App/输入不变已证明；重启画面截图及正常UI退出未完成，原06:57:08 UTC监督期限先回收host/service，故整体PARTIAL/INCONCLUSIVE，不进入正式Review。
+
+本轮准备和启动交接消耗过久：主未及时收到启动交接，后按精确PID核对发现第一窗已运行，停止Agent调度后继续同一窗，没有新增启动。监督仍独立运行，没有延长时限。最终私有特征在1198.804秒移除，CUA reset结束时钟上界1227秒，约超出总预算27秒；不能取前者冒称全程满足预算，也不能把open退出0/监督SIGTERM当正常CmdQ。主停止本轮、只做公开证据和元数据核对；无新定位实验或重新提取，不为测试编排问题改生产UI/模型。新的独立Validate仅只读审计本次原件并判断剩余零模型边界。以后如需补证须先明确预期及新的有限授权，不复用本次剩余次数、不重建已删除的私有A特征、不重跑五次已成功提取。
+
+### 2026-10-20 剩余回归返修与复验（TASK-002，自动化已完成）
 
 用户明确选择保留上游设计，继续修好剩余回归并再跑验证。Impeccable的9项告警均与2415813逐字一致，属于上游歌词、开场、助手及引导样式；本轮不改这些样式、不扩大UI优化。当前HEAD为a95529e，工作树干净，沿同一TASK与同一Terra实施者恢复已定位的返修；先前容量失败、中断、所有红证据与波形段已用的一次诊断均保留，不重新计数，也不重复上游拉取/合并。
 
@@ -567,7 +573,32 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-当前有效范围为TASK-002合并2415813后的集成源码。干净实现80c8d0c的独立Validate自动化检查全部通过，SCN-UI-22的新包真实旅程NOT_RUN，故汇总INCONCLUSIVE、机器记录fail，不能进入正式Review批准。下方b3d114a的独立Validate PASS、Review approved及534.548秒原生证据只证明合并前版本，不能作为当前Feature已通过。该旧旅程实际完成两次启动/五次提取、两个known精确正确、unknown拒绝、删除及可见重启一致，初始化基线至最终退出完整State/输入相等，资源及私有测试特征已清理；这些事实和全部旧失败分别保留。逐条时延延期、Mic/TTS听测NOT_RUN，不能扩展为未执行范围的通过。
+当前有效范围为TASK-002合并2415813后的集成源码。干净实现80c8d0c的独立Validate自动化检查全部通过；当前3871b7f新包已实际运行五次提取、登记/识别/删除及重启读取，SCN-UI-22为PARTIAL，不能再写整项NOT_RUN。正常第二次退出/重启截图未完成且总收尾超预算约27秒，汇总仍INCONCLUSIVE、机器fail，不进入正式Review批准。下方b3d114a的独立Validate PASS、Review approved及534.548秒原生证据仅证明合并前版本，不能作为当前Feature已通过。旧失败和本次实际成功范围均分别保留；逐条时延延期、Mic/TTS听测NOT_RUN，不扩展结论。
+
+### 2026-10-21 当前新包真实功能通过，退出采证未完成 — 3871b7f
+
+实际被测源码`3871b7f22b6057a40953cb4e3a4cfc6c5c95a5e4`，业务实现仍80c8d0c；包`artifacts/speaker-validation-macos/worker-20261020-upstream-regression-fix/yovoice.app`及原sidecar receipt未改。授权起06:38:38 UTC，预算1200秒；首窗真实launch为06:44:17.969，首次正常退出06:55:49.814，约691.845秒。main-supervisor-result的447.069秒仅是接管monitor后的时长，不能作首次窗完整耗时。第二窗监督到原06:57:08即SIGTERM回收，没有第三次启动或提取重试。原件在`artifacts/verification/feature-002-upstream-merge-20261020/native-001/`，包含launch/env/cwd、监督、完整capture、UI AX/两截图、公开ui-results和cleanup。
+
+主从实际Finder Desktop确认解锁；初次真实窗口经过开始探索、跳过引导、声纹页配置ready后，在任何登记前保存SQLite完整17字段normalizedState、Voices=[]、profiles=[]基线。随后使用原生文件面板导入固定五段官方样本，模型CPU单线程、T=.6/M=.05/120秒；未录音、TTS、下载、云调用或使用业务JS/RPC。
+
+| 实际条件 | 结果及证据 |
+|---|---|
+| 登记A/B | 各1次提取，A=`92850c5b6e12cdb788bc73934cf4a97c`，B=`7dd9b987b55984d62fdb43bdd6ee6fef`；真实UI登记成功/持久化公开ID，ui-enrolled.ax.txt |
+| 两个独立已知查询 | 2/2精确matched各自ID，分数0.8181493827733626 / 0.8388678724598981；另候选0.31233407913144856 / 0.2190880883964413，ui-query-a/b.ax.txt |
+| 独立未知查询 | 1/1 unknown/below_threshold、无选定档案；最高0.46485008260461286，另一候选0.1564205982086378；ui-query-unknown.ax.txt及真实ui-after-queries.png |
+| 删除B、首次正常退出 | UI确认删除后仅A删除控件；正常CmdQ，main监督reason=normal_host_exit/actions=[]；after-first-exit磁盘精确仅原A |
+| 同data重启 | 第二次真实原生窗口/nav/AX返回ready与仅原A，after-restart磁盘亦精确仅原A/B不恢复；完整State/Voices不变。实际返回AX在父工具记录，ui-restart-observation.txt明确只是公开转录，不能冒充重启截图 |
+| 完整数据/来源一致性 | before-enrollment与after-queries/after-first-exit/after-restart/after-final-exit的完整17字段State逐项相等、Voices始终空；源码519文件、App54文件、Web/host/service及固定输入一致，原receipt核对通过 |
+| 重启截图及第二次正常退出 | 未完成。原监督先SIGTERM host/service，最后CUA截图/退出动作返回not active；restart-supervisor-result为automatic_cleanup_deadline，不能以openExitCode0视为正常退出。首失败后停止，无额外启动/模型 |
+| 时限与资源清理 | App/服务/监督均已退出，精确路径进程复查为空；官方测试私有speakers.json及临时特征已移除，未导出向量。私有特征移除1198.804秒，但含CUA reset结束上界1227秒，预算FAIL约27秒；之后仅只读元数据核对，不能将其算新App运行 |
+
+额外采证错误保留：本地初始化摘要曾错误把publicProfiles列表按对象索引，TypeError发生于assert求值前；原始capture实际为空列表，按真实list/Voices复核通过，没有因此启动App或提取重试。首次普通sandbox进程查询被系统限制，随后受控提权只读核对成功；不是模型权限未授权。上述错误与最终CUA失活均不删除，也不声称所有工具退出均0。逐条查询时延继续未收集，不从操作间隔推算。
+
+独立Validate Agent已完成只读补证审计：未启动App、模型或测试，未写文件或请求状态转换；逐项核对519源码/54包文件、receipt、完整State/Voices、公开ID/分数及现存两张截图，结论为主要识别条件COVERED、重启可见画面PARTIAL、第二次正常退出MISSING、整轮预算未满足。主接受实际CUA返回的重启AX与前后磁盘快照共同证明原A持久化；没有重启截图的事实保留，不能补造。
+
+最小剩余补证可限定为同包一次零模型窗口：正常打开、配置ready、保存真实窗口截图、正常CmdQ并确认自有进程退出。私有特征已清理，该窗口只能展示真实空库，不证明含原A的新截图；此前五次提取及持久化证据仍单独适用。若用户接受分段补证，可在新的有限授权后补这一窗口；若要求一轮完整1200秒内两次正常退出或必须重新取得含A截图，则此空库窗口不足，须先明确新的验收安排。原1227秒超预算和本轮失败记录永久保留，不改写为达标。
+
+本轮保持fail/INCONCLUSIVE，不进入正式Review；原五次提取不再重跑、已清理A特征不重建，任何新的零模型启动也需新的明确预算。本次提交仅更新SDLC元数据，业务源码、配置、App及固定输入未变；原receipt保留其被测3871b7f身份，不为元数据提交重写receipt或重新构建。自动化证据仍绑定80c8d0c，原生证据绑定3871b7f，不声称新元数据提交本身重新执行过这些检查。
 
 ### 2026-10-20 合并返修后的独立Validate — 80c8d0c
 
