@@ -772,6 +772,8 @@
   .now-playing .astryx-button { color: inherit; }
   .now-playing .now-playing-glass.astryx-button, .now-playing .now-playing-mark.astryx-button { border: 0; border-radius: var(--radius-full); background: var(--now-playing-glass); backdrop-filter: blur(var(--spacing-4)); box-shadow: none;
     transition: background var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard); }
+  /* 歌词样式按钮只写当前样式名，不配图标；高度与旁边的圆形按钮一致。 */
+  .now-playing .now-playing-style.astryx-button { height: var(--spacing-10); padding-inline: var(--spacing-4) var(--spacing-3); font-weight: var(--font-weight-medium); }
   .now-playing .now-playing-round.astryx-button { width: var(--spacing-10); height: var(--spacing-10); }
   .now-playing .now-playing-glass.astryx-button:hover:not(:disabled) { background: var(--now-playing-glass-hover); }
   .now-playing .astryx-button:active:not(:disabled) { transform: scale(.94); }

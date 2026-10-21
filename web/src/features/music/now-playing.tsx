@@ -5,7 +5,7 @@ import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, Download, Eraser, FastForward, ListMusic, Maximize, Minimize, Palette, Pause, Play, Rewind, SlidersHorizontal, Timer } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, Download, Eraser, FastForward, ListMusic, Maximize, Minimize, Pause, Play, Rewind, SlidersHorizontal, Timer } from 'lucide-react';
 import { call, isDesktop, isMac, mediaUrl, saveText, releaseMediaUrl } from '../../shared/lib/client';
 import { formatActivity } from '../../shared/i18n/format';
 import { noticeMessage } from '../../shared/lib/call-error';
@@ -346,8 +346,8 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
               { id: 'lrc', icon: <Download />, label: t('@yovoice.music.exportLrc'), isDisabled: !timeline.length, onClick: () => exportLrc() },
               { id: 'word-lrc', icon: <Download />, label: t('@yovoice.music.exportWordLrc'), description: t('@yovoice.music.exportWordLrcHint'), isDisabled: !timeline.length, onClick: () => exportLrc(true) },
             ]} /> : null}
-          {rows.length ? <DropdownMenu presentation="popover" alignment="end" menuWidth="max-content" hasChevron={false}
-            button={{ className: 'now-playing-glass now-playing-round', variant: 'ghost', isIconOnly: true, icon: <Palette />, label: t('@yovoice.music.lyricStyle'), tooltip: t('@yovoice.music.lyricStyle') }}
+          {rows.length ? <DropdownMenu presentation="popover" alignment="end" menuWidth="max-content"
+            button={{ className: 'now-playing-glass now-playing-style', variant: 'ghost', size: 'sm', label: t(lyricStyle === 'stage' ? '@yovoice.music.lyricStyleStage' : '@yovoice.music.lyricStyleScroll'), tooltip: t('@yovoice.music.lyricStyle') }}
             items={(['scroll', 'stage'] as const).map(value => ({ id: value, label: t(value === 'stage' ? '@yovoice.music.lyricStyleStage' : '@yovoice.music.lyricStyleScroll'),
               description: t(value === 'stage' ? '@yovoice.music.lyricStyleStageHint' : '@yovoice.music.lyricStyleScrollHint'), endContent: lyricStyle === value ? <Check size={14} /> : undefined, onClick: () => chooseStyle(value) }))} /> : null}
           {document.fullscreenEnabled ? <Button className="now-playing-glass now-playing-round" label={t(fullscreen ? '@yovoice.music.exitFullscreen' : '@yovoice.music.fullscreen')} isIconOnly variant="ghost" icon={fullscreen ? <Minimize /> : <Maximize />} onClick={toggleFullscreen} /> : null}

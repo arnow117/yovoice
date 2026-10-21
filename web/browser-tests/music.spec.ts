@@ -464,7 +464,7 @@ test('播放页当前句逐字点亮，可切换到一句一屏的浮光样式�
   await expect(words.first()).toHaveAttribute('data-sung', 'done');
   await expect(words.last()).toHaveAttribute('data-sung', 'waiting');
   // 换成浮光：只显示当前句和下一句预告，校准时仍回到滚动歌词。
-  await playing.getByRole('button', { name: '歌词样式', exact: true }).click();
+  await playing.getByRole('button', { name: '滚动歌词', exact: true }).click();
   await page.getByRole('menuitem', { name: /浮光/ }).click();
   await expect(playing.getByRole('list', { name: '歌词' })).toHaveCount(0);
   const current = playing.locator('.now-playing-phrase[data-slot="current"]');
