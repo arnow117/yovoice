@@ -144,7 +144,9 @@ func applyWebLanguages() {
 // build 创建主窗口与标题栏；界面在本地服务就绪后加载。
 func (a *app) build() {
 	applyWebLanguages()
+	applyStyle()
 	a.window = gtkWindowNew(0)
+	addClass(a.window, "yovoice")
 	gtkWindowSetTitle(a.window, "yovoice")
 	gtkWindowSetDefaultSize(a.window, 1280, 820)
 	gtkWidgetSetSizeRequest(a.window, 960, 640)
@@ -152,6 +154,7 @@ func (a *app) build() {
 	connect(a.window, "delete-event", deleteCallback)
 
 	a.header = gtkHeaderBarNew()
+	addClass(a.header, "yovoice-titlebar")
 	gtkHeaderBarSetShowCloseButton(a.header, true)
 	gtkHeaderBarSetTitle(a.header, "yovoice")
 	a.sidebarButton = a.headerButton("sidebar-show-symbolic", toggleSidebar)
@@ -173,8 +176,42 @@ func (a *app) build() {
 	gtkWidgetSetSensitive(a.sidebarButton, false)
 }
 
+// windowStyle 让标题栏与网页底色连成一片（与 macOS 透明标题栏一致）：去掉分隔线、渐变和阴影，
+// 工具按钮无边框，只在悬停时显示浅色底。界面只有浅色，标题栏同样固定浅色，不随系统暗色主题变黑。
+const windowStyle = `
+window.yovoice, window.yovoice > box { background-color: #F7F7F7; }
+headerbar.yovoice-titlebar, headerbar.yovoice-titlebar:backdrop {
+  background: #F7F7F7; border: none; box-shadow: none;
+  min-height: 38px; padding: 0 8px; color: #1F1F1F;
+}
+headerbar.yovoice-titlebar .title { font-weight: 500; font-size: 13px; color: #6B6B6B; }
+headerbar.yovoice-titlebar:backdrop .title { color: #A0A0A0; }
+button.yovoice-tool {
+  background: none; border: none; box-shadow: none; border-radius: 6px;
+  min-width: 28px; min-height: 28px; padding: 0; color: #3A3A3A; -gtk-icon-shadow: none;
+}
+button.yovoice-tool:hover { background-color: rgba(0, 0, 0, 0.06); }
+button.yovoice-tool:active { background-color: rgba(0, 0, 0, 0.1); }
+button.yovoice-tool:disabled { color: #C4C4C4; }
+headerbar.yovoice-titlebar:backdrop button.yovoice-tool { color: #9A9A9A; }
+label.yovoice-status { color: #8A8A8A; }
+`
+
+func applyStyle() {
+	provider := gtkCssProviderNew()
+	if gtkCssProviderLoadFromData(provider, windowStyle, len(windowStyle), 0) {
+		gtkStyleContextAddProviderForScreen(gdkScreenGetDefault(), provider, 600) // GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+	}
+}
+
+func addClass(widget uintptr, class string) {
+	gtkStyleContextAddClass(gtkWidgetGetStyleContext(widget), class)
+}
+
 func (a *app) headerButton(icon string, action uintptr) uintptr {
 	button := gtkButtonNewFromIconName(icon, 1) // GTK_ICON_SIZE_MENU
+	gtkButtonSetRelief(button, 2)               // GTK_RELIEF_NONE
+	addClass(button, "yovoice-tool")
 	gSignalConnectData(button, "clicked", buttonCallback, action, 0, 0)
 	return button
 }
@@ -183,6 +220,7 @@ func (a *app) headerButton(icon string, action uintptr) uintptr {
 func (a *app) ghostButton() uintptr {
 	button := gtkButtonNew()
 	gtkButtonSetRelief(button, 2) // GTK_RELIEF_NONE
+	addClass(button, "yovoice-tool")
 	a.ghost = gtkImageNew()
 	if strip := gdkPixbufNewFromFile(filepath.Join(installDir(), "resources", "ocho-ghost.png"), 0); strip != 0 {
 		side := gdkPixbufGetHeight(strip)
@@ -212,6 +250,7 @@ func (a *app) applyLocale() {
 func (a *app) showStatus(text string) {
 	a.clearContent()
 	a.status = gtkLabelNew(text)
+	addClass(a.status, "yovoice-status")
 	gtkLabelSetLineWrap(a.status, true)
 	gtkWidgetSetHalign(a.status, 3) // GTK_ALIGN_CENTER
 	gtkWidgetSetValign(a.status, 3)

@@ -57,6 +57,12 @@ var (
 	gtkWidgetSetTooltipText                           func(widget uintptr, text string)
 	gtkWidgetSetSizeRequest                           func(widget uintptr, width, height int32)
 	gtkWidgetSetHalign                                func(widget uintptr, align int32)
+	gtkWidgetGetStyleContext                          func(widget uintptr) uintptr
+	gtkStyleContextAddClass                           func(context uintptr, class string)
+	gtkStyleContextAddProviderForScreen               func(screen, provider uintptr, priority uint32)
+	gtkCssProviderNew                                 func() uintptr
+	gtkCssProviderLoadFromData                        func(provider uintptr, data string, length int, err uintptr) bool
+	gdkScreenGetDefault                               func() uintptr
 	gtkWidgetSetValign                                func(widget uintptr, align int32)
 	gtkWidgetGrabFocus                                func(widget uintptr)
 	gtkMessageDialogNew                               func(parent uintptr, flags, kind, buttons int32, format, text string) uintptr
@@ -221,6 +227,10 @@ func loadLibraries() error {
 		{&gtkWidgetSetTooltipText, "gtk_widget_set_tooltip_text"}, {&gtkWidgetSetSizeRequest, "gtk_widget_set_size_request"},
 		{&gtkWidgetSetHalign, "gtk_widget_set_halign"}, {&gtkWidgetSetValign, "gtk_widget_set_valign"},
 		{&gtkWidgetGrabFocus, "gtk_widget_grab_focus"},
+		{&gtkWidgetGetStyleContext, "gtk_widget_get_style_context"}, {&gtkStyleContextAddClass, "gtk_style_context_add_class"},
+		{&gtkStyleContextAddProviderForScreen, "gtk_style_context_add_provider_for_screen"},
+		{&gtkCssProviderNew, "gtk_css_provider_new"}, {&gtkCssProviderLoadFromData, "gtk_css_provider_load_from_data"},
+		{&gdkScreenGetDefault, "gdk_screen_get_default"},
 		{&gtkMessageDialogNew, "gtk_message_dialog_new"}, {&gtkMessageDialogFormatSecondaryText, "gtk_message_dialog_format_secondary_text"},
 		{&gtkDialogAddButton, "gtk_dialog_add_button"}, {&gtkDialogSetDefaultResponse, "gtk_dialog_set_default_response"},
 		{&gtkDialogRun, "gtk_dialog_run"},
