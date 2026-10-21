@@ -35,8 +35,14 @@ export async function coverMelodyFile(projectId: string, file: File): Promise<vo
   await call('melody.cover', { projectId, base64: await toBase64(file) });
 }
 
+// 音频地址：桌面端是服务上的固定地址，浏览器预览是临时 blob 地址；用完交给 releaseMediaUrl 释放。
 export async function mediaUrl(kind: 'voices' | 'outputs', file: string): Promise<string> {
   return isDesktop ? desktopMediaUrl(kind, file) : previewMediaUrl(file);
+}
+
+// 释放 mediaUrl 返回的地址；固定地址无需释放，可以对任何结果调用。
+export function releaseMediaUrl(url: string) {
+  if (url.startsWith('blob:')) URL.revokeObjectURL(url);
 }
 
 const exportName = (name: string, fallback = 'yovoice') => name.replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || fallback;

@@ -1,3 +1,5 @@
+import { bufferPeaks, decodeAudio } from '../../shared/lib/sound';
+
 // 波形峰值：WAV 边读取边取峰值，不解码整段音频，几十分钟的长音频也只占用固定内存，并随读取分段让出主线程；
 // 其他格式只在文件较小时整段解码，过大时不画波形。
 export type Waveform = { peaks: number[]; duration: number };
@@ -114,16 +116,8 @@ async function decodeSmall(reader: ReadableStreamDefaultReader<Uint8Array>, head
     parts.push(value); size += value.length;
     if (size > decodeLimit) throw new Error('@yovoice.error.audioReadFailed');
   }
-  const context = new AudioContext();
-  try {
-    const buffer = await context.decodeAudioData(await new Blob(parts as BlobPart[]).arrayBuffer());
-    const data = buffer.getChannelData(0), stride = Math.max(1, Math.ceil(data.length / bins)), skip = Math.max(1, Math.floor(stride / samplesPerBin));
-    const peaks = Array.from({ length: bins }, (_, i) => {
-      let peak = 0; for (let j = i * stride; j < Math.min(data.length, (i + 1) * stride); j += skip) peak = Math.max(peak, Math.abs(data[j]));
-      return peak;
-    });
-    return { peaks, duration: buffer.duration };
-  } finally { await context.close(); }
+  const buffer = await decodeAudio(new Blob(parts as BlobPart[]));
+  return { peaks: bufferPeaks(buffer, bins), duration: buffer.duration };
 }
 
 // 按目标段数合并峰值，每段取最大值，保留短促声音的轮廓。

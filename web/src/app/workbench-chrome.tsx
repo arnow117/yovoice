@@ -30,13 +30,13 @@ import { TimelineEditor } from '../features/media/timeline-editor';
 import { Player } from '../features/media/player';
 import { Selector } from '../shared/selector';
 import { ConfirmDelete } from '../shared/ui/app-dialog';
-import { call, isDesktop, mediaUrl, saveAudio } from '../shared/lib/client';
+import { call, isDesktop, mediaUrl, saveAudio, releaseMediaUrl } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { dismissSplash } from '../shared/lib/splash';
 import { IntroScreen } from './intro-screen';
 import { GuideTour } from './guide-tour';
 import { formatNotice } from '../shared/i18n/format';
-import { isAligner, isKokoroModel, isYuE, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, normalizeDraft, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab, preferredModel, featureHidden } from '../shared/workbench';
+import { isAligner, isKokoroModel, isYuE, isReferenceModel, isBreezeModel, modelEngineReady, runtimeStatus, runtimeUsable, isVoxModel, requiresVoice, projectKind, createDraft, synthesisSettings, performanceSettings, cueSettings, type Character, type Draft, type EngineInfo, type State, type ModelPackage, type Voice, type Generation, type Track, type AssistantContext, modelTab, preferredModel, featureHidden } from '../shared/workbench';
 // 助手（含形象与点阵动画）首屏后再加载，不占主包。
 const AssistantDock = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantDock })));
 const AssistantTitleButton = lazy(() => import('../features/assistant/assistant-dock').then(module => ({ default: module.AssistantTitleButton })));
@@ -51,6 +51,7 @@ import { UpdateNotice } from '../features/update/update-notice';
 import { PronunciationDialog, type Pronunciation } from './pronunciation-dialog';
 import type { DraftSession } from './use-draft-session';
 import { watchAssistantLive } from '../shared/lib/assistant-live';
+import { readLocal, writeLocal } from '../shared/lib/local-store';
 const Settings = lazy(() => import('../features/settings/settings').then(module => ({ default: module.Settings })));
 const VoicePicker = lazy(() => import('../features/media/voice-picker').then(module => ({ default: module.VoicePicker })));
 
@@ -68,18 +69,14 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const previousVoices = useRef<Voice[]>([]);
   const [page, setPage] = useState(() => {
     if (isDesktop) {
-      try {
-        const saved = localStorage.getItem('yovoice-active-page');
-        const listPages = ['text', 'story', 'music', 'score', 'characters', 'settings'];
-        return saved && listPages.includes(saved) ? saved : 'text';
-      } catch {
-        return 'text';
-      }
+      const saved = readLocal('yovoice-active-page');
+      const listPages = ['text', 'story', 'music', 'score', 'characters', 'settings'];
+      return saved && listPages.includes(saved) ? saved : 'text';
     }
     return 'create';
   });
   useEffect(() => {
-    try { localStorage.setItem('yovoice-active-page', page); } catch { /* 存储不可用时忽略 */ }
+    writeLocal('yovoice-active-page', page);
   }, [page]);
   // 页面第一次打开时才挂载，之后保持挂载（切走只隐藏），切回来时保留编辑、滚动与播放状态；启动时只渲染当前页。
   const [visited, setVisited] = useState(() => new Set([page]));
@@ -97,15 +94,15 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const [pronunciation, setPronunciation] = useState<Pronunciation | null>(null);
   const [showInspector, setShowInspector] = useState(false);
   // 助手面板：开关与展开状态跨启动保留；⌘J/Ctrl+J、宿主标题栏按钮与编辑器 AI 写作栏都能打开。
-  const [assistantOpen, setAssistantOpen] = useState(() => { try { return localStorage.getItem('yovoice-assistant-open') === 'true'; } catch { return false; } });
-  const [assistantExpanded, setAssistantExpanded] = useState(() => { try { return localStorage.getItem('yovoice-assistant-expanded') === 'true'; } catch { return false; } });
+  const [assistantOpen, setAssistantOpen] = useState(() => readLocal('yovoice-assistant-open') === 'true');
+  const [assistantExpanded, setAssistantExpanded] = useState(() => readLocal('yovoice-assistant-expanded') === 'true');
   // 右下角入口与标题栏入口二选一：入口在时标题栏不重复显示，移走后才由标题栏接替；浮窗打开时两处入口都收起。
-  const [launcherHidden, setLauncherHidden] = useState(() => { try { return localStorage.getItem('yovoice-assistant-launcher') === 'hidden'; } catch { return false; } });
+  const [launcherHidden, setLauncherHidden] = useState(() => readLocal('yovoice-assistant-launcher') === 'hidden');
   const showLauncher = (show: boolean) => {
     setLauncherHidden(!show);
-    try { localStorage.setItem('yovoice-assistant-launcher', show ? 'shown' : 'hidden'); } catch { /* 存储不可用时只在本次生效 */ }
+    writeLocal('yovoice-assistant-launcher', show ? 'shown' : 'hidden');
   };
-  useEffect(() => { try { localStorage.setItem('yovoice-assistant-open', String(assistantOpen)); localStorage.setItem('yovoice-assistant-expanded', String(assistantExpanded)); } catch { /* 存储不可用时只在本次生效 */ } }, [assistantOpen, assistantExpanded]);
+  useEffect(() => { writeLocal('yovoice-assistant-open', String(assistantOpen)); writeLocal('yovoice-assistant-expanded', String(assistantExpanded)); }, [assistantOpen, assistantExpanded]);
   // 在设置中隐藏 Ocho 后，浮窗、各处入口、快捷键与主动提示都不再出现。
   const assistantHidden = featureHidden(state.preferences, 'assistant');
   useEffect(() => {
@@ -134,7 +131,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     if (!update) return;
     if (update.workId !== draft.id || page !== 'create' || session.saving || window.__workbenchDraft !== undefined) return;
     const fresh = state.drafts.find(item => item.id === update.workId);
-    if (fresh) { setDraft(normalizeDraft(fresh)); setDraftPersisted(true); }
+    if (fresh) { setDraft(fresh); setDraftPersisted(true); }
   });
   // 新请求先记入状态，与同一次推送里的作品列表一起渲染后再处理，打开刚创建的作品时才能找到它。
   const [liveRequest, setLiveRequest] = useState<Pick<NonNullable<State['assistantLive']>, 'nav' | 'update'>>({});
@@ -147,10 +144,10 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   useEffect(() => applyAssistantUpdate(liveRequest.update), [liveRequest.update]);
 
   // 宽屏下右侧检查器的收起状态，跨作品、跨启动保留。
-  const [inspectorCollapsed, setInspectorCollapsed] = useState(() => { try { return localStorage.getItem('workbench-inspector-collapsed') === '1'; } catch { return false; } });
+  const [inspectorCollapsed, setInspectorCollapsed] = useState(() => readLocal('workbench-inspector-collapsed') === '1');
   const toggleInspector = useCallback(() => setInspectorCollapsed(current => {
     const next = !current;
-    try { localStorage.setItem('workbench-inspector-collapsed', next ? '1' : '0'); } catch { /* 存储不可用时只在本次生效 */ }
+    writeLocal('workbench-inspector-collapsed', next ? '1' : '0');
     return next;
   }), []);
   // 窗口右上角的右侧面板开关：创作区较窄时检查器已自动收起（见 styles.css 的 studio 容器查询），开关改为展开或收回检查器。
@@ -173,7 +170,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const onError = useCallback((message: string) => setError(message), [setError]);
   useEffect(() => {
     if (!isDesktop) return;
-    const saved = localStorage.getItem('astryx-resizable:workbench-sidebar');
+    const saved = readLocal('astryx-resizable:workbench-sidebar');
     if (saved) void call('sidebar.save', JSON.parse(saved)).catch(error => setError(noticeMessage(error)));
   }, [navigation.size, navigation.isCollapsed, setError]);
   const run = useCallback((action: () => Promise<unknown>) => { void action().catch(e => setError(noticeMessage(e))); }, [setError]);
@@ -231,7 +228,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   };
   // 界面就绪或加载出错时收起启动动画，出错时要让错误提示露出来；开场画面与启动动画同一造型，直接接续。
   useEffect(() => { if (error || showIntro) dismissSplash(true); else if (ready) dismissSplash(); }, [ready, error, showIntro]);
-  useEffect(() => { if (ready) setDraft(current => Timeline.accept(normalizeDraft(current), state.history)); }, [state.history, draft.id, ready, setDraft]);
+  useEffect(() => { if (ready) setDraft(current => Timeline.accept(current, state.history)); }, [state.history, draft.id, ready, setDraft]);
   const generate = () => {
     if (state.activity?.status === 'running') return;
     // 还没准备好时：缺参考音频直接打开声音选择，缺模型或推理引擎跳到设置里对应的页面。
@@ -259,14 +256,14 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   }, []);
   async function newDraft(next: Draft) {
     if (draftPersisted) await persistDraft(draft); await persistDraft(next);
-    setDraft(normalizeDraft(next)); setPage('create');
+    setDraft(next); setPage('create');
   }
   // 整本书导入的多个章节作品：倒序保存让第一章排在最前，最后打开第一章。
   async function importBook(drafts: Draft[]) {
     for (const item of drafts.slice(1).reverse()) await call('draft.save', item);
     await newDraft(drafts[0]);
   }
-  function selectDraft(item: Draft) { run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(normalizeDraft(item.id === draft.id ? draft : item)); setDraftPersisted(true); setPage('create'); }); }
+  function selectDraft(item: Draft) { run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(item.id === draft.id ? draft : item); setDraftPersisted(true); setPage('create'); }); }
   function selectVoice(voice: Voice) { if (voicePicker !== 'add') change(voicePicker === 'emotion' ? { emotionVoiceId: voice.id } : { voiceId: voice.id, referenceText: voice.referenceText ?? '' }); setVoicePicker(null); }
   function annotate(selection: TextSelection) {
     setPronunciation({ ...selection, sound: '' });
@@ -313,7 +310,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const projectList = state.drafts.map(d => d.id === draft.id ? { ...draft, createdAt: d.createdAt, updatedAt: d.updatedAt } : d);
   const [voiceQuery, setVoiceQuery] = useState('');
   const [historyQuery, setHistoryQuery] = useState('');
-  const openHistory = (item: Draft) => run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(normalizeDraft(item)); setDraftPersisted(true); setHistoryQuery(''); setPreviewTrack(null); setPage('history'); });
+  const openHistory = (item: Draft) => run(async () => { if (draftPersisted) await persistDraft(draft); setDraft(item); setDraftPersisted(true); setHistoryQuery(''); setPreviewTrack(null); setPage('history'); });
   const [characterEditor, setCharacterEditor] = useState<Character | null>(null);
   const characterActive = !!characterEditor && page === 'characters';
   const characterReturnPage = useRef('create');
@@ -340,7 +337,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
     const source = draftId === 'new' ? { ...createDraft(false, state.preferences.uiLocale), kind: 'text' as const } : projectList.find(d => d.id === draftId);
     if (!source || (source.subtitles && !source.subtitles.speakers.some(s => s.id === speakerId))) throw new Error('@yovoice.error.draftIDInvalid');
     const next = source.subtitles ? { ...source, subtitles: { ...source.subtitles, cues: source.subtitles.cues.map(cue => cue.speakerId === speakerId ? { ...cue, performance: undefined } : cue), speakers: source.subtitles.speakers.map(s => s.id === speakerId ? { ...s, characterId: voice.id, settings: structuredClone(voice.settings) } : s) } } : { ...source, ...structuredClone(voice.settings), characterId: voice.id, performance: undefined };
-    if (draftId === draft.id) { await persistDraft(next); setDraft(normalizeDraft(next)); setPage('create'); }
+    if (draftId === draft.id) { await persistDraft(next); setDraft(next); setPage('create'); }
     else await newDraft(next);
     if (next.subtitles) setCueSelection(current => ({ draftId: next.id, index: Math.max(0, next.subtitles!.cues.findIndex(c => c.speakerId === speakerId)), revision: (current?.revision ?? 0) + 1 }));
   }
@@ -387,7 +384,7 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   const exportVersion = (item: Generation) => run(async () => {
     const url = await mediaUrl('outputs', item.fileName);
     try { const stem = item.fileName.replace(/\.wav$/, ''); await saveAudio(await (await fetch(url)).blob(), /^[0-9a-f]{32}$/.test(stem) ? item.title : stem); }
-    finally { if (url.startsWith('blob:')) URL.revokeObjectURL(url); }
+    finally { releaseMediaUrl(url); }
   });
   const audition = (value: Track) => {
     if (page === 'create') setTrack({ ...value, playRequest: performance.now() });

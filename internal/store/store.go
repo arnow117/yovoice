@@ -274,7 +274,7 @@ func (s *Store) writeHostPreferences() error {
 	if e != nil {
 		return e
 	}
-	return writeFileAtomic(filepath.Join(s.Root, hostPreferences), b)
+	return platform.WriteFileAtomic(filepath.Join(s.Root, hostPreferences), b, 0600)
 }
 
 // writeError 把“数据目录已不存在”翻译成可读的提示，而不是底层的文件系统错误；
@@ -528,7 +528,7 @@ func WriteConfig(cfg StorageConfig) error {
 	if err != nil {
 		return err
 	}
-	return writeFileAtomic(cfgPath, b)
+	return platform.WriteFileAtomic(cfgPath, b, 0600)
 }
 
 // SamePath 判断两个路径是否指向同一位置；Windows 与 macOS 默认文件系统不区分大小写。

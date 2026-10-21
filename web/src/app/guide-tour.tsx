@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { Button } from '@astryxdesign/core/Button';
-import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import type { Feature } from '../shared/workbench';
 
@@ -72,13 +72,13 @@ export function GuideTour({ onClose, hidden = [] }: { onClose: () => void; hidde
   })() : undefined;
 
   return <VStack as="section" className="guide-tour" role="dialog" aria-modal="true" aria-labelledby="guide-title" aria-describedby="guide-body" gap={0}>
-    <span className={`guide-spotlight ${box ? '' : 'guide-spotlight-none'}`} aria-hidden style={box ? { top: box.top, left: box.left, width: box.width, height: box.height } : undefined} />
+    <StackItem as="span" className={`guide-spotlight ${box ? '' : 'guide-spotlight-none'}`} aria-hidden style={box ? { top: box.top, left: box.left, width: box.width, height: box.height } : undefined} />
     <VStack ref={card} className={`guide-card ${box ? '' : 'guide-card-center'}`} style={cardStyle} gap={3}>
       <small className="guide-count">{t('@yovoice.guide.count', { current: index + 1, total: steps.length })}</small>
       <h2 id="guide-title">{t(step.title)}</h2>
       <p id="guide-body">{t(`@yovoice.guide.${step.id}`)}</p>
       <HStack className="guide-actions" hAlign="between" vAlign="center" gap={2}>
-        {last ? <span /> : <Button size="sm" variant="ghost" label={t('@yovoice.guide.skip')} onClick={onClose} />}
+        {last ? <StackItem as="span" /> : <Button size="sm" variant="ghost" label={t('@yovoice.guide.skip')} onClick={onClose} />}
         <HStack gap={2}>
           {index > 0 ? <Button size="sm" label={t('@yovoice.guide.back')} onClick={prev} /> : null}
           <Button size="sm" variant="primary" className="guide-primary" label={t(last ? '@yovoice.guide.done' : '@yovoice.guide.next')} onClick={next} />

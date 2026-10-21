@@ -72,10 +72,6 @@ func New(root string) (*Workbench, error) {
 		return nil, e
 	}
 	w.removeStale()
-	if e = w.recordLegacyRuntimeVersion(); e != nil {
-		s.Close()
-		return nil, e
-	}
 	return w, nil
 }
 

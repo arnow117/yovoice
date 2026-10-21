@@ -4,6 +4,7 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { TabList, Tab } from '@astryxdesign/core/TabList';
 import { AppDialog } from '../../shared/ui/app-dialog';
 import { Selector } from '../../shared/selector';
+import { Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { Switch } from '@astryxdesign/core/Switch';
 import { useTranslator } from '@astryxdesign/core/i18n';
@@ -102,7 +103,7 @@ export function Settings({ state, catalog, engine, draft, run, focus, active, on
         <SettingsRow label={t('@yovoice.settings.downloadSource')}>
           <Selector size="sm" label={t('@yovoice.settings.downloadSource')} isLabelHidden value={preferences.downloadSource} options={[{ value: 'modelscope', label: t('@yovoice.settings.source.modelscope') }, { value: 'huggingface', label: t('@yovoice.settings.source.huggingface') }, { value: 'mirror', label: t('@yovoice.settings.source.mirror') }]} onChange={downloadSource => run(() => call('preferences.save', { ...preferences, downloadSource }))} width="calc(var(--spacing-10) * 5)" className="download-source" />
         </SettingsRow>
-        <SettingsRow className="settings-directory" label={t('@yovoice.settings.modelDirectory')} hint={<span className="model-path" onPointerEnter={overflowTitle}>{preferences.modelDirectory ?? t('@yovoice.settings.defaultDirectory')}</span>}>
+        <SettingsRow className="settings-directory" label={t('@yovoice.settings.modelDirectory')} hint={<Text type="inherit" color="inherit" className="model-path" onPointerEnter={overflowTitle}>{preferences.modelDirectory ?? t('@yovoice.settings.defaultDirectory')}</Text>}>
           <Button size="sm" label={t('@yovoice.settings.changeLocation')} icon={<FolderCog size={16} />} isDisabled={modelBusy} onClick={() => run(() => call('model.directory'))} />
           <Button size="sm" label={t('@yovoice.settings.openFolder')} icon={<FolderOpen size={16} />} onClick={() => run(() => call('model.directory.open'))} />
         </SettingsRow>
