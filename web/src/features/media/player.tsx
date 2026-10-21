@@ -13,7 +13,7 @@ import type { Track } from '../../shared/workbench';
 // 头像素材仅在展示库列表时加载，避免进入创作首屏主包。
 const SeededAvatar = lazy(() => import('../../shared/ui/seeded-avatar').then(module => ({ default: module.SeededAvatar })));
 
-// reveal=false 时由调用方在自己的菜单里提供“打开音频位置”，工具栏不再单独放文件夹按钮。
+// reveal=false 时由调用方在自己的工具栏或菜单里提供“打开位置”，工具栏不再单独放文件夹按钮。
 export function Player({ track, onError, suspended, compact = false, actions, avatar, inline, onProgress, seekRequest, reveal = true }: { reveal?: boolean; onProgress?: (time: number, playing: boolean) => void; seekRequest?: { time: number; nonce: number }; inline?: { label: string; select: () => void }; avatar?: { seed: string; label: string; disabled?: boolean; select: () => void }; actions?: ReactNode; compact?: boolean; suspended: boolean; track: Track | null; onError: (message: string) => void }) {
   const t = useTranslator();
   const audio = useRef<HTMLAudioElement>(null);

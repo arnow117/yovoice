@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "L’audio de référence doit faire moins de 20 Mo."
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "L’audio exporté dépasse 20 Mo. Exportez-le en parties plus courtes."
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "Appareil de calcul ou plateforme non pris en charge."
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current} sur {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "Ouvrir l’emplacement de l’audio"
+    "defaultMessage": "Afficher le dossier"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "Aller à la fin"

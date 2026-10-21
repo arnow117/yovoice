@@ -72,13 +72,30 @@ async function logged(format: string, save: () => Promise<boolean>): Promise<boo
   }
 }
 
+// 与宿主的 28 MB 消息上限留出余量，约合 20 MB 的 WAV。
+const maxExportBase64 = 27 * 1024 * 1024;
+
 export async function saveAudio(blob: Blob, name: string): Promise<boolean> {
   const fileName = `${exportName(name)}.wav`;
   return logged('wav', async () => {
-    if (isDesktop) return call<boolean>('audio.export', { name: fileName, base64: await toBase64(blob) });
+    if (isDesktop) {
+      // 宿主丢弃超过 28 MB 的消息且无从回复，界面先拦下，免得点了没反应。
+      const base64 = await toBase64(blob);
+      if (base64.length > maxExportBase64) throw new CallError('@yovoice.error.exportTooLarge');
+      return call<boolean>('audio.export', { name: fileName, base64 });
+    }
     download(blob, fileName);
     return true;
   });
+}
+
+// 导出已生成的版本：桌面端由宿主弹出保存框后直接复制 outputs 中的文件，不经页面传音频字节，长歌也不受消息大小限制；
+// 浏览器预览没有文件可复制，取回音频后下载。
+export async function exportOutput(id: string, fileName: string, name: string): Promise<boolean> {
+  if (isDesktop) return logged('wav', () => call<boolean>('output.export', { kind: 'outputs', id, name: `${exportName(name)}.wav` }));
+  const url = await mediaUrl('outputs', fileName);
+  try { return await saveAudio(await (await fetch(url)).blob(), name); }
+  finally { releaseMediaUrl(url); }
 }
 
 // 字幕、歌词与 ABC 谱面等 UTF-8 文本：桌面端由宿主弹出保存对话框并写文件，用户取消时返回 false。

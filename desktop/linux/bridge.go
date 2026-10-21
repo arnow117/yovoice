@@ -140,6 +140,32 @@ func (a *app) dispatch(method string, data json.RawMessage) (any, error) {
 			return false, nil
 		}
 		return true, writeAtomic(path, wav)
+	case "output.export":
+		// 已生成的版本直接复制 outputs 中的文件，不经页面传音频字节，长歌也不受消息大小限制。
+		location, err := a.svc.Call("media.path", map[string]any{"kind": "outputs", "id": input.ID}, 0)
+		if err != nil {
+			return nil, err
+		}
+		var source string
+		if err = json.Unmarshal(location, &source); err != nil {
+			return nil, err
+		}
+		if _, err = os.Stat(source); err != nil {
+			return nil, errors.New(T("音频文件不存在。", "The audio file doesn't exist."))
+		}
+		name := input.Name
+		if name == "" {
+			name = "yovoice.wav"
+		}
+		path := a.pick(chooseSave, T("导出音频", "Export Audio"), filepath.Base(name), fileFilter{T("WAV 音频", "WAV Audio"), []string{"wav"}})
+		if path == "" {
+			return false, nil
+		}
+		wav, err := os.ReadFile(source)
+		if err != nil {
+			return nil, err
+		}
+		return true, writeAtomic(path, wav)
 	case "text.export":
 		// 字幕（SRT/VTT）、歌词（LRC）与旋律谱（ABC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
 		names := map[string]string{"srt": T("SRT 字幕", "SRT Subtitles"), "vtt": T("WebVTT 字幕", "WebVTT Subtitles"), "lrc": T("LRC 歌词", "LRC Lyrics"), "abc": T("ABC 旋律谱", "ABC Melody Score")}

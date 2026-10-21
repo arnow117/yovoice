@@ -6,7 +6,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack, Layout } from '@astryxdesign/core/Layout';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
-import { PanelLeft, PanelRight, Check, Disc3, Download, History, Plus, LoaderCircle, MoreHorizontal, Save } from 'lucide-react';
+import { PanelLeft, PanelRight, Check, Disc3, FolderOpen, History, Plus, LoaderCircle, MoreHorizontal, Save } from 'lucide-react';
 import { NewProject, Projects } from '../features/library/projects';
 import { BookImport } from '../features/library/book-import';
 import { VoiceTarget } from '../features/library/voice-target';
@@ -30,7 +30,7 @@ import { TimelineEditor } from '../features/media/timeline-editor';
 import { Player } from '../features/media/player';
 import { Selector } from '../shared/selector';
 import { ConfirmDelete } from '../shared/ui/app-dialog';
-import { call, isDesktop, mediaUrl, saveAudio, releaseMediaUrl } from '../shared/lib/client';
+import { call, exportOutput, isDesktop } from '../shared/lib/client';
 import { noticeMessage } from '../shared/lib/call-error';
 import { dismissSplash } from '../shared/lib/splash';
 import { IntroScreen } from './intro-screen';
@@ -382,9 +382,8 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
   });
   // 直接导出音频；新版本的文件名已带时间与内容摘要，旧的哈希文件名改用音频标题。
   const exportVersion = (item: Generation) => run(async () => {
-    const url = await mediaUrl('outputs', item.fileName);
-    try { const stem = item.fileName.replace(/\.wav$/, ''); await saveAudio(await (await fetch(url)).blob(), /^[0-9a-f]{32}$/.test(stem) ? item.title : stem); }
-    finally { releaseMediaUrl(url); }
+    const stem = item.fileName.replace(/\.wav$/, '');
+    await exportOutput(item.id, item.fileName, /^[0-9a-f]{32}$/.test(stem) ? item.title : stem);
   });
   const audition = (value: Track) => {
     if (page === 'create') setTrack({ ...value, playRequest: performance.now() });
@@ -415,16 +414,16 @@ export function WorkbenchChrome({ state, catalog, engine, ready, session, error,
         else if (currentCharacter) change({ ...performanceSettings(currentCharacter.settings, performance), performance });
       }} /> : null}
   </VStack>} catalog={catalog} close={() => setShowInspector(false)} draft={inspectorDraft} state={state} change={changeSpeaker} chooseVoice={() => setVoicePicker('voice')} chooseEmotion={() => setVoicePicker('emotion')} play={audition} generate={generate} cancel={() => run(() => call('operation.cancel'))} settings={() => openSettings(inspectorDraft.modelId)} advanced={advanced} setAdvanced={setAdvanced} />;
-  // 播放器工具栏右侧：导出当前音频，查看历史（语音生成是“历史生成”，音乐与编曲是本作品的“版本记录”），删除在历史里处理；音乐另有播放页。
+  // 播放器工具栏右侧：打开当前音频所在位置（导出在“更多”菜单里），查看历史（语音生成是“历史生成”，音乐与编曲是本作品的“版本记录”），删除在历史里处理；音乐另有播放页。
   const historyLabel = t(projectKind(draft) === 'text' ? '@yovoice.history.generations' : '@yovoice.history.versions');
   const playerActions = projectKind(draft) === 'story' ? undefined : <HStack gap={2} vAlign="center">
-    {currentVersion ? <Button className="player-tool" label={t('@yovoice.app.exportVersion')} tooltip={t('@yovoice.app.exportVersion')} size="sm" icon={<Download />} isDisabled={busy} onClick={() => exportVersion(currentVersion)} /> : null}
+    {currentVersion ? <Button className="player-tool" label={t('@yovoice.player.reveal')} tooltip={t('@yovoice.player.reveal')} size="sm" icon={<FolderOpen />} onClick={() => { void call('media.reveal', { kind: 'outputs', id: currentVersion.id }).catch(e => onError(noticeMessage(e))); }} /> : null}
     {currentVersion && music ? <Button className="player-tool" label={t('@yovoice.music.nowPlaying')} tooltip={t('@yovoice.music.nowPlaying')} size="sm" variant="ghost" icon={<Disc3 />} onClick={() => setNowPlaying(currentVersion)} /> : null}
     {/* 历史入口始终保留：还没生成过时也能进入历史页查看其他作品的生成记录。 */}
     <Button className="player-tool" label={historyLabel} tooltip={historyLabel} size="sm" variant="ghost" icon={<History />} onClick={() => openHistory(draft)} />
     {currentVersion ? <DropdownMenu presentation="popover" placement="above" alignment="end" hasChevron={false} menuWidth="max-content" button={{ size: 'sm', variant: 'ghost', isIconOnly: true, icon: <MoreHorizontal />, label: t('@yovoice.history.audioActions'), tooltip: t('@yovoice.history.audioActions') }} items={[
+      { label: t('@yovoice.app.exportVersion'), isDisabled: busy, onClick: () => exportVersion(currentVersion) },
       ...(projectKind(draft) === 'text' ? [{ label: t('@yovoice.voice.save'), onClick: () => setVoiceEditor(currentVersion) }, { label: t('@yovoice.character.saveAs'), onClick: () => characterFromGeneration(currentVersion) }] : []),
-      { label: t('@yovoice.player.reveal'), onClick: () => { void call('media.reveal', { kind: 'outputs', id: currentVersion.id }).catch(e => onError(noticeMessage(e))); } },
     ]} /> : null}
   </HStack>;
   // 复用：音乐版本把风格、歌词和参数填回当前作品；其余新建一个同参数的作品。
