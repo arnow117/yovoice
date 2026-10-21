@@ -7,7 +7,7 @@ import { StatusDot } from '@astryxdesign/core/StatusDot';
 import { Text } from '@astryxdesign/core/Text';
 import { useTranslator } from '@astryxdesign/core/i18n';
 import { useStreamingText } from '@astryxdesign/core/hooks';
-import { Check, Copy, Download, Pause, Play, Settings2, Sparkles, Trash2 } from 'lucide-react';
+import { Check, Copy, Download, Pause, Play, Eraser, Settings2, Trash2 } from 'lucide-react';
 import { formatCallError } from '../../shared/i18n/format';
 import { formatTime, type AssistantBlock, type AssistantMessage, type AssistantToolCard, type Generation } from '../../shared/workbench';
 import { splitTurn, turnActivity, turnPhase } from './assistant-model';
@@ -78,7 +78,7 @@ function ProposalCard({ card, onResolve }: { card: AssistantToolCard; onResolve:
   const t = useTranslator();
   const proposal = card.proposal!;
   const destructive = proposal.action.startsWith('delete_');
-  const icon = destructive ? <Trash2 size={15} /> : proposal.action.startsWith('install_') ? <Download size={15} /> : proposal.action === 'cleanup_storage' ? <Sparkles size={15} /> : <Settings2 size={15} />;
+  const icon = destructive ? <Trash2 size={15} /> : proposal.action.startsWith('install_') ? <Download size={15} /> : proposal.action === 'cleanup_storage' ? <Eraser size={15} /> : <Settings2 size={15} />;
   const [busy, setBusy] = useState(false);
   // 失败时恢复按钮，用户可以再试；成功后卡片随状态更新变成结果行。
   const resolve = (confirm: boolean) => { setBusy(true); onResolve(proposal.id, confirm).catch(() => setBusy(false)); };

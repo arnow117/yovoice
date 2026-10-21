@@ -849,22 +849,32 @@
     filter: blur(.04em); transform: none; animation: now-playing-upcoming-in var(--duration-slow) var(--ease-standard) both; }
   @keyframes now-playing-upcoming-in { from { opacity: 0; translate: 0 50%; } }
   .now-playing-rest { display: inline-block; letter-spacing: .3em; animation: now-playing-breathe 2.4s ease-in-out infinite; }
-  /* 浮光背景：四角压暗，光点缓缓上升。 */
-  .now-playing-shapes::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, transparent 40%, hsl(var(--now-playing-hue) 40% 3% / 60%)); }
-  .now-playing-mote { position: absolute; left: var(--mote-x); top: var(--mote-y); width: calc(var(--spacing-0-5) * var(--mote-size)); height: calc(var(--spacing-0-5) * var(--mote-size)); border-radius: var(--radius-full);
-    background: hsl(var(--now-playing-accent) 90% 75%); box-shadow: 0 0 var(--spacing-2) hsl(var(--now-playing-accent) 90% 65%); opacity: 0; animation: now-playing-mote var(--mote-speed) linear var(--mote-delay) infinite; }
-  @keyframes now-playing-mote { 15% { opacity: calc(.15 + var(--now-playing-level) * .2); } 85% { opacity: calc(.12 + var(--now-playing-level) * .18); } to { opacity: 0; transform: translateY(calc(var(--spacing-12) * -2.2)); } }
-  /* 背景里慢慢漂浮的几何图形，随响度略微放大。 */
-  .now-playing-shapes { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-  .now-playing-shape { --shape-size: calc(var(--spacing-12) * var(--shape-scale)); position: absolute; width: var(--shape-size); height: var(--shape-size); left: var(--shape-x); top: var(--shape-y); opacity: calc(.18 + var(--now-playing-level) * .25);
-    color: hsl(calc(var(--now-playing-hue) + var(--shape-index) * 40) 55% 62%); scale: calc(1 + var(--now-playing-level) * .15);
-    animation: now-playing-float calc(18s + var(--shape-index) * 3s) ease-in-out calc(var(--shape-index) * -4s) infinite alternate; }
-  .now-playing-shape[data-shape="ring"] { border: var(--spacing-0-5) solid currentColor; border-radius: var(--radius-full); }
-  .now-playing-shape[data-shape="disc"] { background: currentColor; border-radius: var(--radius-full); opacity: calc(.08 + var(--now-playing-level) * .12); }
-  .now-playing-shape[data-shape="triangle"] { background: currentColor; clip-path: polygon(50% 0, 100% 100%, 0 100%); opacity: calc(.1 + var(--now-playing-level) * .15); }
-  .now-playing-shape[data-shape="star"] { background: currentColor; clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); }
-  .now-playing-shape[data-shape="dash"] { height: var(--spacing-1); border-radius: var(--radius-full); background: currentColor; }
-  @keyframes now-playing-float { from { transform: translate(0, 0) rotate(0); } to { transform: translate(6vmax, -5vmax) rotate(140deg); } }
+  /* 浮光背景（kinetic-lyrics.ts 的 backdropScene）：封面放大虚化铺底，压一层暗色和斜向的色调叠加；上面漂着细线或实心的小几何图形，
+     各自来回平移并整圈旋转，随响度在 0.95~1.45 倍之间胀缩；光点缓慢上升、明灭；四角压暗。 */
+  .now-playing[data-style="stage"]::before, .now-playing[data-style="stage"]::after { display: none; }
+  .now-playing-backdrop { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: hsl(var(--now-playing-hue) 30% 7%); }
+  .now-playing-backdrop-cover { position: absolute; z-index: -1; inset: -25%; opacity: .94; filter: blur(calc(var(--spacing-12) * 1.5)) saturate(1.25);
+    transform: scale(calc(1.02 + var(--now-playing-level) * .03)); animation: now-playing-backdrop-turn 120s linear infinite; }
+  .now-playing-backdrop-cover .song-cover { display: block; width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+  @keyframes now-playing-backdrop-turn { to { rotate: 360deg; } }
+  .now-playing-backdrop::before { content: ""; position: absolute; inset: 0; background: hsl(var(--now-playing-hue) 32% 7% / 62%); }
+  .now-playing-backdrop::after { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(to bottom right, hsl(var(--now-playing-hue) 60% 40% / 40%), transparent, hsl(var(--now-playing-accent) 60% 40% / 40%)), radial-gradient(circle, transparent 40%, hsl(var(--now-playing-hue) 40% 3% / 60%)); }
+  .now-playing-shape { position: absolute; z-index: 1; left: var(--shape-x); top: var(--shape-y); width: calc(var(--spacing-10) + var(--spacing-12) * 2 * var(--shape-size)); aspect-ratio: 1;
+    animation: now-playing-shape-drift linear infinite; }
+  .now-playing-shape-face { display: block; width: 100%; height: 100%; opacity: var(--shape-opacity); background: hsl(var(--now-playing-accent) 55% 78%);
+    scale: calc(.95 + var(--now-playing-level) * (.35 + var(--shape-band) * .1)); transition: scale var(--duration-fast) var(--ease-standard); }
+  .now-playing-shape[data-shape="circle"] .now-playing-shape-face { border-radius: var(--radius-full); }
+  .now-playing-shape:is([data-shape="circle"], [data-shape="square"]):not([data-filled]) .now-playing-shape-face { background: none; border: var(--border-width) solid hsl(var(--now-playing-accent) 55% 78%); }
+  .now-playing-shape[data-shape="triangle"] .now-playing-shape-face { clip-path: polygon(50% 0, 0 100%, 100% 100%); }
+  .now-playing-shape[data-shape="cross"] .now-playing-shape-face { clip-path: polygon(20% 0, 0 20%, 30% 50%, 0 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0, 50% 30%); }
+  @keyframes now-playing-shape-drift {
+    0%, 100% { transform: translate(calc(var(--spacing-4) * -1 * var(--shape-dir)), calc(var(--spacing-8) * var(--shape-dir))) rotate(var(--shape-rotate)); }
+    50% { transform: translate(calc(var(--spacing-4) * var(--shape-dir)), calc(var(--spacing-8) * -1 * var(--shape-dir))) rotate(calc(var(--shape-rotate) + 180deg)); }
+    100% { transform: translate(calc(var(--spacing-4) * -1 * var(--shape-dir)), calc(var(--spacing-8) * var(--shape-dir))) rotate(calc(var(--shape-rotate) + 360deg)); } }
+  .now-playing-mote { position: absolute; z-index: 1; left: var(--mote-x); top: var(--mote-y); width: calc(var(--spacing-0-5) * var(--mote-size) / 2); aspect-ratio: 1; border-radius: var(--radius-full);
+    background: hsl(var(--now-playing-accent) 90% 75%); opacity: 0; animation: now-playing-mote linear infinite; }
+  @keyframes now-playing-mote { 50% { opacity: var(--mote-peak); } to { opacity: 0; transform: translateY(calc(var(--spacing-12) * -2)); } }
   /* 浮光样式下封面与控制收成底部居中的一条，静置时和其他控件一起隐去，画面只剩歌词。 */
   .now-playing[data-style="stage"] .now-playing-side { position: absolute; z-index: 1; left: 50%; bottom: var(--spacing-6); width: min(calc(var(--spacing-12) * 15), calc(100% - var(--spacing-12)));
     flex-direction: row; align-items: center; column-gap: var(--spacing-4); padding: var(--spacing-2) var(--spacing-5) var(--spacing-2) var(--spacing-2); border-radius: var(--radius-container);
@@ -990,7 +1000,8 @@
     .intro-word { transform: rotateX(8deg) rotateY(-10deg); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .now-playing, .now-playing[data-leaving], .now-playing-sync, .now-playing::before, .now-playing::after, .now-playing-line[data-instrumental][data-state="current"], .now-playing-phrase, .now-playing-upcoming, .now-playing-rest, .now-playing-shape, .now-playing-mote, .lyric-word-editor { animation: none; }
+    .now-playing, .now-playing[data-leaving], .now-playing-sync, .now-playing::before, .now-playing::after, .now-playing-line[data-instrumental][data-state="current"], .now-playing-phrase, .now-playing-upcoming, .now-playing-rest, .now-playing-shape, .now-playing-mote, .now-playing-backdrop-cover, .lyric-word-editor { animation: none; }
+    .now-playing-mote { opacity: var(--mote-peak); }
     .now-playing-line { transition-delay: 0s; }
   }
   /* 功能引导：整窗压暗，高亮框用超大外阴影挖出目标；卡片按目标位置由脚本定位。宽度与 guide-tour.tsx 的 cardWidth 一致。 */

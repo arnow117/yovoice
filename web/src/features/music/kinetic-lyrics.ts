@@ -92,3 +92,20 @@ export function useKineticLyrics(root: RefObject<HTMLElement | null>, audio: Ref
     return () => cancelAnimationFrame(frame);
   }, [root, audio, enabled]);
 }
+
+// 浮光背景：放大并虚化的封面铺底，上面漂着十几个细线或实心的小几何图形，各自缓慢平移并整圈旋转，随响度略微胀缩；
+// 另有一些光点慢慢上升、明灭。图形的种类、位置、大小和节奏由作品 id 派生，同一首歌每次打开都一样。
+export type BackdropShape = { type: 'circle' | 'square' | 'triangle' | 'cross'; x: number; y: number; size: number; duration: number; delay: number; opacity: number; reverse: boolean; filled: boolean; rotate: number; band: number };
+export function backdropScene(seed: string) {
+  let base = 0;
+  for (const char of seed) base = (base * 31 + char.charCodeAt(0)) % 100003;
+  let n = 0;
+  const next = () => random(base + ++n * 7.13);
+  const types = ['circle', 'square', 'triangle', 'cross'] as const;
+  const shapes: BackdropShape[] = Array.from({ length: 15 }, () => ({
+    type: types[Math.floor(next() * types.length)], x: next() * 100, y: next() * 100, size: next(), duration: 30 + next() * 30, delay: -next() * 30,
+    opacity: .11 + next() * .08, reverse: next() > .5, filled: next() < .3, rotate: next() * 360, band: Math.floor(next() * 3),
+  }));
+  const motes = Array.from({ length: 20 }, () => ({ x: next() * 100, y: next() * 100, size: 1 + next() * 4, peak: .08 + next() * .22, duration: 15 + next() * 20, delay: -next() * 35 }));
+  return { shapes, motes };
+}

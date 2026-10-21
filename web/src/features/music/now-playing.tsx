@@ -5,7 +5,7 @@ import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
 import { useLocale, useTranslator } from '@astryxdesign/core/i18n';
-import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, Download, Eraser, FastForward, ListMusic, Maximize, Minimize, Pause, Play, Rewind, SlidersHorizontal, Sparkles, Timer } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, AudioLines, Check, ChevronDown, Download, Eraser, FastForward, ListMusic, Maximize, Minimize, Palette, Pause, Play, Rewind, SlidersHorizontal, Timer } from 'lucide-react';
 import { call, isDesktop, isMac, mediaUrl, saveText, releaseMediaUrl } from '../../shared/lib/client';
 import { formatActivity } from '../../shared/i18n/format';
 import { noticeMessage } from '../../shared/lib/call-error';
@@ -14,7 +14,7 @@ import { alignLines, alignedTimeline, alignLyrics, vocalActivity, withWords, typ
 import { activeLyric, lyricRows, lyricTimeline, lyricsToLrc, type LyricLine } from './lyric-timing';
 import { splitTags } from './music-draft';
 import { editableLines, LyricWordEditor } from './lyric-word-editor';
-import { useKineticLyrics, phraseLayout } from './kinetic-lyrics';
+import { backdropScene, useKineticLyrics, phraseLayout } from './kinetic-lyrics';
 import { coverPalette, SongCover } from './song-cover';
 import { readLocal, writeLocal } from '../../shared/lib/local-store';
 import { decodeAudio } from '../../shared/lib/sound';
@@ -54,9 +54,6 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
 type LyricStyle = 'scroll' | 'stage';
 const lyricStyleKey = 'yovoice-lyric-style';
 const savedLyricStyle = (): LyricStyle => readLocal(lyricStyleKey) === 'stage' ? 'stage' : 'scroll';
-// 浮光样式背景里漂浮的几何图形和上升的光点。
-const shapes = ['ring', 'disc', 'triangle', 'star', 'ring', 'dash', 'disc'] as const;
-const motes = 18;
 
 // 音乐播放页：仿 Apple Music 的全屏播放，左侧封面与播放控制，右侧滚动歌词；方便录屏，静置时自动隐藏控件和鼠标。
 // 歌词时间先按音频里的人声片段自动定位，判断不可靠时按时长估算；可以边听边逐行校准，校准结果随版本保存。
@@ -115,6 +112,7 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
   const staged = lyricStyle === 'stage' && !sync && !edit && lines.length > 0;
   const { hue, accent } = coverPalette(item.id);
   const tags = splitTags(item.settings.text).slice(0, 4);
+  const scene = useMemo(() => backdropScene(item.id), [item.id]);
 
   const switchTo = (next: Generation) => {
     if (next.id === item.id) return;
@@ -349,15 +347,19 @@ export function NowPlaying({ item: opened, title: openedTitle, versions = [], al
               { id: 'word-lrc', icon: <Download />, label: t('@yovoice.music.exportWordLrc'), description: t('@yovoice.music.exportWordLrcHint'), isDisabled: !timeline.length, onClick: () => exportLrc(true) },
             ]} /> : null}
           {rows.length ? <DropdownMenu presentation="popover" alignment="end" menuWidth="max-content" hasChevron={false}
-            button={{ className: 'now-playing-glass now-playing-round', variant: 'ghost', isIconOnly: true, icon: <Sparkles />, label: t('@yovoice.music.lyricStyle'), tooltip: t('@yovoice.music.lyricStyle') }}
+            button={{ className: 'now-playing-glass now-playing-round', variant: 'ghost', isIconOnly: true, icon: <Palette />, label: t('@yovoice.music.lyricStyle'), tooltip: t('@yovoice.music.lyricStyle') }}
             items={(['scroll', 'stage'] as const).map(value => ({ id: value, label: t(value === 'stage' ? '@yovoice.music.lyricStyleStage' : '@yovoice.music.lyricStyleScroll'),
               description: t(value === 'stage' ? '@yovoice.music.lyricStyleStageHint' : '@yovoice.music.lyricStyleScrollHint'), endContent: lyricStyle === value ? <Check size={14} /> : undefined, onClick: () => chooseStyle(value) }))} /> : null}
           {document.fullscreenEnabled ? <Button className="now-playing-glass now-playing-round" label={t(fullscreen ? '@yovoice.music.exitFullscreen' : '@yovoice.music.fullscreen')} isIconOnly variant="ghost" icon={fullscreen ? <Minimize /> : <Maximize />} onClick={toggleFullscreen} /> : null}
         </HStack>
       </HStack>
-      {staged ? <StackItem as="span" className="now-playing-shapes" aria-hidden>
-        {shapes.map((shape, index) => <StackItem as="span" key={index} className="now-playing-shape" data-shape={shape} style={{ '--shape-index': index, '--shape-x': `${(index * 37 + 8) % 90}%`, '--shape-y': `${(index * 53 + 12) % 80}%`, '--shape-scale': 1.2 + (index * 7 % 5) * .5 } as CSSProperties} />)}
-        {Array.from({ length: motes }, (_, index) => <StackItem as="span" key={`mote-${index}`} className="now-playing-mote" style={{ '--mote-x': `${(index * 61 + 7) % 100}%`, '--mote-y': `${(index * 29 + 40) % 100}%`, '--mote-size': 1 + index % 4, '--mote-delay': `${-(index * 2.3 % 30)}s`, '--mote-speed': `${18 + index * 7 % 17}s` } as CSSProperties} />)}
+      {staged ? <StackItem as="span" className="now-playing-backdrop" aria-hidden>
+        <StackItem as="span" className="now-playing-backdrop-cover"><SongCover seed={item.id} animated={playing} size={96} /></StackItem>
+        {scene.shapes.map((shape, index) => <StackItem as="span" key={index} className="now-playing-shape" data-shape={shape.type} data-filled={shape.filled || undefined}
+          style={{ '--shape-x': `${shape.x}%`, '--shape-y': `${shape.y}%`, '--shape-size': shape.size, '--shape-dir': shape.reverse ? -1 : 1, '--shape-rotate': `${shape.rotate}deg`, '--shape-opacity': shape.opacity, '--shape-band': shape.band,
+            animationDuration: `${shape.duration}s`, animationDelay: `${shape.delay}s` } as CSSProperties}><StackItem as="span" className="now-playing-shape-face" /></StackItem>)}
+        {scene.motes.map((mote, index) => <StackItem as="span" key={`mote-${index}`} className="now-playing-mote"
+          style={{ '--mote-x': `${mote.x}%`, '--mote-y': `${mote.y}%`, '--mote-size': mote.size, '--mote-peak': mote.peak, animationDuration: `${mote.duration}s`, animationDelay: `${mote.delay}s` } as CSSProperties} />)}
       </StackItem> : null}
       <HStack className={`now-playing-stage ${lines.length ? '' : 'now-playing-solo'}`.trim()} gap={0} vAlign="center">
         <VStack className="now-playing-side" gap={6}>
