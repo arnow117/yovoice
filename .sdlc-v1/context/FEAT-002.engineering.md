@@ -4,7 +4,23 @@
 
 ## Plan
 
-### 2026-10-21 当前新包一次原生验收停止（当前有效安排）
+### 2026-10-21 当前功能验收与独立评审已完成
+
+当前实现f4f3302已完成正式Review唯一P2修复、独立全量Validate PASS及原reviewer复审approved，主已核对并记录。功能验收采用已确认的分段证据范围：真实登记/识别/删除/重启来自3871包的未改路径，232秒零模型窗口补ready截图/正常退出；本轮新增生成guard由当前Go回归证明。原失败、不同包身份、Mic/TTS未运行和时延延期保留，不外推全源码hash一致、生产质量或旧包包含新guard。
+
+沿用既有授权提交/推送最终SDLC记录并更新PR90；为本地使用准备包含guard的新包`artifacts/speaker-validation-macos/worker-20261021-profile-generation-guard-fix/yovoice.app`，构建及签名/receipt核对原件保存于`artifacts/verification/feature-002-upstream-merge-20261020/package-002/`。该步骤只构建和静态核对，不启动App或模型；实际结果以原件为准，不将构建成功写成新一轮真实识别。主线合并、公证或二进制外部发行仍不在本次范围内。
+
+### 2026-10-21 正式Review返修：共享档案生成拒绝字幕（已完成）
+
+独立正式Review对6b875a9返回一项P2：desktop speaker.generate接收完整Draft，顶层绑定后，Subtitles的speaker.settings/cue.performance可在SubtitleDrafts中覆盖声音/模型/参考原文并转入普通generateSegments，绕过受限诊断，且分段历史已保存后仍可能因本次owned Generation为空报persistence_failed。主已只读核对该调用链，记录changes_requested并恢复同一TASK-002为in_progress；该新增事实属于既有单档案绑定契约，未扩大为声纹分段生成。
+
+沿用既有修复/验证/分支commit-push授权交回原Terra实施者：在共享SynthesizeSpeaker启动前拒绝非nil Subtitles、返回稳定invalid_input；不更改通用故事生成、UI/模型/阈值/样式或登记识别删除路径。回归需覆盖speaker.settings与cue.performance两种覆盖来源，验证共享入口及实际desktop Call均不启动引擎、不写输出/历史、不改变原作品，保留正常单段绑定、参数及脱敏行为。只执行资源有界的假引擎确定性测试，不启动App、真实模型、TTS或Mic。新代码提交后独立Validate判断受影响证据及必要复验，再交回同一独立Review检查；不得沿用6b的通过直接批准新实现。所有既有失败与本段尝试次数保留，不以切换阶段重计。
+
+### 2026-10-21 同包零模型分段补证（已完成）
+
+用户对已准备的分段补证请求确认已有授权并要求不再重复确认。主沿用此授权，同包、同私有目录、一次启动、零模型提取、含准备清理最多300秒执行；原A的重启AX与磁盘证据仍适用，新窗口仅记录清理后的真实空库，不重建特征、不补造含A截图。实际窗口配置ready、截图、原生CmdQ与资源清理完成，上界232秒；原native-001的1227秒失败保留。业务行为与固定输入未变，只补先前缺少的可见窗口和正常退出证据，汇总由同一独立Validate Agent只读核对；通过后按既有授权进入新的独立正式Review，无需再次请求阶段许可。
+
+### 2026-10-21 当前新包一次原生验收停止（保留的失败记录）
 
 用户明确授权Mac解锁后同包一次、最多2启动/5本地CPU1提取、T=.6/M=.05/120秒、含准备清理1200秒、首次失败停止。当前3871b7f新包及原receipt未改，主以原生Computer Use完成登记/识别/删除和重启列表操作，未注入业务JS/RPC；实际2启动/5提取已用完，没有后续App或模型运行授权。两known精确正确、unknown拒绝、B删除和重启后磁盘仅原A、完整State/Voices/源码/App/输入不变已证明；重启画面截图及正常UI退出未完成，原06:57:08 UTC监督期限先回收host/service，故整体PARTIAL/INCONCLUSIVE，不进入正式Review。
 
@@ -507,6 +523,14 @@ browser preview 新 method 默认拒绝/标示不可执行真实推理；E2E 的
 
 ## Build evidence
 
+### 2026-10-21 正式Review P2返修（原实施者，同TASK-002）
+
+生产代码仅在SynthesizeSpeaker的ctx检查后增加非nil Subtitles拒绝，早于profile查询、编辑锁及startGenerationLocked，返回既有invalid_input；desktop沿既有映射返回speakerRequestInvalid。没有改通用故事生成、HTTP DTO、识别/登记/删除、UI或模型参数。新共享WB与desktop Call表驱动测试各覆盖speaker.settings、cue.performance.settings的合法覆盖，以及非nil空文档；两个合法case先验证SubtitleDrafts/schema确实有效且可覆盖声音，空文档用不存在但格式有效的profileID证明输入拒绝优先于profile查询。完整State/Voices/历史/outputs保持，调用方Draft采用JSON深拷贝对比；既有fake marker未生成精确证明未收到引擎请求，启动前行为另由guard位置静态确认，不把outputs为空当启动计数。
+
+原件`artifacts/verification/feature-002-upstream-merge-20261020/review-fix-001/`：首次red-targeted.log为Go缓存沙箱权限错误，不作为红断言；受控重跑red-targeted-rerun.log才实际复现旧persistence_failed/speakerStorage。首次绿色定向race及完整两包race、vet均exit0（workbench32.731s/desktop6.006s）；主审后一次补齐空文档、marker及深拷贝，生产guard未再修改，最终guard-complete-targeted-race.log exit0（2.188s/2.742s）。最终实际命令：`env -u YOVOICE_SMOKE_MODEL -u ANTHROPIC_BASE_URL -u ANTHROPIC_API_KEY -u YOVOICE_OCHO_PATH GOMAXPROCS=2 go test -race -p 2 -count=1 -timeout=120s -run 'TestSynthesizeSpeakerRejectsSubtitleDraftsBeforeProfileGeneration|TestSpeakerCallRejectsSubtitleDraftsBeforeProfileGeneration' ./internal/workbench ./internal/desktop`。gofmt/diff-check exit0，07:52Z精确进程检查无App/service/fake残留。主另同步双语CHANGELOG，release-note检查2/2 exit0。
+
+同一原worker完成实现及必要验证，只改三个授权Go文件、未改主所有SDLC；角色配置沿用Terra，本次请求未暴露可读取实际model ID，未将角色标签宣称为模型切换证据。主读完diff及原件后接受Build并置TASK-002 done；实现提交后需独立Validate和同reviewer复查，不沿用6b旧PASS直接批准新代码。既有失败与本段一次补充修正均保留。
+
 ### 2026-10-20 上游集成剩余回归返修 — build-002
 
 同一Terra实施者在a95529e工作树上修正测试/夹具和生成的助手错误码说明，没有改生产UI、生成算法或上游样式。SQLite受控trigger打中真实settings最终写事务，普通生成保留保存错误detail，profile/RPC仍只公开稳定persistence_failed；测试钩子的幂等释放先于Workbench.Close，防止提前Fatal阻塞退出。fake engine按模型task区分midi、gen和TTS，不再将Vox参考audio误判为转谱；普通生成自身结果回归改用共享主操作槽的后继生成，保留独立下载槽语义。独立只读审查提出的清理顺序、Windows file URI和Web可见性三项均修正复核，最终未见must-fix；这不等于正式Feature Review批准。
@@ -573,7 +597,31 @@ worker报告定向race exit0（1.614秒）、gofmt/diff-check/离线vet exit0、
 
 ## Validation
 
-当前有效范围为TASK-002合并2415813后的集成源码。干净实现80c8d0c的独立Validate自动化检查全部通过；当前3871b7f新包已实际运行五次提取、登记/识别/删除及重启读取，SCN-UI-22为PARTIAL，不能再写整项NOT_RUN。正常第二次退出/重启截图未完成且总收尾超预算约27秒，汇总仍INCONCLUSIVE、机器fail，不进入正式Review批准。下方b3d114a的独立Validate PASS、Review approved及534.548秒原生证据仅证明合并前版本，不能作为当前Feature已通过。旧失败和本次实际成功范围均分别保留；逐条时延延期、Mic/TTS听测NOT_RUN，不扩展结论。
+### 2026-10-21 Review返修后的独立Validate — f4f3302（当前有效结果）
+
+独立Validate在干净业务实现f4f33027563ea3b7cb665dc182d9fc6793cf60b3执行全量无缓存Go race/atomic coverage：07:59:07.394641–08:00:14.108778 UTC、exit0，20包通过，含子例371pass/13skip/0fail，无race/cached；新增共享入口/desktop Call的6个子例全部通过。recognition250/293=85.324%，相对2415813的desktop/workbench生产新增行相交statement块504/607=83.031%、442块，均满足80%。gofmt、`go vet -p 2 ./...`及diff-check exit0。完整argv/四项env移除/时间/coverage算法/原件在`artifacts/verification/feature-002-upstream-merge-20261020/validate-003/`，实际命令见go-test.meta.json；08:01:55最终21个已记录自有身份及进程组无残留，未发送终止信号或停止共享资源。
+
+字幕在profile查询、锁及生成启动前稳定拒绝；合法嵌套覆盖、空结构提前拒绝、完整State/outputs不变及WB草稿深拷贝均验证。fake marker缺失只直接证明未收到引擎请求，启动前拒绝由guard位置静态确认。Web/E2E/PW、Swift、recognition、原生脚本和通用生成相关输入diff为0，可复用72/72、111/111、Swift17、Python4+1等证据。旧包54文件/receipt及固定输入保持，其native-001/002证据仅复用于未改的list/enroll/identify/delete、重启和生命周期路径，这些路径不调用SynthesizeSpeaker；旧App不包含新guard、完整源码不等于f4，不能扩展原件身份。当前guard由本轮新Go检查证明；没有新App、真实模型、TTS、Mic、云或下载调用。
+
+独立结论PASS，主核对业务工作树仅SDLC待提交后接受并record-validation pass绑定f4f3302，进入原reviewer复审。原1227秒失败、232秒补证范围和准备CLI错误均保留；Mic/TTS听测未运行、逐条时延延期不变。下方6b/3871等结果属于各自先前时点，不覆盖或替代本次已变化的生成入口。
+
+当前有效范围为TASK-002合并2415813后的集成源码。干净实现80c8d0c的独立Validate自动化检查全部通过；3871b7f构建的新包已实际运行五次提取、登记/识别/删除及重启读取，native-001的正常第二次退出/重启截图未完成且收尾超预算约27秒，原轮PARTIAL/INCONCLUSIVE永久保留。用户确认分段补证后，native-002-zero-model完成同包可见窗口、ready截图、正常CmdQ及资源清理，232秒/一次启动/零提取。独立Validate核对全部必要条件及版本适用性后汇总PASS，主验收并绑定集成6b875a9；正式Review随后返回共享生成字幕输入校验P2、changes_requested，当前返修见Plan首段，旧验证不能直接批准新实现。下方b3d114a的旧PASS/Review及534.548秒原生证据仅证明合并前版本。逐条时延延期、Mic/TTS听测NOT_RUN，不扩展结论。
+
+### 2026-10-21 同包零模型补证 — 当前集成6b875a9，包构建3871b7f
+
+原件在`artifacts/verification/feature-002-upstream-merge-20261020/native-002-zero-model/`。保守起点07:19:15 UTC，运行采证、精确进程检查与CUA kernel reset均在07:23:07前完成，上界232秒，低于含准备清理300秒预算。一次LaunchServices启动，零模型提取；独立监督原截止07:23:30未延长。宿主86398/服务86424；实际启动至退出约67.023秒，不能把它作为含准备清理总时长。
+
+先以实际Finder Desktop AX确认解锁。首次采证CLI漏传五项必需资产路径，exit2发生于App启动及验收断言之前；按错误信息一次补齐既有只读路径，没有App或模型重试，原时限及次数不变，`prelaunch-command-error.json`保留该错误。随后精确ps确认同包进程为空，codesign strict/deep核对exit0，完整before capture完成后才启动同一包、同native-001/data私有目录。
+
+实际原生导航打开声纹页，AX显示ready阈值0.6/差值0.05/超时120秒及真实空库；`ui-ready.png`是当次真实截图，`ui-ready.ax.txt`为完整AX，`ui-observation.json`记录观察。通过绑定App发送原生super+q，`normal-quit-action.json`保留动作时间；supervisor结果为`normal_launchservices_exit`、open0、actions=[]、remaining={}，再以精确host/service路径ps确认空。不是只以open0推导正常退出，亦未使用监督信号回收冒充CmdQ。
+
+`before.json`与`after.json`的完整17字段businessState与原native-001/before-enrollment一致、Voices始终[]，公开档案均为真实清理后的[]；源码、App/Web、host/service及固定资产前后逐项相等、manifest输入哈希全匹配。未新增speakers.json或临时特征，未操作音频、麦克风、TTS、云端或下载。`cleanup.json`、`result.json`记录自有进程清空、CUA kernel reset及232秒预算；后续仅做记录和独立只读审计，不新增原生运行。
+
+当前集成6b875a9相对包构建3871b7f只有三项SDLC元数据，业务仍80c8d0c；原receipt、App、运行时配置及固定输入未改。产品补充仅明确已授权分段采证：原A持久化由先前实际重启AX/磁盘证明，本轮截图证明同包清理后真实窗口与正常退出，不证明含A的新截图，也不将原1227秒记录改成达标。自动化、真实模型和零模型窗口证据分别绑定各自实际版本与范围，交由独立Validate核对是否覆盖当前要求。
+
+同一独立Validate Agent完成本次只读汇总，未启动任何资源、运行测试或写文件：真实登记/known2/2/unknown1/1、删除B及原A重启、ready窗口与真实截图、正常CmdQ、232/300秒及清理均COVERED。完整17字段State与原登记前/重启后相同，Voices=[]。新源码清单eb9c1ec4…与旧receipt的aff869bb…存在三项SDLC差异，不能称整份源码清单或strict receipt来源等于当前6b；App54文件/Web/fixed/files/manifest一致，相关业务输入没有变化。随后待提交上下文仅记录既有授权及分段结果，无新增未覆盖行为要求，既有自动化与真实模型证据仍适用。
+
+独立结论PASS，主按该请求执行record-validation pass并绑定6b875a934ec7a5df57b3603dd93d21e18cbeab14。原native-001超预算/SIGTERM/缺截图、首次采证CLI准备exit2均保留；逐条时延延期、物理Mic/真实TTS听测仍NOT_RUN。仅后续SDLC记录提交不改变被验证的实现版本，正式Review将由新的只读独立Agent执行。
 
 ### 2026-10-21 当前新包真实功能通过，退出采证未完成 — 3871b7f
 
@@ -899,6 +947,18 @@ physicalMic/humanTTS 为 NOT_RUN。12 个 Go skip 是既有 10 项音乐/音色�
 2026-10-17 Goal 工作树原生证据：`artifacts/verification/feature-002-goal-acceptance-20261017/attempt-001/smoke/report.json`，wrapper exit 0、27 秒，源码 `41d8d2f5d0b4a60cdec1697286940d47ef2eb6976ca3bddb84e97906783a4535`，App `9c81fa604406442d276ee44a0553d5bc94d86440ce52379354e54432777d1748`。CPU 单线程提取 5 次；两段已知查询分别精确 matched 两个新登记 ID（分数 0.818149/0.838868），未知查询 0.464850、无选定 ID；删除 B 后重启只剩 A。主亲自查看 initialize/main/restart 三张截图，页面完整可见；独立比较原始 before/main/restart 的 source/App/Web/固定资产/识别 manifest 和完整普通 State 一致，Voices 未增加，固定资产与 sherpa 版本符合要求。自有进程已退出，物理 Mic/真实 TTS 听测未执行。此项证明本版本的真实文件识别与重启路径，但截图暴露候选 ID 字段缺失，完整验收仍为未通过；修正后必须重新验证相关 UI，不能直接登记正式 pass。上次旧 App 和预检目录冲突的失败证据全部保留。
 
 ## Review
+
+### 2026-10-21 正式独立复审 — f4f3302，approved（当前有效结果）
+
+原reviewer只读核对当前4文件差异、相关调用链及validate-003原始记录，未运行测试或修改文件。唯一P2已闭合：SynthesizeSpeaker在profile查询/锁/启动之前拒绝所有非nil Subtitles，含空文档，不能再用nested settings覆盖绑定或进入普通分段诊断路径；desktop沿既有映射返回speakerRequestInvalid。共享WB与实际Call回归覆盖两种合法覆盖和空文档提前拒绝、完整State/输出/草稿不变；marker仅证明未收到引擎请求，启动前结论另以源码位置确认。
+
+全量无缓存Go race371pass/13skip/0fail、新6子例及格式/vet/diff原件已核对；通用生成、HTTP DTO、UI、取消/持久化与识别路径未改，旧证据按原范围复用合理，旧包不包含新guard的限制不变。无未解决must-fix、新建议或有证据支持的重复实现/可避免工程债；正常单段绑定、usage步骤保持，双语CHANGELOG已同步。主接受record-review approved请求，评审绑定f4f33027563ea3b7cb665dc182d9fc6793cf60b3；Mic/TTS与时延局限保留，未扩展为未执行范围通过。
+
+### 2026-10-21 正式独立Review — 6b875a9，changes_requested
+
+新的只读reviewer按qa/client/server/architect/security/design/ai-readiness/skill-maintainer视角检查当前分支业务差异及usage→story→参数→实际证据，未运行测试/App/模型或写文件。唯一must-fix为P2：`internal/workbench/speakers.go:272`仅拦顶层参考输入，`internal/desktop/speakers.go:176–184`接受完整Draft；`schema/subtitles.go:55–61`可用嵌套设置覆盖已绑定参数，`workbench/generation.go:212–213`转入普通分段生成，`segments.go:94`使用普通Engine.Generate而非GenerateProfile，分段落盘后本次Generation未赋值仍可能报persistence_failed。实际影响为错误音色/模型、普通诊断路径以及已写历史却报失败。前端剥离字幕不能替代服务端校验，现有RPC测试仅覆盖顶层冲突。主静态核对后接受该finding，record-review changes_requested绑定6b，原实现者按当前Plan修复。
+
+其他相关SQLite/私有档案隔离、请求所有权/取消、提交接受点、删除耐久性、公开DTO/错误与指南来源没有新增可确认阻塞项。本次diff未发现有证据支持的重复实现或可避免工程债；保留现有职责边界。上游既有样式按用户决定保留；物理Mic、真实TTS听测及逐条时延的局限保持，未以延期绕过上述must-fix。
 
 2026-10-20 同一独立reviewer`/root/speaker_feature_final_review`复审，绑定validation commit b3d114a8ec6b29c9efcfa0f353ce5bd10188d505，结论approved，主接受。原P2已解决：删除成功即按精确ID移除本地档案，functional setter只清仍指向目标的生成选择；刷新失败保留其他档案，删除失败重试和迟到响应保护仍满足。只读git入口条件/增量、当前契约/测试、标准库原件比对均exit0；业务树干净，仅三项SDLC记录待提交，未运行新测试/App/模型/provider或委派。
 
