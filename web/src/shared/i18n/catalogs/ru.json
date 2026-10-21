@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "Референсное аудио должно быть меньше 20 МБ."
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "Экспортируемое аудио больше 20 МБ. Экспортируйте его частями."
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "Неподдерживаемое вычислительное устройство или платформа."
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current} из {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "Показать аудиофайл"
+    "defaultMessage": "Показать в папке"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "В конец"

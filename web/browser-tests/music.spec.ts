@@ -190,10 +190,13 @@ test('音乐历史版本：工具栏进入历史页，播放页、复用和删�
   state.history = [take('v3', 12, '[verse]\n第三版的歌词'), take('v2', 11, '[verse]\n第二版的第一句\n第二版的第二句'), take('v1', 10, '[verse]\n第一版的歌词')];
   await page.addInitScript(value => { if (!localStorage.getItem('voice-workbench-v1')) localStorage.setItem('voice-workbench-v1', value); }, JSON.stringify(state));
   await page.goto('/');
-  // 编辑区不再有版本列表；播放器工具栏只放导出、播放页和历史版本入口。
+  // 编辑区不再有版本列表；播放器工具栏只放打开位置、播放页和历史版本入口，导出在“音频操作”菜单里。
   await expect(page.locator('.music-take-row')).toHaveCount(0);
   const transport = page.locator('.player .transport');
-  await expect(transport.getByRole('button', { name: '导出音频', exact: true })).toBeVisible();
+  await expect(transport.getByRole('button', { name: '打开位置', exact: true })).toBeVisible();
+  await transport.getByRole('button', { name: '音频操作', exact: true }).click();
+  await expect(page.getByRole('menuitem')).toHaveText(['导出音频']);
+  await page.keyboard.press('Escape');
   await expect(transport.getByRole('button', { name: '播放页', exact: true })).toBeVisible();
   await transport.getByRole('button', { name: '历史版本', exact: true }).click();
   await expect(page.getByRole('heading', { name: `${draft.title} · 历史版本` })).toBeVisible();

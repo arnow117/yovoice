@@ -505,6 +505,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
             try audio.write(to: url, options: .atomic)
             return ["id": message["id"]!, "result": true]
         }
+        if method == "output.export" {
+            // 已生成的版本直接复制 outputs 中的文件，不经网页传音频字节，长歌也不受消息大小限制。
+            let response = try await request("api/call", body: ["id": "media-path", "method": "media.path", "data": ["kind": "outputs", "id": data["id"] ?? ""]])
+            guard let source = response["result"] as? String else { throw failure(Self.hostErrorMessage(response["error"]) ?? HostL10n.t("err.audioPath")) }
+            guard FileManager.default.fileExists(atPath: source) else { throw failure(HostL10n.t("err.audioMissing")) }
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [UTType(filenameExtension: "wav") ?? .audio]
+            panel.nameFieldStringValue = (data["name"] as? String ?? "yovoice.wav")
+            let choice = await withCheckedContinuation { continuation in panel.beginSheetModal(for: window) { continuation.resume(returning: $0) } }
+            guard choice == .OK, let url = panel.url else { return ["id": message["id"]!, "result": false] }
+            try Data(contentsOf: URL(fileURLWithPath: source)).write(to: url, options: .atomic)
+            return ["id": message["id"]!, "result": true]
+        }
         if method == "text.export" {
             // 字幕（SRT/VTT）、歌词（LRC）与旋律谱（ABC）是界面生成的 UTF-8 文本，宿主只负责选位置并写文件。
             let format = data["format"] as? String ?? ""
