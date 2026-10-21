@@ -13,6 +13,11 @@ import (
 
 const Revision = "6d5436fc85f7a20c2e9f4e472b7f3a532f686444"
 
+// ModelScopeRevision 固定 ModelScope 上 audio.cpp 模型镜像的提交。镜像会随上游整体刷新，
+// 跟随 master 时文件大小与 SHA256 都会和目录清单对不上，导致下载失败；
+// 该提交下目录清单中的全部文件与清单一致，升级模型时与 Revision 一起更新。
+const ModelScopeRevision = "63d135e95ebee8d3ac36a0dd69540518b65c8f64"
+
 type ModelPackage struct {
 	Revision string `json:"revision,omitempty"`
 	// Repo 为空时来自 audio.cpp 的模型仓库；音色库等其他资源写明 Hugging Face 仓库路径，
@@ -240,7 +245,7 @@ func (m ModelPackage) FileURL(source, path string) (string, error) {
 	case "mirror":
 		return "https://hf-mirror.com/audio-cpp/audio.cpp-gguf/resolve/" + revision + "/" + path, nil
 	case "modelscope":
-		return "https://modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/master/" + path, nil
+		return "https://modelscope.cn/models/HereIsMark/audio.cpp-gguf/resolve/" + ModelScopeRevision + "/" + path, nil
 	}
 	return "", msg.Err(msg.ErrDownloadSource, nil)
 }
