@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "L’audio di riferimento deve essere inferiore a 20 MB."
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "L’audio esportato supera i 20 MB. Esportalo in parti più brevi."
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "Dispositivo di calcolo o piattaforma non supportati."
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current} di {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "Apri posizione dell’audio"
+    "defaultMessage": "Mostra nella cartella"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "Vai alla fine"
@@ -1462,6 +1465,9 @@
   },
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "Nessun risultato corrispondente"
+  },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "Mostra {n} precedenti"
   },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 lingue · 49 voci · Giapponese escluso"
@@ -2758,6 +2764,63 @@
   },
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "LRC avanzato con un tempo per ogni parola, per i lettori che supportano il karaoke"
+  },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Strumenti testo"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Modifica i tempi delle parole"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Trascina i blocchi o batti a tempo per regolare quando viene cantata ogni parola"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Segna l’inizio di ogni riga mentre ascolti"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Modifica questa riga"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Editor dei tempi delle parole"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Trascina una parola per spostarla e i bordi per cambiarne la durata; ←/→ sposta la parola selezionata, Maiusc per passi più fini; doppio clic per ascoltare"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Batti a tempo"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Interrompi"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Premi ↓ o Invio all’inizio di ogni parola; passa da sola alla successiva. Esc per interrompere"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Riga {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Riga precedente"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Riga successiva"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Riproduci questa riga"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Annulla modifica"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Annulla"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Salva"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Regola l’inizio di «{word}»"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Regola la fine di «{word}»"
   },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Allinea automaticamente"
@@ -4078,5 +4141,20 @@
   },
   "@yovoice.error.previewSpeakerUnavailable": {
     "defaultMessage": "Speaker recognition needs the local desktop service and cannot run in the browser preview."
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Funzioni"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Disattivando una funzione, i suoi accessi spariscono dalla barra laterale e dal menu Nuovo. Le opere esistenti e i modelli scaricati restano invariati."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Importa testo o sottotitoli e dai voce a ogni battuta per personaggio."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Canzoni, basi strumentali e partiture, con le relative impostazioni di modelli e banchi di suoni."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "L’assistente flottante, il suo accesso nella barra del titolo e i suggerimenti. Se disattivi anche la generazione musicale, vengono nascoste anche le impostazioni del servizio IA e l’assegnazione dei ruoli con IA per i libri."
   }
 }

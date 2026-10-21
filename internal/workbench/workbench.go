@@ -27,16 +27,20 @@ type Workbench struct {
 	// 持有期间不执行转码、下载或推理等耗时操作。锁顺序：先 edit 后 mu。
 	edit sync.Mutex
 	// mu 保护后台操作的取消函数与完成通道。
-	mu                sync.Mutex
-	cancel            context.CancelFunc
-	done              chan struct{}
-	active            *operation
-	installCancel     context.CancelFunc
-	installDone       chan struct{}
-	closed            bool
-	closeOnce         sync.Once
-	engine            *engine.Engine
-	client            *http.Client
+	// cancel/done 是占用推理引擎的主操作（生成、内核安装、迁移）；installCancel/installDone 是模型下载与导入，
+	// 二者互不阻塞，下载大模型时仍可用已安装的模型生成。
+	mu            sync.Mutex
+	cancel        context.CancelFunc
+	done          chan struct{}
+	active        *operation
+	installCancel context.CancelFunc
+	installDone   chan struct{}
+	closed        bool
+	closeOnce     sync.Once
+	engine        *engine.Engine
+	client        *http.Client
+	// kokoro 串行化 Kokoro 发音库的安装。
+	kokoro            sync.Mutex
 	speakerConfigOnce sync.Once
 	speakerConfig     recognition.Config
 	speakerConfigErr  error
@@ -103,10 +107,6 @@ func New(root string) (*Workbench, error) {
 		return nil, e
 	}
 	w.removeStale()
-	if e = w.recordLegacyRuntimeVersion(); e != nil {
-		s.Close()
-		return nil, e
-	}
 	return w, nil
 }
 

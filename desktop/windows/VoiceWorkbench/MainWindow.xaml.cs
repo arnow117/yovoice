@@ -444,6 +444,9 @@ public partial class MainWindow : Window
                     bool available = data.GetProperty("available").GetBoolean();
                     ToggleInspectorButton.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
                     ToggleInspectorMenu.IsEnabled = available; result = true; break;
+                case "window.immersive":
+                    // macOS 播放页把网页铺进标题栏；Windows 的标题栏放着菜单，保持原样。
+                    result = true; break;
                 case "assistant.entry":
                     // 网页右下角入口在时不重复显示标题栏入口，移走后才由标题栏接替。
                     ToggleAssistantButton.Visibility = data.GetProperty("visible").GetBoolean() ? Visibility.Visible : Visibility.Collapsed;
@@ -496,6 +499,16 @@ public partial class MainWindow : Window
                     // 不写 BOM，与 macOS 输出一致；常见播放器和剪辑软件都按 UTF-8 读取。
                     try { await File.WriteAllTextAsync(textTemporary, text, new System.Text.UTF8Encoding(false)); File.Move(textTemporary, textSave.FileName, true); }
                     finally { if (File.Exists(textTemporary)) File.Delete(textTemporary); }
+                    result = true; break;
+                case "output.export":
+                    // 已生成的版本直接复制 outputs 中的文件，不经网页传音频字节，长歌也不受消息大小限制。
+                    string source = (await service.CallAsync("media.path", new { kind = "outputs", id = data.GetProperty("id").GetString() })).GetString()!;
+                    if (!File.Exists(source)) throw new FileNotFoundException(HostL10n.T("音频文件不存在。", "The audio file doesn't exist."));
+                    var outputSave = new SaveFileDialog { Filter = HostL10n.T("WAV 音频", "WAV Audio") + "|*.wav", DefaultExt = ".wav", FileName = Path.GetFileName(data.GetProperty("name").GetString() ?? "yovoice.wav"), OverwritePrompt = true };
+                    if (outputSave.ShowDialog(this) != true) { result = false; break; }
+                    string outputTemporary = outputSave.FileName + "." + Guid.NewGuid().ToString("N") + ".tmp";
+                    try { await Task.Run(() => File.Copy(source, outputTemporary)); File.Move(outputTemporary, outputSave.FileName, true); }
+                    finally { if (File.Exists(outputTemporary)) File.Delete(outputTemporary); }
                     result = true; break;
                 case "media.reveal":
                     var location = await service.CallAsync("media.path", data);

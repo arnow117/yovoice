@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "Референсное аудио должно быть меньше 20 МБ."
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "Экспортируемое аудио больше 20 МБ. Экспортируйте его частями."
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "Неподдерживаемое вычислительное устройство или платформа."
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current} из {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "Показать аудиофайл"
+    "defaultMessage": "Показать в папке"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "В конец"
@@ -1462,6 +1465,9 @@
   },
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "Ничего не найдено"
+  },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "Показать ещё {n} более ранних"
   },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 языков · 49 голосов · без японского"
@@ -2758,6 +2764,63 @@
   },
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "Расширенный LRC с отметкой времени для каждого слова, для плееров с караоке"
+  },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Инструменты текста"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Изменить тайминг слов"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Перетаскивайте слова или отстукивайте в такт, чтобы настроить время каждого слова"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Отмечайте начало каждой строки во время прослушивания"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Изменить эту строку"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Редактор тайминга слов"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Перетащите слово, чтобы сдвинуть, края — чтобы изменить длину; ←/→ сдвигает выбранное слово, с Shift точнее; двойной щелчок — прослушать"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Отстукивать"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Остановить"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Нажимайте ↓ или Enter в начале каждого слова — выбор перейдёт к следующему. Esc — остановить"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Строка {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Предыдущая строка"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Следующая строка"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Воспроизвести строку"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Отменить"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Отмена"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Сохранить"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Начало «{word}»"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Конец «{word}»"
   },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Автовыравнивание"
@@ -4078,5 +4141,20 @@
   },
   "@yovoice.error.previewSpeakerUnavailable": {
     "defaultMessage": "Speaker recognition needs the local desktop service and cannot run in the browser preview."
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Функции"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Отключённые функции скрываются из боковой панели и меню «Создать». Существующие работы и загруженные модели остаются без изменений."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Импорт текста или субтитров и озвучка каждой реплики по персонажам."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Песни, инструментальная музыка и партитуры, а также настройки их моделей и звуковых банков."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "Плавающий помощник, его кнопка в заголовке окна и подсказки. Если отключена и генерация музыки, скрываются также настройки ИИ-сервиса и распределение ролей ИИ для книг."
   }
 }

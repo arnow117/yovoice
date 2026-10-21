@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "参考音频需小于 20 MB。"
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "导出的音频超过 20 MB，请分段导出。"
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "不支持的计算设备或平台。"
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current}，共 {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "打开音频位置"
+    "defaultMessage": "打开位置"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "跳到结尾"
@@ -1690,6 +1693,9 @@
   },
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "没有匹配的结果"
+  },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "显示更早的 {n} 条"
   },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 种语言 · 49 种音色 · 不含日语"
@@ -2987,6 +2993,63 @@
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "增强 LRC，每个字都带时间，支持卡拉 OK 歌词的播放器可逐字显示"
   },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "歌词工具"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "编辑逐字时间"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "拖动字块或跟唱打点，调整每个字的时间"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "边听边逐行标记每句的开始"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "编辑这一句"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "逐字时间编辑"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "拖动字块移动，拖两端调整长短；选中后按 ←/→ 微调，按住 Shift 更细；双击试听"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "跟唱打点"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "停止打点"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "每个字开始唱时按 ↓ 或回车，自动跳到下一个字；Esc 停止"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "第 {n}/{total} 句"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "上一句"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "下一句"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "播放这一句"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "撤销"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "取消"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "保存"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "调整“{word}”的开始"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "调整“{word}”的结束"
+  },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "智能对齐"
   },
@@ -4078,5 +4141,20 @@
   },
   "@yovoice.create.precision": {
     "defaultMessage": "精度"
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "功能显示"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "关闭后对应入口从侧栏和新建菜单中隐藏，已有作品和已下载的模型不受影响。"
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "导入文本或字幕，按角色逐句配音。"
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "歌曲、纯音乐与编曲生成，以及对应的模型和音色库设置。"
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "浮窗助手、标题栏入口和主动提示。与音乐生成都关闭时，AI 服务设置和有声书的 AI 分配角色也一并隐藏。"
   }
 }

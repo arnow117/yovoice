@@ -149,7 +149,7 @@ func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clip
 	if d.Kind == "score" {
 		return w.startScore(d, saveDraft, result)
 	}
-	d.EnsureCueIDs()
+	d.Normalize()
 	original := d
 	if cueID != "" {
 		if d.Subtitles == nil {
@@ -209,6 +209,9 @@ func (w *Workbench) startGenerationLocked(d schema.Draft, previewID, cueID, clip
 		start = w.startProfileOperation
 	}
 	return start("generate", msg.ActivityGenerate, nil, nil, func(ctx context.Context) error {
+		if e := w.ensureKokoro(ctx, s, parts); e != nil {
+			return e
+		}
 		if d.Subtitles != nil && previewID == "" {
 			return w.generateSegments(ctx, s, parts, clipID)
 		}

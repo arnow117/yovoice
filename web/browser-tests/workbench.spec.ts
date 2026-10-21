@@ -289,12 +289,13 @@ test('语音生成只有历史生成：工具栏进入历史页，试听不改�
   await expect(page.getByRole('button', { name: '新增音轨', exact: true })).toHaveCount(0);
   await expect(page.locator('.player .waveform')).toBeVisible();
   await expect.poll(() => page.locator('footer audio').evaluate((audio: HTMLAudioElement) => audio.duration)).toBe(1);
-  // 工具栏放导出、历史生成和“音频操作”菜单；删除只在历史页；“保存为角色”在右侧角色选择里。
+  // 工具栏放打开位置、历史生成和“音频操作”菜单（导出在菜单里）；删除只在历史页；“保存为角色”在右侧角色选择里。
   const transport = page.locator('.player .transport');
-  await expect(transport.getByRole('button', { name: '导出音频', exact: true })).toBeVisible();
+  await expect(transport.getByRole('button', { name: '打开位置', exact: true })).toBeVisible();
+  await expect(transport.getByRole('button', { name: '导出音频', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '保存为角色', exact: true })).toHaveCount(0);
   await transport.getByRole('button', { name: '音频操作', exact: true }).click();
-  await expect(page.getByRole('menuitem')).toHaveText(['保存为参考音频', '保存为角色', '打开音频位置']);
+  await expect(page.getByRole('menuitem')).toHaveText(['导出音频', '保存为参考音频', '保存为角色']);
   await page.keyboard.press('Escape');
 
   // 历史生成汇总所有语音作品的结果，不分版本；改过名的显示名称，其余显示正文。
@@ -331,12 +332,12 @@ test('语音生成只有历史生成：工具栏进入历史页，试听不改�
   await expect(page.getByRole('radio', { name: '文字指导', exact: true })).toBeChecked();
   await expect(page.getByRole('combobox', { name: '模型', exact: true })).toContainText('IndexTTS 2.5');
   await page.reload();
-  await expect(transport.getByRole('button', { name: '导出音频', exact: true })).toBeVisible();
+  await expect(transport.getByRole('button', { name: '打开位置', exact: true })).toBeVisible();
   // 新建的语音作品没有自己的音频，但仍能从工具栏查看历史生成。
   await page.getByTestId('nav-new').click();
   await page.getByRole('menuitem', { name: '语音生成', exact: true }).click();
   await expect(page.getByRole('button', { name: '播放', exact: true })).toBeDisabled();
-  await expect(transport.getByRole('button', { name: '导出音频', exact: true })).toHaveCount(0);
+  await expect(transport.getByRole('button', { name: '打开位置', exact: true })).toHaveCount(0);
   await expect(transport.getByRole('button', { name: '历史生成', exact: true })).toBeVisible();
 });
 

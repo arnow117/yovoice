@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "O áudio de referência deve ter menos de 20 MB."
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "O áudio exportado tem mais de 20 MB. Exporte-o em partes menores."
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "Dispositivo de computação ou plataforma não suportados."
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current} de {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "Abrir local do áudio"
+    "defaultMessage": "Mostrar na pasta"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "Ir para o fim"
@@ -1462,6 +1465,9 @@
   },
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "Nenhum resultado encontrado"
+  },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "Mostrar {n} anteriores"
   },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 idiomas · 49 vozes · Sem japonês"
@@ -2758,6 +2764,63 @@
   },
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "LRC avançado com horário em cada palavra, para players com letras de karaokê"
+  },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Ferramentas de letra"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Editar tempo das palavras"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Arraste os blocos ou marque no ritmo para ajustar quando cada palavra é cantada"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Marque o início de cada linha enquanto ouve"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Editar esta linha"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Editor de tempo das palavras"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Arraste uma palavra para movê-la e as bordas para mudar a duração; ←/→ ajusta a palavra selecionada, Shift em passos menores; clique duas vezes para ouvir"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Marcar no ritmo"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Parar de marcar"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Pressione ↓ ou Enter quando cada palavra começar; passa sozinho para a próxima. Esc para parar"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Linha {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Linha anterior"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Próxima linha"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Tocar esta linha"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Desfazer"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Cancelar"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Salvar"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Ajustar o início de “{word}”"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Ajustar o fim de “{word}”"
   },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Alinhar automaticamente"
@@ -4078,5 +4141,20 @@
   },
   "@yovoice.error.previewSpeakerUnavailable": {
     "defaultMessage": "Speaker recognition needs the local desktop service and cannot run in the browser preview."
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Recursos"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Desativar um recurso oculta seus atalhos na barra lateral e no menu Novo. Obras existentes e modelos baixados não são alterados."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Importe texto ou legendas e dê voz a cada linha por personagem."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Músicas, instrumentais e partituras, além das configurações de modelos e bancos de som."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "O assistente flutuante, seu atalho na barra de título e as sugestões. Com a geração de música também desativada, as configurações do serviço de IA e a distribuição de papéis por IA em livros também ficam ocultas."
   }
 }

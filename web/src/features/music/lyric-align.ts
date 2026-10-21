@@ -245,26 +245,29 @@ export function withWords(lines: LyricLine[], activity?: VocalActivity): LyricLi
   return lines.map(line => line.instrumental || !line.text ? line : { ...line, words: usable ? alignWords(line, usable) : estimateWords(line) });
 }
 
-// 只比较文字本身：去掉标点和空格，拉丁文不分大小写。对齐模型返回的词不带标点。
-const letters = (text: string) => text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+// 对齐模型送入前会清洗歌词，只保留这些字符：ASCII 字母数字、撇号、中日韩文字、假名、谚文以及拉丁扩展、希腊、西里尔、泰文字母。
+// 两边按同一套字符计数，结果才能一一对上。
+const kept = /[A-Za-z0-9'\u00C0-\u02AF\u0370-\u03FF\u0400-\u052F\u0E00-\u0E7F\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\u{20000}-\u{2CEAF}]/gu;
+const letters = (text: string) => text.toLowerCase().match(kept)?.join('') ?? '';
 
-// 把歌词对齐模型的逐字结果放回歌词行。模型可能把一个词拆开或把几个字合并，所以按文字长度累计对应：
-// 每个逐字单元取覆盖它的那些词的开始与结束。文字总量对不上（歌词改过）时返回 null，交给自动定位或估算。
+// 把歌词对齐模型的逐字结果放回歌词行。模型可能把一个词拆开、把几个字合成一个词（日文、韩文常按词给时间），
+// 所以先把每个词的时间按字数平分到每个字上，再按字的顺序对回逐字单元。字数有少量出入时按比例对应；
+// 差得太多（歌词改过）时返回 null，交给自动定位或估算。
 export function alignedTimeline(rows: LyricRow[], aligned: AlignedWord[], duration: number): LyricLine[] | null {
-  const sung = rows.map(row => row.instrumental ? [] : lyricTokens(row.text).map(token => ({ text: token.text, size: letters(token.text).length })));
+  const sung = rows.map(row => row.instrumental ? [] : lyricTokens(row.text).map(token => ({ text: token.text, size: [...letters(token.text)].length })));
   const total = sung.flat().reduce((sum, token) => sum + token.size, 0);
-  const words = aligned.map(word => ({ ...word, size: letters(word.word).length })).filter(word => word.size && word.end >= word.start);
-  const found = words.reduce((sum, word) => sum + word.size, 0);
-  if (!total || !words.length || Math.abs(found - total) > total * .1) return null;
-  let index = 0, used = 0, consumed = 0;
+  const chars = aligned.filter(word => word.end >= word.start).flatMap(word => {
+    const size = [...letters(word.word)].length, span = (word.end - word.start) / Math.max(1, size);
+    return Array.from({ length: size }, (_, k) => ({ start: word.start + k * span, end: word.start + (k + 1) * span }));
+  });
+  if (!total || !chars.length || Math.abs(chars.length - total) > total * .1) return null;
+  const at = (position: number) => chars[Math.min(chars.length - 1, Math.floor(position * chars.length / total))];
+  let position = 0;
   const timed = sung.map(tokens => tokens.map(token => {
-    // 这个单元从当前词开始，一直取到累计文字长度覆盖它为止。
-    const first = words[Math.min(index, words.length - 1)];
-    consumed += token.size;
-    let last = first;
-    while (index < words.length && used + words[index].size <= consumed) { used += words[index].size; last = words[index]; index++; }
-    if (index < words.length && used < consumed) last = words[index];
-    return { text: token.text, start: first.start, end: Math.max(first.start, last.end) };
+    // 没有可对齐文字的单元（纯符号）贴着下一个字。
+    const first = at(position), last = token.size ? at(position + token.size - 1) : first;
+    position += token.size;
+    return { text: token.text, start: first.start, end: token.size ? Math.max(first.start, last.end) : first.start };
   }));
   const lines: LyricLine[] = [];
   rows.forEach((row, i) => {
@@ -282,16 +285,13 @@ export function alignedTimeline(rows: LyricRow[], aligned: AlignedWord[], durati
   return lines[0] && !lines[0].instrumental && lines[0].start > 1 ? [{ text: '', start: 0, end: lines[0].start, instrumental: true }, ...lines] : lines;
 }
 
-// 对齐模型一次最多处理约 5 分钟；长歌按现有的逐行时间切成几段，每段前后多留几秒余量。短歌整首一段，不切。
-const alignChunk = 280, alignMargin = 3;
-export function alignChunks(lines: LyricLine[], duration: number) {
-  if (duration <= alignChunk) return [];
-  const chunks: { text: string; start: number; end: number }[] = [];
-  for (const line of lines) {
-    if (line.instrumental || !line.text) continue;
-    const start = Math.max(0, line.start - alignMargin), end = Math.min(duration, line.end + alignMargin), last = chunks.at(-1);
-    if (last && end - last.start <= alignChunk + 2 * alignMargin) { last.text += `\n${line.text}`; last.end = end; }
-    else { const from = Math.max(start, last?.end ?? 0); chunks.push({ text: line.text, start: from, end: Math.min(from + 300, Math.max(end, from + 1)) }); }
-  }
-  return chunks;
+// 送去对齐的演唱行和它们现有的大致时间（自动定位、校准或估算）。对齐模型一次只能处理约 100 秒人声，
+// 后端按这些时间把行分组，切点落在人声空隙里；短歌整首一组。
+export function alignLines(lines: LyricLine[], duration: number) {
+  let last = 0;
+  return lines.filter(line => !line.instrumental && line.text.trim()).map(line => {
+    const start = Math.min(duration, Math.max(last, line.start)), end = Math.min(duration, Math.max(start, line.end));
+    last = start;
+    return { text: line.text, start: Math.round(start * 1000) / 1000, end: Math.round(end * 1000) / 1000 };
+  });
 }

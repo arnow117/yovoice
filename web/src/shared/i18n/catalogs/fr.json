@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "L’audio de référence doit faire moins de 20 Mo."
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "L’audio exporté dépasse 20 Mo. Exportez-le en parties plus courtes."
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "Appareil de calcul ou plateforme non pris en charge."
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current} sur {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "Ouvrir l’emplacement de l’audio"
+    "defaultMessage": "Afficher le dossier"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "Aller à la fin"
@@ -1462,6 +1465,9 @@
   },
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "Aucun résultat"
+  },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "Afficher {n} plus anciens"
   },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 langues · 49 voix · pas de japonais"
@@ -2758,6 +2764,63 @@
   },
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "LRC enrichi avec un horodatage par mot, pour les lecteurs compatibles karaoké"
+  },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "Outils des paroles"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "Modifier le minutage des mots"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "Faites glisser les mots ou tapez en rythme pour ajuster le moment de chaque mot"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "Marquez le début de chaque ligne en écoutant"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "Modifier cette ligne"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "Éditeur de minutage des mots"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "Faites glisser un mot pour le déplacer, ses bords pour changer sa durée ; ←/→ décale le mot sélectionné, Maj pour un pas plus fin ; double-cliquez pour écouter"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "Taper en rythme"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "Arrêter"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "Appuyez sur ↓ ou Entrée au début de chaque mot ; le mot suivant est sélectionné automatiquement. Échap pour arrêter"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "Ligne {n}/{total}"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "Ligne précédente"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "Ligne suivante"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "Lire cette ligne"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "Annuler la modification"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "Annuler"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "Enregistrer"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "Ajuster le début de « {word} »"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "Ajuster la fin de « {word} »"
   },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "Aligner automatiquement"
@@ -4078,5 +4141,20 @@
   },
   "@yovoice.error.previewSpeakerUnavailable": {
     "defaultMessage": "Speaker recognition needs the local desktop service and cannot run in the browser preview."
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "Fonctionnalités"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "Désactiver une fonctionnalité masque ses accès dans la barre latérale et le menu Nouveau. Les œuvres existantes et les modèles téléchargés restent inchangés."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "Importez un texte ou des sous-titres et doublez chaque ligne selon le personnage."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "Chansons, instrumentaux et partitions, ainsi que les réglages de modèles et de banques de sons."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "L’assistant flottant, son accès dans la barre de titre et ses suggestions. Si la génération de musique est aussi désactivée, les réglages du service d’IA et la distribution des rôles par IA pour les livres sont masqués."
   }
 }

@@ -120,6 +120,8 @@ Kokoro generates speech with built-in voices and does not require reference audi
 
 The official models support Chinese, American/British English, Spanish, French, Hindi, Italian, and Brazilian Portuguese. Version 1.1-zh uses different voice IDs from version 1.0.
 
+The first Kokoro download also fetches the pronunciation libraries (eSpeak NG and MeCab, about 10 MB) from PyPI, or from the Aliyun PyPI mirror when the download source is ModelScope or the mirror. They are shared by all Kokoro models.
+
 ### Generate speech
 
 ```sh
@@ -150,7 +152,7 @@ YuE2 needs lyrics for a vocal song, and the song length follows the lyrics. It c
 - **Generation**: *From score* follows the score (or writes one first); *Free* skips the score and generates directly, with no editable score. Advanced settings expose the inference steps and the score and audio sampling parameters.
 - Every take stores the score it used; reusing a version restores it.
 
-On the playback page, lyric timing starts from the vocals detected in the mix and can be synced line by line. With the optional Lyric Aligner installed, **Auto-align** separates the vocals and aligns every word of the lyrics to the singing (songs up to 20 minutes, aligned in segments of about 5 minutes); the result is saved with the version, and the newest of auto-align and manual sync wins.
+On the playback page, lyric timing starts from the vocals detected in the mix and can be synced line by line. With the optional Lyric Aligner installed, **Auto-align** separates the vocals, drops interludes and long pauses, and aligns every word of the lyrics to the singing (songs up to 20 minutes; the aligner handles about 100 seconds of singing at a time, so longer songs are aligned in groups of lines split at pauses in the vocals, and re-aligning the same version reuses the separated vocals); the result is saved with the version, and the newest of auto-align and manual sync wins. Words that are still off can be fixed under **Lyric tools › Edit word timing** by dragging word blocks or tapping along while listening. All of these live in the **Lyric tools** menu at the top of the playback page.
 
 Continuation, repainting and stem extraction are not available yet.
 

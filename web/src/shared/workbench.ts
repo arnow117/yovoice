@@ -112,7 +112,13 @@ export interface CleanupReport {
   cleanedCount: number;
   freedBytes: number;
 }
-export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean }
+export interface Preferences { downloadSource: string; backend: string; modelDirectory: string | null; uiLocale: UiLocale; proxyURL?: string; proxyEnabled?: boolean; aiTimeout?: number; introSeen?: boolean; tourSeen?: boolean; assistantQuiet?: boolean; hiddenFeatures?: Feature[] }
+// 可在设置中隐藏的功能入口：故事配音、音乐生成（含编曲）与 Ocho 助手，默认全部显示。
+export const optionalFeatures = ['story', 'music', 'assistant'] as const;
+export type Feature = typeof optionalFeatures[number];
+export const featureHidden = (preferences: Preferences, feature: Feature) => !!preferences.hiddenFeatures?.includes(feature);
+// AI 服务主要供 Ocho 与音乐创作使用，两者都隐藏时 AI 服务设置与有声书的 AI 分配角色一并隐藏。
+export const aiServiceHidden = (preferences: Preferences) => featureHidden(preferences, 'assistant') && featureHidden(preferences, 'music');
 export interface State {
   characters: Character[]; previews: CharacterPreview[]; drafts: Draft[]; voices: Voice[]; models: InstalledModel[]; history: Generation[];
   preferences: Preferences; runtimePath: string | null; runtimeBackend: string | null; runtimeVersion: string | null; runtimes?: Record<string, { path: string; version: string }>; activity: Activity | null; modelActivity?: Activity | null;
@@ -154,7 +160,7 @@ export interface AssistantMemo { id: string; text: string; createdAt: string }
 export interface AssistantBlock { kind: 'text' | 'thinking' | 'tool'; text?: string; card?: AssistantToolCard }
 /** 助手消息：blocks 为按顺序的内容块，text 为文本块拼接；tools 只出现在旧版本记录里。 */
 export interface AssistantMessage {
-  id: string; role: AssistantMessageRole; text?: string; blocks?: AssistantBlock[]; tools?: AssistantToolCard[];
+  id: string; role: AssistantMessageRole; text?: string; blocks?: AssistantBlock[];
   status?: 'completed' | 'cancelled' | 'failed'; errorCode?: MessageCode; errorParams?: MessageParams; createdAt: string;
 }
 /** 拼接内容块里的文本块，段与段之间空一行，与 Go 的 blocksText 一致。 */
@@ -261,13 +267,4 @@ export const isReferenceModel = (id: string) => id.startsWith('omnivoice-') || i
 export const isBreezeModel = (id: string) => id.startsWith('breeze-tts-');
 export const requiresVoice = (draft: Draft) => isKokoroModel(draft.modelId) || !isVoiceModel(draft.modelId) ? false : draft.modelId.startsWith('qwen3-tts-') ? !/customvoice|voicedesign/.test(draft.modelId) : draft.modelId.startsWith('omnivoice-') || isBreezeModel(draft.modelId) ? draft.voiceMode === 'clone' : !isVoxModel(draft.modelId) || ['clone', 'continuation'].includes(draft.voxMode ?? 'design');
 
-// 旧字幕的身份与 Go 保持一致，编辑后不再依赖数组位置。
 export const emptyScore = (): Score => ({ tempo: 100, timeSignature: [4, 4], key: '', sections: [], tracks: [] });
-
-// 打开或修改作品时统一补齐旧数据：台词补上稳定 ID，缺少乐谱的编曲作品补一份空乐谱，避免渲染时崩溃。
-export function normalizeDraft(draft: Draft): Draft {
-  let next = draft;
-  if (next.kind === 'score' && !Array.isArray(next.score?.tracks)) next = { ...next, score: { ...emptyScore(), ...next.score, tracks: [] } };
-  if (!next.subtitles || next.subtitles.cues.every(c => c.id)) return next;
-  return { ...next, subtitles: { ...next.subtitles, cues: next.subtitles.cues.map((cue, index) => ({ ...cue, id: cue.id ?? `legacy-${next.id}-${index}` })) } };
-}

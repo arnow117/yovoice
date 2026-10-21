@@ -117,14 +117,22 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			return
 		}
+		var stream stateStream
 		for {
 			select {
 			case <-r.Context().Done():
 				return
 			case <-ch:
-				b, e := json.Marshal(map[string]any{"event": "state", "state": s.Workbench.Store.Read()})
+				snapshot, e := s.Workbench.Store.ReadJSON()
 				if e != nil {
 					return
+				}
+				b, e := stream.next(snapshot)
+				if e != nil {
+					return
+				}
+				if b == nil {
+					continue
 				}
 				if _, e = fmt.Fprintf(w, "data: %s\n\n", b); e != nil {
 					return
@@ -144,6 +152,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Header().Set("Content-Type", "audio/wav")
+		// 音频本就在本机磁盘上，禁止 WebView 再缓存一份；未压缩的 wav 会让 web-cache 不断膨胀。
+		w.Header().Set("Cache-Control", "no-store")
 		// 隐藏 io.ReaderFrom，避免 Windows sendfile 与连接后台读在 Go 1.26 中的数据竞争。
 		http.ServeFile(struct{ http.ResponseWriter }{w}, r, path)
 	case r.URL.Path == "/shutdown" && r.Method == "POST":

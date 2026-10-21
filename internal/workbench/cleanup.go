@@ -40,6 +40,8 @@ func (w *Workbench) removeStale() {
 		return (e.IsDir() && (strings.HasPrefix(name, "audio-") || strings.HasPrefix(name, "recognition-"))) ||
 			(!e.IsDir() && (strings.HasPrefix(name, "upload-") || strings.HasPrefix(name, "api-upload-") || temporaryWav.MatchString(name)))
 	})
+	// Kokoro 发音库安装中途退出时遗留的临时目录。
+	remove(filepath.Join(root, "runtime"), func(e os.DirEntry) bool { return e.IsDir() && strings.HasPrefix(e.Name(), "kokoro-") })
 	w.removeStaleRuntimes()
 }
 

@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "참조 오디오는 20MB보다 작아야 합니다."
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "내보낼 오디오가 20MB를 넘습니다. 나누어 내보내 주세요."
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "지원하지 않는 연산 장치 또는 플랫폼입니다."
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current} / {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "오디오 위치 열기"
+    "defaultMessage": "위치 열기"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "끝으로 이동"
@@ -1462,6 +1465,9 @@
   },
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "일치하는 결과가 없습니다"
+  },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "이전 {n}개 더 보기"
   },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8개 언어 · 음성 49개 · 일본어 미지원"
@@ -2758,6 +2764,63 @@
   },
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "모든 글자에 시간이 있는 확장 LRC. 노래방 가사를 지원하는 플레이어용"
+  },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "가사 도구"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "단어 타이밍 편집"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "단어 블록을 끌거나 노래에 맞춰 탭해 단어별 시간을 조정"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "들으면서 줄마다 시작 지점을 표시"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "이 줄 편집"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "단어 타이밍 편집기"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "블록을 끌어 이동하고 양 끝을 끌어 길이를 조정합니다. 선택 후 ←/→로 미세 조정, Shift는 더 세밀하게. 더블 클릭으로 미리 듣기"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "탭으로 기록"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "기록 중지"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "각 단어가 시작될 때 ↓ 또는 Enter를 누르면 다음 단어로 넘어갑니다. Esc로 중지"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "{n}/{total}번째 줄"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "이전 줄"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "다음 줄"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "이 줄 재생"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "실행 취소"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "취소"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "저장"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "“{word}” 시작 조정"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "“{word}” 끝 조정"
   },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "자동 정렬"
@@ -4078,5 +4141,20 @@
   },
   "@yovoice.error.previewSpeakerUnavailable": {
     "defaultMessage": "Speaker recognition needs the local desktop service and cannot run in the browser preview."
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "기능 표시"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "끄면 사이드바와 새로 만들기 메뉴에서 해당 항목이 숨겨집니다. 기존 작품과 다운로드한 모델은 그대로 유지됩니다."
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "텍스트나 자막을 가져와 캐릭터별로 한 줄씩 더빙합니다."
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "노래, 연주곡, 편곡 생성과 관련 모델 및 사운드폰트 설정."
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "플로팅 어시스턴트, 제목 표시줄 항목과 제안. 음악 생성도 끄면 AI 서비스 설정과 책의 AI 배역 지정도 함께 숨겨집니다."
   }
 }

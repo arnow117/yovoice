@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "參考音訊需小於 20 MB。"
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "匯出的音訊超過 20 MB，請分段匯出。"
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "不支援的運算裝置或平台。"
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current}，共 {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "開啟音訊位置"
+    "defaultMessage": "開啟位置"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "跳到結尾"
@@ -1462,6 +1465,9 @@
   },
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "沒有符合的結果"
+  },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "顯示更早的 {n} 筆"
   },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 種語言 · 49 種音色 · 不含日語"
@@ -2758,6 +2764,63 @@
   },
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "增強 LRC，每個字都帶時間，支援卡拉 OK 歌詞的播放器可逐字顯示"
+  },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "歌詞工具"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "編輯逐字時間"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "拖曳字塊或跟唱打點，調整每個字的時間"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "邊聽邊逐行標記每句的開始"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "編輯這一句"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "逐字時間編輯"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "拖曳字塊移動，拖兩端調整長短；選取後按 ←/→ 微調，按住 Shift 更細；按兩下試聽"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "跟唱打點"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "停止打點"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "每個字開始唱時按 ↓ 或 Enter，自動跳到下一個字；Esc 停止"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "第 {n}/{total} 句"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "上一句"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "下一句"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "播放這一句"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "復原"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "取消"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "儲存"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "調整「{word}」的開始"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "調整「{word}」的結束"
   },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "智慧對齊"
@@ -4078,5 +4141,20 @@
   },
   "@yovoice.error.previewSpeakerUnavailable": {
     "defaultMessage": "Speaker recognition needs the local desktop service and cannot run in the browser preview."
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "功能顯示"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "關閉後對應入口會從側欄和新增選單中隱藏，現有作品與已下載的模型不受影響。"
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "匯入文字或字幕，依角色逐句配音。"
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "歌曲、純音樂與編曲生成，以及對應的模型和音色庫設定。"
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "浮窗助手、標題列入口和主動提示。與音樂生成都關閉時，AI 服務設定和有聲書的 AI 分配角色也一併隱藏。"
   }
 }

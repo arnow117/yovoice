@@ -45,6 +45,31 @@ func New(root string) *Engine {
 	return &Engine{root: root, client: &http.Client{Transport: &http.Transport{Proxy: nil}}}
 }
 
+// KokoroDir 是 Kokoro 发音库的安装目录；发音库不随安装包分发，下载 Kokoro 模型时写入。
+func KokoroDir(root string) string { return filepath.Join(root, "runtime", "kokoro") }
+
+// KokoroLibraries 返回当前系统 eSpeak NG 与 MeCab 动态库的文件名。
+func KokoroLibraries() [2]string {
+	switch runtime.GOOS {
+	case "darwin":
+		return [2]string{"libespeak-ng.dylib", "libmecab.2.dylib"}
+	case "windows":
+		return [2]string{"espeak-ng.dll", "libmecab.dll"}
+	}
+	return [2]string{"libespeak-ng.so", "libmecab.so.2"}
+}
+
+// KokoroReady 判断发音库的两个动态库与 eSpeak 数据是否齐全。
+func KokoroReady(root string) bool {
+	dir, names := KokoroDir(root), KokoroLibraries()
+	for _, name := range []string{names[0], names[1], filepath.Join("espeak-ng-data", "phontab")} {
+		if info, err := os.Stat(filepath.Join(dir, name)); err != nil || !info.Mode().IsRegular() {
+			return false
+		}
+	}
+	return true
+}
+
 func pidPath(root string) string { return filepath.Join(root, "runtime", "engine.pid") }
 
 // ReapOrphan 结束上次服务异常退出后残留的推理进程：它仍占用显存和端口，Windows 上还会锁住内核文件。
@@ -139,23 +164,15 @@ func (e *Engine) start(ctx context.Context, executable, model string, definition
 	c := exec.Command(executable, "--config", path, "--no-ui")
 	c.Dir = filepath.Dir(executable)
 	if family == "kokoro_tts" {
-		names := map[string][2]string{
-			"darwin":  {"libespeak-ng.dylib", "libmecab.2.dylib"},
-			"windows": {"espeak-ng.dll", "libmecab.dll"},
-			"linux":   {"libespeak-ng.so", "libmecab.so.2"},
-		}[runtime.GOOS]
-		c.Env = os.Environ()
-		for i, key := range []string{"AUDIOCPP_ESPEAK_LIBRARY", "AUDIOCPP_MECAB_LIBRARY"} {
-			library, err := platform.PackagedTool(filepath.Join("kokoro", names[i]))
-			if err != nil {
-				return msg.Err(msg.ErrRuntimeMissing, nil)
-			}
-			c.Env = append(c.Env, key+"="+library)
+		if !KokoroReady(e.root) {
+			return msg.Err(msg.ErrRuntimeMissing, nil)
 		}
-		// 官方小包不包含 eSpeak 数据，由安装包提供；完整包仍可沿用内嵌资源。
-		if data, err := platform.PackagedTool(filepath.Join("kokoro", "espeak-ng-data", "phontab")); err == nil {
-			c.Env = append(c.Env, "AUDIOCPP_ESPEAK_DATA="+filepath.Dir(data))
-		}
+		dir, names := KokoroDir(e.root), KokoroLibraries()
+		c.Env = append(os.Environ(),
+			"AUDIOCPP_ESPEAK_LIBRARY="+filepath.Join(dir, names[0]),
+			"AUDIOCPP_MECAB_LIBRARY="+filepath.Join(dir, names[1]),
+			// 官方小包不包含 eSpeak 数据，统一使用发音库自带的数据目录。
+			"AUDIOCPP_ESPEAK_DATA="+filepath.Join(dir, "espeak-ng-data"))
 	}
 	platform.ConfigureProcess(c)
 	if restrictedDiagnostics {
@@ -448,6 +465,8 @@ func (e *Engine) SeparateVocals(ctx context.Context, executable string, m schema
 	if err != nil {
 		return err
 	}
+	// 包内默认 4 次重叠推理是为了分轨音质；对齐只需要听得清人声，单遍推理快约 4 倍。
+	definition.SessionOptions = map[string]string{"bs_roformer.num_overlap": "1"}
 	if err = e.start(ctx, executable, path, definition, backend, 0, false, progress); err != nil {
 		return err
 	}

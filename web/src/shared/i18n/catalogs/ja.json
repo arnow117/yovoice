@@ -422,6 +422,9 @@
   "@yovoice.error.audioTooLarge": {
     "defaultMessage": "参照音声は 20 MB 未満にしてください。"
   },
+  "@yovoice.error.exportTooLarge": {
+    "defaultMessage": "書き出す音声が 20 MB を超えています。分割して書き出してください。"
+  },
   "@yovoice.error.backendUnsupported": {
     "defaultMessage": "サポートされていない計算デバイスまたはプラットフォームです。"
   },
@@ -720,7 +723,7 @@
     "defaultMessage": "{current} / {total}"
   },
   "@yovoice.player.reveal": {
-    "defaultMessage": "音声の場所を開く"
+    "defaultMessage": "場所を開く"
   },
   "@yovoice.player.skipEnd": {
     "defaultMessage": "末尾へ移動"
@@ -1462,6 +1465,9 @@
   },
   "@yovoice.library.noSearchResults": {
     "defaultMessage": "一致する結果はありません"
+  },
+  "@yovoice.library.showEarlier": {
+    "defaultMessage": "さらに前の {n} 件を表示"
   },
   "@yovoice.settings.modelDesc.kokoroOfficial": {
     "defaultMessage": "8 言語 · 49 ボイス · 日本語なし"
@@ -2758,6 +2764,63 @@
   },
   "@yovoice.music.exportWordLrcHint": {
     "defaultMessage": "すべての文字に時刻が付いた拡張 LRC。カラオケ歌詞対応のプレーヤー向け"
+  },
+  "@yovoice.music.lyricTools": {
+    "defaultMessage": "歌詞ツール"
+  },
+  "@yovoice.music.editWords": {
+    "defaultMessage": "単語のタイミングを編集"
+  },
+  "@yovoice.music.editWordsHint": {
+    "defaultMessage": "単語ブロックをドラッグするか、歌に合わせてタップして各語のタイミングを調整"
+  },
+  "@yovoice.music.syncLyricsHint": {
+    "defaultMessage": "聴きながら各行の開始を記録"
+  },
+  "@yovoice.music.editThisLine": {
+    "defaultMessage": "この行を編集"
+  },
+  "@yovoice.music.wordEditor": {
+    "defaultMessage": "単語タイミング編集"
+  },
+  "@yovoice.music.wordEditorHint": {
+    "defaultMessage": "ブロックをドラッグで移動、端をドラッグで長さを調整。選択中は ←/→ で微調整、Shift でさらに細かく。ダブルクリックで試聴"
+  },
+  "@yovoice.music.wordTap": {
+    "defaultMessage": "タップで記録"
+  },
+  "@yovoice.music.wordTapStop": {
+    "defaultMessage": "記録を停止"
+  },
+  "@yovoice.music.wordTapHint": {
+    "defaultMessage": "各語が歌い出すときに ↓ か Enter を押すと次の語へ進みます。Esc で停止"
+  },
+  "@yovoice.music.wordLine": {
+    "defaultMessage": "{n}/{total} 行目"
+  },
+  "@yovoice.music.prevLine": {
+    "defaultMessage": "前の行"
+  },
+  "@yovoice.music.nextLine": {
+    "defaultMessage": "次の行"
+  },
+  "@yovoice.music.playLine": {
+    "defaultMessage": "この行を再生"
+  },
+  "@yovoice.music.wordUndo": {
+    "defaultMessage": "元に戻す"
+  },
+  "@yovoice.music.wordCancel": {
+    "defaultMessage": "キャンセル"
+  },
+  "@yovoice.music.wordSave": {
+    "defaultMessage": "保存"
+  },
+  "@yovoice.music.wordStart": {
+    "defaultMessage": "「{word}」の開始を調整"
+  },
+  "@yovoice.music.wordEnd": {
+    "defaultMessage": "「{word}」の終了を調整"
   },
   "@yovoice.music.alignLyrics": {
     "defaultMessage": "自動アライン"
@@ -4078,5 +4141,20 @@
   },
   "@yovoice.error.previewSpeakerUnavailable": {
     "defaultMessage": "Speaker recognition needs the local desktop service and cannot run in the browser preview."
+  },
+  "@yovoice.settings.features": {
+    "defaultMessage": "機能の表示"
+  },
+  "@yovoice.settings.featuresHint": {
+    "defaultMessage": "オフにするとサイドバーと新規作成メニューから入口が隠れます。既存の作品とダウンロード済みのモデルはそのまま残ります。"
+  },
+  "@yovoice.settings.featureStoryHint": {
+    "defaultMessage": "テキストや字幕を読み込み、キャラクターごとに一行ずつ吹き替えます。"
+  },
+  "@yovoice.settings.featureMusicHint": {
+    "defaultMessage": "歌、インスト、スコアの生成と、対応するモデルとサウンドフォントの設定。"
+  },
+  "@yovoice.settings.featureAssistantHint": {
+    "defaultMessage": "フローティングアシスタント、タイトルバーの入口、提案。音楽生成もオフにすると、AI サービスの設定と書籍の AI 配役も隠れます。"
   }
 }
