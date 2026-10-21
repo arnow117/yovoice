@@ -6,6 +6,7 @@ REQ-002 / FEAT-002 在 `codex/speaker-validation-ui` 开发原 Mac App 的声纹
 有效产品与工程上下文为 `.sdlc-v1/context/REQ-002.product.md` 和 `.sdlc-v1/context/FEAT-002.engineering.md`。
 范围包含桌面私有 RPC、临时录音与文件、档案管理、显式绑定生成及独立本地验证包。当前新增TASK-002把upstream/main 2415813合入既有功能分支，适配上游SQLite、操作槽、引擎返回值、目录迁移和界面；声纹仍为独立私有档案，不进入普通State或SQLite备份。
 b3d114a的独立正式Validate PASS、独立Review approved和534.548秒真实结果属于合并前版本，原件和失败历史保留于工程上下文。合并返修80c8d0c的自动化Build及独立Validate已通过：Go363pass/13skip/0fail、声纹72/72、完整单worker浏览器111/111、Swift17、27+2脚本等，coverage85.324%/82.975%达标。2026-10-21当前3871b7f新包实际2启动/5提取，已知2/2、未知1/1、删除/磁盘重启仅A及完整State一致；原native-001第二窗截图/正常退出未完成，监督回收且上界1227秒超过1200秒预算，该轮PARTIAL/INCONCLUSIVE保留。用户确认分段补证后，native-002-zero-model在232秒内完成同包一次打开/ready截图/正常CmdQ/清理，零提取、完整State不变；独立Validate已核对版本适用性和必要条件，旧6b正式Review的共享生成字幕校验P2已由f4f3302最小guard与回归修复；独立Validate新执行全量Go race371pass/13skip/0fail、新6子例全过，coverage85.324%/83.031%，综合PASS绑定f4；原reviewer复审已approved，主记录Feature reviewed，当前约定功能验收完成。旧App原生证据仅适用于未改的识别/档案/生命周期路径，不包含新guard。逐条时延延期、物理Mic/真实TTS听测NOT_RUN；主线合并或发行仍不在范围内。
+当前用户要求继续合并实际最新上游5875be7：fetch新增39提交/149文件，预合并21冲突，TASK-003已开始，集成validation先记fail。已验收独立版9f93e99已保存在fork分支codex/speaker-accepted-20261021；其通过记录与App原件不受新集成影响。PR90继续用codex/speaker-validation-ui，具体兼容合同和新集成证据边界见最新Plan；不把旧原生包当作新上游已验收。
 新的 Web runner 与本地 Mac 验证命令已实际执行，入口和证据边界见下表。
 用户已授权拉取/合并最新上游、解决冲突、必要兼容检查及commit/push到fork的codex/speaker-validation-ui，并更新上游PR #90；随后确认沿用已有分段补证授权并要求不再重复确认。主接受原A实际重启AX与磁盘快照作为持久化证据；同包真实空库零模型窗口已补充ready截图和正常退出，原超预算记录不改写。后续沿现有授权完成独立验证、评审及记录推送，不新增App或模型运行。
 
@@ -142,7 +143,7 @@ surfaces:
     roles: [server-dev, security, qa]
     modes: [correctness]
   - name: native-desktop
-    globs: ["desktop/macos/**", "desktop/windows/**"]
+    globs: ["desktop/macos/**", "desktop/windows/**", "desktop/linux/**"]
     roles: [client-dev, architect, security, qa]
     modes: [correctness, "e2e:Web"]
   - name: build-release-and-project-guidance

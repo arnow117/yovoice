@@ -4,7 +4,23 @@
 
 ## Plan
 
-### 2026-10-21 当前功能验收与独立评审已完成
+### 2026-10-21 TASK-003：集成新上游5875be7并保留已验收版（当前有效安排）
+
+用户发现PR90仍冲突，明确要求再次合并最新上游、解决后push，并将独立版本留在fork。新的实际fetch将upstream/main从2415813推进至5875be730623d6886143a7527dccc56d4877f3a9（39个可达提交、149文件变化）；预合并merge-tree exit1、21个内容冲突。此前PR接口返回旧base2415813，不能据此替代最新git远端。独立只读Git审计确认没有replace/graft/shallow伪装，旧241确为9f祖先；新5875是本次真实新增输入，原失败/尝试/诊断历史全部保留，不借TASK命名重计。
+
+主已把9f93e99d64519c005bf90d24c0a653c8cf593aba固定到fork的`codex/speaker-accepted-20261021`并push，该分支包含已验收f4f3302实现、通过的validation/review记录和原本地包身份，独立版不受后续合并修改。PR继续使用`codex/speaker-validation-ui`，只合固定5875；不推fork/main或upstream/main、不强推、不合并PR或发行。新增同Feature TASK-003依赖已完成TASK-002，当前集成状态先记未通过；旧完整验收仅适用于独立版，不能外推新集成。
+
+主依据两个只读explorer的调用链事实确定以下整合合同，交新的Terra worker负责这一独立可验证的完整集成交付（新的上游输入/明确写边界，不替换旧TASK-002所有者）：
+
+- Go：保留上游SQLite v2同事务升级/备份回滚及Draft.Normalize，不恢复旧runtime版本补写；Store的ReadJSON/notify/非持久更新优化合入现有UpdateProfile分流，保留CheckWritable/Freeze/Close与同w.edit锁下最终旁路写保护、失败原子性。私有speakers.json不入State/SQLite/private表/备份或SSE补丁。
+- 生成/引擎：保留owned Generation、成功提交后赋值、op.Err及定向取消；保留restrictedDiagnostics贯穿进程缓存key/stdout/stderr/HTTP错误。接入上游Kokoro新资源准备位置及bs_roformer overlap，不恢复包内旧Kokoro假设；保留SynthesizeSpeaker对任意非nil Subtitles的启动前拒绝，禁止扩展分段声纹生成。
+- 数据迁移：正常复制主speakers.json，排除.speakers-*/upload-*/recognition-*与新增web-cache；旧目录清理同时保留这些私有保护与上游WebCacheDir。采证脚本当前v1严格判断及fixture需同步SQLite当前v2，保留未知版本拒绝、只读一致性事务和private表排除，不放宽为任意版本。
+- Web：保留上游featureHidden、安全local-store、歌词/导出/波形/音频URL回收及整套设计；恢复speaker入口与恢复白名单。其他页面按上游visited保持实例，SpeakerPage仍只在page==='speakers'条件挂载，确保离页取消/录音释放/临时URL回收。bridge同时支持完整state、patch/removed/state.get基线及speaker三操作660000ms/speakerTimeout，保留上游longCalls；speaker.cancel仍普通有界调用。preview保留所有新歌词分支，并保留speaker.*明确不可用，不能模拟推理成功。profiles仍独立RPC、不得进State补丁；专用生成DTO继续剥离故事/音乐字段并显式绑定。
+- 范围：所有上游149文件及21冲突整合，加上声纹兼容所需最小适配/回归/文档；不得无关重构、美化或引入依赖。新Linux及宿主识别保持上游实现，本轮不新增Linux声纹或实机支持承诺。公共帮助函数按新AGENTS复用，私有Repository的取消接受点/权限语义不能为机械去重而丢失。
+
+必要Build验证：清四项真实assistant/model opt-in env，GOMAXPROCS=2/-p2执行完整Go race；Web lint/tsc/build、单worker完整现有浏览器测试及speaker E2E（原断言/超时、0重试、严格现有缓存、无模型调用）、SQLite v2采证回归、Swift相关测试和diff/格式核对。重任务串行，预检并回收自有服务/浏览器/测试进程，不动共享4173。保留原红证据；两次无验收进展或新因果定位则停止盲改，旧段已用诊断额度不重置。禁止App/真实模型/TTS/Mic/云/下载或日常数据迁移；新版原生完整旅程不在此次合并预算，不将旧包改写为新包通过。原独立版保持可用，集成版在代码提交后按相关输入进行独立Validate/Review，未补原生条件须如实保留未通过，不阻碍已明确授权的fork源码同步。
+
+### 2026-10-21 上一独立版本功能验收与评审已完成（9f93e99）
 
 当前实现f4f3302已完成正式Review唯一P2修复、独立全量Validate PASS及原reviewer复审approved，主已核对并记录。功能验收采用已确认的分段证据范围：真实登记/识别/删除/重启来自3871包的未改路径，232秒零模型窗口补ready截图/正常退出；本轮新增生成guard由当前Go回归证明。原失败、不同包身份、Mic/TTS未运行和时延延期保留，不外推全源码hash一致、生产质量或旧包包含新guard。
 
