@@ -266,6 +266,10 @@ func (w *Workbench) SynthesizeSpeaker(ctx context.Context, profileID string, d s
 	if err := ctx.Err(); err != nil {
 		return schema.Generation{}, err
 	}
+	// 档案生成只允许一个独立段落。字幕会按句展开各自的设置，可能覆盖已绑定的声音。
+	if d.Subtitles != nil {
+		return schema.Generation{}, recognitionError("invalid_input")
+	}
 	if !schema.ValidID(profileID) {
 		return schema.Generation{}, recognitionError("invalid_input")
 	}

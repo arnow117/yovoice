@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- English: Bound speaker-profile generation rejects subtitle requests that could override the selected reference voice or report failure after saving segment results.
+- 简体中文：绑定声纹档案生成会拒绝可能覆盖所选参考声音的字幕请求，避免生成错误音色或保存分段结果后仍报失败。
 - English: Failed speaker-profile deletion now shows its error inside the confirmation dialog, keeping the selected profile available for an explicit retry. Successfully deleted profiles disappear even if the following refresh fails.
 - 简体中文：声纹档案删除失败时，在确认框内显示错误并保留当前档案，用户可明确重试；删除成功后，即使随后的刷新失败，档案也会及时移除。
 - English: Speaker-profile pages no longer rely on a transparent page-entry animation, and the macOS validation host now records a bounded display-preflight failure before it runs any smoke actions.

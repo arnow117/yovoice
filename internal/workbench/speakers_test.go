@@ -974,6 +974,181 @@ func TestSynthesizeSpeakerUsesBoundVoiceAndReturnsOwnedGeneration(t *testing.T) 
 	}
 }
 
+func TestSynthesizeSpeakerRejectsSubtitleDraftsBeforeProfileGeneration(t *testing.T) {
+	tests := []struct {
+		name           string
+		validSubtitle  bool
+		missingProfile bool
+		withSubtitles  func(schema.Draft, schema.SynthesisSettings) schema.Draft
+	}{
+		{
+			name:          "speaker settings override bound profile",
+			validSubtitle: true,
+			withSubtitles: func(draft schema.Draft, override schema.SynthesisSettings) schema.Draft {
+				draft.Subtitles = &schema.SubtitleDocument{
+					Speakers: []schema.SubtitleSpeaker{{
+						ID:         "speaker",
+						SourceName: "嵌套说话人",
+						Settings:   &override,
+					}},
+					Cues: []schema.SubtitleCue{{
+						ID:        "cue",
+						SpeakerID: "speaker",
+						Start:     0,
+						End:       1000,
+						Text:      draft.Text,
+					}},
+				}
+				return draft
+			},
+		},
+		{
+			name:          "cue performance settings override bound profile",
+			validSubtitle: true,
+			withSubtitles: func(draft schema.Draft, override schema.SynthesisSettings) schema.Draft {
+				draft.Subtitles = &schema.SubtitleDocument{
+					Speakers: []schema.SubtitleSpeaker{{
+						ID:         "speaker",
+						SourceName: "嵌套说话人",
+					}},
+					Cues: []schema.SubtitleCue{{
+						ID:        "cue",
+						SpeakerID: "speaker",
+						Start:     0,
+						End:       1000,
+						Text:      draft.Text,
+						Performance: &schema.CharacterPerformance{
+							ID:       "performance",
+							Name:     "嵌套演绎",
+							Settings: override,
+						},
+					}},
+				}
+				return draft
+			},
+		},
+		{
+			name:           "non-nil empty subtitle document before profile lookup",
+			missingProfile: true,
+			withSubtitles: func(draft schema.Draft, _ schema.SynthesisSettings) schema.Draft {
+				draft.Subtitles = &schema.SubtitleDocument{}
+				return draft
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			workbench, err := New(t.TempDir())
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer workbench.Close()
+
+			boundVoice := configureProfileGeneration(t, workbench)
+			alternatePath := filepath.Join(t.TempDir(), "alternate.wav")
+			if err = os.WriteFile(alternatePath, wav(), 0600); err != nil {
+				t.Fatal(err)
+			}
+			alternateVoice, err := workbench.ImportVoice(context.Background(), alternatePath, "nested")
+			if err != nil {
+				t.Fatal(err)
+			}
+			profile, err := recognition.NewProfile(
+				strings.Repeat("4", 32),
+				"A",
+				boundVoice.ID,
+				recognition.Config{ModelSHA256: strings.Repeat("a", 64), FeatureVersion: "test"},
+				unitSpeakerVector(),
+			)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = workbench.speakerRepository().Save(context.Background(), []recognition.Profile{profile}); err != nil {
+				t.Fatal(err)
+			}
+
+			draft := schema.DefaultDraft()
+			draft.ID = schema.NewID()
+			draft.ModelID = "voxcpm2-q8"
+			draft.Mode = "speaker"
+			draft.Text = "嵌套设置不能生成 私有标记失败"
+			override := draft.SynthesisSettings
+			override.VoiceID = &alternateVoice.ID
+			override.ReferenceText = "嵌套参考原文"
+			override.VoxMode = "continuation"
+			draft = test.withSubtitles(draft, override)
+
+			if test.validSubtitle {
+				parts, err := draft.SubtitleDrafts()
+				if err != nil || len(parts) != 1 {
+					t.Fatalf("subtitle draft = %+v, %v", parts, err)
+				}
+				if err = schema.Validate(parts[0]); err != nil {
+					t.Fatalf("nested synthesis settings must be valid: %v", err)
+				}
+				if parts[0].VoiceID == nil || *parts[0].VoiceID != alternateVoice.ID {
+					t.Fatalf("nested settings did not replace the voice: %+v", parts[0].SynthesisSettings)
+				}
+			} else if draft.Subtitles == nil {
+				t.Fatal("test input must retain a non-nil empty subtitle document")
+			}
+
+			marker := filepath.Join(t.TempDir(), "fake-engine-requested")
+			t.Setenv("YOVOICE_TEST_MARKER_FILE", marker)
+			stateBefore := workbench.Store.Read()
+			originalDraft := cloneSpeakerDraft(t, draft)
+			requestProfileID := profile.ID
+			if test.missingProfile {
+				requestProfileID = strings.Repeat("f", 32)
+			}
+			generation, err := workbench.SynthesizeSpeaker(context.Background(), requestProfileID, draft)
+			if SpeakerErrorCode(err) != "invalid_input" {
+				t.Errorf("subtitle speaker generation error = %v", err)
+			}
+			if generation.ID != "" {
+				t.Errorf("subtitle speaker generation returned %+v", generation)
+			}
+			if !reflect.DeepEqual(draft, originalDraft) {
+				t.Errorf("subtitle speaker generation changed caller draft: before=%+v after=%+v", originalDraft, draft)
+			}
+			if stateAfter := workbench.Store.Read(); !reflect.DeepEqual(stateAfter, stateBefore) {
+				t.Errorf("subtitle speaker generation changed State: before=%+v after=%+v", stateBefore, stateAfter)
+			}
+			outputs, globErr := filepath.Glob(filepath.Join(workbench.Store.Root, "outputs", "*"))
+			if globErr != nil {
+				t.Fatal(globErr)
+			}
+			if len(outputs) != 0 {
+				t.Errorf("subtitle speaker generation started the engine and wrote outputs: %v", outputs)
+			}
+			assertSpeakerFakeEngineNotRequested(t, marker)
+		})
+	}
+}
+
+func cloneSpeakerDraft(t *testing.T, draft schema.Draft) schema.Draft {
+	t.Helper()
+	encoded, err := json.Marshal(draft)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var clone schema.Draft
+	if err = json.Unmarshal(encoded, &clone); err != nil {
+		t.Fatal(err)
+	}
+	return clone
+}
+
+func assertSpeakerFakeEngineNotRequested(t *testing.T, marker string) {
+	t.Helper()
+	if _, err := os.Stat(marker); err == nil {
+		t.Fatalf("subtitle speaker generation reached the fake engine: %s", marker)
+	} else if !os.IsNotExist(err) {
+		t.Fatal(err)
+	}
+}
+
 func TestSynthesizeSpeakerReturnsOwnedResultAfterSuccessorStarts(t *testing.T) {
 	workbench, err := New(t.TempDir())
 	if err != nil {

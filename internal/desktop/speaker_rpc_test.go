@@ -14,11 +14,18 @@ import (
 	"testing"
 	"time"
 
+	"yovoice/internal/catalog"
 	"yovoice/internal/msg"
 	"yovoice/internal/recognition"
 	"yovoice/internal/schema"
+	"yovoice/internal/testkit"
 	"yovoice/internal/workbench"
 )
+
+func TestMain(m *testing.M) {
+	testkit.RunFakeEngine()
+	os.Exit(m.Run())
+}
 
 // 声纹 RPC 只接受内存上传或已保存声音，调用失败后两类临时输入都不能写入
 // Voices、档案或普通 State。未配置的隔离 Workbench 能在不启动模型的情况下
@@ -209,6 +216,199 @@ func TestSpeakerCallExposesPublicResultsAndStrictlyRejectsMalformedRequests(t *t
 	}
 }
 
+func TestSpeakerCallRejectsSubtitleDraftsBeforeProfileGeneration(t *testing.T) {
+	tests := []struct {
+		name           string
+		validSubtitle  bool
+		missingProfile bool
+		withSubtitles  func(schema.Draft, schema.SynthesisSettings) schema.Draft
+	}{
+		{
+			name:          "speaker settings override bound profile",
+			validSubtitle: true,
+			withSubtitles: func(draft schema.Draft, override schema.SynthesisSettings) schema.Draft {
+				draft.Subtitles = &schema.SubtitleDocument{
+					Speakers: []schema.SubtitleSpeaker{{
+						ID:         "speaker",
+						SourceName: "嵌套说话人",
+						Settings:   &override,
+					}},
+					Cues: []schema.SubtitleCue{{
+						ID:        "cue",
+						SpeakerID: "speaker",
+						Start:     0,
+						End:       1000,
+						Text:      draft.Text,
+					}},
+				}
+				return draft
+			},
+		},
+		{
+			name:          "cue performance settings override bound profile",
+			validSubtitle: true,
+			withSubtitles: func(draft schema.Draft, override schema.SynthesisSettings) schema.Draft {
+				draft.Subtitles = &schema.SubtitleDocument{
+					Speakers: []schema.SubtitleSpeaker{{
+						ID:         "speaker",
+						SourceName: "嵌套说话人",
+					}},
+					Cues: []schema.SubtitleCue{{
+						ID:        "cue",
+						SpeakerID: "speaker",
+						Start:     0,
+						End:       1000,
+						Text:      draft.Text,
+						Performance: &schema.CharacterPerformance{
+							ID:       "performance",
+							Name:     "嵌套演绎",
+							Settings: override,
+						},
+					}},
+				}
+				return draft
+			},
+		},
+		{
+			name:           "non-nil empty subtitle document before profile lookup",
+			missingProfile: true,
+			withSubtitles: func(draft schema.Draft, _ schema.SynthesisSettings) schema.Draft {
+				draft.Subtitles = &schema.SubtitleDocument{}
+				return draft
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			workbench, profileID, alternateVoiceID := newSpeakerGenerationWorkbench(t)
+			draft := schema.DefaultDraft()
+			draft.ID = schema.NewID()
+			draft.Text = "桌面嵌套设置不能生成 私有标记失败"
+			override := draft.SynthesisSettings
+			override.VoiceID = &alternateVoiceID
+			draft = test.withSubtitles(draft, override)
+
+			if test.validSubtitle {
+				parts, err := draft.SubtitleDrafts()
+				if err != nil || len(parts) != 1 {
+					t.Fatalf("subtitle draft = %+v, %v", parts, err)
+				}
+				if err = schema.Validate(parts[0]); err != nil {
+					t.Fatalf("nested synthesis settings must be valid: %v", err)
+				}
+				if parts[0].VoiceID == nil || *parts[0].VoiceID != alternateVoiceID {
+					t.Fatalf("nested settings did not replace the voice: %+v", parts[0].SynthesisSettings)
+				}
+			} else if draft.Subtitles == nil {
+				t.Fatal("test input must retain a non-nil empty subtitle document")
+			}
+
+			marker := filepath.Join(t.TempDir(), "fake-engine-requested")
+			t.Setenv("YOVOICE_TEST_MARKER_FILE", marker)
+			stateBefore := workbench.Store.Read()
+			requestProfileID := profileID
+			if test.missingProfile {
+				requestProfileID = strings.Repeat("f", 32)
+			}
+			request, err := json.Marshal(speakerGenerateRequest{
+				RequestID: testSpeakerRequestID,
+				ProfileID: requestProfileID,
+				Draft:     draft,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, callErr := Call(context.Background(), workbench, "speaker.generate", request)
+			if !isSpeakerCallError(callErr, msg.ErrSpeakerRequestInvalid) {
+				t.Errorf("speaker error = %#v, want code %s", callErr, msg.ErrSpeakerRequestInvalid)
+			}
+			if stateAfter := workbench.Store.Read(); !reflect.DeepEqual(stateAfter, stateBefore) {
+				t.Errorf("subtitle speaker RPC changed State: before=%+v after=%+v", stateBefore, stateAfter)
+			}
+			outputs, globErr := filepath.Glob(filepath.Join(workbench.Store.Root, "outputs", "*"))
+			if globErr != nil {
+				t.Fatal(globErr)
+			}
+			if len(outputs) != 0 {
+				t.Errorf("subtitle speaker RPC started the engine and wrote outputs: %v", outputs)
+			}
+			assertSpeakerFakeEngineNotRequested(t, marker)
+		})
+	}
+}
+
+func assertSpeakerFakeEngineNotRequested(t *testing.T, marker string) {
+	t.Helper()
+	if _, err := os.Stat(marker); err == nil {
+		t.Fatalf("subtitle speaker RPC reached the fake engine: %s", marker)
+	} else if !os.IsNotExist(err) {
+		t.Fatal(err)
+	}
+}
+
+func newSpeakerGenerationWorkbench(t *testing.T) (*workbench.Workbench, string, string) {
+	t.Helper()
+	workbench, err := workbench.New(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(workbench.Close)
+
+	reference := filepath.Join(t.TempDir(), "reference.wav")
+	if err = os.WriteFile(reference, wav(), 0600); err != nil {
+		t.Fatal(err)
+	}
+	boundVoice, err := workbench.ImportVoice(context.Background(), reference, "bound")
+	if err != nil {
+		t.Fatal(err)
+	}
+	alternateVoice, err := workbench.ImportVoice(context.Background(), reference, "alternate")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	executable, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	model := filepath.Join(workbench.Store.Root, "models", "fake.gguf")
+	if err = os.WriteFile(model, []byte("model"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	backend := "cpu"
+	runtimeVersion := catalog.EngineVersion
+	if err = workbench.Store.Update(func(state *schema.State) {
+		state.Models = []schema.InstalledModel{{ID: "index-2.5-q8", Path: model}}
+		state.RuntimePath = &executable
+		state.RuntimeBackend = &backend
+		state.RuntimeVersion = &runtimeVersion
+		state.Preferences.Backend = backend
+	}, true); err != nil {
+		t.Fatal(err)
+	}
+	profile, err := recognition.NewProfile(
+		strings.Repeat("a", 32),
+		"A",
+		boundVoice.ID,
+		recognition.Config{ModelSHA256: strings.Repeat("b", 64), FeatureVersion: "test"},
+		speakerTestVector(),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = recognition.NewRepository(workbench.Store.Root).Save(context.Background(), []recognition.Profile{profile}); err != nil {
+		t.Fatal(err)
+	}
+	return workbench, profile.ID, alternateVoice.ID
+}
+
+func speakerTestVector() []float64 {
+	vector := make([]float64, recognition.Dimension)
+	vector[0] = 1
+	return vector
+}
+
 func TestSpeakerHTTPRejectsConcurrentRequestBeforeDispatch(t *testing.T) {
 	handler, _, call := newServer(t)
 	firstRequestID := strings.Repeat("d", 32)
@@ -352,8 +552,12 @@ func TestSpeakerDeleteStorageFailureIsPublicAndKeepsProfile(t *testing.T) {
 
 func requireSpeakerCallError(t *testing.T, err error, code msg.Code) {
 	t.Helper()
-	var callErr *msg.CallError
-	if !errors.As(err, &callErr) || callErr.Code != code {
+	if !isSpeakerCallError(err, code) {
 		t.Fatalf("speaker error = %#v, want code %s", err, code)
 	}
+}
+
+func isSpeakerCallError(err error, code msg.Code) bool {
+	var callErr *msg.CallError
+	return errors.As(err, &callErr) && callErr.Code == code
 }
